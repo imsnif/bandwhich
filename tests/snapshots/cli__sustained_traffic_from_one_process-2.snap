@@ -1,0 +1,5 @@
+---
+source: tests/cli.rs
+expression: "&terminal_draw_events_mirror[2]"
+---
+[4;79H[38;5;15m71[4;164H71[5;164H71[6;164H71[29;174H71

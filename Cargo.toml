@@ -1,0 +1,28 @@
+[package]
+edition = "2018"
+name = "what"
+version = "0.1.0"
+authors = ["Aram Drevekenin <aram@poor.dev>"]
+
+[dependencies]
+pnet = "0.22.0"
+procfs = "0.5.3"
+ipnetwork = "0.14.0"
+timer = "0.2.0"
+chrono = "0.4.7"
+tui = "0.5"
+termion = "1.5"
+num-bigint = "0.2.2"
+num-traits = "0.2.8"
+netstat = "0.7.0"
+human-size = "0.4.0"
+
+[dev-dependencies]
+assert_cmd = "0.10"
+predicates = "1"
+insta = "*"
+cargo-insta = "*"
+packet = "*"
+
+[features]
+test = []

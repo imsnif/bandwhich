@@ -1,0 +1,5 @@
+---
+source: tests/cli.rs
+expression: "&draw_log_copy.lock().unwrap()[1]"
+---
+[4;2H[38;5;15m10.0.0.2:443 => 1.1.1.1:12345 (tcp)[4;53H123[4;74H62Bps/0Bps[4;97H1[4;128H1[4;159H62Bps/0Bps[5;97H2[5;128H1[5;159H62Bps/0Bps[6;97H3[6;128H1[6;159H62Bps/0Bps[29;97H1.1.1.1[29;148H1[29;169H62Bps/0Bps
