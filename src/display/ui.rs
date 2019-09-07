@@ -100,20 +100,13 @@ fn render_process_table <B: Backend>(state: &UIState, frame: &mut tui::terminal:
 }
 
 
-fn render_connections_table<B: Backend, T>(state: &UIState, current_connections: &CurrentConnections<T>, frame: &mut tui::terminal::Frame<B>, rect: tui::layout::Rect)
-where T: IsProcess + std::fmt::Debug
+fn render_connections_table<B: Backend>(state: &UIState, frame: &mut tui::terminal::Frame<B>, rect: tui::layout::Rect)
 {
     let mut connection_table_rows = Vec::new();
     for connection in &state.connections {
-        let connection_data = state.connection_total_bytes.get(&connection).unwrap();
-        match current_connections.connections.get(&connection) {
-            Some(associated_processes) => {
-                let processes = associated_processes.iter().map(|p| p.get_name()).collect();
-                let row = build_row!(connection, processes, connection_data);
-                connection_table_rows.push(row);
-            },
-            None => ()
-        }
+        let connection_data = state.connection_data.get(&connection).unwrap();
+        let row = build_row!(connection, connection_data.processes.join(", "), connection_data);
+        connection_table_rows.push(row);
     }
     let column_names = ["Connection", "Processes", "Total Bytes Up/Down"];
     let title = "Utilization by connection";
@@ -141,12 +134,11 @@ pub fn display_loop<B: Backend, T, Z>(mirror_utilization: &Arc<Mutex<NetworkUtil
     T: IsProcess + std::fmt::Debug,
     Z: std::fmt::Debug
 {
-    let current_connections = CurrentConnections::new(create_process, get_sockets_info);
-    let state = UIState::new(&current_connections, mirror_utilization);
+    let state = UIState::new(&create_process, &get_sockets_info, mirror_utilization);
     terminal.draw(|mut f| {
         let screen_horizontal_halves = split(Direction::Horizontal, f.size());
         let right_side_vertical_halves = split(Direction::Vertical, screen_horizontal_halves[1]);
-        render_connections_table(&state, &current_connections, &mut f, screen_horizontal_halves[0]);
+        render_connections_table(&state, &mut f, screen_horizontal_halves[0]);
         render_process_table(&state, &mut f, right_side_vertical_halves[0]);
         render_remote_ip_table(&state, &mut f, right_side_vertical_halves[1]);
     }).unwrap();
