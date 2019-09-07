@@ -99,7 +99,6 @@ fn render_process_table <B: Backend>(state: &UIState, frame: &mut tui::terminal:
     table.render(frame, rect);
 }
 
-
 fn render_connections_table<B: Backend>(state: &UIState, frame: &mut tui::terminal::Frame<B>, rect: tui::layout::Rect)
 {
     let mut connection_table_rows = Vec::new();
@@ -114,7 +113,6 @@ fn render_connections_table<B: Backend>(state: &UIState, frame: &mut tui::termin
     let mut table = build_table!(column_names, connection_table_rows, title, widths);
     table.render(frame, rect);
 }
-
 
 fn render_remote_ip_table<B: Backend>(state: &UIState, frame: &mut tui::terminal::Frame<B>, rect: tui::layout::Rect) {
     let mut remote_ip_table_rows = Vec::new();
