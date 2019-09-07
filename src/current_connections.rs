@@ -13,7 +13,7 @@ use ::netstat::*;
 use ::pnet::datalink::NetworkInterface;
 
 use crate::traffic::{Segment, Connection, Protocol, Direction};
-use crate::ui::IsProcess;
+use crate::display::IsProcess;
 
 // #[cfg(feature = "test")]
 // pub struct Stat {

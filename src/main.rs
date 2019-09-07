@@ -40,7 +40,7 @@ impl Iterator for InputEvents {
     }
 }
 
-impl what::ui::IsProcess for GenericProcess {
+impl what::display::IsProcess for GenericProcess {
     fn get_name (&self) -> String {
         self.proc.stat.comm.to_string()
     }

@@ -2,7 +2,7 @@
 mod traffic;
 mod store; // TODO: change name to network_utilization
 mod current_connections;
-pub mod ui;
+pub mod display;
 
 use ::pnet::datalink::{self, NetworkInterface};
 use ::pnet::datalink::{DataLinkReceiver, Channel};
@@ -15,7 +15,7 @@ use ::std::collections::HashMap;
 
 use traffic::{Sniffer, Segment, Connection};
 use store::{NetworkUtilization, ConnectionData};
-use ui::display_loop;
+use display::{IsProcess, display_loop};
 
 use ::num_bigint::{BigUint, ToBigUint, ParseBigIntError};
 use ::num_traits::{Zero, One};
@@ -40,7 +40,7 @@ use ::netstat::*;
 pub fn start <P, Q, B, T, S, Z> (backend: B, create_process: &'static P, get_sockets_info: &'static Q, interface: NetworkInterface, channel: Box<DataLinkReceiver>, stdin_events: S, ) where
     P: Fn(i32) -> Result<T, Box<std::error::Error>>+std::marker::Sync,
     B: Backend + Send + 'static,
-    T: ui::IsProcess + Send + Sync + Debug + 'static,
+    T: IsProcess + Send + Sync + Debug + 'static,
     S: Iterator<Item = Event> + Send + Sync + 'static,
     Q: Fn(AddressFamilyFlags, ProtocolFlags) -> Result<Vec<SocketInfo>, Z>+std::marker::Sync,
     Z: std::fmt::Debug

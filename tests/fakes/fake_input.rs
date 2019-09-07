@@ -114,7 +114,7 @@ pub struct GenericProcess {
     pub id: i32
 }
 
-impl what::ui::IsProcess for GenericProcess {
+impl what::display::IsProcess for GenericProcess {
     fn get_name (&self) -> String {
         self.id.to_string()
     }
