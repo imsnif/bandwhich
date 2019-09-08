@@ -3,9 +3,6 @@ use ::std::fmt;
 use ::std::net::Ipv4Addr;
 use ::std::net::IpAddr;
 
-// #[cfg(not(feature = "test"))]
-// use ::procfs::Process;
-
 use ::num_bigint::BigUint;
 use ::num_traits::{Zero, One};
 
@@ -15,28 +12,36 @@ use ::pnet::datalink::NetworkInterface;
 use crate::traffic::{Segment, Connection, Protocol, Direction};
 use crate::display::IsProcess;
 
-// #[cfg(feature = "test")]
-// pub struct Stat {
-//     pub comm: String
-// }
-// 
-// #[cfg(feature = "test")]
-// pub struct Process {
-//     pub stat: Stat
-// }
-// #[cfg(feature = "test")]
-// impl IsProcess for Process {
-// //    pub fn new (&self, id: i32) -> Result<Self, Error> {
-// //        Ok(Process {stat: Stat { comm: String::from("foo")}})
-// //    }
-// }
-
-
 pub struct CurrentConnections <T>
 where T: std::fmt::Debug
 {
-    // pub connections: HashMap<Connection, Vec<Process>>
     pub connections: HashMap<Connection, Vec<T>>
+}
+
+macro_rules! get_ipv4_address {
+    ($a:expr) => {
+        match $a {
+            IpAddr::V4(addr) => Some(addr),
+            IpAddr::V6(_) => None
+        }
+    }
+}
+
+macro_rules! build_ipv4_connection {
+    ($a:expr, $b:expr, $c:expr, $d:expr) => {
+        match ($a, $b) {
+            (Some(local_ip), Some(remote_ip)) => {
+                Some(Connection {
+                    local_ip,
+                    remote_ip,
+                    local_port: $c.local_port,
+                    remote_port: $c.remote_port,
+                    protocol: $d
+                })
+            },
+            (_, _) => None
+        }
+    }
 }
 
 impl <T> CurrentConnections <T>
@@ -52,59 +57,25 @@ where T: std::fmt::Debug + IsProcess
         for si in sockets_info {
             match si.protocol_socket_info {
                 ProtocolSocketInfo::Tcp(tcp_si) => {
-                    let local_addr = match tcp_si.local_addr {
-                        IpAddr::V4(local_addr) => Some(local_addr),
-                        IpAddr::V6(_) => None
-                    };
-                    let remote_addr = match tcp_si.remote_addr {
-                        IpAddr::V4(remote_addr) => Some(remote_addr),
-                        IpAddr::V6(_) => None
-                    };
-                
-                    match (local_addr, remote_addr) {
-                        (Some(local_addr), Some(remote_addr)) => {
-                            connections.insert(
-                                Connection {
-                                    local_ip: local_addr,
-                                    local_port: tcp_si.local_port,
-                                    remote_ip: remote_addr,
-                                    remote_port: tcp_si.remote_port,
-                                    protocol: Protocol::Tcp
-                                    // tcp_si.state
-                                },
-                                // si.associated_pids.iter().map(|pid| Process::new(*pid as i32).unwrap()).collect()
-                                si.associated_pids.iter().map(|pid| create_process(*pid as i32).unwrap()).collect()
-                            );
+                    let local_addr = get_ipv4_address!(tcp_si.local_addr);
+                    let remote_addr = get_ipv4_address!(tcp_si.remote_addr);
+                    let connection = build_ipv4_connection!(local_addr, remote_addr, tcp_si, Protocol::Tcp);
+                    match connection {
+                        Some(conn) => {
+                            connections.insert(conn, si.associated_pids.iter().map(|pid| create_process(*pid as i32).unwrap()).collect());
                         },
-                        (_, _) => () 
+                        None => ()
                     }
                 },
                 ProtocolSocketInfo::Udp(udp_si) => {
-                    let local_addr = match udp_si.local_addr {
-                        IpAddr::V4(local_addr) => Some(local_addr),
-                        IpAddr::V6(_) => None
-                    };
-                    let remote_addr = match udp_si.remote_addr {
-                        IpAddr::V4(remote_addr) => Some(remote_addr),
-                        IpAddr::V6(_) => None
-                    };
-                
-                    match (local_addr, remote_addr) {
-                        (Some(local_addr), Some(remote_addr)) => {
-                            connections.insert(
-                                Connection {
-                                    local_ip: local_addr,
-                                    local_port: udp_si.local_port,
-                                    remote_ip: remote_addr,
-                                    remote_port: udp_si.remote_port,
-                                    protocol: Protocol::Udp
-                                    // tcp_si.state
-                                },
-                                // si.associated_pids.iter().map(|pid| Process::new(*pid as i32).unwrap()).collect()
-                                si.associated_pids.iter().map(|pid| create_process(*pid as i32).unwrap()).collect()
-                            );
+                    let local_addr = get_ipv4_address!(udp_si.local_addr);
+                    let remote_addr = get_ipv4_address!(udp_si.remote_addr);
+                    let connection = build_ipv4_connection!(local_addr, remote_addr, udp_si, Protocol::Udp);
+                    match connection {
+                        Some(conn) => {
+                            connections.insert(conn, si.associated_pids.iter().map(|pid| create_process(*pid as i32).unwrap()).collect());
                         },
-                        (_, _) => () 
+                        None => ()
                     }
                 }
             }
@@ -112,18 +83,3 @@ where T: std::fmt::Debug + IsProcess
         CurrentConnections {connections}
     }
 }
-
-impl <T> fmt::Debug for CurrentConnections <T>
-where T: std::fmt::Debug
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:#?}", self.connections)
-    }
-}
-
-// #[cfg(feature = "test")]
-// impl fmt::Debug for Process {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         write!(f, "{:#?}", self.stat.comm)
-//     }
-// }

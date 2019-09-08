@@ -14,7 +14,7 @@ use ::std::sync::atomic::{AtomicBool, Ordering};
 use ::std::collections::HashMap;
 
 use traffic::{Sniffer, Segment, Connection};
-use store::{NetworkUtilization, ConnectionData};
+use store::{NetworkUtilization, TotalBandwidth};
 use display::{IsProcess, display_loop};
 
 use ::num_bigint::{BigUint, ToBigUint, ParseBigIntError};

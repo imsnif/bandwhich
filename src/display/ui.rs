@@ -7,7 +7,7 @@ use ::std::sync::atomic::{AtomicBool, Ordering};
 use ::std::collections::HashMap;
 
 use crate::traffic::{Connection};
-use crate::store::{NetworkUtilization, ConnectionData};
+use crate::store::NetworkUtilization;
 use crate::current_connections::{CurrentConnections}; // TODO: better naming
 use crate::display::{UIState, IsProcess};
 
