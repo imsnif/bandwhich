@@ -1,27 +1,19 @@
 use ::std::fmt;
-use ::std::env;
 use ::std::net::Ipv4Addr;
-use ::std::error::Error;
 use ::std::boxed::Box;
 
-use ::pnet::datalink::{self, NetworkInterface};
-use ::pnet::datalink::{DataLinkReceiver, Channel};
-use ::pnet::datalink::Channel::Ethernet;
-use ::pnet::packet::{Packet, MutablePacket};
-use ::pnet::packet::ethernet::{EtherType, EthernetPacket, MutableEthernetPacket};
+use ::pnet::datalink::{NetworkInterface, DataLinkReceiver};
+use ::pnet::packet::Packet;
+use ::pnet::packet::ethernet::{EtherType, EthernetPacket};
 use ::pnet::packet::ipv4::Ipv4Packet;
 use ::pnet::packet::ip::IpNextHeaderProtocol;
 use ::pnet::packet::tcp::TcpPacket;
 use ::pnet::packet::udp::UdpPacket;
-
 use ::num_bigint::{BigUint, ToBigUint};
-use ::num_traits::{Zero, One};
-
-use ::ipnetwork::IpNetwork;
 
 pub struct Sniffer {
-    interface: NetworkInterface,
-    channel: Box<DataLinkReceiver>,
+    network_interface: NetworkInterface,
+    network_frames: Box<DataLinkReceiver>,
 }
 
 #[derive(PartialEq, Hash, Eq, Debug, Clone, PartialOrd)]
@@ -35,7 +27,15 @@ pub struct Connection {
 
 impl fmt::Display for Connection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{} => {}:{} ({})", self.local_ip, self.local_port, self.remote_ip, self.remote_port, self.protocol)
+        write!(
+            f,
+            "{}:{} => {}:{} ({})",
+            self.local_ip,
+            self.local_port,
+            self.remote_ip,
+            self.remote_port,
+            self.protocol
+        )
     }
 }
 
@@ -97,13 +97,13 @@ macro_rules! build_connection {
 }
 
 impl Sniffer {
-    pub fn new (interface: NetworkInterface, channel: Box<DataLinkReceiver>) -> Self {
-        Sniffer { interface, channel }
+    pub fn new (network_interface: NetworkInterface, network_frames: Box<DataLinkReceiver>) -> Self {
+        Sniffer { network_interface, network_frames }
     }
     pub fn next(&mut self) -> Option<Segment> {
         // TODO: https://github.com/libpnet/libpnet/issues/343
         // make this non-blocking for faster exits
-        match self.channel.next() {
+        match self.network_frames.next() {
             Ok(bytes) => {
                 match EthernetPacket::new(bytes) {
                     Some(packet) => {
@@ -114,7 +114,7 @@ impl Sniffer {
                                     IpNextHeaderProtocol(6) => { // tcp
                                         let message = TcpPacket::new(ip_packet.payload()).unwrap();
                                         let protocol = Protocol::Tcp;
-                                        let direction = find_direction!(self.interface.ips, ip_packet);
+                                        let direction = find_direction!(self.network_interface.ips, ip_packet);
                                         let connection = build_connection!(direction, ip_packet, message, protocol);
                                         let ip_length = ip_packet.get_total_length().to_biguint().unwrap();
                                         Some(Segment { connection, ip_length, direction })
@@ -122,7 +122,7 @@ impl Sniffer {
                                     IpNextHeaderProtocol(17) => { // udp
                                         let datagram = UdpPacket::new(ip_packet.payload()).unwrap();
                                         let protocol = Protocol::Udp;
-                                        let direction = find_direction!(self.interface.ips, ip_packet);
+                                        let direction = find_direction!(self.network_interface.ips, ip_packet);
                                         let connection = build_connection!(direction, ip_packet, datagram, protocol);
                                         let ip_length = ip_packet.get_total_length().to_biguint().unwrap();
                                         Some(Segment { connection, ip_length, direction })
@@ -146,8 +146,4 @@ impl Sniffer {
             }
         }
     }
-    pub fn get_interface(&self) -> &NetworkInterface {
-        &self.interface
-    }
-
 }

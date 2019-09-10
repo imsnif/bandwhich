@@ -1,22 +1,8 @@
+use crate::traffic::{Connection, Protocol};
+
 use ::std::collections::HashMap;
-use ::std::fmt;
-use ::std::net::Ipv4Addr;
 use ::std::net::IpAddr;
-
-use ::num_bigint::BigUint;
-use ::num_traits::{Zero, One};
-
-use ::netstat::*;
-use ::pnet::datalink::NetworkInterface;
-
-use crate::traffic::{Segment, Connection, Protocol, Direction};
-use crate::display::IsProcess;
-
-pub struct CurrentConnections <T>
-where T: std::fmt::Debug
-{
-    pub connections: HashMap<Connection, Vec<T>>
-}
+use ::netstat::{SocketInfo, ProtocolSocketInfo};
 
 macro_rules! get_ipv4_address {
     ($a:expr) => {
@@ -44,15 +30,13 @@ macro_rules! build_ipv4_connection {
     }
 }
 
-impl <T> CurrentConnections <T>
-where T: std::fmt::Debug + IsProcess
-{
-    pub fn new<Z>(create_process: &Fn(i32) -> Result<T, Box<std::error::Error>>, get_sockets_info: &Fn(AddressFamilyFlags, ProtocolFlags) -> Result<Vec<SocketInfo>, Z>) -> Self
-    where Z: std::fmt::Debug
-    {
-        let af_flags = AddressFamilyFlags::IPV4;
-        let proto_flags = ProtocolFlags::TCP | ProtocolFlags::UDP;
-        let sockets_info = get_sockets_info(af_flags, proto_flags).unwrap();
+pub struct CurrentConnections {
+    pub connections: HashMap<Connection, Vec<String>>
+}
+
+impl CurrentConnections {
+    pub fn new(get_process_name: &Fn(i32) -> Option<String>, get_open_sockets: &Fn() -> Vec<SocketInfo>) -> Self {
+        let sockets_info = get_open_sockets();
         let mut connections = HashMap::new();
         for si in sockets_info {
             match si.protocol_socket_info {
@@ -62,7 +46,7 @@ where T: std::fmt::Debug + IsProcess
                     let connection = build_ipv4_connection!(local_addr, remote_addr, tcp_si, Protocol::Tcp);
                     match connection {
                         Some(conn) => {
-                            connections.insert(conn, si.associated_pids.iter().map(|pid| create_process(*pid as i32).unwrap()).collect());
+                            connections.insert(conn, si.associated_pids.iter().map(|pid| get_process_name(*pid as i32).unwrap()).collect()); // TODO: handle None
                         },
                         None => ()
                     }
@@ -73,7 +57,7 @@ where T: std::fmt::Debug + IsProcess
                     let connection = build_ipv4_connection!(local_addr, remote_addr, udp_si, Protocol::Udp);
                     match connection {
                         Some(conn) => {
-                            connections.insert(conn, si.associated_pids.iter().map(|pid| create_process(*pid as i32).unwrap()).collect());
+                            connections.insert(conn, si.associated_pids.iter().map(|pid| get_process_name(*pid as i32).unwrap()).collect());
                         },
                         None => ()
                     }

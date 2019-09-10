@@ -1,29 +1,22 @@
 use ::std::io;
 use ::std::env;
-use ::std::io::{Write, stdout, stdin, Stdout};
+use ::std::io::stdin;
 use ::termion::raw::IntoRawMode;
 use ::tui::backend::TermionBackend;
 use ::pnet::datalink::{self, NetworkInterface};
-use ::pnet::datalink::{DataLinkReceiver, Channel};
+use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::Channel::Ethernet;
 
-use ::termion::event::{Key, Event, MouseEvent};
+use ::termion::event::Event;
 use ::termion::input::{TermRead};
 
-use ::netstat::*;
+use ::netstat::{SocketInfo, AddressFamilyFlags, ProtocolFlags, get_sockets_info};
 
 use ::procfs::Process;
 
-#[derive(Debug)]
-struct GenericProcess {
-    proc: Process
-}
+struct KeyboardEvents {}
 
-struct InputEvents {
-    // events: termion::input::Events<String>
-}
-
-impl Iterator for InputEvents {
+impl Iterator for KeyboardEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
         let stdin = stdin();
@@ -40,13 +33,7 @@ impl Iterator for InputEvents {
     }
 }
 
-impl what::display::IsProcess for GenericProcess {
-    fn get_name (&self) -> String {
-        self.proc.stat.comm.to_string()
-    }
-}
-
-fn get_channel (interface: &NetworkInterface) -> Box<DataLinkReceiver> {
+fn get_datalink_channel (interface: &NetworkInterface) -> Box<DataLinkReceiver> {
     let (_tx, rx) = match datalink::channel(interface, Default::default()) {
         Ok(Ethernet(tx, rx)) => (tx, rx),
         Ok(_) => panic!("Unhandled channel type"),
@@ -68,16 +55,35 @@ fn get_interface () -> NetworkInterface {
     interface
 }
 
-fn create_process (id: i32) -> Result<GenericProcess, Box<std::error::Error>> {
-    let proc = Process::new(id)?;
-    Ok(GenericProcess {proc})
+fn get_process_name (id: i32) -> Option<String> {
+    match Process::new(id) {
+        Ok(process) => Some(process.stat.comm.to_string()),
+        Err(_) => None
+    }
+}
+
+fn get_open_sockets () -> Vec<SocketInfo> {
+    let af_flags = AddressFamilyFlags::IPV4;
+    let proto_flags = ProtocolFlags::TCP | ProtocolFlags::UDP;
+    match get_sockets_info(af_flags, proto_flags) {
+        Ok(sockets_info) => sockets_info,
+        Err(_) => vec![]
+    }
 }
 
 fn main () {
-    let stdin_events = InputEvents {};
+    let keyboard_events = Box::new(KeyboardEvents {});
     let stdout = io::stdout().into_raw_mode().unwrap();
     let backend = TermionBackend::new(stdout);
-    let interface = get_interface();
-    let channel = get_channel(&interface);
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events)
+    let network_interface = get_interface();
+    let network_frames = get_datalink_channel(&network_interface);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+
+    what::start(backend, os_input)
 }

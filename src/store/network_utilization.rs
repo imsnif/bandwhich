@@ -1,19 +1,9 @@
+use crate::traffic::{Segment, Connection, Direction};
+
 use ::std::collections::HashMap;
-use ::std::fmt;
-use ::std::net::Ipv4Addr;
-use ::std::net::IpAddr;
-
-use ::procfs::Process;
-
 use ::num_bigint::BigUint;
-use ::num_traits::{Zero, One};
+use ::num_traits::Zero;
 
-use ::netstat::*;
-use ::pnet::datalink::NetworkInterface;
-
-use crate::traffic::{Segment, Connection, Protocol, Direction};
-
-#[derive(Debug, Clone)]
 pub struct TotalBandwidth {
     pub total_bytes_downloaded: BigUint,
     pub total_bytes_uploaded: BigUint,

@@ -1,10 +1,8 @@
 // mostly copied and adjusted from https://github.com/fdehau/tui-rs/blob/master/src/backend/termion.rs
 
-use std::fmt;
-use std::io;
-
+use ::std::fmt;
+use ::std::io;
 use ::std::sync::{Arc, Mutex};
-
 use ::tui::backend::Backend;
 use ::tui::buffer::Cell;
 use ::tui::layout::Rect;

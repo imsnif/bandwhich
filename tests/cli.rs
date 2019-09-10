@@ -1,23 +1,19 @@
-extern crate what;
 mod fakes;
-
-use ::std::sync::{Arc, Mutex};
-
-use insta::{assert_snapshot};
 
 use fakes::{
     TestBackend,
-    InputEvents,
+    KeyboardEvents,
     NetworkFrames,
     get_interface,
-    create_process,
-    get_sockets_info
+    get_process_name,
+    get_open_sockets
 };
 use fakes::TerminalEvent::*;
 
 use ::termion::event::{Key, Event};
-
 use ::packet::builder::Builder;
+use ::std::sync::{Arc, Mutex};
+use ::insta::{assert_snapshot};
 
 fn build_tcp_packet (source_ip: &str, destination_ip: &str, source_port: u16, destination_port: u16, payload: &'static [u8]) -> Vec<u8> {
     ::packet::ether::Builder::default()
@@ -46,11 +42,11 @@ impl <T> LogWithMirror<T> {
 
 #[test]
 fn basic_startup () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         None // sleep
     ]);
 
@@ -58,9 +54,16 @@ fn basic_startup () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -74,12 +77,12 @@ fn basic_startup () {
 
 #[test]
 fn one_packet_of_traffic () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("10.0.0.2", "1.1.1.1", 443, 12345, b"I am a fake tcp packet"))
     ]);
 
@@ -87,9 +90,16 @@ fn one_packet_of_traffic () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -104,12 +114,12 @@ fn one_packet_of_traffic () {
 
 #[test]
 fn bi_directional_traffic () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("10.0.0.2", "1.1.1.1", 443, 12345, b"I am a fake tcp upload packet")),
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443,  b"I am a fake tcp download packet"))
     ]);
@@ -118,9 +128,16 @@ fn bi_directional_traffic () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -135,12 +152,12 @@ fn bi_directional_traffic () {
 
 #[test]
 fn multiple_packets_of_traffic_from_different_connections () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"I have come from 1.1.1.1")),
         Some(build_tcp_packet("2.2.2.2", "10.0.0.2", 54321, 443,  b"I come from 2.2.2.2"))
     ]);
@@ -149,9 +166,16 @@ fn multiple_packets_of_traffic_from_different_connections () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -166,12 +190,12 @@ fn multiple_packets_of_traffic_from_different_connections () {
 
 #[test]
 fn multiple_packets_of_traffic_from_single_connection () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"I have come from 1.1.1.1")),
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"I've come from 1.1.1.1 too!"))
     ]);
@@ -180,9 +204,16 @@ fn multiple_packets_of_traffic_from_single_connection () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -197,12 +228,12 @@ fn multiple_packets_of_traffic_from_single_connection () {
 
 #[test]
 fn one_process_with_multiple_connections () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"I have come from 1.1.1.1")),
         Some(build_tcp_packet("3.3.3.3", "10.0.0.2", 1337, 443, b"Funny that, I'm from 3.3.3.3"))
     ]);
@@ -211,9 +242,16 @@ fn one_process_with_multiple_connections () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -228,12 +266,12 @@ fn one_process_with_multiple_connections () {
 
 #[test]
 fn multiple_processes_with_multiple_connections () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"I have come from 1.1.1.1")),
         Some(build_tcp_packet("3.3.3.3", "10.0.0.2", 1337, 443, b"Awesome, I'm from 3.3.3.3")),
         Some(build_tcp_packet("2.2.2.2", "10.0.0.2", 54321, 443, b"You know, 2.2.2.2 is really nice!")),
@@ -244,9 +282,16 @@ fn multiple_processes_with_multiple_connections () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -261,12 +306,12 @@ fn multiple_processes_with_multiple_connections () {
 
 #[test]
 fn multiple_connections_from_remote_ip() {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"I have come from 1.1.1.1")),
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12346, 443, b"Me too, but on a different port"))
     ]);
@@ -275,9 +320,16 @@ fn multiple_connections_from_remote_ip() {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -292,13 +344,13 @@ fn multiple_connections_from_remote_ip() {
 
 #[test]
 fn sustained_traffic_from_one_process () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"I have come from 1.1.1.1")),
         None, // sleep
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"Same here, but one second later")),
@@ -308,9 +360,16 @@ fn sustained_traffic_from_one_process () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -325,13 +384,13 @@ fn sustained_traffic_from_one_process () {
 
 #[test]
 fn sustained_traffic_from_multiple_processes () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"I have come from 1.1.1.1")),
         Some(build_tcp_packet("3.3.3.3", "10.0.0.2", 1337, 443, b"I come from 3.3.3.3")),
         None, // sleep
@@ -343,9 +402,16 @@ fn sustained_traffic_from_multiple_processes () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -360,13 +426,13 @@ fn sustained_traffic_from_multiple_processes () {
 
 #[test]
 fn sustained_traffic_from_multiple_processes_bi_directional () {
-    let stdin_events = InputEvents::new(vec![
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
         None, // sleep
         Some(Event::Key(Key::Ctrl('c')))
-    ]);
-    let channel = NetworkFrames::new(vec![
+    ]));
+    let network_frames = NetworkFrames::new(vec![
         Some(build_tcp_packet("10.0.0.2", "3.3.3.3", 443, 1337, b"omw to 3.3.3.3")),
         Some(build_tcp_packet("3.3.3.3", "10.0.0.2", 1337, 443, b"I was just there!")),
         Some(build_tcp_packet("1.1.1.1", "10.0.0.2", 12345, 443, b"Is it nice there? I think 1.1.1.1 is dull")),
@@ -382,9 +448,16 @@ fn sustained_traffic_from_multiple_processes_bi_directional () {
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let interface = get_interface();
+    let network_interface = get_interface();
 
-    what::start(backend, &create_process, &get_sockets_info, interface, channel, stdin_events);
+    let os_input = what::OsInput {
+        network_interface,
+        network_frames,
+        get_process_name,
+        get_open_sockets,
+        keyboard_events
+    };
+    what::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
