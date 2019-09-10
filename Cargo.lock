@@ -879,7 +879,7 @@ dependencies = [
 [[package]]
 name = "netstat"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/imsnif/netstat-rs.git#5ec603a3dfbed21f39755f11e04855ebad08c78d"
 dependencies = [
  "bitflags 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.60 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2131,7 +2131,7 @@ dependencies = [
  "human-size 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "insta 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "netstat 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "netstat 0.7.0 (git+https://github.com/imsnif/netstat-rs.git)",
  "num-bigint 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "packet 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2307,7 +2307,7 @@ dependencies = [
 "checksum miow 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8c1f2f3b1cf331de6896aabf6e9d55dca90356cc9960cca7eaaf408a355ae919"
 "checksum native-tls 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "4b2df1a4c22fd44a62147fd8f13dd0f95c9d8ca7b2610299b2a2f9cf8964274e"
 "checksum net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "42550d9fb7b6684a6d404d9fa7250c2eb2646df731d1c06afc06dcee9e1bcf88"
-"checksum netstat 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "48b71f6e2443299ba97e8c834edcd4724be71da3a751b1be75d8b67022801bf3"
+"checksum netstat 0.7.0 (git+https://github.com/imsnif/netstat-rs.git)" = "<none>"
 "checksum nodrop 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)" = "2f9667ddcc6cc8a43afc9b7917599d7216aa09c463919ea32c59ed6cac8bc945"
 "checksum normalize-line-endings 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "2e0a1a39eab95caf4f5556da9289b9e68f0aafac901b2ce80daaf020d3b733a8"
 "checksum num-bigint 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "57450397855d951f1a41305e54851b1a7b8f5d2e349543a02a2effe25459f718"
