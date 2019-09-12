@@ -53,19 +53,21 @@ pub fn start <B> (terminal_backend: B, os_input: OsInput)
 
     let mut sniffer = Sniffer::new(os_input.network_interface, os_input.network_frames);
     let network_utilization = Arc::new(Mutex::new(NetworkUtilization::new()));
-    let mirror_utilization = Arc::clone(&network_utilization); // TODO: better name
 
-    let display_handler = thread::spawn(move || {
-        let mut terminal = Terminal::new(terminal_backend).unwrap();
-        terminal.clear().unwrap();
-        terminal.hide_cursor().unwrap();
-        while displaying.load(Ordering::SeqCst) {
-            let current_connections = CurrentConnections::new(&get_process_name, &get_open_sockets);
-            display_loop(&mirror_utilization, &mut terminal, current_connections);
-            thread::sleep(time::Duration::from_secs(1));
+    let display_handler = thread::spawn({
+        let network_utilization = network_utilization.clone();
+        move || {
+            let mut terminal = Terminal::new(terminal_backend).unwrap();
+            terminal.clear().unwrap();
+            terminal.hide_cursor().unwrap();
+            while displaying.load(Ordering::SeqCst) {
+                let current_connections = CurrentConnections::new(&get_process_name, &get_open_sockets);
+                display_loop(&network_utilization, &mut terminal, current_connections);
+                thread::sleep(time::Duration::from_secs(1));
+            }
+            terminal.clear().unwrap();
+            terminal.show_cursor().unwrap();
         }
-        terminal.clear().unwrap();
-        terminal.show_cursor().unwrap();
     });
 
     let sniffing_handler = thread::spawn(move || {
