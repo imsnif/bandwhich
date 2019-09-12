@@ -3,36 +3,35 @@ use crate::store::{CurrentConnections, NetworkUtilization};
 
 use ::std::sync::{Arc, Mutex};
 use ::std::collections::HashMap;
-use ::num_bigint::BigUint;
-use ::num_traits::{Zero, One};
+// use ::num_traits::{Zero, One};
 
 pub struct NetworkData {
-    pub total_bytes_downloaded: BigUint,
-    pub total_bytes_uploaded: BigUint,
-    pub connection_count: BigUint
+    pub total_bytes_downloaded: u128,
+    pub total_bytes_uploaded: u128,
+    pub connection_count: u128
 }
 
 impl NetworkData {
     fn new () -> Self {
         NetworkData {
-            total_bytes_downloaded: Zero::zero(),
-            total_bytes_uploaded: Zero::zero(),
-            connection_count: Zero::zero()
+            total_bytes_downloaded: 0,
+            total_bytes_uploaded: 0,
+            connection_count: 0
         }
     }
 }
 
 pub struct ConnectionData {
-    pub total_bytes_downloaded: BigUint,
-    pub total_bytes_uploaded: BigUint,
+    pub total_bytes_downloaded: u128,
+    pub total_bytes_uploaded: u128,
     pub processes: Vec<String>
 }
 
 impl ConnectionData {
     fn new () -> Self {
         ConnectionData {
-            total_bytes_downloaded: Zero::zero(),
-            total_bytes_uploaded: Zero::zero(),
+            total_bytes_downloaded: 0,
+            total_bytes_uploaded: 0,
             processes: vec![]
         }
     }
@@ -61,7 +60,7 @@ impl UIState {
                             .or_insert(NetworkData::new());
                         data_for_process.total_bytes_downloaded += &connection_bandwidth_utilization.total_bytes_downloaded;
                         data_for_process.total_bytes_uploaded += &connection_bandwidth_utilization.total_bytes_uploaded;
-                        data_for_process.connection_count += &One::one();
+                        data_for_process.connection_count += 1;
                     }
                     let connection_data_entry = connection_data
                         .entry(connection.clone())
@@ -71,7 +70,7 @@ impl UIState {
                         .or_insert(NetworkData::new());
                     data_for_remote_ip.total_bytes_downloaded += &connection_bandwidth_utilization.total_bytes_downloaded;
                     data_for_remote_ip.total_bytes_uploaded += &connection_bandwidth_utilization.total_bytes_uploaded;
-                    data_for_remote_ip.connection_count += &One::one();
+                    data_for_remote_ip.connection_count += 1;
                     connection_data_entry.total_bytes_downloaded += &connection_bandwidth_utilization.total_bytes_downloaded;
                     connection_data_entry.total_bytes_uploaded += &connection_bandwidth_utilization.total_bytes_uploaded;
                     connection_data_entry.processes.append(&mut associated_processes.clone());

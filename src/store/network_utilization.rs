@@ -1,19 +1,17 @@
 use crate::traffic::{Segment, Connection, Direction};
 
 use ::std::collections::HashMap;
-use ::num_bigint::BigUint;
-use ::num_traits::Zero;
 
 pub struct TotalBandwidth {
-    pub total_bytes_downloaded: BigUint,
-    pub total_bytes_uploaded: BigUint,
+    pub total_bytes_downloaded: u128,
+    pub total_bytes_uploaded: u128,
 }
 
 impl TotalBandwidth {
-    pub fn increment_bytes_downloaded (&mut self, ip_length: &BigUint) {
+    pub fn increment_bytes_downloaded (&mut self, ip_length: u128) {
         self.total_bytes_downloaded += ip_length;
     }
-    pub fn increment_bytes_uploaded (&mut self, ip_length: &BigUint) {
+    pub fn increment_bytes_uploaded (&mut self, ip_length: u128) {
         self.total_bytes_uploaded += ip_length;
     }
 }
@@ -32,15 +30,15 @@ impl NetworkUtilization {
     }
     pub fn update(&mut self, seg: &Segment) {
         let total_bandwidth = self.connections.entry(seg.connection.clone()).or_insert(TotalBandwidth {
-            total_bytes_downloaded: Zero::zero(),
-            total_bytes_uploaded: Zero::zero()
+            total_bytes_downloaded: 0,
+            total_bytes_uploaded: 0
         });
         match seg.direction {
             Direction::Download => {
-                total_bandwidth.increment_bytes_downloaded(&seg.ip_length)
+                total_bandwidth.increment_bytes_downloaded(seg.ip_length)
             },
             Direction::Upload => {
-                total_bandwidth.increment_bytes_uploaded(&seg.ip_length)
+                total_bandwidth.increment_bytes_uploaded(seg.ip_length)
             }
 
         }

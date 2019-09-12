@@ -3,9 +3,6 @@ use ::std::sync::{Arc, Mutex};
 use crate::store::{CurrentConnections, NetworkUtilization};
 use crate::display::UIState;
 
-use ::num_bigint::{BigUint, ToBigUint};
-use ::num_traits::cast::{ToPrimitive};
-
 use ::tui::Terminal;
 use ::tui::terminal::Frame;
 use ::tui::backend::Backend;
@@ -32,8 +29,8 @@ macro_rules! build_row {
                 $b,
                 format!(
                     "{}/{}",
-                    display_bandwidth(&$c.total_bytes_uploaded),
-                    display_bandwidth(&$c.total_bytes_downloaded)
+                    display_bandwidth($c.total_bytes_uploaded as f64),
+                    display_bandwidth($c.total_bytes_downloaded as f64)
                 )
             ].into_iter(),
             Style::default().fg(Color::White)
@@ -41,13 +38,13 @@ macro_rules! build_row {
     }
 }
 
-fn display_bandwidth (bytes_per_second: &BigUint) -> String {
-    if bytes_per_second > &999999999.to_biguint().unwrap() {
-        format!("{:.2}GBps", bytes_per_second.to_f64().unwrap() / 1000000000.0)
-    } else if bytes_per_second > &999999.to_biguint().unwrap() {
-        format!("{:.2}MBps", bytes_per_second.to_f64().unwrap() / 1000000.0)
-    } else if bytes_per_second > &999.to_biguint().unwrap() { // TODO: do not do this each time
-        format!("{:.2}KBps", bytes_per_second.to_f64().unwrap() / 1000.0)
+fn display_bandwidth (bytes_per_second: f64) -> String {
+    if bytes_per_second > 999999999.0 {
+        format!("{:.2}GBps", bytes_per_second / 1000000000.0)
+    } else if bytes_per_second > 999999.0 {
+        format!("{:.2}MBps", bytes_per_second / 1000000.0)
+    } else if bytes_per_second > 999.0 {
+        format!("{:.2}KBps", bytes_per_second / 1000.0)
     } else {
         format!("{}Bps", bytes_per_second)
     }

@@ -9,7 +9,6 @@ use ::pnet::packet::ipv4::Ipv4Packet;
 use ::pnet::packet::ip::IpNextHeaderProtocol;
 use ::pnet::packet::tcp::TcpPacket;
 use ::pnet::packet::udp::UdpPacket;
-use ::num_bigint::{BigUint, ToBigUint};
 
 pub struct Sniffer {
     network_interface: NetworkInterface,
@@ -42,7 +41,7 @@ impl fmt::Display for Connection {
 pub struct Segment {
     pub connection: Connection,
     pub direction: Direction,
-    pub ip_length: BigUint
+    pub ip_length: u128
 }
 
 #[derive(PartialEq, Hash, Eq, Debug, Clone, PartialOrd)]
@@ -116,7 +115,7 @@ impl Sniffer {
                                         let protocol = Protocol::Tcp;
                                         let direction = find_direction!(self.network_interface.ips, ip_packet);
                                         let connection = build_connection!(direction, ip_packet, message, protocol);
-                                        let ip_length = ip_packet.get_total_length().to_biguint().unwrap();
+                                        let ip_length = ip_packet.get_total_length() as u128;
                                         Some(Segment { connection, ip_length, direction })
                                     },
                                     IpNextHeaderProtocol(17) => { // udp
@@ -124,7 +123,7 @@ impl Sniffer {
                                         let protocol = Protocol::Udp;
                                         let direction = find_direction!(self.network_interface.ips, ip_packet);
                                         let connection = build_connection!(direction, ip_packet, datagram, protocol);
-                                        let ip_length = ip_packet.get_total_length().to_biguint().unwrap();
+                                        let ip_length = ip_packet.get_total_length() as u128;
                                         Some(Segment { connection, ip_length, direction })
                                     },
                                     _ => {
