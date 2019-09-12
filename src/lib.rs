@@ -37,13 +37,9 @@ pub fn start <B> (terminal_backend: B, os_input: OsInput)
     let stdin_handler = thread::spawn(move || {
         for evt in keyboard_events{
             match evt {
-                Event::Key(Key::Ctrl('c')) => {
+                Event::Key(Key::Ctrl('c')) | Event::Key(Key::Char('q')) => {
                     // TODO: exit faster
-                    r.store(false, Ordering::SeqCst);
-                    break
-                },
-                Event::Key(Key::Char('q')) => {
-                    r.store(false, Ordering::SeqCst);
+                    r.store(false, Ordering::Relaxed);
                     break
                 },
                 _ => ()
