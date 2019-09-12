@@ -1,4 +1,4 @@
-use ::std::sync::{Arc, Mutex};
+use ::std::sync::Mutex;
 
 use crate::store::{CurrentConnections, NetworkUtilization};
 use crate::display::UIState;
@@ -106,8 +106,9 @@ fn render_remote_ip_table<B: Backend>(state: &UIState, frame: &mut Frame<B>, rec
     table.render(frame, rect);
 }
 
-pub fn display_loop<B: Backend>(network_utilization: &Arc<Mutex<NetworkUtilization>>, terminal: &mut Terminal<B>, current_connections: CurrentConnections) {
-    let state = UIState::new(current_connections, network_utilization);
+pub fn display_loop<B: Backend>(network_utilization: &Mutex<NetworkUtilization>, terminal: &mut Terminal<B>, current_connections: CurrentConnections) {
+    let mut network_utilization = network_utilization.lock().unwrap();
+    let state = UIState::new(current_connections, &network_utilization);
     terminal.draw(|mut f| {
         let screen_horizontal_halves = split(Direction::Horizontal, f.size());
         let right_side_vertical_halves = split(Direction::Vertical, screen_horizontal_halves[1]);
@@ -115,5 +116,5 @@ pub fn display_loop<B: Backend>(network_utilization: &Arc<Mutex<NetworkUtilizati
         render_process_table(&state, &mut f, right_side_vertical_halves[0]);
         render_remote_ip_table(&state, &mut f, right_side_vertical_halves[1]);
     }).unwrap();
-    network_utilization.lock().unwrap().reset();
+    network_utilization.reset();
 }

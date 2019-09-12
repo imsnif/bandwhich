@@ -1,9 +1,7 @@
 use crate::traffic::{Connection};
 use crate::store::{CurrentConnections, NetworkUtilization};
 
-use ::std::sync::{Arc, Mutex};
 use ::std::collections::HashMap;
-// use ::num_traits::{Zero, One};
 
 pub struct NetworkData {
     pub total_bytes_downloaded: u128,
@@ -47,12 +45,12 @@ pub struct UIState {
 }
 
 impl UIState {
-    pub fn new (current_connections: CurrentConnections, network_utilization: &Arc<Mutex<NetworkUtilization>>) -> Self {
+    pub fn new (current_connections: CurrentConnections, network_utilization: &NetworkUtilization) -> Self {
         let mut process_data: HashMap<String, NetworkData> = HashMap::new();
         let mut remote_ip_data: HashMap<String, NetworkData> = HashMap::new();
         let mut connection_data: HashMap<Connection, ConnectionData> = HashMap::new();
         for (connection, associated_processes) in &current_connections.connections {
-            match network_utilization.lock().unwrap().connections.get(connection) {
+            match network_utilization.connections.get(connection) {
                 Some(connection_bandwidth_utilization) => {
                     for process in associated_processes.iter() {
                         let data_for_process = process_data 
