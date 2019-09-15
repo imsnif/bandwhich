@@ -16,7 +16,7 @@ struct Opt {
 fn main () {
 
     #[cfg(not(target_os = "linux"))]
-    panic!("Sorry, no implementations for platforms other than linux yet :( - PRs welcome!");
+    compile_error!("Sorry, no implementations for platforms other than linux yet :( - PRs welcome!");
 
     use os::{KeyboardEvents, get_interface, get_datalink_channel, get_process_name, get_open_sockets};
 

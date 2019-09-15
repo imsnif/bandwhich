@@ -22,12 +22,11 @@ impl Iterator for KeyboardEvents {
 }
 
 pub fn get_datalink_channel (interface: &NetworkInterface) -> Box<DataLinkReceiver> {
-    let (_tx, rx) = match datalink::channel(interface, Default::default()) {
-        Ok(Ethernet(tx, rx)) => (tx, rx),
+    match datalink::channel(interface, Default::default()) {
+        Ok(Ethernet(_tx, rx)) => rx,
         Ok(_) => panic!("Unhandled channel type"),
         Err(e) => panic!("An error occurred when creating the datalink channel: {}", e)
-    };
-    rx
+    }
 }
 
 pub fn get_interface (interface_name: &str) -> Option<NetworkInterface> {
