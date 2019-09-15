@@ -12,6 +12,7 @@ timer = "0.2.0"
 chrono = "0.4.7"
 tui = "0.5"
 termion = "1.5"
+structopt = "0.3"
 netstat = { git = "https://github.com/imsnif/netstat-rs.git" }
 
 [dev-dependencies]

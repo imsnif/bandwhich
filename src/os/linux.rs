@@ -1,4 +1,3 @@
-use ::std::env;
 use ::std::io::stdin;
 use ::pnet::datalink::{self, NetworkInterface};
 use ::pnet::datalink::DataLinkReceiver;
@@ -31,8 +30,7 @@ pub fn get_datalink_channel (interface: &NetworkInterface) -> Box<DataLinkReceiv
     rx
 }
 
-pub fn get_interface () -> Option<NetworkInterface> {
-    let interface_name = env::args().nth(1)?; // TODO: figure this out without arg
+pub fn get_interface (interface_name: &str) -> Option<NetworkInterface> {
     datalink::interfaces().into_iter()
         .filter(|iface| iface.name == interface_name)
         .next()
