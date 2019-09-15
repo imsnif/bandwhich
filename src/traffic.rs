@@ -10,6 +10,8 @@ use ::pnet::packet::ip::IpNextHeaderProtocol;
 use ::pnet::packet::tcp::TcpPacket;
 use ::pnet::packet::udp::UdpPacket;
 
+use ::ipnetwork::IpNetwork;
+
 pub struct Sniffer {
     network_interface: NetworkInterface,
     network_frames: Box<DataLinkReceiver>,
@@ -65,12 +67,10 @@ impl fmt::Display for Protocol {
     }
 }
 
-macro_rules! find_direction {
-    ($a:expr, $b:expr) => {
-        match $a.iter().any(|ip_network| ip_network.ip() == $b.get_source()) {
-            true => Direction::Upload,
-            false => Direction::Download
-        };
+fn find_direction (network_interface_ips: &Vec<IpNetwork>, ip_packet: &Ipv4Packet) -> Direction {
+    match network_interface_ips.iter().any(|ip_network| ip_network.ip() == ip_packet.get_source()) {
+        true => Direction::Upload,
+        false => Direction::Download
     }
 }
 
@@ -102,46 +102,37 @@ impl Sniffer {
     pub fn next(&mut self) -> Option<Segment> {
         // TODO: https://github.com/libpnet/libpnet/issues/343
         // make this non-blocking for faster exits
-        match self.network_frames.next() {
-            Ok(bytes) => {
-                match EthernetPacket::new(bytes) {
-                    Some(packet) => {
-                        match packet.get_ethertype() { // TODO: better way through the module?
-                            EtherType(2048) => {
-                                let ip_packet = Ipv4Packet::new(packet.payload()).unwrap();
-                                match ip_packet.get_next_level_protocol() {
-                                    IpNextHeaderProtocol(6) => { // tcp
-                                        let message = TcpPacket::new(ip_packet.payload()).unwrap();
-                                        let protocol = Protocol::Tcp;
-                                        let direction = find_direction!(self.network_interface.ips, ip_packet);
-                                        let connection = build_connection!(direction, ip_packet, message, protocol);
-                                        let ip_length = ip_packet.get_total_length() as u128;
-                                        Some(Segment { connection, ip_length, direction })
-                                    },
-                                    IpNextHeaderProtocol(17) => { // udp
-                                        let datagram = UdpPacket::new(ip_packet.payload()).unwrap();
-                                        let protocol = Protocol::Udp;
-                                        let direction = find_direction!(self.network_interface.ips, ip_packet);
-                                        let connection = build_connection!(direction, ip_packet, datagram, protocol);
-                                        let ip_length = ip_packet.get_total_length() as u128;
-                                        Some(Segment { connection, ip_length, direction })
-                                    },
-                                    _ => {
-                                        None
-                                    }
-                                }
-                            },
-                            _ => {
-                                None
-                            }
-                        }
+        let bytes = self.network_frames.next().unwrap_or_else(|e| {
+            panic!("An error occurred while reading: {}", e);
+        });
+        let packet = EthernetPacket::new(bytes)?;
+        match packet.get_ethertype() { // TODO: better way through the module?
+            EtherType(2048) => {
+                let ip_packet = Ipv4Packet::new(packet.payload()).unwrap();
+                match ip_packet.get_next_level_protocol() {
+                    IpNextHeaderProtocol(6) => { // tcp
+                        let message = TcpPacket::new(ip_packet.payload()).unwrap();
+                        let protocol = Protocol::Tcp;
+                        let direction = find_direction(&self.network_interface.ips, &ip_packet);
+                        let connection = build_connection!(direction, ip_packet, message, protocol);
+                        let ip_length = ip_packet.get_total_length() as u128;
+                        Some(Segment { connection, ip_length, direction })
                     },
-                    None => None
+                    IpNextHeaderProtocol(17) => { // udp
+                        let datagram = UdpPacket::new(ip_packet.payload()).unwrap();
+                        let protocol = Protocol::Udp;
+                        let direction = find_direction(&self.network_interface.ips, &ip_packet);
+                        let connection = build_connection!(direction, ip_packet, datagram, protocol);
+                        let ip_length = ip_packet.get_total_length() as u128;
+                        Some(Segment { connection, ip_length, direction })
+                    },
+                    _ => {
+                        None
+                    }
                 }
             },
-            Err(e) => {
-                // If an error occurs, we can handle it here
-                panic!("An error occurred while reading: {}", e);
+            _ => {
+                None
             }
         }
     }
