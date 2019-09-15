@@ -12,9 +12,7 @@ pub struct KeyboardEvents;
 impl Iterator for KeyboardEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
-        let stdin = stdin();
-        let mut events = stdin.events(); // TODO: not every time?
-        match events.next() {
+        match stdin().events().next() {
             Some(Ok(ev)) => Some(ev),
             _ => None
         }
