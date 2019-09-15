@@ -72,11 +72,8 @@ pub fn start <B> (terminal_backend: B, os_input: OsInput)
 
     let sniffing_handler = thread::spawn(move || {
         while running.load(Ordering::SeqCst) {
-            match sniffer.next() {
-                Some(segment) => {
-                    network_utilization.lock().unwrap().update(&segment)
-                },
-                None => ()
+            if let Some(segment) = sniffer.next() {
+                network_utilization.lock().unwrap().update(&segment)
             }
         }
     });
