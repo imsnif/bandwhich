@@ -58,7 +58,11 @@ pub fn start <B> (terminal_backend: B, os_input: OsInput)
             terminal.hide_cursor().unwrap();
             while displaying.load(Ordering::SeqCst) {
                 let current_connections = CurrentConnections::new(&get_process_name, &get_open_sockets);
-                display_loop(&network_utilization, &mut terminal, current_connections);
+                {
+                    let mut network_utilization = network_utilization.lock().unwrap();
+                    display_loop(&network_utilization, &mut terminal, current_connections);
+                    network_utilization.reset();
+                }
                 thread::sleep(time::Duration::from_secs(1));
             }
             terminal.clear().unwrap();

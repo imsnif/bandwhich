@@ -106,8 +106,7 @@ fn render_remote_ip_table<B: Backend>(state: &UIState, frame: &mut Frame<B>, rec
     table.render(frame, rect);
 }
 
-pub fn display_loop(network_utilization: &Mutex<NetworkUtilization>, terminal: &mut Terminal<impl Backend>, current_connections: CurrentConnections) {
-    let mut network_utilization = network_utilization.lock().unwrap();
+pub fn display_loop(network_utilization: &NetworkUtilization, terminal: &mut Terminal<impl Backend>, current_connections: CurrentConnections) {
     let state = UIState::new(current_connections, &network_utilization);
     terminal.draw(|mut f| {
         let screen_horizontal_halves = split(Direction::Horizontal, f.size());
@@ -116,5 +115,4 @@ pub fn display_loop(network_utilization: &Mutex<NetworkUtilization>, terminal: &
         render_process_table(&state, &mut f, right_side_vertical_halves[0]);
         render_remote_ip_table(&state, &mut f, right_side_vertical_halves[1]);
     }).unwrap();
-    network_utilization.reset();
 }
