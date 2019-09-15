@@ -15,7 +15,7 @@ fn main () {
     let terminal_backend = TermionBackend::new(stdout);
 
     let keyboard_events = Box::new(KeyboardEvents);
-    let network_interface = get_interface();
+    let network_interface = get_interface().unwrap();
     let network_frames = get_datalink_channel(&network_interface);
 
     let os_input = what::OsInput {

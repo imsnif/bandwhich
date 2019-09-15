@@ -31,16 +31,11 @@ pub fn get_datalink_channel (interface: &NetworkInterface) -> Box<DataLinkReceiv
     rx
 }
 
-pub fn get_interface () -> NetworkInterface {
-    let interface_name = env::args().nth(1).unwrap(); // TODO: figure this out without arg
-    let interface_names_match =
-        |iface: &NetworkInterface| iface.name == interface_name;
-    let interfaces = datalink::interfaces();
-    let interface = interfaces.into_iter()
-                              .filter(interface_names_match)
-                              .next()
-                              .unwrap();
-    interface
+pub fn get_interface () -> Option<NetworkInterface> {
+    let interface_name = env::args().nth(1)?; // TODO: figure this out without arg
+    datalink::interfaces().into_iter()
+        .filter(|iface| iface.name == interface_name)
+        .next()
 }
 
 pub fn get_process_name (id: i32) -> Option<String> {
@@ -53,8 +48,5 @@ pub fn get_process_name (id: i32) -> Option<String> {
 pub fn get_open_sockets () -> Vec<SocketInfo> {
     let af_flags = AddressFamilyFlags::IPV4;
     let proto_flags = ProtocolFlags::TCP | ProtocolFlags::UDP;
-    match get_sockets_info(af_flags, proto_flags) {
-        Ok(sockets_info) => sockets_info,
-        Err(_) => vec![]
-    }
+    get_sockets_info(af_flags, proto_flags).unwrap_or_default()
 }
