@@ -4,9 +4,26 @@ use ::tui::backend::Backend;
 use ::tui::widgets::{Widget, Block, Borders, Table, Row};
 use ::tui::layout::{Layout, Constraint, Direction, Rect};
 use ::tui::style::{Style, Color};
+use ::std::fmt;
 
 use crate::store::{CurrentConnections, NetworkUtilization};
 use crate::display::{UIState, Bandwidth};
+
+struct DisplayBandwidth(f64);
+
+impl fmt::Display for DisplayBandwidth {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.0 > 999999999.0 {
+            write!(f, "{:.2}GBps", self.0 / 1000000000.0)
+        } else if self.0 > 999999.0 {
+            write!(f, "{:.2}MBps", self.0 / 1000000.0)
+        } else if self.0 > 999.0 {
+            write!(f, "{:.2}KBps", self.0 / 1000.0)
+        } else {
+            write!(f, "{}Bps", self.0)
+        }
+    }
+}
 
 fn create_table<'a>(
     title: &'a str,
@@ -32,22 +49,10 @@ fn format_row_data(first_cell: String, second_cell: String, bandwidth: &impl Ban
         second_cell,
         format!(
             "{}/{}",
-            display_bandwidth(bandwidth.get_total_bytes_uploaded() as f64),
-            display_bandwidth(bandwidth.get_total_bytes_downloaded() as f64)
+            DisplayBandwidth(bandwidth.get_total_bytes_uploaded() as f64),
+            DisplayBandwidth(bandwidth.get_total_bytes_downloaded() as f64)
         )
     ]
-}
-
-fn display_bandwidth (bytes_per_second: f64) -> String {
-    if bytes_per_second > 999999999.0 {
-        format!("{:.2}GBps", bytes_per_second / 1000000000.0)
-    } else if bytes_per_second > 999999.0 {
-        format!("{:.2}MBps", bytes_per_second / 1000000.0)
-    } else if bytes_per_second > 999.0 {
-        format!("{:.2}KBps", bytes_per_second / 1000.0)
-    } else {
-        format!("{}Bps", bytes_per_second)
-    }
 }
 
 fn split (direction: Direction, rect: Rect) -> Vec<Rect> {
