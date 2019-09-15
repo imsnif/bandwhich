@@ -3,10 +3,24 @@ use crate::store::{CurrentConnections, NetworkUtilization};
 
 use ::std::collections::HashMap;
 
+pub trait Bandwidth {
+    fn get_total_bytes_downloaded(&self) -> u128;
+    fn get_total_bytes_uploaded(&self) -> u128;
+}
+
 pub struct NetworkData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub connection_count: u128
+}
+
+impl Bandwidth for NetworkData {
+    fn get_total_bytes_uploaded(&self) -> u128 {
+        self.total_bytes_uploaded
+    }
+    fn get_total_bytes_downloaded(&self) -> u128 {
+        self.total_bytes_downloaded
+    }
 }
 
 impl NetworkData {
@@ -32,6 +46,15 @@ impl ConnectionData {
             total_bytes_uploaded: 0,
             processes: vec![]
         }
+    }
+}
+
+impl Bandwidth for ConnectionData {
+    fn get_total_bytes_uploaded(&self) -> u128 {
+        self.total_bytes_uploaded
+    }
+    fn get_total_bytes_downloaded(&self) -> u128 {
+        self.total_bytes_downloaded
     }
 }
 
