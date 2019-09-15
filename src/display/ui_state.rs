@@ -95,7 +95,7 @@ impl UIState {
             remote_ips.push(remote_ip.to_string());
         }
         process_names.sort();
-        connections.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        connections.sort();
         remote_ips.sort();
         UIState {
             process_data,

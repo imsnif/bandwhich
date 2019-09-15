@@ -15,7 +15,7 @@ pub struct Sniffer {
     network_frames: Box<DataLinkReceiver>,
 }
 
-#[derive(PartialEq, Hash, Eq, Debug, Clone, PartialOrd)]
+#[derive(PartialEq, Hash, Eq, Debug, Clone, PartialOrd, Ord)]
 pub struct Connection {
     pub local_ip: Ipv4Addr,
     pub remote_ip: Ipv4Addr,
@@ -44,7 +44,7 @@ pub struct Segment {
     pub ip_length: u128
 }
 
-#[derive(PartialEq, Hash, Eq, Debug, Clone, PartialOrd)]
+#[derive(PartialEq, Hash, Eq, Debug, Clone, PartialOrd, Ord)]
 pub enum Protocol {
     Tcp,
     Udp

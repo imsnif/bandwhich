@@ -1,4 +1,3 @@
-use ::std::sync::Mutex;
 use ::tui::Terminal;
 use ::tui::terminal::Frame;
 use ::tui::backend::Backend;
