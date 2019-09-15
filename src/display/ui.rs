@@ -9,7 +9,7 @@ use ::tui::style::{Style, Color};
 use crate::store::{CurrentConnections, NetworkUtilization};
 use crate::display::{UIState, Bandwidth};
 
-fn render_table<'a>(
+fn create_table<'a>(
     title: &'a str,
     column_names: &'a[&'a str],
     rows: impl Iterator<Item = Vec<String>> + 'a,
@@ -69,7 +69,7 @@ fn render_process_table (state: &UIState, frame: &mut Frame<impl Backend>, rect:
         let data_for_process = state.process_data.get(process_name).unwrap();
         format_row_data(process_name.clone(), data_for_process.connection_count.to_string(), data_for_process)
     });
-    let mut table = render_table(
+    let mut table = create_table(
         "Utilization by process name",
         &["Process", "Connection Count", "Total Bytes"],
         rows,
@@ -83,7 +83,7 @@ fn render_connections_table (state: &UIState, frame: &mut Frame<impl Backend>, r
         let connection_data = state.connection_data.get(connection).unwrap();
         format_row_data(connection.to_string(), connection_data.processes.join(", "), connection_data)
     });
-    let mut table = render_table(
+    let mut table = create_table(
         "Utilization by connection",
         &["Connection", "Processes", "Total Bytes Up/Down"],
         rows,
@@ -97,7 +97,7 @@ fn render_remote_ip_table<B: Backend>(state: &UIState, frame: &mut Frame<B>, rec
         let data_for_remote_ip = state.remote_ip_data.get(remote_ip).unwrap();
         format_row_data(remote_ip.to_string(), data_for_remote_ip.connection_count.to_string(), data_for_remote_ip)
     });
-    let mut table = render_table(
+    let mut table = create_table(
         "Utilization by remote ip",
         &["Remote Address", "Connection Count", "Total Bytes"],
         rows,
