@@ -1,13 +1,14 @@
+use ::std::collections::HashMap;
+
 use crate::traffic::{Connection};
 use crate::store::{CurrentConnections, NetworkUtilization};
-
-use ::std::collections::HashMap;
 
 pub trait Bandwidth {
     fn get_total_bytes_downloaded(&self) -> u128;
     fn get_total_bytes_uploaded(&self) -> u128;
 }
 
+#[derive(Default)]
 pub struct NetworkData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
@@ -23,30 +24,11 @@ impl Bandwidth for NetworkData {
     }
 }
 
-impl NetworkData {
-    fn new () -> Self {
-        NetworkData {
-            total_bytes_downloaded: 0,
-            total_bytes_uploaded: 0,
-            connection_count: 0
-        }
-    }
-}
-
+#[derive(Default)]
 pub struct ConnectionData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub processes: Vec<String>
-}
-
-impl ConnectionData {
-    fn new () -> Self {
-        ConnectionData {
-            total_bytes_downloaded: 0,
-            total_bytes_uploaded: 0,
-            processes: vec![]
-        }
-    }
 }
 
 impl Bandwidth for ConnectionData {
@@ -78,17 +60,17 @@ impl UIState {
                     for process in associated_processes.iter() {
                         let data_for_process = process_data 
                             .entry(process.clone())
-                            .or_insert(NetworkData::new());
+                            .or_insert(NetworkData::default());
                         data_for_process.total_bytes_downloaded += &connection_bandwidth_utilization.total_bytes_downloaded;
                         data_for_process.total_bytes_uploaded += &connection_bandwidth_utilization.total_bytes_uploaded;
                         data_for_process.connection_count += 1;
                     }
                     let connection_data_entry = connection_data
                         .entry(connection.clone())
-                        .or_insert(ConnectionData::new());
+                        .or_insert(ConnectionData::default());
                     let data_for_remote_ip = remote_ip_data
                         .entry(connection.remote_ip.to_string())
-                        .or_insert(NetworkData::new());
+                        .or_insert(NetworkData::default());
                     data_for_remote_ip.total_bytes_downloaded += &connection_bandwidth_utilization.total_bytes_downloaded;
                     data_for_remote_ip.total_bytes_uploaded += &connection_bandwidth_utilization.total_bytes_uploaded;
                     data_for_remote_ip.connection_count += 1;
