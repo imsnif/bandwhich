@@ -16,13 +16,8 @@ impl Iterator for KeyboardEvents {
         let stdin = stdin();
         let mut events = stdin.events(); // TODO: not every time?
         match events.next() {
-            Some(res) => {
-                match res {
-                    Ok(ev) => Some(ev),
-                    Err(_) => None
-                }
-            },
-            None => None
+            Some(Ok(ev)) => Some(ev),
+            _ => None
         }
     }
 }
@@ -50,7 +45,7 @@ pub fn get_interface () -> NetworkInterface {
 
 pub fn get_process_name (id: i32) -> Option<String> {
     match Process::new(id) {
-        Ok(process) => Some(process.stat.comm.to_string()),
+        Ok(process) => Some(process.stat.comm),
         Err(_) => None
     }
 }
