@@ -14,7 +14,7 @@ fn main () {
     let stdout = io::stdout().into_raw_mode().unwrap();
     let terminal_backend = TermionBackend::new(stdout);
 
-    let keyboard_events = Box::new(KeyboardEvents {});
+    let keyboard_events = Box::new(KeyboardEvents);
     let network_interface = get_interface();
     let network_frames = get_datalink_channel(&network_interface);
 

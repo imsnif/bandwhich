@@ -8,7 +8,7 @@ use ::termion::input::{TermRead};
 use ::netstat::{SocketInfo, AddressFamilyFlags, ProtocolFlags, get_sockets_info};
 use ::procfs::Process;
 
-pub struct KeyboardEvents {}
+pub struct KeyboardEvents;
 
 impl Iterator for KeyboardEvents {
     type Item = Event;
