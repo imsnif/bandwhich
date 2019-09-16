@@ -1,5 +1,5 @@
 use ::std::fmt;
-use ::std::net::Ipv4Addr;
+use ::std::net::{Ipv4Addr, SocketAddrV4};
 use ::std::boxed::Box;
 
 use ::pnet::datalink::{NetworkInterface, DataLinkReceiver};
@@ -74,24 +74,28 @@ fn find_direction (network_interface_ips: &Vec<IpNetwork>, ip_packet: &Ipv4Packe
     }
 }
 
-macro_rules! build_connection {
-    ($a:expr, $b:expr, $c:expr, $d:expr) => {
-        match $a {
+impl Direction {
+    pub fn make_connection (&self, from: SocketAddrV4, to: SocketAddrV4, protocol: Protocol) -> Connection {
+        match self {
             Direction::Upload => {
-                let local_ip = $b.get_source();
-                let remote_ip = $b.get_destination();
-                let local_port = $c.get_source();
-                let remote_port = $c.get_destination();
-                Connection { local_ip, remote_ip, local_port, remote_port, protocol: $d }
+                Connection {
+                    local_ip: *from.ip(),
+                    remote_ip: *to.ip(),
+                    local_port: from.port(),
+                    remote_port: to.port(),
+                    protocol
+                }
             },
             Direction::Download => {
-                let local_ip = $b.get_destination();
-                let remote_ip = $b.get_source();
-                let local_port = $c.get_destination();
-                let remote_port = $c.get_source();
-                Connection { local_ip, remote_ip, local_port, remote_port, protocol: $d }
+                Connection {
+                    local_ip: *to.ip(),
+                    remote_ip: *from.ip(),
+                    local_port: to.port(),
+                    remote_port: from.port(),
+                    protocol
+                }
             }
-        };
+        }
     }
 }
 
@@ -108,28 +112,32 @@ impl Sniffer {
         let packet = EthernetPacket::new(bytes)?;
         match packet.get_ethertype() { // TODO: better way through the module?
             EtherType(2048) => {
-                let ip_packet = Ipv4Packet::new(packet.payload()).unwrap();
-                match ip_packet.get_next_level_protocol() {
+                let ip_packet = Ipv4Packet::new(packet.payload())?;
+                let (protocol, source_port, destination_port) = match ip_packet.get_next_level_protocol() {
                     IpNextHeaderProtocol(6) => { // tcp
-                        let message = TcpPacket::new(ip_packet.payload()).unwrap();
-                        let protocol = Protocol::Tcp;
-                        let direction = find_direction(&self.network_interface.ips, &ip_packet);
-                        let connection = build_connection!(direction, ip_packet, message, protocol);
-                        let ip_length = ip_packet.get_total_length() as u128;
-                        Some(Segment { connection, ip_length, direction })
+                        let message = TcpPacket::new(ip_packet.payload())?;
+                        (
+                            Protocol::Tcp,
+                            message.get_source(),
+                            message.get_destination()
+                        )
                     },
                     IpNextHeaderProtocol(17) => { // udp
-                        let datagram = UdpPacket::new(ip_packet.payload()).unwrap();
-                        let protocol = Protocol::Udp;
-                        let direction = find_direction(&self.network_interface.ips, &ip_packet);
-                        let connection = build_connection!(direction, ip_packet, datagram, protocol);
-                        let ip_length = ip_packet.get_total_length() as u128;
-                        Some(Segment { connection, ip_length, direction })
+                        let datagram = UdpPacket::new(ip_packet.payload())?;
+                        (
+                            Protocol::Udp,
+                            datagram.get_source(),
+                            datagram.get_destination()
+                        )
                     },
-                    _ => {
-                        None
-                    }
-                }
+                    _ => return None
+                };
+                let direction = find_direction(&self.network_interface.ips, &ip_packet);
+                let from = SocketAddrV4::new(ip_packet.get_source(), source_port);
+                let to = SocketAddrV4::new(ip_packet.get_destination(), destination_port);
+                let connection = direction.make_connection(from, to, protocol);
+                let ip_length = ip_packet.get_total_length() as u128;
+                Some(Segment { connection, ip_length, direction })
             },
             _ => {
                 None

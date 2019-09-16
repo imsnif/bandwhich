@@ -94,7 +94,7 @@ fn render_connections_table (state: &UIState, frame: &mut Frame<impl Backend>, r
     table.render(frame, rect);
 }
 
-fn render_remote_ip_table<B: Backend>(state: &UIState, frame: &mut Frame<B>, rect: Rect) {
+fn render_remote_ip_table (state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect) {
     let rows = state.remote_ips.iter().map(|(remote_ip, data_for_remote_ip)| {
         format_row_data(remote_ip.to_string(), data_for_remote_ip.connection_count.to_string(), data_for_remote_ip)
     });
