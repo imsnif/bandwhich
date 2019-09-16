@@ -49,13 +49,13 @@ pub struct UIState {
 
 impl UIState {
     pub fn new(
-        mut current_connections: CurrentConnections,
+        current_connections: CurrentConnections,
         network_utilization: &NetworkUtilization,
     ) -> Self {
         let mut processes: BTreeMap<String, NetworkData> = BTreeMap::new();
         let mut remote_ips: BTreeMap<Ipv4Addr, NetworkData> = BTreeMap::new();
         let mut connections: BTreeMap<Connection, ConnectionData> = BTreeMap::new();
-        for (connection, mut associated_processes) in current_connections.connections.drain() {
+        for (connection, mut associated_processes) in current_connections.connections {
             if let Some(connection_bandwidth_utilization) =
                 network_utilization.connections.get(&connection)
             {
@@ -72,7 +72,7 @@ impl UIState {
                 }
                 connection_data
                     .processes
-                    .append(&mut associated_processes.drain(..).collect());
+                    .append(&mut associated_processes);
                 connection_data.total_bytes_downloaded +=
                     &connection_bandwidth_utilization.total_bytes_downloaded;
                 connection_data.total_bytes_uploaded +=
