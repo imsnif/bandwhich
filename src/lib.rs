@@ -1,30 +1,31 @@
-mod traffic;
-mod store;
 mod display;
+mod store;
+mod traffic;
 
-use traffic::Sniffer;
 use display::display_loop;
 use store::{CurrentConnections, NetworkUtilization};
+use traffic::Sniffer;
 
-use ::std::{thread, time};
-use ::std::sync::{Arc, Mutex};
-use ::std::sync::atomic::{AtomicBool, Ordering};
-use ::tui::Terminal;
-use ::tui::backend::Backend;
-use ::termion::event::{Key, Event};
-use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ::netstat::SocketInfo;
+use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
+use ::std::sync::atomic::{AtomicBool, Ordering};
+use ::std::sync::{Arc, Mutex};
+use ::std::{thread, time};
+use ::termion::event::{Event, Key};
+use ::tui::backend::Backend;
+use ::tui::Terminal;
 
 pub struct OsInput {
     pub network_interface: NetworkInterface,
     pub network_frames: Box<DataLinkReceiver>,
     pub get_process_name: fn(i32) -> Option<String>,
     pub get_open_sockets: fn() -> Vec<SocketInfo>,
-    pub keyboard_events: Box<Iterator<Item = Event> + Send + Sync + 'static>
+    pub keyboard_events: Box<Iterator<Item = Event> + Send + Sync + 'static>,
 }
 
-pub fn start <B> (terminal_backend: B, os_input: OsInput)
-    where B: Backend + Send + 'static
+pub fn start<B>(terminal_backend: B, os_input: OsInput)
+where
+    B: Backend + Send + 'static,
 {
     let r = Arc::new(AtomicBool::new(true));
     let displaying = r.clone();
@@ -35,16 +36,16 @@ pub fn start <B> (terminal_backend: B, os_input: OsInput)
     let get_open_sockets = os_input.get_open_sockets;
 
     let stdin_handler = thread::spawn(move || {
-        for evt in keyboard_events{
+        for evt in keyboard_events {
             match evt {
                 Event::Key(Key::Ctrl('c')) | Event::Key(Key::Char('q')) => {
                     // TODO: exit faster
                     r.store(false, Ordering::Relaxed);
-                    break
-                },
-                _ => ()
+                    break;
+                }
+                _ => (),
             };
-        };
+        }
     });
 
     let mut sniffer = Sniffer::new(os_input.network_interface, os_input.network_frames);
@@ -57,7 +58,8 @@ pub fn start <B> (terminal_backend: B, os_input: OsInput)
             terminal.clear().unwrap();
             terminal.hide_cursor().unwrap();
             while displaying.load(Ordering::SeqCst) {
-                let current_connections = CurrentConnections::new(&get_process_name, &get_open_sockets);
+                let current_connections =
+                    CurrentConnections::new(&get_process_name, &get_open_sockets);
                 {
                     let mut network_utilization = network_utilization.lock().unwrap();
                     display_loop(&network_utilization, &mut terminal, current_connections);

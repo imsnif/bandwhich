@@ -1,4 +1,4 @@
-use crate::traffic::{Segment, Connection, Direction};
+use crate::traffic::{Connection, Direction, Segment};
 
 use ::std::collections::HashMap;
 
@@ -8,16 +8,16 @@ pub struct TotalBandwidth {
 }
 
 impl TotalBandwidth {
-    pub fn increment_bytes_downloaded (&mut self, ip_length: u128) {
+    pub fn increment_bytes_downloaded(&mut self, ip_length: u128) {
         self.total_bytes_downloaded += ip_length;
     }
-    pub fn increment_bytes_uploaded (&mut self, ip_length: u128) {
+    pub fn increment_bytes_uploaded(&mut self, ip_length: u128) {
         self.total_bytes_uploaded += ip_length;
     }
 }
 
 pub struct NetworkUtilization {
-    pub connections: HashMap<Connection, TotalBandwidth>
+    pub connections: HashMap<Connection, TotalBandwidth>,
 }
 
 impl NetworkUtilization {
@@ -25,22 +25,20 @@ impl NetworkUtilization {
         let connections = HashMap::new();
         NetworkUtilization { connections }
     }
-    pub fn reset (&mut self) {
+    pub fn reset(&mut self) {
         self.connections.clear();
     }
     pub fn update(&mut self, seg: &Segment) {
-        let total_bandwidth = self.connections.entry(seg.connection.clone()).or_insert(TotalBandwidth {
-            total_bytes_downloaded: 0,
-            total_bytes_uploaded: 0
-        });
+        let total_bandwidth =
+            self.connections
+                .entry(seg.connection.clone())
+                .or_insert(TotalBandwidth {
+                    total_bytes_downloaded: 0,
+                    total_bytes_uploaded: 0,
+                });
         match seg.direction {
-            Direction::Download => {
-                total_bandwidth.increment_bytes_downloaded(seg.ip_length)
-            },
-            Direction::Upload => {
-                total_bandwidth.increment_bytes_uploaded(seg.ip_length)
-            }
-
+            Direction::Download => total_bandwidth.increment_bytes_downloaded(seg.ip_length),
+            Direction::Upload => total_bandwidth.increment_bytes_uploaded(seg.ip_length),
         }
     }
 }

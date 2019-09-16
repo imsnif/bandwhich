@@ -15,22 +15,27 @@ pub enum TerminalEvent {
     ShowCursor,
     GetCursor,
     Flush,
-    Draw
+    Draw,
 }
 
 pub struct TestBackend {
     pub events: Arc<Mutex<Vec<TerminalEvent>>>,
-    pub draw_events: Arc<Mutex<Vec<String>>>
+    pub draw_events: Arc<Mutex<Vec<String>>>,
 }
 
 impl TestBackend {
-    pub fn new(log: Arc<Mutex<Vec<TerminalEvent>>>, draw_log: Arc<Mutex<Vec<String>>>) -> TestBackend {
-        TestBackend { events: log, draw_events: draw_log }
+    pub fn new(
+        log: Arc<Mutex<Vec<TerminalEvent>>>,
+        draw_log: Arc<Mutex<Vec<String>>>,
+    ) -> TestBackend {
+        TestBackend {
+            events: log,
+            draw_events: draw_log,
+        }
     }
 }
 
 impl Backend for TestBackend {
-
     /// Clears the entire screen and move the cursor to the top left of the screen
     fn clear(&mut self) -> io::Result<()> {
         self.events.lock().unwrap().push(TerminalEvent::Clear);

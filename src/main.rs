@@ -10,15 +10,18 @@ use structopt::StructOpt;
 #[structopt(name = "what")]
 struct Opt {
     #[structopt(short, long)]
-    interface: String
+    interface: String,
 }
 
-fn main () {
-
+fn main() {
     #[cfg(not(target_os = "linux"))]
-    compile_error!("Sorry, no implementations for platforms other than linux yet :( - PRs welcome!");
+    compile_error!(
+        "Sorry, no implementations for platforms other than linux yet :( - PRs welcome!"
+    );
 
-    use os::{KeyboardEvents, get_interface, get_datalink_channel, get_process_name, get_open_sockets};
+    use os::{
+        get_datalink_channel, get_interface, get_open_sockets, get_process_name, KeyboardEvents,
+    };
 
     let opt = Opt::from_args();
     let stdout = io::stdout().into_raw_mode().unwrap();
@@ -33,7 +36,7 @@ fn main () {
         network_frames,
         get_process_name,
         get_open_sockets,
-        keyboard_events
+        keyboard_events,
     };
 
     what::start(terminal_backend, os_input)
