@@ -69,9 +69,8 @@ fn split (direction: Direction, rect: Rect) -> Vec<Rect> {
 }
 
 fn render_process_table (state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect) {
-    let rows = state.process_names.iter().map(|process_name| {
-        let data_for_process = state.process_data.get(process_name).unwrap();
-        format_row_data(process_name.clone(), data_for_process.connection_count.to_string(), data_for_process)
+    let rows = state.processes.iter().map(|(process_name, data_for_process)| {
+        format_row_data(process_name.to_string(), data_for_process.connection_count.to_string(), data_for_process)
     });
     let mut table = create_table(
         "Utilization by process name",
@@ -83,8 +82,7 @@ fn render_process_table (state: &UIState, frame: &mut Frame<impl Backend>, rect:
 }
 
 fn render_connections_table (state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect) {
-    let rows = state.connections.iter().map(|connection| {
-        let connection_data = state.connection_data.get(connection).unwrap();
+    let rows = state.connections.iter().map(|(connection, connection_data)| {
         format_row_data(connection.to_string(), connection_data.processes.join(", "), connection_data)
     });
     let mut table = create_table(
@@ -97,8 +95,7 @@ fn render_connections_table (state: &UIState, frame: &mut Frame<impl Backend>, r
 }
 
 fn render_remote_ip_table<B: Backend>(state: &UIState, frame: &mut Frame<B>, rect: Rect) {
-    let rows = state.remote_ips.iter().map(|remote_ip| {
-        let data_for_remote_ip = state.remote_ip_data.get(remote_ip).unwrap();
+    let rows = state.remote_ips.iter().map(|(remote_ip, data_for_remote_ip)| {
         format_row_data(remote_ip.to_string(), data_for_remote_ip.connection_count.to_string(), data_for_remote_ip)
     });
     let mut table = create_table(
