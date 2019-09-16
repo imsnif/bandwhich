@@ -54,19 +54,13 @@ impl UIState {
         for (connection, associated_processes) in &current_connections.connections {
             if let Some(connection_bandwidth_utilization) = network_utilization.connections.get(connection) {
                 for process in associated_processes.iter() {
-                    let data_for_process = processes
-                        .entry(process.clone())
-                        .or_insert(NetworkData::default());
+                    let data_for_process = processes.entry(process.clone()).or_default();
                     data_for_process.total_bytes_downloaded += &connection_bandwidth_utilization.total_bytes_downloaded;
                     data_for_process.total_bytes_uploaded += &connection_bandwidth_utilization.total_bytes_uploaded;
                     data_for_process.connection_count += 1;
                 }
-                let connection_data_entry = connections
-                    .entry(connection.clone())
-                    .or_insert(ConnectionData::default());
-                let data_for_remote_ip = remote_ips
-                    .entry(connection.remote_ip.to_string())
-                    .or_insert(NetworkData::default());
+                let connection_data_entry = connections.entry(connection.clone()).or_default();
+                let data_for_remote_ip = remote_ips.entry(connection.remote_ip.to_string()).or_default();
                 data_for_remote_ip.total_bytes_downloaded += &connection_bandwidth_utilization.total_bytes_downloaded;
                 data_for_remote_ip.total_bytes_uploaded += &connection_bandwidth_utilization.total_bytes_uploaded;
                 data_for_remote_ip.connection_count += 1;
