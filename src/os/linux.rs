@@ -33,8 +33,7 @@ pub fn get_datalink_channel(interface: &NetworkInterface) -> Box<DataLinkReceive
 pub fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
     datalink::interfaces()
         .into_iter()
-        .filter(|iface| iface.name == interface_name)
-        .next()
+        .find(|iface| iface.name == interface_name)
 }
 
 pub fn get_process_name(id: i32) -> Option<String> {
