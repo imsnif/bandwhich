@@ -2,7 +2,8 @@ use ::netstat::{get_sockets_info, AddressFamilyFlags, ProtocolFlags, SocketInfo}
 use ::pnet::datalink::Channel::Ethernet;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::{self, NetworkInterface};
-use ::procfs::Process;
+use ::std::fs::File;
+use ::std::io::prelude::*;
 use ::std::io::stdin;
 use ::termion::event::Event;
 use ::termion::input::TermRead;
@@ -36,9 +37,17 @@ pub fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
         .find(|iface| iface.name == interface_name)
 }
 
+fn read_proc_comm(id: i32) -> std::io::Result<String> {
+    let filename = format!("/proc/{}/comm", id);
+    let mut file = File::open(filename)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+    Ok(contents)
+}
+
 pub fn get_process_name(id: i32) -> Option<String> {
-    match Process::new(id) {
-        Ok(process) => Some(process.stat.comm),
+    match read_proc_comm(id) {
+        Ok(contents) => Some(contents),
         Err(_) => None,
     }
 }
