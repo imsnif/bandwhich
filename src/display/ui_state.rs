@@ -59,8 +59,9 @@ impl UIState {
             if let Some(connection_bandwidth_utilization) =
                 network_utilization.connections.get(&connection)
             {
-                let data_for_remote_ip =
-                    remote_ips.entry(connection.remote_ip.clone()).or_default();
+                let data_for_remote_ip = remote_ips
+                    .entry(connection.remote_socket.ip.clone())
+                    .or_default();
                 let connection_data = connections.entry(connection).or_default();
                 for process in &associated_processes {
                     let data_for_process = processes.entry(process.to_string()).or_default();
@@ -70,9 +71,7 @@ impl UIState {
                         &connection_bandwidth_utilization.total_bytes_uploaded;
                     data_for_process.connection_count += 1;
                 }
-                connection_data
-                    .processes
-                    .append(&mut associated_processes);
+                connection_data.processes.append(&mut associated_processes);
                 connection_data.total_bytes_downloaded +=
                     &connection_bandwidth_utilization.total_bytes_downloaded;
                 connection_data.total_bytes_uploaded +=

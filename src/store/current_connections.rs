@@ -1,4 +1,4 @@
-use crate::traffic::{Connection, Protocol};
+use crate::traffic::{Connection, Protocol, Socket};
 
 use ::netstat::{ProtocolSocketInfo, SocketInfo};
 use ::std::collections::HashMap;
@@ -20,10 +20,14 @@ fn build_ipv4_connection(
 ) -> Option<Connection> {
     match (local_ip, remote_ip) {
         (Some(local_ip), Some(remote_ip)) => Some(Connection {
-            local_ip,
-            remote_ip,
-            local_port,
-            remote_port,
+            local_socket: Socket {
+                ip: local_ip,
+                port: local_port,
+            },
+            remote_socket: Socket {
+                ip: remote_ip,
+                port: remote_port,
+            },
             protocol,
         }),
         (_, _) => None,
