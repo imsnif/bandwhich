@@ -1,6 +1,6 @@
+use ::std::collections::HashMap;
 use ::std::io;
 use ::std::sync::{Arc, Mutex};
-use ::std::collections::HashMap;
 use ::tui::backend::Backend;
 use ::tui::buffer::Cell;
 use ::tui::layout::Rect;
@@ -19,7 +19,7 @@ pub struct TestBackend {
     pub events: Arc<Mutex<Vec<TerminalEvent>>>,
     pub draw_events: Arc<Mutex<Vec<String>>>,
     terminal_width: u16,
-    terminal_height: u16
+    terminal_height: u16,
 }
 
 impl TestBackend {
@@ -39,7 +39,7 @@ impl TestBackend {
 #[derive(Hash, Eq, PartialEq)]
 struct Point {
     x: u16,
-    y: u16
+    y: u16,
 }
 
 impl Backend for TestBackend {
@@ -77,15 +77,15 @@ impl Backend for TestBackend {
         let mut coordinates = HashMap::new();
         for (x, y, cell) in content {
             coordinates.insert(Point { x, y }, cell);
-        };
+        }
         for y in 0..self.terminal_height {
             for x in 0..self.terminal_width {
-                match coordinates.get(&Point {x, y}) {
+                match coordinates.get(&Point { x, y }) {
                     Some(cell) => {
                         // this will contain no style information at all
                         // should be good enough for testing
                         string.push_str(&cell.symbol);
-                    },
+                    }
                     None => {
                         string.push_str(" ");
                     }
