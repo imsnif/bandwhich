@@ -577,98 +577,98 @@ fn sustained_traffic_from_multiple_processes() {
     assert_snapshot!(&terminal_draw_events_mirror[2]);
 }
 
-#[test]
-fn sustained_traffic_from_multiple_processes_bi_directional() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
-    let network_frames = NetworkFrames::new(vec![
-        Some(build_tcp_packet(
-            "10.0.0.2",
-            "3.3.3.3",
-            443,
-            1337,
-            b"omw to 3.3.3.3",
-        )),
-        Some(build_tcp_packet(
-            "3.3.3.3",
-            "10.0.0.2",
-            1337,
-            443,
-            b"I was just there!",
-        )),
-        Some(build_tcp_packet(
-            "1.1.1.1",
-            "10.0.0.2",
-            12345,
-            443,
-            b"Is it nice there? I think 1.1.1.1 is dull",
-        )),
-        Some(build_tcp_packet(
-            "10.0.0.2",
-            "1.1.1.1",
-            443,
-            12345,
-            b"Well, I heard 1.1.1.1 is all the rage",
-        )),
-        None, // sleep
-        Some(build_tcp_packet(
-            "10.0.0.2",
-            "3.3.3.3",
-            443,
-            1337,
-            b"Wait for me!",
-        )),
-        Some(build_tcp_packet(
-            "3.3.3.3",
-            "10.0.0.2",
-            1337,
-            443,
-            b"They're waiting for you...",
-        )),
-        Some(build_tcp_packet(
-            "1.1.1.1",
-            "10.0.0.2",
-            12345,
-            443,
-            b"1.1.1.1 forever!",
-        )),
-        Some(build_tcp_packet(
-            "10.0.0.2",
-            "1.1.1.1",
-            443,
-            12345,
-            b"10.0.0.2 forever!",
-        )),
-    ]);
-
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
-    let network_interface = get_interface();
-
-    let os_input = what::OsInput {
-        network_interface,
-        network_frames,
-        get_process_name,
-        get_open_sockets,
-        keyboard_events,
-    };
-    what::start(backend, os_input);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
-
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
-    ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
-
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-}
+ #[test]
+ fn sustained_traffic_from_multiple_processes_bi_directional() {
+     let keyboard_events = Box::new(KeyboardEvents::new(vec![
+         None, // sleep
+         None, // sleep
+         None, // sleep
+         Some(Event::Key(Key::Ctrl('c'))),
+     ]));
+     let network_frames = NetworkFrames::new(vec![
+         Some(build_tcp_packet(
+             "10.0.0.2",
+             "3.3.3.3",
+             443,
+             1337,
+             b"omw to 3.3.3.3",
+         )),
+         Some(build_tcp_packet(
+             "3.3.3.3",
+             "10.0.0.2",
+             1337,
+             443,
+             b"I was just there!",
+         )),
+         Some(build_tcp_packet(
+             "1.1.1.1",
+             "10.0.0.2",
+             12345,
+             443,
+             b"Is it nice there? I think 1.1.1.1 is dull",
+         )),
+         Some(build_tcp_packet(
+             "10.0.0.2",
+             "1.1.1.1",
+             443,
+             12345,
+             b"Well, I heard 1.1.1.1 is all the rage",
+         )),
+         None, // sleep
+         Some(build_tcp_packet(
+             "10.0.0.2",
+             "3.3.3.3",
+             443,
+             1337,
+             b"Wait for me!",
+         )),
+         Some(build_tcp_packet(
+             "3.3.3.3",
+             "10.0.0.2",
+             1337,
+             443,
+             b"They're waiting for you...",
+         )),
+         Some(build_tcp_packet(
+             "1.1.1.1",
+             "10.0.0.2",
+             12345,
+             443,
+             b"1.1.1.1 forever!",
+         )),
+         Some(build_tcp_packet(
+             "10.0.0.2",
+             "1.1.1.1",
+             443,
+             12345,
+             b"10.0.0.2 forever!",
+         )),
+     ]);
+ 
+     let terminal_events = LogWithMirror::new(Vec::new());
+     let terminal_draw_events = LogWithMirror::new(Vec::new());
+ 
+     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+     let network_interface = get_interface();
+ 
+     let os_input = what::OsInput {
+         network_interface,
+         network_frames,
+         get_process_name,
+         get_open_sockets,
+         keyboard_events,
+     };
+     what::start(backend, os_input);
+ 
+     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
+     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+ 
+     let expected_terminal_events = vec![
+         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+     ];
+     assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+ 
+     assert_eq!(terminal_draw_events_mirror.len(), 3);
+     assert_snapshot!(&terminal_draw_events_mirror[1]);
+     assert_snapshot!(&terminal_draw_events_mirror[2]);
+ }
