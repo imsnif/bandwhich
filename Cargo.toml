@@ -8,12 +8,9 @@ authors = ["Aram Drevekenin <aram@poor.dev>"]
 pnet = "0.22.0"
 procfs = "0.5.3"
 ipnetwork = "0.14.0"
-timer = "0.2.0"
-chrono = "0.4.7"
 tui = "0.5"
 termion = "1.5"
 structopt = "0.3"
-netstat = { git = "https://github.com/imsnif/netstat-rs.git" }
 
 [dev-dependencies]
 assert_cmd = "0.10"

@@ -5,10 +5,10 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 10.0.0.2:443 => 1.1.1.1:12345 (tcp)                1, 2, 3              0Bps/64Bps             1                              2                              0Bps/129Bps                     
- 10.0.0.2:443 => 2.2.2.2:54321 (tcp)                4                    0Bps/73Bps             2                              1                              0Bps/64Bps                      
- 10.0.0.2:443 => 3.3.3.3:1337 (tcp)                 1                    0Bps/65Bps             3                              1                              0Bps/64Bps                      
- 10.0.0.2:443 => 4.4.4.4:1337 (tcp)                 4                    0Bps/62Bps             4                              2                              0Bps/135Bps                     
+ 10.0.0.2:443 => 1.1.1.1:12345 (tcp)                1                    0Bps/64Bps             1                              1                              0Bps/64Bps                      
+ 10.0.0.2:443 => 2.2.2.2:54321 (tcp)                4                    0Bps/73Bps             2                              1                              0Bps/62Bps                      
+ 10.0.0.2:443 => 3.3.3.3:1337 (tcp)                 5                    0Bps/65Bps             4                              1                              0Bps/73Bps                      
+ 10.0.0.2:443 => 4.4.4.4:1337 (tcp)                 2                    0Bps/62Bps             5                              1                              0Bps/65Bps                      
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

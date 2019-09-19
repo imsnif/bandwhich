@@ -2,7 +2,7 @@ mod fakes;
 
 use fakes::TerminalEvent::*;
 use fakes::{
-    get_interface, get_open_sockets, get_process_name, KeyboardEvents, NetworkFrames, TestBackend,
+    get_interface, get_open_sockets, KeyboardEvents, NetworkFrames, TestBackend,
 };
 
 use ::insta::assert_snapshot;
@@ -70,7 +70,6 @@ fn basic_startup() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -110,7 +109,6 @@ fn one_packet_of_traffic() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -162,7 +160,6 @@ fn bi_directional_traffic() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -214,7 +211,6 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -266,7 +262,6 @@ fn multiple_packets_of_traffic_from_single_connection() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -318,7 +313,6 @@ fn one_process_with_multiple_connections() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -384,7 +378,6 @@ fn multiple_processes_with_multiple_connections() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -436,7 +429,6 @@ fn multiple_connections_from_remote_ip() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -490,7 +482,6 @@ fn sustained_traffic_from_one_process() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -558,7 +549,6 @@ fn sustained_traffic_from_multiple_processes() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };
@@ -654,7 +644,6 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };

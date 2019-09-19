@@ -1,4 +1,5 @@
 use ::std::fmt;
+use ::std::collections::HashMap;
 use ::tui::backend::Backend;
 use ::tui::layout::{Constraint, Direction, Layout, Rect};
 use ::tui::style::{Color, Style};
@@ -7,7 +8,7 @@ use ::tui::widgets::{Block, Borders, Row, Table, Widget};
 use ::tui::Terminal;
 
 use crate::display::{Bandwidth, UIState};
-use crate::store::{CurrentConnections, NetworkUtilization};
+use crate::network::{Connection, Utilization};
 
 struct DisplayBandwidth(f64);
 
@@ -92,7 +93,7 @@ fn render_connections_table(state: &UIState, frame: &mut Frame<impl Backend>, re
         .map(|(connection, connection_data)| {
             format_row_data(
                 connection.to_string(),
-                connection_data.processes.join(", "),
+                connection_data.process_name.to_string(),
                 connection_data,
             )
         });
@@ -126,11 +127,11 @@ fn render_remote_ip_table(state: &UIState, frame: &mut Frame<impl Backend>, rect
 }
 
 pub fn display_loop(
-    network_utilization: &NetworkUtilization,
+    network_utilization: &Utilization,
     terminal: &mut Terminal<impl Backend>,
-    current_connections: CurrentConnections,
+    connections_to_procs: HashMap<Connection, String>,
 ) {
-    let state = UIState::new(current_connections, &network_utilization);
+    let state = UIState::new(connections_to_procs, &network_utilization);
     terminal
         .draw(|mut f| {
             let screen_horizontal_halves = split(Direction::Horizontal, f.size());

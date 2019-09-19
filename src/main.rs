@@ -20,7 +20,7 @@ fn main() {
     );
 
     use os::{
-        get_datalink_channel, get_interface, get_open_sockets, get_process_name, KeyboardEvents,
+        get_datalink_channel, get_interface, get_open_sockets, KeyboardEvents,
     };
 
     let opt = Opt::from_args();
@@ -34,7 +34,6 @@ fn main() {
     let os_input = what::OsInput {
         network_interface,
         network_frames,
-        get_process_name,
         get_open_sockets,
         keyboard_events,
     };

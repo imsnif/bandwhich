@@ -3,9 +3,11 @@ use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::NetworkInterface;
 use ::std::net::IpAddr;
 use ::std::{thread, time};
+use ::std::collections::HashMap;
+use ::std::net::{Ipv4Addr, SocketAddr};
 use ::termion::event::Event;
 
-use ::netstat::*;
+use what::network::{Connection, Protocol};
 
 pub struct KeyboardEvents {
     pub events: Vec<Option<Event>>,
@@ -81,69 +83,70 @@ impl DataLinkReceiver for NetworkFrames {
     }
 }
 
-fn create_fake_socket(
-    associated_pids: Vec<u32>,
-    local_ip: IpAddr,
-    remote_ip: IpAddr,
-    local_port: u16,
-    remote_port: u16,
-) -> SocketInfo {
-    let protocol_socket_info = TcpSocketInfo {
-        local_addr: local_ip,
-        remote_addr: remote_ip,
-        local_port: local_port,
-        remote_port: remote_port,
-        state: TcpState::Listen,
-    };
-    SocketInfo {
-        protocol_socket_info: ProtocolSocketInfo::Tcp(protocol_socket_info),
-        associated_pids: associated_pids,
-        inode: 2,
-    }
-}
+// fn create_fake_socket(
+//     associated_pids: Vec<u32>,
+//     local_ip: IpAddr,
+//     remote_ip: IpAddr,
+//     local_port: u16,
+//     remote_port: u16,
+// ) -> SocketInfo {
+//     let protocol_socket_info = TcpSocketInfo {
+//         local_addr: local_ip,
+//         remote_addr: remote_ip,
+//         local_port: local_port,
+//         remote_port: remote_port,
+//         state: TcpState::Listen,
+//     };
+//     SocketInfo {
+//         protocol_socket_info: ProtocolSocketInfo::Tcp(protocol_socket_info),
+//         associated_pids: associated_pids,
+//         inode: 2,
+//     }
+// }
 
-pub fn get_open_sockets() -> Vec<SocketInfo> {
-    vec![
-        create_fake_socket(
-            vec![1, 2, 3],
-            IpAddr::V4("10.0.0.2".parse().unwrap()),
-            IpAddr::V4("1.1.1.1".parse().unwrap()),
-            443,
-            12345,
-        ),
-        create_fake_socket(
-            vec![4],
-            IpAddr::V4("10.0.0.2".parse().unwrap()),
-            IpAddr::V4("2.2.2.2".parse().unwrap()),
-            443,
-            54321,
-        ),
-        create_fake_socket(
-            vec![1],
-            IpAddr::V4("10.0.0.2".parse().unwrap()),
-            IpAddr::V4("3.3.3.3".parse().unwrap()),
-            443,
-            1337,
-        ),
-        create_fake_socket(
-            vec![4],
-            IpAddr::V4("10.0.0.2".parse().unwrap()),
-            IpAddr::V4("4.4.4.4".parse().unwrap()),
-            443,
-            1337,
-        ),
-        create_fake_socket(
-            vec![1, 2, 3],
-            IpAddr::V4("10.0.0.2".parse().unwrap()),
-            IpAddr::V4("1.1.1.1".parse().unwrap()),
-            443,
-            12346,
-        ),
-    ]
-}
-
-pub fn get_process_name(id: i32) -> Option<String> {
-    Some(id.to_string())
+pub fn get_open_sockets() -> HashMap<Connection, String> {
+    let mut open_sockets = HashMap::new();
+    open_sockets.insert(
+        Connection::new(
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 12345),
+            Protocol::Tcp
+        ).unwrap(),
+        String::from("1")
+    );
+    open_sockets.insert(
+        Connection::new(
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(2, 2, 2, 2)), 54321),
+            Protocol::Tcp
+        ).unwrap(),
+        String::from("4")
+    );
+    open_sockets.insert(
+        Connection::new(
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(3, 3, 3, 3)), 1337),
+            Protocol::Tcp
+        ).unwrap(),
+        String::from("5")
+    );
+    open_sockets.insert(
+        Connection::new(
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(4, 4, 4, 4)), 1337),
+            Protocol::Tcp
+        ).unwrap(),
+        String::from("2")
+    );
+    open_sockets.insert(
+        Connection::new(
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
+            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 12346),
+            Protocol::Tcp
+        ).unwrap(),
+        String::from("3")
+    );
+    open_sockets
 }
 
 pub fn get_interface() -> NetworkInterface {

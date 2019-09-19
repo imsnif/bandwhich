@@ -1,4 +1,4 @@
-use crate::traffic::{Connection, Direction, Segment};
+use crate::network::{Connection, Direction, Segment};
 
 use ::std::collections::HashMap;
 
@@ -16,14 +16,14 @@ impl TotalBandwidth {
     }
 }
 
-pub struct NetworkUtilization {
+pub struct Utilization {
     pub connections: HashMap<Connection, TotalBandwidth>,
 }
 
-impl NetworkUtilization {
+impl Utilization {
     pub fn new() -> Self {
         let connections = HashMap::new();
-        NetworkUtilization { connections }
+        Utilization { connections }
     }
     pub fn reset(&mut self) {
         self.connections.clear();
