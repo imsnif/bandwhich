@@ -1,10 +1,10 @@
 use ::ipnetwork::IpNetwork;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::NetworkInterface;
-use ::std::net::IpAddr;
-use ::std::{thread, time};
 use ::std::collections::HashMap;
+use ::std::net::IpAddr;
 use ::std::net::{Ipv4Addr, SocketAddr};
+use ::std::{thread, time};
 use ::termion::event::Event;
 
 use what::network::{Connection, Protocol};
@@ -110,41 +110,46 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 12345),
-            Protocol::Tcp
-        ).unwrap(),
-        String::from("1")
+            Protocol::Tcp,
+        )
+        .unwrap(),
+        String::from("1"),
     );
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(2, 2, 2, 2)), 54321),
-            Protocol::Tcp
-        ).unwrap(),
-        String::from("4")
+            Protocol::Tcp,
+        )
+        .unwrap(),
+        String::from("4"),
     );
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(3, 3, 3, 3)), 1337),
-            Protocol::Tcp
-        ).unwrap(),
-        String::from("5")
+            Protocol::Tcp,
+        )
+        .unwrap(),
+        String::from("5"),
     );
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(4, 4, 4, 4)), 1337),
-            Protocol::Tcp
-        ).unwrap(),
-        String::from("2")
+            Protocol::Tcp,
+        )
+        .unwrap(),
+        String::from("2"),
     );
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 12346),
-            Protocol::Tcp
-        ).unwrap(),
-        String::from("3")
+            Protocol::Tcp,
+        )
+        .unwrap(),
+        String::from("3"),
     );
     open_sockets
 }

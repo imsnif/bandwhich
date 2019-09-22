@@ -19,9 +19,7 @@ fn main() {
         "Sorry, no implementations for platforms other than linux yet :( - PRs welcome!"
     );
 
-    use os::{
-        get_datalink_channel, get_interface, get_open_sockets, KeyboardEvents,
-    };
+    use os::{get_datalink_channel, get_interface, get_open_sockets, KeyboardEvents};
 
     let opt = Opt::from_args();
     let stdout = io::stdout().into_raw_mode().unwrap();

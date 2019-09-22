@@ -2,12 +2,12 @@ mod display;
 pub mod network;
 
 use display::display_loop;
-use network::{Sniffer, Connection, Utilization};
+use network::{Connection, Sniffer, Utilization};
 
 use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
+use ::std::collections::HashMap;
 use ::std::sync::atomic::{AtomicBool, Ordering};
 use ::std::sync::{Arc, Mutex};
-use ::std::collections::HashMap;
 use ::std::{thread, time};
 use ::termion::event::{Event, Key};
 use ::tui::backend::Backend;
@@ -53,12 +53,12 @@ where
             let mut terminal = Terminal::new(terminal_backend).unwrap();
             terminal.clear().unwrap();
             terminal.hide_cursor().unwrap();
-            while displaying.load(Ordering::SeqCst) {
+            while displaying.load(Ordering::Relaxed) {
                 let connections_to_procs = get_open_sockets();
                 {
                     let mut network_utilization = network_utilization.lock().unwrap();
-                    display_loop(&network_utilization, &mut terminal, connections_to_procs);
-                    network_utilization.reset();
+                    let utilization = network_utilization.clone_and_reset();
+                    display_loop(&utilization, &mut terminal, connections_to_procs);
                 }
                 thread::sleep(time::Duration::from_secs(1));
             }
@@ -68,7 +68,7 @@ where
     });
 
     let sniffing_handler = thread::spawn(move || {
-        while running.load(Ordering::SeqCst) {
+        while running.load(Ordering::Relaxed) {
             if let Some(segment) = sniffer.next() {
                 network_utilization.lock().unwrap().update(&segment)
             }

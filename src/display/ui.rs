@@ -1,5 +1,5 @@
-use ::std::fmt;
 use ::std::collections::HashMap;
+use ::std::fmt;
 use ::tui::backend::Backend;
 use ::tui::layout::{Constraint, Direction, Layout, Rect};
 use ::tui::style::{Color, Style};

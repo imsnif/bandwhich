@@ -1,8 +1,8 @@
 use ::std::fmt;
 use ::std::net::Ipv4Addr;
 
-use ::std::net::SocketAddr;
 use ::std::mem::swap;
+use ::std::net::SocketAddr;
 
 #[derive(PartialEq, Hash, Eq, Debug, Clone, PartialOrd, Ord)]
 pub enum Protocol {
@@ -49,7 +49,11 @@ impl fmt::Display for Connection {
 }
 
 impl Connection {
-    pub fn new (local_socket: SocketAddr, remote_socket: SocketAddr, protocol: Protocol) -> Option<Self> {
+    pub fn new(
+        local_socket: SocketAddr,
+        remote_socket: SocketAddr,
+        protocol: Protocol,
+    ) -> Option<Self> {
         match (local_socket, remote_socket) {
             (SocketAddr::V4(local_socket), SocketAddr::V4(remote_socket)) => Some(Connection {
                 // we use our own Socket here because SocketAddr is not sorable
@@ -66,7 +70,7 @@ impl Connection {
             (_, _) => None,
         }
     }
-    pub fn swap_direction (&mut self) {
+    pub fn swap_direction(&mut self) {
         swap(&mut self.local_socket, &mut self.remote_socket);
     }
 }

@@ -14,10 +14,7 @@ structopt = "0.3"
 
 [dev-dependencies]
 assert_cmd = "0.10"
-predicates = "1"
 insta = "*"
 cargo-insta = "*"
-packet = "*"
-
-[features]
-test = []
+packet-builder = "*"
+pnet_base = "*"

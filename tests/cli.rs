@@ -1,14 +1,16 @@
 mod fakes;
 
 use fakes::TerminalEvent::*;
-use fakes::{
-    get_interface, get_open_sockets, KeyboardEvents, NetworkFrames, TestBackend,
-};
+use fakes::{get_interface, get_open_sockets, KeyboardEvents, NetworkFrames, TestBackend};
 
 use ::insta::assert_snapshot;
-use ::packet::builder::Builder;
 use ::std::sync::{Arc, Mutex};
 use ::termion::event::{Event, Key};
+
+use packet_builder::payload::PayloadData;
+use packet_builder::*;
+use pnet::packet::Packet;
+use pnet_base::MacAddr;
 
 fn build_tcp_packet(
     source_ip: &str,
@@ -17,25 +19,15 @@ fn build_tcp_packet(
     destination_port: u16,
     payload: &'static [u8],
 ) -> Vec<u8> {
-    ::packet::ether::Builder::default()
-        .ip()
-        .unwrap()
-        .v4()
-        .unwrap()
-        .source(source_ip.parse().unwrap())
-        .unwrap()
-        .destination(destination_ip.parse().unwrap())
-        .unwrap()
-        .tcp()
-        .unwrap()
-        .source(source_port)
-        .unwrap()
-        .destination(destination_port)
-        .unwrap()
-        .payload(payload)
-        .unwrap()
-        .build()
-        .unwrap()
+    let mut pkt_buf = [0u8; 1500];
+    let pkt = packet_builder!(
+         pkt_buf,
+         ether({set_destination => MacAddr(0,0,0,0,0,0), set_source => MacAddr(0,0,0,0,0,0)}) /
+         ipv4({set_source => ipv4addr!(source_ip), set_destination => ipv4addr!(destination_ip) }) /
+         tcp({set_source => source_port, set_destination => destination_port }) /
+         payload(payload)
+    );
+    pkt.packet().to_vec()
 }
 
 struct LogWithMirror<T> {

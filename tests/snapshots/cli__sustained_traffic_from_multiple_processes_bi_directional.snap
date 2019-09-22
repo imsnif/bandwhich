@@ -5,8 +5,8 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 10.0.0.2:443 => 1.1.1.1:12345 (tcp)                1                    77Bps/81Bps            1                              1                              77Bps/81Bps                     
- 10.0.0.2:443 => 3.3.3.3:1337 (tcp)                 5                    54Bps/57Bps            5                              1                              54Bps/57Bps                     
+ 10.0.0.2:443 => 1.1.1.1:12345 (tcp)                1                    37Bps/41Bps            1                              1                              37Bps/41Bps                     
+ 10.0.0.2:443 => 3.3.3.3:1337 (tcp)                 5                    14Bps/17Bps            5                              1                              14Bps/17Bps                     
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +30,8 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                1.1.1.1                                            1                    77Bps/81Bps           
-                                                                                                3.3.3.3                                            1                    54Bps/57Bps           
+                                                                                                1.1.1.1                                            1                    37Bps/41Bps           
+                                                                                                3.3.3.3                                            1                    14Bps/17Bps           
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

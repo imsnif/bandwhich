@@ -1,7 +1,7 @@
-mod sniffer;
 mod connection;
+mod sniffer;
 mod utilization;
 
-pub use sniffer::*;
 pub use connection::*;
+pub use sniffer::*;
 pub use utilization::*;

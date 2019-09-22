@@ -16,7 +16,7 @@ use crate::network::{Connection, Protocol};
 pub struct Segment {
     pub connection: Connection,
     pub direction: Direction,
-    pub ip_length: u128,
+    pub data_length: u128,
 }
 
 #[derive(PartialEq, Hash, Eq, Debug, Clone, PartialOrd)]
@@ -26,7 +26,7 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn new (network_interface_ips: &Vec<IpNetwork>, ip_packet: &Ipv4Packet) -> Self {
+    pub fn new(network_interface_ips: &Vec<IpNetwork>, ip_packet: &Ipv4Packet) -> Self {
         match network_interface_ips
             .iter()
             .any(|ip_network| ip_network.ip() == ip_packet.get_source())
@@ -59,7 +59,7 @@ impl Sniffer {
         match packet.get_ethertype() {
             EtherType(2048) => {
                 let ip_packet = Ipv4Packet::new(packet.payload())?;
-                let (protocol, source_port, destination_port) =
+                let (protocol, source_port, destination_port, data_length) =
                     match ip_packet.get_next_level_protocol() {
                         IpNextHeaderProtocol(6) => {
                             let message = TcpPacket::new(ip_packet.payload())?;
@@ -67,6 +67,7 @@ impl Sniffer {
                                 Protocol::Tcp,
                                 message.get_source(),
                                 message.get_destination(),
+                                message.payload().len() as u128,
                             )
                         }
                         IpNextHeaderProtocol(17) => {
@@ -75,19 +76,23 @@ impl Sniffer {
                                 Protocol::Udp,
                                 datagram.get_source(),
                                 datagram.get_destination(),
+                                datagram.payload().len() as u128,
                             )
                         }
                         _ => return None,
                     };
                 let direction = Direction::new(&self.network_interface.ips, &ip_packet);
                 let from = SocketAddr::new(IpAddr::V4(ip_packet.get_source()), source_port);
-                let to = SocketAddr::new(IpAddr::V4(ip_packet.get_destination()), destination_port );
+                let to = SocketAddr::new(IpAddr::V4(ip_packet.get_destination()), destination_port);
                 let mut connection = Connection::new(from, to, protocol)?;
                 if let Direction::Download = direction {
                     connection.swap_direction();
                 }
-                let ip_length = ip_packet.get_total_length() as u128;
-                Some(Segment { connection, ip_length, direction })
+                Some(Segment {
+                    connection,
+                    data_length,
+                    direction,
+                })
             }
             _ => None,
         }

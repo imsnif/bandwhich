@@ -5,8 +5,8 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                         5     56                                                                             5     56                        
-                                                                          2    66                                                                              2    66                        
+                                                                         1     16                                                                             1     16                        
+                                                                          2    26                                                                              2    26                        
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +30,8 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                        5     56              
-                                                                                                                                                                         2    66              
+                                                                                                                                                                        1     16              
+                                                                                                                                                                         2    26              
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
