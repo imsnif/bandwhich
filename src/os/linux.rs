@@ -6,6 +6,7 @@ use ::termion::event::Event;
 use ::termion::input::TermRead;
 
 use ::std::collections::HashMap;
+use ::std::net::IpAddr;
 
 use ::procfs::FDTarget;
 
@@ -76,4 +77,11 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
         };
     }
     open_sockets
+}
+
+pub fn lookup_addr(ip: &IpAddr) -> Option<String> {
+    if let Ok(addr) = ::dns_lookup::lookup_addr(ip) {
+        return Some(addr)
+    }
+    None
 }

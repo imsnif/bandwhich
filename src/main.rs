@@ -19,7 +19,7 @@ fn main() {
         "Sorry, no implementations for platforms other than linux yet :( - PRs welcome!"
     );
 
-    use os::{get_datalink_channel, get_interface, get_open_sockets, KeyboardEvents};
+    use os::{get_datalink_channel, get_interface, get_open_sockets, KeyboardEvents, lookup_addr};
 
     let opt = Opt::from_args();
     let stdout = io::stdout().into_raw_mode().unwrap();
@@ -28,12 +28,14 @@ fn main() {
     let keyboard_events = Box::new(KeyboardEvents);
     let network_interface = get_interface(&opt.interface).unwrap();
     let network_frames = get_datalink_channel(&network_interface);
+    let lookup_addr = Box::new(lookup_addr);
 
     let os_input = what::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
+        lookup_addr
     };
 
     what::start(terminal_backend, os_input)

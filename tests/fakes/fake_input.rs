@@ -2,8 +2,7 @@ use ::ipnetwork::IpNetwork;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::NetworkInterface;
 use ::std::collections::HashMap;
-use ::std::net::IpAddr;
-use ::std::net::{Ipv4Addr, SocketAddr};
+use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use ::std::{thread, time};
 use ::termion::event::Event;
 
@@ -83,27 +82,6 @@ impl DataLinkReceiver for NetworkFrames {
     }
 }
 
-// fn create_fake_socket(
-//     associated_pids: Vec<u32>,
-//     local_ip: IpAddr,
-//     remote_ip: IpAddr,
-//     local_port: u16,
-//     remote_port: u16,
-// ) -> SocketInfo {
-//     let protocol_socket_info = TcpSocketInfo {
-//         local_addr: local_ip,
-//         remote_addr: remote_ip,
-//         local_port: local_port,
-//         remote_port: remote_port,
-//         state: TcpState::Listen,
-//     };
-//     SocketInfo {
-//         protocol_socket_info: ProtocolSocketInfo::Tcp(protocol_socket_info),
-//         associated_pids: associated_pids,
-//         inode: 2,
-//     }
-// }
-
 pub fn get_open_sockets() -> HashMap<Connection, String> {
     let mut open_sockets = HashMap::new();
     open_sockets.insert(
@@ -163,4 +141,13 @@ pub fn get_interface() -> NetworkInterface {
         flags: 42,
     };
     interface
+}
+
+pub fn create_fake_lookup_addr(ips_to_hosts: HashMap<IpAddr, String>) -> Box<Fn(&IpAddr) -> Option<String> + Send + Sync + 'static> {
+    Box::new(move |ip| {
+        match ips_to_hosts.get(ip) {
+            Some(host) => Some(host.clone()),
+            None => None
+        }
+    })
 }

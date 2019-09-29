@@ -1,5 +1,4 @@
 use ::std::collections::{BTreeMap, HashMap};
-use ::std::net::Ipv4Addr;
 
 use crate::network::{Connection, Utilization};
 
@@ -42,7 +41,7 @@ impl Bandwidth for NetworkData {
 
 pub struct UIState {
     pub processes: BTreeMap<String, NetworkData>,
-    pub remote_ips: BTreeMap<Ipv4Addr, NetworkData>,
+    pub remote_ips: BTreeMap<String, NetworkData>,
     pub connections: BTreeMap<Connection, ConnectionData>,
 }
 
@@ -52,14 +51,14 @@ impl UIState {
         network_utilization: &Utilization,
     ) -> Self {
         let mut processes: BTreeMap<String, NetworkData> = BTreeMap::new();
-        let mut remote_ips: BTreeMap<Ipv4Addr, NetworkData> = BTreeMap::new();
+        let mut remote_ips: BTreeMap<String, NetworkData> = BTreeMap::new();
         let mut connections: BTreeMap<Connection, ConnectionData> = BTreeMap::new();
         for (connection, process_name) in connections_to_procs {
             if let Some(connection_bandwidth_utilization) =
                 network_utilization.connections.get(&connection)
             {
                 let data_for_remote_ip = remote_ips
-                    .entry(connection.remote_socket.ip.clone())
+                    .entry(connection.remote_socket.clone_host_or_ip())
                     .or_default();
                 let connection_data = connections.entry(connection).or_default();
                 let data_for_process = processes.entry(process_name.clone()).or_default();
