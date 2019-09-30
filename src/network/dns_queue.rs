@@ -18,9 +18,9 @@ impl DnsQueue {
 }
 
 impl DnsQueue {
-    pub fn add_ips_to_resolve(&self, unresolved_ips: Vec<Ipv4Addr>) {
+    pub fn add_ips_to_resolve(&self, mut unresolved_ips: Vec<Ipv4Addr>) {
         let mut queue = self.jobs.lock().unwrap();
-        queue.append(&mut unresolved_ips.into_iter().collect());
+        queue.append(&mut unresolved_ips);
         self.cvar.notify_all();
     }
     pub fn wait_for_jobs(&self) -> Vec<Ipv4Addr> {
