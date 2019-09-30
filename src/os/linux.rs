@@ -10,7 +10,7 @@ use ::std::net::IpAddr;
 
 use ::procfs::FDTarget;
 
-use what::network::{Connection, Protocol};
+use crate::network::{Connection, Protocol};
 
 pub struct KeyboardEvents;
 
@@ -81,7 +81,7 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
 
 pub fn lookup_addr(ip: &IpAddr) -> Option<String> {
     if let Ok(addr) = ::dns_lookup::lookup_addr(ip) {
-        return Some(addr)
+        return Some(addr);
     }
     None
 }

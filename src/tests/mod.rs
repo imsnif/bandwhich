@@ -1,7 +1,10 @@
 mod fakes;
 
 use fakes::TerminalEvent::*;
-use fakes::{get_interface, get_open_sockets, KeyboardEvents, NetworkFrames, TestBackend, create_fake_lookup_addr};
+use fakes::{
+    create_fake_lookup_addr, get_interface, get_open_sockets, KeyboardEvents, NetworkFrames,
+    TestBackend,
+};
 
 use ::insta::assert_snapshot;
 use ::std::sync::{Arc, Mutex};
@@ -63,14 +66,14 @@ fn basic_startup() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -104,14 +107,14 @@ fn one_packet_of_traffic() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -157,14 +160,14 @@ fn bi_directional_traffic() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -210,14 +213,14 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -263,14 +266,14 @@ fn multiple_packets_of_traffic_from_single_connection() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -316,14 +319,14 @@ fn one_process_with_multiple_connections() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -383,14 +386,14 @@ fn multiple_processes_with_multiple_connections() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -436,14 +439,14 @@ fn multiple_connections_from_remote_ip() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -491,14 +494,14 @@ fn sustained_traffic_from_one_process() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -560,14 +563,14 @@ fn sustained_traffic_from_multiple_processes() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -657,14 +660,14 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
@@ -753,19 +756,28 @@ fn traffic_with_host_names() {
     let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
     let network_interface = get_interface();
     let mut ips_to_hostnames = HashMap::new();
-    ips_to_hostnames.insert(IpAddr::V4("1.1.1.1".parse().unwrap()), String::from("one.one.one.one"));
-    ips_to_hostnames.insert(IpAddr::V4("3.3.3.3".parse().unwrap()), String::from("three.three.three.three"));
-    ips_to_hostnames.insert(IpAddr::V4("10.0.0.2".parse().unwrap()), String::from("i-like-cheese.com"));
+    ips_to_hostnames.insert(
+        IpAddr::V4("1.1.1.1".parse().unwrap()),
+        String::from("one.one.one.one"),
+    );
+    ips_to_hostnames.insert(
+        IpAddr::V4("3.3.3.3".parse().unwrap()),
+        String::from("three.three.three.three"),
+    );
+    ips_to_hostnames.insert(
+        IpAddr::V4("10.0.0.2".parse().unwrap()),
+        String::from("i-like-cheese.com"),
+    );
     let lookup_addr = create_fake_lookup_addr(ips_to_hostnames);
 
-    let os_input = what::OsInput {
+    let os_input = crate::OsInput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr
+        lookup_addr,
     };
-    what::start(backend, os_input);
+    crate::start(backend, os_input);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();

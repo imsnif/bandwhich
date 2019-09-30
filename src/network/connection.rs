@@ -26,14 +26,14 @@ impl fmt::Display for Protocol {
 pub struct Socket {
     pub ip: Ipv4Addr,
     pub port: u16,
-    host_addr: Option<String>
+    host_addr: Option<String>,
 }
 
 impl Socket {
     pub fn clone_host_or_ip(&self) -> String {
         match &self.host_addr {
             Some(host_addr) => host_addr.clone(),
-            None => self.ip.to_string()
+            None => self.ip.to_string(),
         }
     }
 }
@@ -43,7 +43,7 @@ impl Ord for Socket {
         let ip_eq = self.ip.cmp(&other.ip); // TODO: also port
         match ip_eq {
             Ordering::Equal => self.port.cmp(&other.port),
-            _ => ip_eq
+            _ => ip_eq,
         }
     }
 }
@@ -72,12 +72,8 @@ impl Hash for Socket {
 impl fmt::Display for Socket {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.host_addr {
-            Some(host_addr) => {
-                write!(f, "{}:{}", host_addr, self.port)
-            },
-            None => {
-                write!(f, "{}:{}", self.ip, self.port)
-            }
+            Some(host_addr) => write!(f, "{}:{}", host_addr, self.port),
+            None => write!(f, "{}:{}", self.ip, self.port),
         }
     }
 }
@@ -106,21 +102,19 @@ impl Connection {
         protocol: Protocol,
     ) -> Option<Self> {
         match (local_socket, remote_socket) {
-            (SocketAddr::V4(local_socket), SocketAddr::V4(remote_socket)) => {
-                Some(Connection {
-                    local_socket: Socket {
-                        ip: *local_socket.ip(),
-                        port: local_socket.port(),
-                        host_addr: None,
-                    },
-                    remote_socket: Socket {
-                        ip: *remote_socket.ip(),
-                        port: remote_socket.port(),
-                        host_addr: None,
-                    },
-                    protocol,
-                })
-            },
+            (SocketAddr::V4(local_socket), SocketAddr::V4(remote_socket)) => Some(Connection {
+                local_socket: Socket {
+                    ip: *local_socket.ip(),
+                    port: local_socket.port(),
+                    host_addr: None,
+                },
+                remote_socket: Socket {
+                    ip: *remote_socket.ip(),
+                    port: remote_socket.port(),
+                    host_addr: None,
+                },
+                protocol,
+            }),
             (_, _) => None,
         }
     }

@@ -1,19 +1,18 @@
-
 use ::std::net::Ipv4Addr;
 
 use ::std::mem::swap;
-use ::std::sync::{Mutex, Condvar};
+use ::std::sync::{Condvar, Mutex};
 
 pub struct DnsQueue {
     jobs: Mutex<Vec<Ipv4Addr>>,
-    cvar: Condvar
+    cvar: Condvar,
 }
 
 impl DnsQueue {
     pub fn new() -> Self {
         DnsQueue {
             jobs: Mutex::new(Vec::new()),
-            cvar: Condvar::new()
+            cvar: Condvar::new(),
         }
     }
 }
@@ -28,7 +27,7 @@ impl DnsQueue {
         let mut jobs = self.cvar.wait(self.jobs.lock().unwrap()).unwrap();
         let mut new_jobs = Vec::new();
         swap(&mut new_jobs, &mut jobs);
-        new_jobs 
+        new_jobs
     }
     pub fn end(&self) {
         self.cvar.notify_all();

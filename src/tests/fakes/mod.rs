@@ -1,5 +1,3 @@
-extern crate what;
-
 mod fake_input;
 mod fake_output;
 

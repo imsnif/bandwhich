@@ -6,7 +6,7 @@ use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use ::std::{thread, time};
 use ::termion::event::Event;
 
-use what::network::{Connection, Protocol};
+use crate::network::{Connection, Protocol};
 
 pub struct KeyboardEvents {
     pub events: Vec<Option<Event>>,
@@ -143,11 +143,11 @@ pub fn get_interface() -> NetworkInterface {
     interface
 }
 
-pub fn create_fake_lookup_addr(ips_to_hosts: HashMap<IpAddr, String>) -> Box<Fn(&IpAddr) -> Option<String> + Send + Sync + 'static> {
-    Box::new(move |ip| {
-        match ips_to_hosts.get(ip) {
-            Some(host) => Some(host.clone()),
-            None => None
-        }
+pub fn create_fake_lookup_addr(
+    ips_to_hosts: HashMap<IpAddr, String>,
+) -> Box<Fn(&IpAddr) -> Option<String> + Send + Sync + 'static> {
+    Box::new(move |ip| match ips_to_hosts.get(ip) {
+        Some(host) => Some(host.clone()),
+        None => None,
     })
 }

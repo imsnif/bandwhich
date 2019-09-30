@@ -1,11 +1,11 @@
 use crate::Connection;
 
-use ::std::net::Ipv4Addr;
 use ::std::collections::HashMap;
+use ::std::net::Ipv4Addr;
 
-pub fn resolve_connections (
+pub fn resolve_connections(
     open_sockets: HashMap<Connection, String>,
-    ip_to_host: &HashMap<Ipv4Addr, String>
+    ip_to_host: &HashMap<Ipv4Addr, String>,
 ) -> (Vec<Ipv4Addr>, HashMap<Connection, String>) {
     let mut unresolved_ips = vec![];
     let mut resolved_connections_to_procs: HashMap<Connection, String> = HashMap::new();
