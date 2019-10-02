@@ -100,16 +100,12 @@ where
     let ip_to_host = Arc::new(Mutex::new(HashMap::new()));
 
     let dns_handler = thread::spawn({
-        let running = running.clone();
         let dns_queue = dns_queue.clone();
         let ip_to_host = ip_to_host.clone();
         move || {
-            while running.load(Ordering::Relaxed) {
-                let jobs = dns_queue.wait_for_jobs();
-                for ip in jobs {
-                    if let Some(addr) = lookup_addr(&IpAddr::V4(ip.clone())) {
-                        ip_to_host.lock().unwrap().insert(ip, addr);
-                    }
+            while let Some(ip) = dns_queue.wait_for_job() {
+                if let Some(addr) = lookup_addr(&IpAddr::V4(ip.clone())) {
+                    ip_to_host.lock().unwrap().insert(ip, addr);
                 }
             }
         }

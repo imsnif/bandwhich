@@ -1,10 +1,9 @@
 use ::std::net::Ipv4Addr;
 
-use ::std::mem::swap;
 use ::std::sync::{Condvar, Mutex};
 
 pub struct DnsQueue {
-    jobs: Mutex<Vec<Ipv4Addr>>,
+    jobs: Mutex<Vec<Option<Ipv4Addr>>>,
     cvar: Condvar,
 }
 
@@ -18,18 +17,22 @@ impl DnsQueue {
 }
 
 impl DnsQueue {
-    pub fn add_ips_to_resolve(&self, mut unresolved_ips: Vec<Ipv4Addr>) {
+    pub fn add_ips_to_resolve(&self, unresolved_ips: Vec<Ipv4Addr>) {
         let mut queue = self.jobs.lock().unwrap();
-        queue.append(&mut unresolved_ips);
+        for ip in unresolved_ips {
+            queue.push(Some(ip));
+        }
         self.cvar.notify_all();
     }
-    pub fn wait_for_jobs(&self) -> Vec<Ipv4Addr> {
-        let mut jobs = self.cvar.wait(self.jobs.lock().unwrap()).unwrap();
-        let mut new_jobs = Vec::new();
-        swap(&mut new_jobs, &mut jobs);
-        new_jobs
+    pub fn wait_for_job(&self) -> Option<Ipv4Addr> {
+        let mut jobs = self.jobs.lock().unwrap();
+        if jobs.is_empty() {
+            jobs = self.cvar.wait(jobs).unwrap();
+        }
+        jobs.pop()?
     }
     pub fn end(&self) {
+        self.jobs.lock().unwrap().push(None);
         self.cvar.notify_all();
     }
 }
