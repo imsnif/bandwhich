@@ -80,8 +80,5 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
 }
 
 pub fn lookup_addr(ip: &IpAddr) -> Option<String> {
-    if let Ok(addr) = ::dns_lookup::lookup_addr(ip) {
-        return Some(addr);
-    }
-    None
+    ::dns_lookup::lookup_addr(ip).ok()
 }
