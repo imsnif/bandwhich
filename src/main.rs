@@ -5,7 +5,7 @@ mod os;
 mod tests;
 
 use display::display_loop;
-use network::{resolve_connections, Connection, DnsQueue, Sniffer, Utilization};
+use network::{Connection, DnsQueue, Sniffer, Utilization};
 
 use ::std::net::IpAddr;
 
@@ -121,18 +121,22 @@ where
             terminal.clear().unwrap();
             terminal.hide_cursor().unwrap();
             while running.load(Ordering::Relaxed) {
-                let connections_to_procs = {
-                    let open_sockets = get_open_sockets();
-                    let ip_to_host = ip_to_host.lock().unwrap();
-                    let (unresolved_ips, connections_to_procs) =
-                        resolve_connections(open_sockets, &ip_to_host);
-                    dns_queue.add_ips_to_resolve(unresolved_ips);
-                    connections_to_procs
-                };
                 {
+                    let connections_to_procs = get_open_sockets();
+                    let ip_to_host = ip_to_host.lock().unwrap();
+                    let unresolved_ips = connections_to_procs.keys().fold(vec![], |mut unresolved_ips, connection| {
+                        if !ip_to_host.contains_key(&connection.local_socket.ip) {
+                            unresolved_ips.push(connection.local_socket.ip.clone());
+                        }
+                        if !ip_to_host.contains_key(&connection.remote_socket.ip) {
+                            unresolved_ips.push(connection.remote_socket.ip.clone());
+                        }
+                        unresolved_ips
+                    });
                     let mut network_utilization = network_utilization.lock().unwrap();
                     let utilization = network_utilization.clone_and_reset();
-                    display_loop(&utilization, &mut terminal, connections_to_procs);
+                    dns_queue.add_ips_to_resolve(unresolved_ips);
+                    display_loop(&utilization, &mut terminal, connections_to_procs, &ip_to_host);
                 }
                 thread::sleep(time::Duration::from_secs(1));
             }

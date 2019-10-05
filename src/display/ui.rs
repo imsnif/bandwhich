@@ -10,6 +10,8 @@ use ::tui::Terminal;
 use crate::display::{Bandwidth, UIState};
 use crate::network::{Connection, Utilization};
 
+use ::std::net::Ipv4Addr;
+
 struct DisplayBandwidth(f64);
 
 impl fmt::Display for DisplayBandwidth {
@@ -23,6 +25,13 @@ impl fmt::Display for DisplayBandwidth {
         } else {
             write!(f, "{}Bps", self.0)
         }
+    }
+}
+
+fn display_ip_or_host (ip: &Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) -> String {
+    match ip_to_host.get(ip) {
+        Some(host) => host.clone(),
+        None => ip.to_string()
     }
 }
 
@@ -86,13 +95,21 @@ fn render_process_table(state: &UIState, frame: &mut Frame<impl Backend>, rect: 
     table.render(frame, rect);
 }
 
-fn render_connections_table(state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect) {
+fn render_connections_table(state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect, ip_to_host: &HashMap<Ipv4Addr, String>) {
     let rows = state
         .connections
         .iter()
         .map(|(connection, connection_data)| {
+            let connection_string = format!(
+                "{}:{} => {}:{} ({})",
+                display_ip_or_host(&connection.local_socket.ip, ip_to_host),
+                connection.local_socket.port,
+                display_ip_or_host(&connection.remote_socket.ip, ip_to_host),
+                connection.remote_socket.port,
+                connection.protocol,
+            );
             format_row_data(
-                connection.to_string(),
+                connection_string,
                 connection_data.process_name.to_string(),
                 connection_data,
             )
@@ -106,13 +123,14 @@ fn render_connections_table(state: &UIState, frame: &mut Frame<impl Backend>, re
     table.render(frame, rect);
 }
 
-fn render_remote_ip_table(state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect) {
+fn render_remote_ip_table(state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect, ip_to_host: &HashMap<Ipv4Addr, String>) {
     let rows = state
         .remote_ips
         .iter()
         .map(|(remote_ip, data_for_remote_ip)| {
+            let remote_ip = display_ip_or_host(remote_ip, &ip_to_host);
             format_row_data(
-                remote_ip.to_string(),
+                remote_ip,
                 data_for_remote_ip.connection_count.to_string(),
                 data_for_remote_ip,
             )
@@ -130,6 +148,7 @@ pub fn display_loop(
     network_utilization: &Utilization,
     terminal: &mut Terminal<impl Backend>,
     connections_to_procs: HashMap<Connection, String>,
+    ip_to_host: &HashMap<Ipv4Addr, String>,
 ) {
     let state = UIState::new(connections_to_procs, &network_utilization);
     terminal
@@ -137,9 +156,9 @@ pub fn display_loop(
             let screen_horizontal_halves = split(Direction::Horizontal, f.size());
             let right_side_vertical_halves =
                 split(Direction::Vertical, screen_horizontal_halves[1]);
-            render_connections_table(&state, &mut f, screen_horizontal_halves[0]);
+            render_connections_table(&state, &mut f, screen_horizontal_halves[0], ip_to_host);
             render_process_table(&state, &mut f, right_side_vertical_halves[0]);
-            render_remote_ip_table(&state, &mut f, right_side_vertical_halves[1]);
+            render_remote_ip_table(&state, &mut f, right_side_vertical_halves[1], ip_to_host);
         })
         .unwrap();
 }
