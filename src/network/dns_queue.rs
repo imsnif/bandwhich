@@ -1,6 +1,8 @@
 use ::std::net::Ipv4Addr;
-
 use ::std::sync::{Condvar, Mutex};
+use ::std::collections::HashMap;
+
+use crate::network::Connection;
 
 pub struct DnsQueue {
     jobs: Mutex<Vec<Option<Ipv4Addr>>>,
@@ -17,11 +19,20 @@ impl DnsQueue {
 }
 
 impl DnsQueue {
-    pub fn add_ips_to_resolve(&self, unresolved_ips: Vec<Ipv4Addr>) {
+    pub fn find_ips_to_resolve(
+        &self,
+        connections_to_procs: &HashMap<Connection, String>,
+        ip_to_host: &HashMap<Ipv4Addr, String>,
+    ) {
         let mut queue = self.jobs.lock().unwrap();
-        for ip in unresolved_ips {
-            queue.push(Some(ip));
-        }
+        for connection in connections_to_procs.keys() {
+            if !ip_to_host.contains_key(&connection.local_socket.ip) {
+                queue.push(Some(connection.local_socket.ip.clone()));
+            }
+            if !ip_to_host.contains_key(&connection.remote_socket.ip) {
+                queue.push(Some(connection.remote_socket.ip.clone()));
+            }
+        };
         self.cvar.notify_all();
     }
     pub fn wait_for_job(&self) -> Option<Ipv4Addr> {

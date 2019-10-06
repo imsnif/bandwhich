@@ -50,11 +50,7 @@ impl Sniffer {
         }
     }
     pub fn next(&mut self) -> Option<Segment> {
-        // TODO: https://github.com/libpnet/libpnet/issues/343
-        // make this non-blocking for faster exits
-        let bytes = self.network_frames.next().unwrap_or_else(|e| {
-            panic!("An error occurred while reading: {}", e);
-        });
+        let bytes = self.network_frames.next().ok()?;
         let packet = EthernetPacket::new(bytes)?;
         match packet.get_ethertype() {
             EtherType(2048) => {

@@ -40,6 +40,7 @@ impl Bandwidth for NetworkData {
     }
 }
 
+#[derive(Default)]
 pub struct UIState {
     pub processes: BTreeMap<String, NetworkData>,
     pub remote_ips: BTreeMap<Ipv4Addr, NetworkData>,
@@ -49,7 +50,7 @@ pub struct UIState {
 impl UIState {
     pub fn new(
         connections_to_procs: HashMap<Connection, String>,
-        network_utilization: &Utilization,
+        network_utilization: Utilization,
     ) -> Self {
         let mut processes: BTreeMap<String, NetworkData> = BTreeMap::new();
         let mut remote_ips: BTreeMap<Ipv4Addr, NetworkData> = BTreeMap::new();
