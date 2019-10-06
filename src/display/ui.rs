@@ -28,10 +28,10 @@ impl fmt::Display for DisplayBandwidth {
     }
 }
 
-fn display_ip_or_host (ip: &Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) -> String {
+fn display_ip_or_host(ip: &Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) -> String {
     match ip_to_host.get(ip) {
         Some(host) => host.clone(),
-        None => ip.to_string()
+        None => ip.to_string(),
     }
 }
 
@@ -95,7 +95,12 @@ fn render_process_table(state: &UIState, frame: &mut Frame<impl Backend>, rect: 
     table.render(frame, rect);
 }
 
-fn render_connections_table(state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect, ip_to_host: &HashMap<Ipv4Addr, String>) {
+fn render_connections_table(
+    state: &UIState,
+    frame: &mut Frame<impl Backend>,
+    rect: Rect,
+    ip_to_host: &HashMap<Ipv4Addr, String>,
+) {
     let rows = state
         .connections
         .iter()
@@ -123,7 +128,12 @@ fn render_connections_table(state: &UIState, frame: &mut Frame<impl Backend>, re
     table.render(frame, rect);
 }
 
-fn render_remote_ip_table(state: &UIState, frame: &mut Frame<impl Backend>, rect: Rect, ip_to_host: &HashMap<Ipv4Addr, String>) {
+fn render_remote_ip_table(
+    state: &UIState,
+    frame: &mut Frame<impl Backend>,
+    rect: Rect,
+    ip_to_host: &HashMap<Ipv4Addr, String>,
+) {
     let rows = state
         .remote_ips
         .iter()
@@ -145,17 +155,19 @@ fn render_remote_ip_table(state: &UIState, frame: &mut Frame<impl Backend>, rect
 }
 
 pub struct Ui<B>
-where B: Backend
+where
+    B: Backend,
 {
     terminal: Terminal<B>,
     state: UIState,
     ip_to_host: HashMap<Ipv4Addr, String>,
 }
 
-impl <B>Ui<B>
-where B: Backend
+impl<B> Ui<B>
+where
+    B: Backend,
 {
-    pub fn new (terminal_backend: B) -> Self {
+    pub fn new(terminal_backend: B) -> Self {
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
@@ -165,7 +177,7 @@ where B: Backend
             ip_to_host: Default::default(),
         }
     }
-    pub fn draw (&mut self) {
+    pub fn draw(&mut self) {
         let state = &self.state;
         let ip_to_host = &self.ip_to_host;
         self.terminal
@@ -188,7 +200,8 @@ where B: Backend
         self.state = UIState::new(connections_to_procs, utilization);
         self.ip_to_host = ip_to_host;
     }
-    pub fn end(&mut self) { // TODO: destroy?
+    pub fn end(&mut self) {
+        // TODO: destroy?
         self.terminal.clear().unwrap();
         self.terminal.show_cursor().unwrap();
     }

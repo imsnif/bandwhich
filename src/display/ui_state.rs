@@ -59,9 +59,7 @@ impl UIState {
             if let Some(connection_bandwidth_utilization) =
                 network_utilization.connections.get(&connection)
             {
-                let data_for_remote_ip = remote_ips
-                    .entry(connection.remote_socket.ip)
-                    .or_default();
+                let data_for_remote_ip = remote_ips.entry(connection.remote_socket.ip).or_default();
                 let connection_data = connections.entry(connection).or_default();
                 let data_for_process = processes.entry(process_name.clone()).or_default();
 

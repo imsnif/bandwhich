@@ -6,8 +6,8 @@ use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use ::std::{thread, time};
 use ::termion::event::Event;
 
-use ::std::sync::Arc;
 use ::std::sync::atomic::{AtomicBool, Ordering};
+use ::std::sync::Arc;
 
 use crate::network::{Connection, Protocol};
 
@@ -155,9 +155,7 @@ pub fn create_fake_lookup_addr(
     })
 }
 
-pub fn create_fake_receive_winch(
-    should_send_winch_event: bool
-) -> Box<Fn(&Arc<AtomicBool>)> {
+pub fn create_fake_receive_winch(should_send_winch_event: bool) -> Box<Fn(&Arc<AtomicBool>)> {
     Box::new(move |winch| {
         if should_send_winch_event {
             thread::sleep(time::Duration::from_secs(1));

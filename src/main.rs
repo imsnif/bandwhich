@@ -7,14 +7,14 @@ mod tests;
 use display::Ui;
 use network::{Connection, DnsQueue, Sniffer, Utilization};
 
-use ::std::net:: IpAddr;
+use ::std::net::IpAddr;
 
 use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
 use ::std::sync::atomic::{AtomicBool, Ordering};
 use ::std::sync::{Arc, Mutex};
-use ::std::{thread, time};
 use ::std::thread::park_timeout;
+use ::std::{thread, time};
 use ::termion::event::{Event, Key};
 use ::tui::backend::Backend;
 
@@ -37,7 +37,10 @@ fn main() {
         "Sorry, no implementations for platforms other than linux yet :( - PRs welcome!"
     );
 
-    use os::{get_datalink_channel, get_interface, get_open_sockets, lookup_addr, receive_winch, KeyboardEvents};
+    use os::{
+        get_datalink_channel, get_interface, get_open_sockets, lookup_addr, receive_winch,
+        KeyboardEvents,
+    };
 
     let opt = Opt::from_args();
     let stdout = io::stdout().into_raw_mode().unwrap();
@@ -127,9 +130,7 @@ where
         move || {
             while running.load(Ordering::Acquire) {
                 let connections_to_procs = get_open_sockets();
-                let ip_to_host = {
-                    ip_to_host.lock().unwrap().clone()
-                };
+                let ip_to_host = { ip_to_host.lock().unwrap().clone() };
                 let utilization = {
                     let mut network_utilization = network_utilization.lock().unwrap();
                     network_utilization.clone_and_reset()
@@ -164,7 +165,6 @@ where
             }
         }
     });
-
 
     let sniffing_handler = thread::spawn(move || {
         while running.load(Ordering::Acquire) {

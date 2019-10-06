@@ -2,8 +2,8 @@ mod fakes;
 
 use fakes::TerminalEvent::*;
 use fakes::{
-    create_fake_lookup_addr, get_interface, get_open_sockets, KeyboardEvents, NetworkFrames,
-    TestBackend, create_fake_receive_winch
+    create_fake_lookup_addr, create_fake_receive_winch, get_interface, get_open_sockets,
+    KeyboardEvents, NetworkFrames, TestBackend,
 };
 
 use ::insta::assert_snapshot;
@@ -817,7 +817,7 @@ fn traffic_with_host_names() {
 }
 
 #[test]
-fn traffic_with_winch_event () {
+fn traffic_with_winch_event() {
     let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
@@ -853,7 +853,7 @@ fn traffic_with_winch_event () {
     let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
 
     let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
     assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
 

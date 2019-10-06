@@ -1,6 +1,6 @@
 use ::pnet::datalink::Channel::Ethernet;
 use ::pnet::datalink::DataLinkReceiver;
-use ::pnet::datalink::{self, NetworkInterface, Config};
+use ::pnet::datalink::{self, Config, NetworkInterface};
 use ::std::io::stdin;
 use ::termion::event::Event;
 use ::termion::input::TermRead;
@@ -92,7 +92,6 @@ pub fn lookup_addr(ip: &IpAddr) -> Option<String> {
 }
 
 pub fn receive_winch(winch: &Arc<AtomicBool>) {
-    ::signal_hook::flag::register(
-        signal_hook::SIGWINCH, winch.clone()
-    ).expect("Failed to register SIGWINCH");
+    ::signal_hook::flag::register(signal_hook::SIGWINCH, winch.clone())
+        .expect("Failed to register SIGWINCH");
 }

@@ -1,6 +1,6 @@
+use ::std::collections::HashMap;
 use ::std::net::Ipv4Addr;
 use ::std::sync::{Condvar, Mutex};
-use ::std::collections::HashMap;
 
 use crate::network::Connection;
 
@@ -32,7 +32,7 @@ impl DnsQueue {
             if !ip_to_host.contains_key(&connection.remote_socket.ip) {
                 queue.push(Some(connection.remote_socket.ip.clone()));
             }
-        };
+        }
         self.cvar.notify_all();
     }
     pub fn wait_for_job(&self) -> Option<Ipv4Addr> {
