@@ -16,10 +16,10 @@ struct DisplayBandwidth(f64);
 
 impl fmt::Display for DisplayBandwidth {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if self.0 > 999999999.0 {
-            write!(f, "{:.2}GBps", self.0 / 1000000000.0)
-        } else if self.0 > 999999.0 {
-            write!(f, "{:.2}MBps", self.0 / 1000000.0)
+        if self.0 > 999_999_999.0 {
+            write!(f, "{:.2}GBps", self.0 / 1_000_000_000.0)
+        } else if self.0 > 999_999.0 {
+            write!(f, "{:.2}MBps", self.0 / 1_000_000.0)
         } else if self.0 > 999.0 {
             write!(f, "{:.2}KBps", self.0 / 1000.0)
         } else {
@@ -28,8 +28,8 @@ impl fmt::Display for DisplayBandwidth {
     }
 }
 
-fn display_ip_or_host(ip: &Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) -> String {
-    match ip_to_host.get(ip) {
+fn display_ip_or_host(ip: Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) -> String {
+    match ip_to_host.get(&ip) {
         Some(host) => host.clone(),
         None => ip.to_string(),
     }
@@ -43,7 +43,7 @@ fn create_table<'a>(
 ) -> impl Widget + 'a {
     let table_rows =
         rows.map(|row| Row::StyledData(row.into_iter(), Style::default().fg(Color::White)));
-    Table::new(column_names.into_iter(), table_rows)
+    Table::new(column_names.iter(), table_rows)
         .block(Block::default().title(title).borders(Borders::ALL))
         .header_style(Style::default().fg(Color::Yellow))
         .widths(widths)
@@ -107,9 +107,9 @@ fn render_connections_table(
         .map(|(connection, connection_data)| {
             let connection_string = format!(
                 "{}:{} => {}:{} ({})",
-                display_ip_or_host(&connection.local_socket.ip, ip_to_host),
+                display_ip_or_host(connection.local_socket.ip, ip_to_host),
                 connection.local_socket.port,
-                display_ip_or_host(&connection.remote_socket.ip, ip_to_host),
+                display_ip_or_host(connection.remote_socket.ip, ip_to_host),
                 connection.remote_socket.port,
                 connection.protocol,
             );
@@ -138,7 +138,7 @@ fn render_remote_ip_table(
         .remote_ips
         .iter()
         .map(|(remote_ip, data_for_remote_ip)| {
-            let remote_ip = display_ip_or_host(remote_ip, &ip_to_host);
+            let remote_ip = display_ip_or_host(*remote_ip, &ip_to_host);
             format_row_data(
                 remote_ip,
                 data_for_remote_ip.connection_count.to_string(),
@@ -172,7 +172,7 @@ where
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
         Ui {
-            terminal: terminal,
+            terminal,
             state: Default::default(),
             ip_to_host: Default::default(),
         }

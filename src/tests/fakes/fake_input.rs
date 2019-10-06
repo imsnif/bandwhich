@@ -136,14 +136,13 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
 }
 
 pub fn get_interface() -> NetworkInterface {
-    let interface = NetworkInterface {
+    NetworkInterface {
         name: String::from("foo"),
         index: 42,
         mac: None,
         ips: vec![IpNetwork::V4("10.0.0.2".parse().unwrap())],
         flags: 42,
-    };
-    interface
+    }
 }
 
 pub fn create_fake_lookup_addr(

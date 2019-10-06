@@ -95,7 +95,7 @@ where
         let ip_to_host = ip_to_host.clone();
         move || {
             while let Some(ip) = dns_queue.wait_for_job() {
-                if let Some(addr) = lookup_addr(&IpAddr::V4(ip.clone())) {
+                if let Some(addr) = lookup_addr(&IpAddr::V4(ip)) {
                     ip_to_host.lock().unwrap().insert(ip, addr);
                 }
             }
