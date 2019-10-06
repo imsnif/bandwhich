@@ -6,6 +6,9 @@ use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use ::std::{thread, time};
 use ::termion::event::Event;
 
+use ::std::sync::Arc;
+use ::std::sync::atomic::{AtomicBool, Ordering};
+
 use crate::network::{Connection, Protocol};
 
 pub struct KeyboardEvents {
@@ -149,5 +152,16 @@ pub fn create_fake_lookup_addr(
     Box::new(move |ip| match ips_to_hosts.get(ip) {
         Some(host) => Some(host.clone()),
         None => None,
+    })
+}
+
+pub fn create_fake_receive_winch(
+    should_send_winch_event: bool
+) -> Box<Fn(&Arc<AtomicBool>)> {
+    Box::new(move |winch| {
+        if should_send_winch_event {
+            thread::sleep(time::Duration::from_secs(1));
+            winch.store(true, Ordering::Relaxed);
+        }
     })
 }
