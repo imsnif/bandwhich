@@ -1,10 +1,10 @@
 ---
-source: tests/cli.rs
+source: src/tests/mod.rs
 expression: "&terminal_draw_events_mirror[0]"
 ---
+ Total Rate Up/Down: 0Bps/0Bps                                                                                                                                                                
 ┌Utilization by connection────────────────────────────────────────────────────────────────────┐┌Utilization by process name──────────────────────────────────────────────────────────────────┐
-│Connection                                         Processes            Total Bytes Up/Down  ││Process                        Connection Count               Total Bytes                    │
-│                                                                                             ││                                                                                             │
+│Connection                                          Process               Rate Up/Down       ││Process                                             Connection count      Rate Up/Down       │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -28,7 +28,7 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                                                                             ││                                                                                             │
 │                                                                                             │└─────────────────────────────────────────────────────────────────────────────────────────────┘
 │                                                                                             │┌Utilization by remote ip─────────────────────────────────────────────────────────────────────┐
-│                                                                                             ││Remote Address                                     Connection Count     Total Bytes          │
+│                                                                                             ││Remote Address                                      Connection Count      Rate Up/Down       │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │

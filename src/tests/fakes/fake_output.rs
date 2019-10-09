@@ -18,20 +18,24 @@ pub enum TerminalEvent {
 pub struct TestBackend {
     pub events: Arc<Mutex<Vec<TerminalEvent>>>,
     pub draw_events: Arc<Mutex<Vec<String>>>,
-    terminal_width: u16,
-    terminal_height: u16,
+    terminal_width: Arc<Mutex<u16>>,
+    terminal_height: Arc<Mutex<u16>>,
 }
 
 impl TestBackend {
     pub fn new(
         log: Arc<Mutex<Vec<TerminalEvent>>>,
         draw_log: Arc<Mutex<Vec<String>>>,
+        terminal_width: Arc<Mutex<u16>>, // 190
+        terminal_height: Arc<Mutex<u16>>, // 50
     ) -> TestBackend {
         TestBackend {
             events: log,
             draw_events: draw_log,
-            terminal_width: 190,
-            terminal_height: 50,
+            terminal_width,
+            terminal_height,
+//            terminal_width: 190,
+//            terminal_height: 50,
         }
     }
 }
@@ -78,8 +82,10 @@ impl Backend for TestBackend {
         for (x, y, cell) in content {
             coordinates.insert(Point { x, y }, cell);
         }
-        for y in 0..self.terminal_height {
-            for x in 0..self.terminal_width {
+        let terminal_height = self.terminal_height.lock().unwrap();
+        let terminal_width = self.terminal_width.lock().unwrap();
+        for y in 0..*terminal_height {
+            for x in 0..*terminal_width {
                 match coordinates.get(&Point { x, y }) {
                     Some(cell) => {
                         // this will contain no style information at all
@@ -98,7 +104,10 @@ impl Backend for TestBackend {
     }
 
     fn size(&self) -> io::Result<Rect> {
-        Ok(Rect::new(0, 0, self.terminal_width, self.terminal_height))
+        let terminal_height = self.terminal_height.lock().unwrap();
+        let terminal_width = self.terminal_width.lock().unwrap();
+
+        Ok(Rect::new(0, 0, *terminal_width, *terminal_height))
     }
 
     fn flush(&mut self) -> io::Result<()> {

@@ -2,35 +2,14 @@
 source: src/tests/mod.rs
 expression: "&terminal_draw_events_mirror[1]"
 ---
-                          55Bps                                                                                                                                                               
+                          104Bps                                                                                                                                                              
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- :443 => 1.1.1.1:12346 (tcp)                         3                     0Bps/31Bps           3                                                   1                     0Bps/31Bps          
+ :443 => 2.2.2.2:54321 (tcp)                         4                     0Bps/33Bps           4                                                   1                     0Bps/33Bps          
+ :443 => 3.3.3.3:1337 (tcp)                          5                     0Bps/25Bps           5                                                   1                     0Bps/25Bps          
  :443 => 1.1.1.1:12345 (tcp)                         1                     0Bps/24Bps           1                                                   1                     0Bps/24Bps          
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                1.1.1.1                                             2                     0Bps/55Bps          
+ :443 => 4.4.4.4:1337 (tcp)                          2                     0Bps/22Bps           2                                                   1                     0Bps/22Bps          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

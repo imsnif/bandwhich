@@ -59,10 +59,12 @@ fn basic_startup() {
         None, // sleep
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -102,10 +104,12 @@ fn one_packet_of_traffic() {
         b"I am a fake tcp packet",
     ))]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -157,10 +161,12 @@ fn bi_directional_traffic() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -212,10 +218,12 @@ fn multiple_packets_of_traffic_from_different_connections() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let receive_winch = Box::new(create_fake_receive_winch(false));
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
@@ -267,10 +275,12 @@ fn multiple_packets_of_traffic_from_single_connection() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -322,10 +332,12 @@ fn one_process_with_multiple_connections() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -391,10 +403,12 @@ fn multiple_processes_with_multiple_connections() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -446,10 +460,12 @@ fn multiple_connections_from_remote_ip() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -503,10 +519,12 @@ fn sustained_traffic_from_one_process() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -574,10 +592,12 @@ fn sustained_traffic_from_multiple_processes() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -673,10 +693,12 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -772,10 +794,12 @@ fn traffic_with_host_names() {
         )),
     ]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
@@ -831,10 +855,12 @@ fn traffic_with_winch_event() {
         b"I am a fake tcp packet",
     ))]);
 
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(50));
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write);
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(true));
@@ -861,4 +887,359 @@ fn traffic_with_winch_event() {
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+}
+
+#[test]
+fn layout_full_width_under_30_height() {
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
+        None, // sleep
+        None, // sleep
+        Some(Event::Key(Key::Ctrl('c'))),
+    ]));
+    let network_frames = NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            443,
+            b"Awesome, I'm from 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "2.2.2.2",
+            "10.0.0.2",
+            54321,
+            443,
+            b"You know, 2.2.2.2 is really nice!",
+        )),
+        Some(build_tcp_packet(
+            "4.4.4.4",
+            "10.0.0.2",
+            1337,
+            443,
+            b"I'm partial to 4.4.4.4",
+        )),
+    ]);
+
+    let terminal_width = Arc::new(Mutex::new(190));
+    let terminal_height = Arc::new(Mutex::new(29));
+    let terminal_events = LogWithMirror::new(Vec::new());
+    let terminal_draw_events = LogWithMirror::new(Vec::new());
+
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let network_interface = get_interface();
+    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let receive_winch = Box::new(create_fake_receive_winch(false));
+
+    let os_input = crate::OsInput {
+        network_interface,
+        network_frames,
+        get_open_sockets,
+        keyboard_events,
+        lookup_addr,
+        receive_winch,
+    };
+    crate::start(backend, os_input);
+
+    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+
+    assert_eq!(terminal_draw_events_mirror.len(), 2);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+}
+
+#[test]
+fn layout_under_150_width_full_height() {
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
+        None, // sleep
+        None, // sleep
+        Some(Event::Key(Key::Ctrl('c'))),
+    ]));
+    let network_frames = NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            443,
+            b"Awesome, I'm from 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "2.2.2.2",
+            "10.0.0.2",
+            54321,
+            443,
+            b"You know, 2.2.2.2 is really nice!",
+        )),
+        Some(build_tcp_packet(
+            "4.4.4.4",
+            "10.0.0.2",
+            1337,
+            443,
+            b"I'm partial to 4.4.4.4",
+        )),
+    ]);
+
+    let terminal_width = Arc::new(Mutex::new(149));
+    let terminal_height = Arc::new(Mutex::new(50));
+    let terminal_events = LogWithMirror::new(Vec::new());
+    let terminal_draw_events = LogWithMirror::new(Vec::new());
+
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let network_interface = get_interface();
+    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let receive_winch = Box::new(create_fake_receive_winch(false));
+
+    let os_input = crate::OsInput {
+        network_interface,
+        network_frames,
+        get_open_sockets,
+        keyboard_events,
+        lookup_addr,
+        receive_winch,
+    };
+    crate::start(backend, os_input);
+
+    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+
+    assert_eq!(terminal_draw_events_mirror.len(), 2);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+}
+
+#[test]
+fn layout_under_150_width_under_30_height () {
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
+        None, // sleep
+        None, // sleep
+        Some(Event::Key(Key::Ctrl('c'))),
+    ]));
+    let network_frames = NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            443,
+            b"Awesome, I'm from 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "2.2.2.2",
+            "10.0.0.2",
+            54321,
+            443,
+            b"You know, 2.2.2.2 is really nice!",
+        )),
+        Some(build_tcp_packet(
+            "4.4.4.4",
+            "10.0.0.2",
+            1337,
+            443,
+            b"I'm partial to 4.4.4.4",
+        )),
+    ]);
+
+    let terminal_width = Arc::new(Mutex::new(149));
+    let terminal_height = Arc::new(Mutex::new(29));
+    let terminal_events = LogWithMirror::new(Vec::new());
+    let terminal_draw_events = LogWithMirror::new(Vec::new());
+
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let network_interface = get_interface();
+    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let receive_winch = Box::new(create_fake_receive_winch(false));
+
+    let os_input = crate::OsInput {
+        network_interface,
+        network_frames,
+        get_open_sockets,
+        keyboard_events,
+        lookup_addr,
+        receive_winch,
+    };
+    crate::start(backend, os_input);
+
+    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+
+    assert_eq!(terminal_draw_events_mirror.len(), 2);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+}
+
+#[test]
+fn layout_under_120_width_full_height () {
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
+        None, // sleep
+        None, // sleep
+        Some(Event::Key(Key::Ctrl('c'))),
+    ]));
+    let network_frames = NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            443,
+            b"Awesome, I'm from 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "2.2.2.2",
+            "10.0.0.2",
+            54321,
+            443,
+            b"You know, 2.2.2.2 is really nice!",
+        )),
+        Some(build_tcp_packet(
+            "4.4.4.4",
+            "10.0.0.2",
+            1337,
+            443,
+            b"I'm partial to 4.4.4.4",
+        )),
+    ]);
+
+    let terminal_width = Arc::new(Mutex::new(119));
+    let terminal_height = Arc::new(Mutex::new(50));
+    let terminal_events = LogWithMirror::new(Vec::new());
+    let terminal_draw_events = LogWithMirror::new(Vec::new());
+
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let network_interface = get_interface();
+    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let receive_winch = Box::new(create_fake_receive_winch(false));
+
+    let os_input = crate::OsInput {
+        network_interface,
+        network_frames,
+        get_open_sockets,
+        keyboard_events,
+        lookup_addr,
+        receive_winch,
+    };
+    crate::start(backend, os_input);
+
+    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+
+    assert_eq!(terminal_draw_events_mirror.len(), 2);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+}
+
+#[test]
+fn layout_under_120_width_under_30_height () {
+    let keyboard_events = Box::new(KeyboardEvents::new(vec![
+        None, // sleep
+        None, // sleep
+        Some(Event::Key(Key::Ctrl('c'))),
+    ]));
+    let network_frames = NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            443,
+            b"Awesome, I'm from 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "2.2.2.2",
+            "10.0.0.2",
+            54321,
+            443,
+            b"You know, 2.2.2.2 is really nice!",
+        )),
+        Some(build_tcp_packet(
+            "4.4.4.4",
+            "10.0.0.2",
+            1337,
+            443,
+            b"I'm partial to 4.4.4.4",
+        )),
+    ]);
+
+    let terminal_width = Arc::new(Mutex::new(119));
+    let terminal_height = Arc::new(Mutex::new(29));
+    let terminal_events = LogWithMirror::new(Vec::new());
+    let terminal_draw_events = LogWithMirror::new(Vec::new());
+
+    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let network_interface = get_interface();
+    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let receive_winch = Box::new(create_fake_receive_winch(false));
+
+    let os_input = crate::OsInput {
+        network_interface,
+        network_frames,
+        get_open_sockets,
+        keyboard_events,
+        lookup_addr,
+        receive_winch,
+    };
+    crate::start(backend, os_input);
+
+    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+
+    assert_eq!(terminal_draw_events_mirror.len(), 2);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
 }

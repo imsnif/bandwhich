@@ -89,8 +89,8 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     let mut open_sockets = HashMap::new();
     open_sockets.insert(
         Connection::new(
-            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 12345),
+            443,
             Protocol::Tcp,
         )
         .unwrap(),
@@ -98,8 +98,8 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     );
     open_sockets.insert(
         Connection::new(
-            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(2, 2, 2, 2)), 54321),
+            443,
             Protocol::Tcp,
         )
         .unwrap(),
@@ -107,8 +107,8 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     );
     open_sockets.insert(
         Connection::new(
-            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(3, 3, 3, 3)), 1337),
+            443,
             Protocol::Tcp,
         )
         .unwrap(),
@@ -116,8 +116,8 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     );
     open_sockets.insert(
         Connection::new(
-            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(4, 4, 4, 4)), 1337),
+            443,
             Protocol::Tcp,
         )
         .unwrap(),
@@ -125,8 +125,8 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     );
     open_sockets.insert(
         Connection::new(
-            SocketAddr::new(IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2)), 443),
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 12346),
+            443,
             Protocol::Tcp,
         )
         .unwrap(),

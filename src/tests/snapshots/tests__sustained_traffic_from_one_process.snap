@@ -1,16 +1,12 @@
 ---
-source: tests/cli.rs
+source: src/tests/mod.rs
 expression: "&terminal_draw_events_mirror[1]"
 ---
+                          24Bps                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 10.0.0.2:443 => 1.1.1.1:12345 (tcp)                1                    0Bps/24Bps             1                              1                              0Bps/24Bps                      
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+ :443 => 1.1.1.1:12345 (tcp)                         1                     0Bps/24Bps           1                                                   1                     0Bps/24Bps          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,7 +26,11 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                1.1.1.1                                            1                    0Bps/24Bps            
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                1.1.1.1                                             1                     0Bps/24Bps          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
