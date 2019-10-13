@@ -26,16 +26,14 @@ impl TestBackend {
     pub fn new(
         log: Arc<Mutex<Vec<TerminalEvent>>>,
         draw_log: Arc<Mutex<Vec<String>>>,
-        terminal_width: Arc<Mutex<u16>>, // 190
-        terminal_height: Arc<Mutex<u16>>, // 50
+        terminal_width: Arc<Mutex<u16>>,
+        terminal_height: Arc<Mutex<u16>>,
     ) -> TestBackend {
         TestBackend {
             events: log,
             draw_events: draw_log,
             terminal_width,
             terminal_height,
-//            terminal_width: 190,
-//            terminal_height: 50,
         }
     }
 }

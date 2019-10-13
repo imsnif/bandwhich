@@ -1,7 +1,6 @@
 use ::std::fmt;
 use ::std::net::Ipv4Addr;
 
-use ::std::mem::swap;
 use ::std::net::SocketAddr;
 
 #[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord)]
@@ -27,33 +26,23 @@ pub struct Socket {
 
 #[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord)]
 pub struct Connection {
-    pub local_socket: Socket,
     pub remote_socket: Socket,
     pub protocol: Protocol,
+    pub local_port: u16,
 }
 
 impl Connection {
-    pub fn new(
-        local_socket: SocketAddr,
-        remote_socket: SocketAddr,
-        protocol: Protocol,
-    ) -> Option<Self> {
-        match (local_socket, remote_socket) {
-            (SocketAddr::V4(local_socket), SocketAddr::V4(remote_socket)) => Some(Connection {
-                local_socket: Socket {
-                    ip: *local_socket.ip(),
-                    port: local_socket.port(),
-                },
+    pub fn new(remote_socket: SocketAddr, local_port: u16, protocol: Protocol) -> Option<Self> {
+        match remote_socket {
+            SocketAddr::V4(remote_socket) => Some(Connection {
                 remote_socket: Socket {
                     ip: *remote_socket.ip(),
                     port: remote_socket.port(),
                 },
                 protocol,
+                local_port,
             }),
-            (_, _) => None,
+            _ => None,
         }
-    }
-    pub fn swap_direction(&mut self) {
-        swap(&mut self.local_socket, &mut self.remote_socket);
     }
 }

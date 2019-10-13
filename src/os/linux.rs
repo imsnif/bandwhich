@@ -67,8 +67,9 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
 
     let tcp = ::procfs::tcp().unwrap();
     for entry in tcp.into_iter() {
+        let local_port = entry.local_address.port();
         if let (Some(connection), Some(procname)) = (
-            Connection::new(entry.local_address, entry.remote_address, Protocol::Tcp),
+            Connection::new(entry.remote_address, local_port, Protocol::Tcp),
             inode_to_procname.get(&entry.inode),
         ) {
             open_sockets.insert(connection, procname.clone());
@@ -77,8 +78,9 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
 
     let udp = ::procfs::udp().unwrap();
     for entry in udp.into_iter() {
+        let local_port = entry.local_address.port();
         if let (Some(connection), Some(procname)) = (
-            Connection::new(entry.local_address, entry.remote_address, Protocol::Udp),
+            Connection::new(entry.remote_address, local_port, Protocol::Udp),
             inode_to_procname.get(&entry.inode),
         ) {
             open_sockets.insert(connection, procname.clone());

@@ -81,10 +81,11 @@ impl Sniffer {
                 let direction = Direction::new(&self.network_interface.ips, &ip_packet);
                 let from = SocketAddr::new(IpAddr::V4(ip_packet.get_source()), source_port);
                 let to = SocketAddr::new(IpAddr::V4(ip_packet.get_destination()), destination_port);
-                let mut connection = Connection::new(from, to, protocol)?;
-                if let Direction::Download = direction {
-                    connection.swap_direction();
-                }
+
+                let connection = match direction {
+                    Direction::Download => Connection::new(from, destination_port, protocol)?,
+                    Direction::Upload => Connection::new(to, source_port, protocol)?,
+                };
                 Some(Segment {
                     connection,
                     data_length,

@@ -26,9 +26,6 @@ impl DnsQueue {
     ) {
         let mut queue = self.jobs.lock().unwrap();
         for connection in connections_to_procs.keys() {
-            if !ip_to_host.contains_key(&connection.local_socket.ip) {
-                queue.push(Some(connection.local_socket.ip));
-            }
             if !ip_to_host.contains_key(&connection.remote_socket.ip) {
                 queue.push(Some(connection.remote_socket.ip));
             }

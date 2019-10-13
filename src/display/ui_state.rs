@@ -45,6 +45,8 @@ pub struct UIState {
     pub processes: BTreeMap<String, NetworkData>,
     pub remote_ips: BTreeMap<Ipv4Addr, NetworkData>,
     pub connections: BTreeMap<Connection, ConnectionData>,
+    pub total_bytes_downloaded: u128,
+    pub total_bytes_uploaded: u128,
 }
 
 impl UIState {
@@ -55,6 +57,8 @@ impl UIState {
         let mut processes: BTreeMap<String, NetworkData> = BTreeMap::new();
         let mut remote_ips: BTreeMap<Ipv4Addr, NetworkData> = BTreeMap::new();
         let mut connections: BTreeMap<Connection, ConnectionData> = BTreeMap::new();
+        let mut total_bytes_downloaded: u128 = 0;
+        let mut total_bytes_uploaded: u128 = 0;
         for (connection, process_name) in connections_to_procs {
             if let Some(connection_bandwidth_utilization) =
                 network_utilization.connections.get(&connection)
@@ -78,12 +82,16 @@ impl UIState {
                 data_for_remote_ip.total_bytes_uploaded +=
                     connection_bandwidth_utilization.total_bytes_uploaded;
                 data_for_remote_ip.connection_count += 1;
+                total_bytes_downloaded += connection_bandwidth_utilization.total_bytes_downloaded;
+                total_bytes_uploaded += connection_bandwidth_utilization.total_bytes_uploaded;
             }
         }
         UIState {
             processes,
             remote_ips,
             connections,
+            total_bytes_downloaded,
+            total_bytes_uploaded,
         }
     }
 }

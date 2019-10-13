@@ -64,7 +64,12 @@ fn basic_startup() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -109,7 +114,12 @@ fn one_packet_of_traffic() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -166,7 +176,12 @@ fn bi_directional_traffic() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -223,7 +238,12 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let receive_winch = Box::new(create_fake_receive_winch(false));
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
@@ -280,7 +300,12 @@ fn multiple_packets_of_traffic_from_single_connection() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -337,7 +362,12 @@ fn one_process_with_multiple_connections() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -408,7 +438,12 @@ fn multiple_processes_with_multiple_connections() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -465,7 +500,12 @@ fn multiple_connections_from_remote_ip() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -524,7 +564,12 @@ fn sustained_traffic_from_one_process() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -597,7 +642,12 @@ fn sustained_traffic_from_multiple_processes() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -698,7 +748,12 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -799,7 +854,12 @@ fn traffic_with_host_names() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
@@ -860,7 +920,12 @@ fn traffic_with_winch_event() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(true));
@@ -932,7 +997,12 @@ fn layout_full_width_under_30_height() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -1003,7 +1073,12 @@ fn layout_under_150_width_full_height() {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -1032,7 +1107,7 @@ fn layout_under_150_width_full_height() {
 }
 
 #[test]
-fn layout_under_150_width_under_30_height () {
+fn layout_under_150_width_under_30_height() {
     let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
@@ -1074,7 +1149,12 @@ fn layout_under_150_width_under_30_height () {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -1103,7 +1183,7 @@ fn layout_under_150_width_under_30_height () {
 }
 
 #[test]
-fn layout_under_120_width_full_height () {
+fn layout_under_120_width_full_height() {
     let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
@@ -1145,7 +1225,12 @@ fn layout_under_120_width_full_height () {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
@@ -1174,7 +1259,7 @@ fn layout_under_120_width_full_height () {
 }
 
 #[test]
-fn layout_under_120_width_under_30_height () {
+fn layout_under_120_width_under_30_height() {
     let keyboard_events = Box::new(KeyboardEvents::new(vec![
         None, // sleep
         None, // sleep
@@ -1216,7 +1301,12 @@ fn layout_under_120_width_under_30_height () {
     let terminal_events = LogWithMirror::new(Vec::new());
     let terminal_draw_events = LogWithMirror::new(Vec::new());
 
-    let backend = TestBackend::new(terminal_events.write, terminal_draw_events.write, terminal_width, terminal_height);
+    let backend = TestBackend::new(
+        terminal_events.write,
+        terminal_draw_events.write,
+        terminal_width,
+        terminal_height,
+    );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let receive_winch = Box::new(create_fake_receive_winch(false));
