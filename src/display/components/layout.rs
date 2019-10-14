@@ -15,7 +15,7 @@ fn leave_gap_on_top_of_rect(rect: Rect) -> Rect {
         .margin(0)
         .constraints([Constraint::Length(1), Constraint::Length(rect.height - 1)].as_ref())
         .split(rect);
-    return app[1];
+    app[1]
 }
 
 pub struct Layout<'a> {
