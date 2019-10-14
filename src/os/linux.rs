@@ -7,10 +7,7 @@ use ::termion::input::TermRead;
 
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
-use ::std::sync::Arc;
 use ::std::time;
-
-use ::std::sync::atomic::AtomicBool;
 
 use ::signal_hook;
 
@@ -93,7 +90,8 @@ pub fn lookup_addr(ip: &IpAddr) -> Option<String> {
     ::dns_lookup::lookup_addr(ip).ok()
 }
 
-pub fn receive_winch(winch: &Arc<AtomicBool>) {
-    ::signal_hook::flag::register(signal_hook::SIGWINCH, winch.clone())
-        .expect("Failed to register SIGWINCH");
+pub fn on_winch <F>(cb: F )
+where F: Fn() + Send + Sync + 'static
+{
+    unsafe { signal_hook::register(signal_hook::SIGWINCH, cb).unwrap();}
 }

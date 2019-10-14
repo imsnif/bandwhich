@@ -2,7 +2,7 @@ mod fakes;
 
 use fakes::TerminalEvent::*;
 use fakes::{
-    create_fake_lookup_addr, create_fake_receive_winch, get_interface, get_open_sockets,
+    create_fake_lookup_addr, create_fake_on_winch, get_interface, get_open_sockets,
     KeyboardEvents, NetworkFrames, TestBackend,
 };
 
@@ -72,7 +72,7 @@ fn basic_startup() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -80,7 +80,7 @@ fn basic_startup() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -122,7 +122,7 @@ fn one_packet_of_traffic() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -130,7 +130,7 @@ fn one_packet_of_traffic() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -184,7 +184,7 @@ fn bi_directional_traffic() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -192,7 +192,7 @@ fn bi_directional_traffic() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -244,7 +244,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
         terminal_width,
         terminal_height,
     );
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
 
@@ -252,7 +252,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
         network_interface,
         network_frames,
         get_open_sockets,
-        receive_winch,
+        on_winch,
         keyboard_events,
         lookup_addr,
     };
@@ -308,7 +308,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -316,7 +316,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -370,7 +370,7 @@ fn one_process_with_multiple_connections() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -378,7 +378,7 @@ fn one_process_with_multiple_connections() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -446,7 +446,7 @@ fn multiple_processes_with_multiple_connections() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -454,7 +454,7 @@ fn multiple_processes_with_multiple_connections() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -508,7 +508,7 @@ fn multiple_connections_from_remote_ip() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -516,7 +516,7 @@ fn multiple_connections_from_remote_ip() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -572,7 +572,7 @@ fn sustained_traffic_from_one_process() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -580,7 +580,7 @@ fn sustained_traffic_from_one_process() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -650,7 +650,7 @@ fn sustained_traffic_from_multiple_processes() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -658,7 +658,7 @@ fn sustained_traffic_from_multiple_processes() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -756,7 +756,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -764,7 +764,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -875,7 +875,7 @@ fn traffic_with_host_names() {
         String::from("i-like-cheese.com"),
     );
     let lookup_addr = create_fake_lookup_addr(ips_to_hostnames);
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -883,7 +883,7 @@ fn traffic_with_host_names() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -928,7 +928,7 @@ fn traffic_with_winch_event() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(true));
+    let on_winch = create_fake_on_winch(true);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -936,7 +936,7 @@ fn traffic_with_winch_event() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -1005,7 +1005,7 @@ fn layout_full_width_under_30_height() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -1013,7 +1013,7 @@ fn layout_full_width_under_30_height() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -1081,7 +1081,7 @@ fn layout_under_150_width_full_height() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -1089,7 +1089,7 @@ fn layout_under_150_width_full_height() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -1157,7 +1157,7 @@ fn layout_under_150_width_under_30_height() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -1165,7 +1165,7 @@ fn layout_under_150_width_under_30_height() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -1233,7 +1233,7 @@ fn layout_under_120_width_full_height() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -1241,7 +1241,7 @@ fn layout_under_120_width_full_height() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 
@@ -1309,7 +1309,7 @@ fn layout_under_120_width_under_30_height() {
     );
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let receive_winch = Box::new(create_fake_receive_winch(false));
+    let on_winch = create_fake_on_winch(false);
 
     let os_input = crate::OsInput {
         network_interface,
@@ -1317,7 +1317,7 @@ fn layout_under_120_width_under_30_height() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
     crate::start(backend, os_input);
 

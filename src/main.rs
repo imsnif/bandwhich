@@ -38,7 +38,7 @@ fn main() {
     );
 
     use os::{
-        get_datalink_channel, get_interface, get_open_sockets, lookup_addr, receive_winch,
+        get_datalink_channel, get_interface, get_open_sockets, lookup_addr, on_winch,
         KeyboardEvents,
     };
 
@@ -50,7 +50,7 @@ fn main() {
     let network_interface = get_interface(&opt.interface).unwrap();
     let network_frames = get_datalink_channel(&network_interface);
     let lookup_addr = Box::new(lookup_addr);
-    let receive_winch = Box::new(receive_winch);
+    let on_winch = Box::new(on_winch);
 
     let os_input = OsInput {
         network_interface,
@@ -58,7 +58,7 @@ fn main() {
         get_open_sockets,
         keyboard_events,
         lookup_addr,
-        receive_winch,
+        on_winch,
     };
 
     start(terminal_backend, os_input)
@@ -70,7 +70,7 @@ pub struct OsInput {
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
     pub keyboard_events: Box<Iterator<Item = Event> + Send + Sync + 'static>,
     pub lookup_addr: Box<Fn(&IpAddr) -> Option<String> + Send + Sync + 'static>,
-    pub receive_winch: Box<Fn(&Arc<AtomicBool>)>,
+    pub on_winch: Box<Fn(Box<Fn() + Send + Sync + 'static>) + Send + Sync + 'static>,
 }
 
 pub fn start<B>(terminal_backend: B, os_input: OsInput)
@@ -82,7 +82,7 @@ where
     let keyboard_events = os_input.keyboard_events; // TODO: as methods in os_interface
     let get_open_sockets = os_input.get_open_sockets;
     let lookup_addr = os_input.lookup_addr;
-    let receive_winch = os_input.receive_winch;
+    let on_winch = os_input.on_winch;
 
     let mut sniffer = Sniffer::new(os_input.network_interface, os_input.network_frames);
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
@@ -103,21 +103,16 @@ where
     });
 
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend)));
-    let winch = Arc::new(AtomicBool::new(false));
-    receive_winch(&winch);
 
     let resize_handler = thread::spawn({
-        let running = running.clone();
-        let winch = winch.clone();
         let ui = ui.clone();
         move || {
-            while running.load(Ordering::Acquire) {
-                while winch.load(Ordering::Acquire) {
-                    let mut ui = ui.lock().unwrap();
-                    ui.draw();
-                    winch.store(false, Ordering::Release);
-                }
-            }
+           on_winch({
+               Box::new(move || {
+                   let mut ui = ui.lock().unwrap();
+                   ui.draw();
+               })
+           });
         }
     });
 
