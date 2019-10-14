@@ -6,7 +6,7 @@ use ::tui::style::{Color, Style};
 use ::tui::terminal::Frame;
 use ::tui::widgets::{Block, Borders, Row, Widget};
 
-use crate::display::{DisplayBandwidth, Bandwidth, UIState};
+use crate::display::{Bandwidth, DisplayBandwidth, UIState};
 use crate::network::Connection;
 
 use ::std::net::Ipv4Addr;
@@ -19,7 +19,6 @@ const THIRD_WIDTH_BREAKPOINT: u16 = 95;
 const FIRST_COLUMN_WIDTHS: [u16; 4] = [20, 30, 40, 50];
 const SECOND_COLUMN_WIDTHS: [u16; 1] = [20];
 const THIRD_COLUMN_WIDTHS: [u16; 4] = [10, 20, 20, 20];
-
 
 fn display_upload_and_download(bandwidth: &impl Bandwidth) -> String {
     format!(
@@ -74,8 +73,11 @@ pub struct Table<'a> {
     rows: Vec<Vec<String>>,
 }
 
-impl <'a>Table<'a> {
-    pub fn create_connections_table(state: &UIState, ip_to_host: &HashMap<Ipv4Addr, String>) -> Self {
+impl<'a> Table<'a> {
+    pub fn create_connections_table(
+        state: &UIState,
+        ip_to_host: &HashMap<Ipv4Addr, String>,
+    ) -> Self {
         let mut connections_list = Vec::from_iter(&state.connections);
         sort_by_bandwidth(&mut connections_list);
         let connections_rows = connections_list
@@ -117,7 +119,10 @@ impl <'a>Table<'a> {
             rows: processes_rows,
         }
     }
-    pub fn create_remote_ips_table(state: &UIState, ip_to_host: &HashMap<Ipv4Addr, String>) -> Self {
+    pub fn create_remote_ips_table(
+        state: &UIState,
+        ip_to_host: &HashMap<Ipv4Addr, String>,
+    ) -> Self {
         let mut remote_ips_list = Vec::from_iter(&state.remote_ips);
         sort_by_bandwidth(&mut remote_ips_list);
         let remote_ips_rows = remote_ips_list
@@ -132,8 +137,7 @@ impl <'a>Table<'a> {
             })
             .collect();
         let remote_ips_title = "Utilization by remote ip";
-        let remote_ips_column_names =
-            &["Remote Address", "Connection Count", "Rate Up/Down"];
+        let remote_ips_column_names = &["Remote Address", "Connection Count", "Rate Up/Down"];
         Table {
             title: remote_ips_title,
             column_names: remote_ips_column_names,
@@ -150,7 +154,11 @@ impl <'a>Table<'a> {
         } else if rect.width < THIRD_WIDTH_BREAKPOINT {
             vec![FIRST_COLUMN_WIDTHS[2], THIRD_COLUMN_WIDTHS[2]]
         } else {
-            vec![FIRST_COLUMN_WIDTHS[3], SECOND_COLUMN_WIDTHS[0], THIRD_COLUMN_WIDTHS[2]]
+            vec![
+                FIRST_COLUMN_WIDTHS[3],
+                SECOND_COLUMN_WIDTHS[0],
+                THIRD_COLUMN_WIDTHS[2],
+            ]
         };
 
         let column_names = if rect.width < THIRD_WIDTH_BREAKPOINT {

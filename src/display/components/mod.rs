@@ -1,9 +1,9 @@
-mod table;
-mod layout;
-mod total_bandwidth;
 mod display_bandwidth;
+mod layout;
+mod table;
+mod total_bandwidth;
 
-pub use table::*;
-pub use layout::*;
-pub use total_bandwidth::*;
 pub use display_bandwidth::*;
+pub use layout::*;
+pub use table::*;
+pub use total_bandwidth::*;

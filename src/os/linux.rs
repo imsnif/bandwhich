@@ -90,8 +90,11 @@ pub fn lookup_addr(ip: &IpAddr) -> Option<String> {
     ::dns_lookup::lookup_addr(ip).ok()
 }
 
-pub fn on_winch <F>(cb: F )
-where F: Fn() + Send + Sync + 'static
+pub fn on_winch<F>(cb: F)
+where
+    F: Fn() + Send + Sync + 'static,
 {
-    unsafe { signal_hook::register(signal_hook::SIGWINCH, cb).unwrap();}
+    unsafe {
+        signal_hook::register(signal_hook::SIGWINCH, cb).unwrap();
+    }
 }

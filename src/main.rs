@@ -54,7 +54,9 @@ fn try_main() -> Result<(), failure::Error> {
     let opt = Opt::from_args();
     let stdout = match io::stdout().into_raw_mode() {
         Ok(stdout) => stdout,
-        Err(_) => failure::bail!("Failed to get stdout: what does not (yet) support piping, is it being piped?")
+        Err(_) => failure::bail!(
+            "Failed to get stdout: what does not (yet) support piping, is it being piped?"
+        ),
     };
     let terminal_backend = TermionBackend::new(stdout);
 
@@ -97,7 +99,7 @@ where
 {
     let running = Arc::new(AtomicBool::new(true));
 
-    let keyboard_events = os_input.keyboard_events; // TODO: as methods in os_interface
+    let keyboard_events = os_input.keyboard_events;
     let get_open_sockets = os_input.get_open_sockets;
     let lookup_addr = os_input.lookup_addr;
     let on_winch = os_input.on_winch;
@@ -123,12 +125,12 @@ where
     let resize_handler = thread::spawn({
         let ui = ui.clone();
         move || {
-           on_winch({
-               Box::new(move || {
-                   let mut ui = ui.lock().unwrap();
-                   ui.draw();
-               })
-           });
+            on_winch({
+                Box::new(move || {
+                    let mut ui = ui.lock().unwrap();
+                    ui.draw();
+                })
+            });
         }
     });
 

@@ -151,7 +151,9 @@ pub fn create_fake_lookup_addr(
     })
 }
 
-pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<Fn(Box<Fn() + Send + Sync + 'static>) + Send + Sync + 'static> {
+pub fn create_fake_on_winch(
+    should_send_winch_event: bool,
+) -> Box<Fn(Box<Fn() + Send + Sync + 'static>) + Send + Sync + 'static> {
     Box::new(move |cb| {
         if should_send_winch_event {
             thread::sleep(time::Duration::from_secs(1));

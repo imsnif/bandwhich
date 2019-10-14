@@ -10,7 +10,7 @@ pub struct TotalBandwidth<'a> {
     pub state: &'a UIState,
 }
 
-impl<'a>TotalBandwidth<'a> {
+impl<'a> TotalBandwidth<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let title_text = [Text::styled(
             format!(

@@ -3,9 +3,9 @@ use ::std::collections::HashMap;
 use ::tui::backend::Backend;
 use ::tui::Terminal;
 
+use crate::display::components::{Layout, Table, TotalBandwidth};
 use crate::display::UIState;
 use crate::network::{Connection, Utilization};
-use crate::display::components::{Table, Layout, TotalBandwidth};
 
 use ::std::net::Ipv4Addr;
 use ::std::sync::atomic::{AtomicBool, Ordering};

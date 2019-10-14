@@ -2,8 +2,8 @@ mod fakes;
 
 use fakes::TerminalEvent::*;
 use fakes::{
-    create_fake_lookup_addr, create_fake_on_winch, get_interface, get_open_sockets,
-    KeyboardEvents, NetworkFrames, TestBackend,
+    create_fake_lookup_addr, create_fake_on_winch, get_interface, get_open_sockets, KeyboardEvents,
+    NetworkFrames, TestBackend,
 };
 
 use ::insta::assert_snapshot;
