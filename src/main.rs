@@ -18,6 +18,8 @@ use ::std::{thread, time};
 use ::termion::event::{Event, Key};
 use ::tui::backend::Backend;
 
+use std::process;
+
 use ::std::io;
 use ::termion::raw::IntoRawMode;
 use ::tui::backend::TermionBackend;
@@ -32,6 +34,13 @@ struct Opt {
 }
 
 fn main() {
+    if let Err(err) = try_main() {
+        eprintln!("Error: {}", err);
+        process::exit(2);
+    }
+}
+
+fn try_main() -> Result<(), failure::Error> {
     #[cfg(not(target_os = "linux"))]
     compile_error!(
         "Sorry, no implementations for platforms other than linux yet :( - PRs welcome!"
@@ -43,11 +52,19 @@ fn main() {
     };
 
     let opt = Opt::from_args();
-    let stdout = io::stdout().into_raw_mode().unwrap();
+    let stdout = match io::stdout().into_raw_mode() {
+        Ok(stdout) => stdout,
+        Err(_) => failure::bail!("Failed to get stdout: what does not (yet) support piping, is it being piped?")
+    };
     let terminal_backend = TermionBackend::new(stdout);
 
     let keyboard_events = Box::new(KeyboardEvents);
-    let network_interface = get_interface(&opt.interface).unwrap();
+    let network_interface = match get_interface(&opt.interface) {
+        Some(interface) => interface,
+        None => {
+            failure::bail!("Cannot find interface {}", opt.interface);
+        }
+    };
     let network_frames = get_datalink_channel(&network_interface);
     let lookup_addr = Box::new(lookup_addr);
     let on_winch = Box::new(on_winch);
@@ -61,7 +78,8 @@ fn main() {
         on_winch,
     };
 
-    start(terminal_backend, os_input)
+    start(terminal_backend, os_input);
+    Ok(())
 }
 
 pub struct OsInput {
@@ -86,7 +104,7 @@ where
 
     let mut sniffer = Sniffer::new(os_input.network_interface, os_input.network_frames);
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
-
+    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend)));
     let dns_queue = Arc::new(DnsQueue::new());
     let ip_to_host = Arc::new(Mutex::new(HashMap::new()));
 
@@ -101,8 +119,6 @@ where
             }
         }
     });
-
-    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend)));
 
     let resize_handler = thread::spawn({
         let ui = ui.clone();
@@ -146,7 +162,7 @@ where
 
     let stdin_handler = thread::spawn({
         let running = running.clone();
-        let display_handler = display_handler.thread().clone(); // TODO: better
+        let display_handler = display_handler.thread().clone();
         move || {
             for evt in keyboard_events {
                 match evt {

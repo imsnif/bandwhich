@@ -13,6 +13,7 @@ termion = "1.5"
 structopt = "0.3"
 dns-lookup = "*"
 signal-hook = "*"
+failure = "*"
 
 [dev-dependencies]
 assert_cmd = "0.10"
