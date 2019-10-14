@@ -34,13 +34,19 @@ impl DnsQueue {
     }
     pub fn wait_for_job(&self) -> Option<Ipv4Addr> {
         let mut jobs = self.jobs.lock().unwrap();
-        if jobs.is_empty() {
-            jobs = self.cvar.wait(jobs).unwrap();
+        loop {
+            match jobs.pop() {
+                Some(job) => return job,
+                None => {
+                    jobs = self.cvar.wait(jobs).unwrap();
+                }
+            }
         }
-        jobs.pop()?
     }
     pub fn end(&self) {
-        self.jobs.lock().unwrap().push(None);
+        let mut jobs = self.jobs.lock().unwrap();
+        jobs.clear();
+        jobs.push(None);
         self.cvar.notify_all();
     }
 }
