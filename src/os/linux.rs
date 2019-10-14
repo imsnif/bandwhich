@@ -32,7 +32,7 @@ impl Iterator for KeyboardEvents {
 
 pub fn get_datalink_channel(interface: &NetworkInterface) -> Box<DataLinkReceiver> {
     let mut config = Config::default();
-    config.read_timeout = Some(time::Duration::new(0, 0));
+    config.read_timeout = Some(time::Duration::new(0, 1));
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => rx,
         Ok(_) => panic!("Unhandled channel type"),
