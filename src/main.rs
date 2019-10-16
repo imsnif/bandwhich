@@ -28,7 +28,7 @@ use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "what")]
-struct Opt {
+pub struct Opt {
     #[structopt(short, long)]
     interface: String,
 }
@@ -46,12 +46,9 @@ fn try_main() -> Result<(), failure::Error> {
         "Sorry, no implementations for platforms other than linux yet :( - PRs welcome!"
     );
 
-    use os::{
-        get_datalink_channel, get_interface, get_open_sockets, lookup_addr, on_winch,
-        KeyboardEvents,
-    };
-
+    use os::{get_input};
     let opt = Opt::from_args();
+    let os_input = get_input(opt)?;
     let stdout = match io::stdout().into_raw_mode() {
         Ok(stdout) => stdout,
         Err(_) => failure::bail!(
@@ -59,27 +56,6 @@ fn try_main() -> Result<(), failure::Error> {
         ),
     };
     let terminal_backend = TermionBackend::new(stdout);
-
-    let keyboard_events = Box::new(KeyboardEvents);
-    let network_interface = match get_interface(&opt.interface) {
-        Some(interface) => interface,
-        None => {
-            failure::bail!("Cannot find interface {}", opt.interface);
-        }
-    };
-    let network_frames = get_datalink_channel(&network_interface);
-    let lookup_addr = Box::new(lookup_addr);
-    let on_winch = Box::new(on_winch);
-
-    let os_input = OsInput {
-        network_interface,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        lookup_addr,
-        on_winch,
-    };
-
     start(terminal_backend, os_input);
     Ok(())
 }
@@ -91,6 +67,7 @@ pub struct OsInput {
     pub keyboard_events: Box<Iterator<Item = Event> + Send + Sync + 'static>,
     pub lookup_addr: Box<Fn(&IpAddr) -> Option<String> + Send + Sync + 'static>,
     pub on_winch: Box<Fn(Box<Fn() + Send + Sync + 'static>) + Send + Sync + 'static>,
+    pub cleanup: Box<Fn() + Send + Sync + 'static>,
 }
 
 pub fn start<B>(terminal_backend: B, os_input: OsInput)
@@ -103,6 +80,7 @@ where
     let get_open_sockets = os_input.get_open_sockets;
     let lookup_addr = os_input.lookup_addr;
     let on_winch = os_input.on_winch;
+    let cleanup = os_input.cleanup;
 
     let mut sniffer = Sniffer::new(os_input.network_interface, os_input.network_frames);
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
@@ -170,6 +148,7 @@ where
                 match evt {
                     Event::Key(Key::Ctrl('c')) | Event::Key(Key::Char('q')) => {
                         running.store(false, Ordering::Release);
+                        cleanup();
                         display_handler.unpark();
                         break;
                     }

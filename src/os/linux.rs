@@ -9,13 +9,13 @@ use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 use ::std::time;
 
-use ::signal_hook;
-
+use signal_hook::iterator::Signals;
 use ::procfs::FDTarget;
 
 use crate::network::{Connection, Protocol};
+use crate::{Opt, OsInput};
 
-pub struct KeyboardEvents;
+struct KeyboardEvents;
 
 impl Iterator for KeyboardEvents {
     type Item = Event;
@@ -27,7 +27,7 @@ impl Iterator for KeyboardEvents {
     }
 }
 
-pub fn get_datalink_channel(interface: &NetworkInterface) -> Box<DataLinkReceiver> {
+fn get_datalink_channel(interface: &NetworkInterface) -> Box<DataLinkReceiver> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(0, 1));
     match datalink::channel(interface, config) {
@@ -40,13 +40,13 @@ pub fn get_datalink_channel(interface: &NetworkInterface) -> Box<DataLinkReceive
     }
 }
 
-pub fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
+fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
     datalink::interfaces()
         .into_iter()
         .find(|iface| iface.name == interface_name)
 }
 
-pub fn get_open_sockets() -> HashMap<Connection, String> {
+fn get_open_sockets() -> HashMap<Connection, String> {
     let mut open_sockets = HashMap::new(); // TODO: better
     let all_procs = procfs::all_processes();
 
@@ -86,15 +86,52 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     open_sockets
 }
 
-pub fn lookup_addr(ip: &IpAddr) -> Option<String> {
+fn lookup_addr(ip: &IpAddr) -> Option<String> {
     ::dns_lookup::lookup_addr(ip).ok()
 }
 
-pub fn on_winch<F>(cb: F)
-where
-    F: Fn() + Send + Sync + 'static,
-{
-    unsafe {
-        signal_hook::register(signal_hook::SIGWINCH, cb).unwrap();
-    }
+fn sigwinch () -> (
+    Box<Fn(Box<Fn() + Send + Sync + 'static>) + Send + Sync + 'static>,
+    Box<Fn() + Send + Sync + 'static>
+) {
+    let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
+    let on_winch = {
+        let signals = signals.clone();
+        move |cb: Box<Fn() + Send + Sync + 'static>| {
+            for signal in signals.forever() {
+                match signal {
+                    signal_hook::SIGWINCH => cb(),
+                    _ => unreachable!(),
+                }
+            }
+        }
+    };
+    let cleanup = move || {
+        signals.close();
+    };
+    (Box::new(on_winch), Box::new(cleanup))
+}
+
+pub fn get_input(opt: Opt) -> Result<OsInput, failure::Error> {
+
+    let keyboard_events = Box::new(KeyboardEvents);
+    let network_interface = match get_interface(&opt.interface) {
+        Some(interface) => interface,
+        None => {
+            failure::bail!("Cannot find interface {}", opt.interface);
+        }
+    };
+    let network_frames = get_datalink_channel(&network_interface);
+    let lookup_addr = Box::new(lookup_addr);
+    let (on_winch, cleanup) = sigwinch();
+
+    Ok(OsInput {
+        network_interface,
+        network_frames,
+        get_open_sockets,
+        keyboard_events,
+        lookup_addr,
+        on_winch,
+        cleanup,
+    })
 }
