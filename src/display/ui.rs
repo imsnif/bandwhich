@@ -44,7 +44,7 @@ where
                 let total_bandwidth = TotalBandwidth { state: &state };
                 let layout = Layout {
                     header: total_bandwidth,
-                    children: vec![connections, processes, remote_ips],
+                    children: vec![processes, connections, remote_ips],
                 };
                 layout.render(&mut frame, size);
             })

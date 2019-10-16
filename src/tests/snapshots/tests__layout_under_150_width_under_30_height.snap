@@ -3,8 +3,8 @@ source: src/tests/mod.rs
 expression: "&terminal_draw_events_mirror[0]"
 ---
  Total Rate Up/Down: 0Bps/0Bps                                                                                                                       
-┌Utilization by connection───────────────────────────────────────────────┐┌Utilization by process name──────────────────────────────────────────────┐
-│Connection                                Rate Up/Down                  ││Process                                   Rate Up/Down                   │
+┌Utilization by process name─────────────────────────────────────────────┐┌Utilization by connection────────────────────────────────────────────────┐
+│Process                                   Rate Up/Down                  ││Connection                                Rate Up/Down                   │
 │                                                                        ││                                                                         │
 │                                                                        ││                                                                         │
 │                                                                        ││                                                                         │

@@ -6,8 +6,8 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-         3 3 3 3  3 7 (tcp)                          5                     12    26             5                                                                         12    26            
-         1 1 1 1  2 45 (tcp)                         1                      7     6             1                                                                          7     6            
+ 5                                                                         12    26                     3 3 3 3  3 7 (tcp)                          5                     12    26            
+ 1                                                                          7     6                     1 1 1 1  2 45 (tcp)                         1                      7     6            
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

@@ -6,8 +6,8 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- :443 => 1.1.1.1:12345 (tcp)                         1                     37Bps/41Bps          1                                                   1                     37Bps/41Bps         
- :443 => 3.3.3.3:1337 (tcp)                          5                     14Bps/17Bps          5                                                   1                     14Bps/17Bps         
+ 1                                                   1                     37Bps/41Bps          :443 => 1.1.1.1:12345 (tcp)                         1                     37Bps/41Bps         
+ 5                                                   1                     14Bps/17Bps          :443 => 3.3.3.3:1337 (tcp)                          5                     14Bps/17Bps         
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
