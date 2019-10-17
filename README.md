@@ -8,11 +8,7 @@
 This is my first attempt at Rust. :)
 
 ### How does it work?
-`what` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem.
-
-`what` is responsive to the terminal window size, displaying less info if there is no room for it.
-
-`what` will attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
+`what` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
 
 ### Installation
 At the moment, `what` is available through Cargo as a binary package.
