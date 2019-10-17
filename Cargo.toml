@@ -1,8 +1,15 @@
 [package]
 edition = "2018"
 name = "what"
+description = "Display current network utilization by process, connection and remote IP/hostname"
 version = "0.1.0"
+homepage = "https://github.com/imsnif/what"
+repository = "https://github.com/imsnif/what"
+readme = "README.md"
 authors = ["Aram Drevekenin <aram@poor.dev>"]
+keywords = ["networking", "utilization", "cli"]
+categories = ["network-programming", "command-line-utilities"]
+license = "MIT"
 
 [dependencies]
 pnet = "0.22.0"
