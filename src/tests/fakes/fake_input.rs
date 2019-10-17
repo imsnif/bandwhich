@@ -24,7 +24,7 @@ impl Iterator for KeyboardEvents {
         match self.events.pop() {
             Some(ev) => {
                 match ev {
-                    Some(ev) => Some(ev), // TODO: better
+                    Some(ev) => Some(ev),
                     None => {
                         thread::sleep(time::Duration::from_secs(1));
                         self.next()
@@ -66,7 +66,7 @@ impl DataLinkReceiver for NetworkFrames {
                 let action = self.next_packet();
                 match action {
                     Some(packet) => {
-                        Ok(&packet[..]) // TODO: better
+                        Ok(&packet[..])
                     }
                     None => {
                         thread::sleep(time::Duration::from_secs(1));

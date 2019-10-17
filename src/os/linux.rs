@@ -47,7 +47,7 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
 }
 
 fn get_open_sockets() -> HashMap<Connection, String> {
-    let mut open_sockets = HashMap::new(); // TODO: better
+    let mut open_sockets = HashMap::new();
     let all_procs = procfs::all_processes();
 
     let mut inode_to_procname = HashMap::new();

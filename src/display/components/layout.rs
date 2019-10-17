@@ -24,42 +24,41 @@ pub struct Layout<'a> {
 }
 
 impl<'a> Layout<'a> {
-    fn split_rect(&self, rect: Rect, splits: Vec<Direction>) -> Vec<Rect> {
-        let mut ret = vec![rect]; // TODO: use fold
-        for direction in splits {
-            let last_split = ret.pop().unwrap();
+    fn progressive_split(&self, rect: Rect, splits: Vec<Direction>) -> Vec<Rect> {
+        splits.into_iter().fold(vec![rect], |mut layout, direction| {
+            let last_rect = layout.pop().unwrap();
             let mut halves = ::tui::layout::Layout::default()
                 .direction(direction)
                 .margin(0)
                 .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                .split(last_split);
-            ret.append(&mut halves);
-        }
-        ret
+                .split(last_rect);
+            layout.append(&mut halves);
+            layout
+        })
     }
-    fn get_render_order(&self, rect: &Rect) -> Vec<Rect> {
+    fn build_layout(&self, rect: Rect) -> Vec<Rect> {
         if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
-            self.split_rect(*rect, vec![])
+            self.progressive_split(rect, vec![])
         } else if rect.height < FIRST_HEIGHT_BREAKPOINT {
-            self.split_rect(*rect, vec![Direction::Horizontal])
+            self.progressive_split(rect, vec![Direction::Horizontal])
         } else if rect.width < FIRST_WIDTH_BREAKPOINT {
-            self.split_rect(*rect, vec![Direction::Vertical])
+            self.progressive_split(rect, vec![Direction::Vertical])
         } else if rect.width < SECOND_WIDTH_BREAKPOINT {
-            self.split_rect(*rect, vec![Direction::Vertical, Direction::Horizontal])
+            self.progressive_split(rect, vec![Direction::Vertical, Direction::Horizontal])
         } else {
-            self.split_rect(*rect, vec![Direction::Horizontal, Direction::Vertical])
+            self.progressive_split(rect, vec![Direction::Horizontal, Direction::Vertical])
         }
     }
-    pub fn render(&self, mut frame: &mut Frame<impl Backend>, rect: Rect) {
+    pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let app = leave_gap_on_top_of_rect(rect);
-        let render_order = self.get_render_order(&app);
-        for i in 0..render_order.len() {
-            if let Some(rect) = render_order.get(i) {
+        let layout_slots = self.build_layout(app);
+        for i in 0..layout_slots.len() {
+            if let Some(rect) = layout_slots.get(i) {
                 if let Some(child) = self.children.get(i) {
-                    child.render(&mut frame, *rect);
+                    child.render(frame, *rect);
                 }
             }
         }
-        self.header.render(&mut frame, rect);
+        self.header.render(frame, rect);
     }
 }

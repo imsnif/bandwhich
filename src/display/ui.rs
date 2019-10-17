@@ -60,7 +60,6 @@ where
         self.ip_to_host = ip_to_host;
     }
     pub fn end(&mut self) {
-        // TODO: destroy?
         self.terminal.clear().unwrap();
         self.terminal.show_cursor().unwrap();
     }
