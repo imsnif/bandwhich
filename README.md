@@ -1,11 +1,23 @@
-### what
-Display current network utilization by process and connection.
+## what
+...is taking up my bandwidth?!
 
-This is my first attempt at Rust and is still very much a WIP. :)
+![demo](demo.gif)
+
+(display current network utilization by process, connection and remote IP/hostname)
+
+This is my first attempt at Rust. :)
 
 ### How does it work?
-`what` sniffs a given network interface (provided as the second cli argument, eg. `what eth0`) and records packet size, cross referencing it with the `/proc` filesystem.
+`what` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem.
 
-Currently, it relies on the display loop to reset its state every second and thus always display the bandwidth per second.
+`what` is responsive to the terminal window size, displaying less info if there is no room for it.
 
-At the moment there is only a linux implementation but the tests should (hopefully!) run on all platforms.
+`what` will attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
+
+### Installation
+At the moment, `what` is available through Cargo as a binary package.
+
+### Usage
+`what -i <interface-name>` eg. `what -i eth0`
+
+Note that since `what` sniffs network packets, it requires root privileges - so you might want to use it with (for example) `sudo`.
