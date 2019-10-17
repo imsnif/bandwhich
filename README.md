@@ -15,6 +15,8 @@ At the moment, `what` is available through Cargo as a binary package.
 
 `cargo install what`
 
+Important note: There is only support for linux at the moment, mostly because I don't have access to anything else. I'd very much welcome contributions, and would be happy to provide guidance. Open up an issue/pr if interested.
+
 ### Usage
 `what -i <interface-name>` eg. `what -i eth0`
 
