@@ -25,16 +25,18 @@ pub struct Layout<'a> {
 
 impl<'a> Layout<'a> {
     fn progressive_split(&self, rect: Rect, splits: Vec<Direction>) -> Vec<Rect> {
-        splits.into_iter().fold(vec![rect], |mut layout, direction| {
-            let last_rect = layout.pop().unwrap();
-            let mut halves = ::tui::layout::Layout::default()
-                .direction(direction)
-                .margin(0)
-                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                .split(last_rect);
-            layout.append(&mut halves);
-            layout
-        })
+        splits
+            .into_iter()
+            .fold(vec![rect], |mut layout, direction| {
+                let last_rect = layout.pop().unwrap();
+                let mut halves = ::tui::layout::Layout::default()
+                    .direction(direction)
+                    .margin(0)
+                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                    .split(last_rect);
+                layout.append(&mut halves);
+                layout
+            })
     }
     fn build_layout(&self, rect: Rect) -> Vec<Rect> {
         if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {

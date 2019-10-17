@@ -46,7 +46,7 @@ fn try_main() -> Result<(), failure::Error> {
         "Sorry, no implementations for platforms other than linux yet :( - PRs welcome!"
     );
 
-    use os::{get_input};
+    use os::get_input;
     let opt = Opt::from_args();
     let os_input = get_input(opt)?;
     let stdout = match io::stdout().into_raw_mode() {
@@ -66,7 +66,7 @@ pub struct OsInput {
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
     pub keyboard_events: Box<Iterator<Item = Event> + Send>,
     pub lookup_addr: Box<Fn(&IpAddr) -> Option<String> + Send>,
-    pub on_winch: Box<Fn(Box<Fn()>)+ Send>,
+    pub on_winch: Box<Fn(Box<Fn()>) + Send>,
     pub cleanup: Box<Fn() + Send>,
 }
 

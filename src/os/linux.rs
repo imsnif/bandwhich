@@ -9,8 +9,8 @@ use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 use ::std::time;
 
-use signal_hook::iterator::Signals;
 use ::procfs::FDTarget;
+use signal_hook::iterator::Signals;
 
 use crate::network::{Connection, Protocol};
 use crate::{Opt, OsInput};
@@ -27,16 +27,15 @@ impl Iterator for KeyboardEvents {
     }
 }
 
-fn get_datalink_channel(interface: &NetworkInterface) -> Result<Box<DataLinkReceiver>, failure::Error> {
+fn get_datalink_channel(
+    interface: &NetworkInterface,
+) -> Result<Box<DataLinkReceiver>, failure::Error> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(0, 1));
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => failure::bail!("Unknown interface type"),
-        Err(e) => failure::bail!(
-            "Failed to listen to network interface: {}",
-            e
-        ),
+        Err(e) => failure::bail!("Failed to listen to network interface: {}", e),
     }
 }
 
@@ -90,7 +89,7 @@ fn lookup_addr(ip: &IpAddr) -> Option<String> {
     ::dns_lookup::lookup_addr(ip).ok()
 }
 
-fn sigwinch () -> (Box<Fn(Box<Fn()>) + Send>, Box<Fn() + Send>) {
+fn sigwinch() -> (Box<Fn(Box<Fn()>) + Send>, Box<Fn() + Send>) {
     let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
     let on_winch = {
         let signals = signals.clone();
@@ -110,7 +109,6 @@ fn sigwinch () -> (Box<Fn(Box<Fn()>) + Send>, Box<Fn() + Send>) {
 }
 
 pub fn get_input(opt: Opt) -> Result<OsInput, failure::Error> {
-
     let keyboard_events = Box::new(KeyboardEvents);
     let network_interface = match get_interface(&opt.interface) {
         Some(interface) => interface,
