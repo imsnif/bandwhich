@@ -52,7 +52,7 @@ fn try_main() -> Result<(), failure::Error> {
     let stdout = match io::stdout().into_raw_mode() {
         Ok(stdout) => stdout,
         Err(_) => failure::bail!(
-            "Failed to get stdout: what does not (yet) support piping, is it being piped?"
+            "Failed to get stdout: 'what' does not (yet) support piping, is it being piped?"
         ),
     };
     let terminal_backend = TermionBackend::new(stdout);
@@ -64,15 +64,15 @@ pub struct OsInput {
     pub network_interface: NetworkInterface,
     pub network_frames: Box<DataLinkReceiver>,
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
-    pub keyboard_events: Box<Iterator<Item = Event> + Send + Sync + 'static>,
-    pub lookup_addr: Box<Fn(&IpAddr) -> Option<String> + Send + Sync + 'static>,
-    pub on_winch: Box<Fn(Box<Fn() + Send + Sync + 'static>) + Send + Sync + 'static>,
-    pub cleanup: Box<Fn() + Send + Sync + 'static>,
+    pub keyboard_events: Box<Iterator<Item = Event> + Send>,
+    pub lookup_addr: Box<Fn(&IpAddr) -> Option<String> + Send>,
+    pub on_winch: Box<Fn(Box<Fn()>)+ Send>,
+    pub cleanup: Box<Fn() + Send>,
 }
 
 pub fn start<B>(terminal_backend: B, os_input: OsInput)
 where
-    B: Backend + Send + Sync + 'static,
+    B: Backend + Send + 'static,
 {
     let running = Arc::new(AtomicBool::new(true));
 

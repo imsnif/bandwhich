@@ -90,14 +90,11 @@ fn lookup_addr(ip: &IpAddr) -> Option<String> {
     ::dns_lookup::lookup_addr(ip).ok()
 }
 
-fn sigwinch () -> (
-    Box<Fn(Box<Fn() + Send + Sync + 'static>) + Send + Sync + 'static>,
-    Box<Fn() + Send + Sync + 'static>
-) {
+fn sigwinch () -> (Box<Fn(Box<Fn()>) + Send>, Box<Fn() + Send>) {
     let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
     let on_winch = {
         let signals = signals.clone();
-        move |cb: Box<Fn() + Send + Sync + 'static>| {
+        move |cb: Box<Fn()>| {
             for signal in signals.forever() {
                 match signal {
                     signal_hook::SIGWINCH => cb(),
