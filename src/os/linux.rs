@@ -27,14 +27,14 @@ impl Iterator for KeyboardEvents {
     }
 }
 
-fn get_datalink_channel(interface: &NetworkInterface) -> Box<DataLinkReceiver> {
+fn get_datalink_channel(interface: &NetworkInterface) -> Result<Box<DataLinkReceiver>, failure::Error> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(0, 1));
     match datalink::channel(interface, config) {
-        Ok(Ethernet(_tx, rx)) => rx,
-        Ok(_) => panic!("Unhandled channel type"),
-        Err(e) => panic!(
-            "An error occurred when creating the datalink channel: {}",
+        Ok(Ethernet(_tx, rx)) => Ok(rx),
+        Ok(_) => failure::bail!("Unknown interface type"),
+        Err(e) => failure::bail!(
+            "Failed to listen to network interface: {}",
             e
         ),
     }
@@ -118,7 +118,7 @@ pub fn get_input(opt: Opt) -> Result<OsInput, failure::Error> {
             failure::bail!("Cannot find interface {}", opt.interface);
         }
     };
-    let network_frames = get_datalink_channel(&network_interface);
+    let network_frames = get_datalink_channel(&network_interface)?;
     let lookup_addr = Box::new(lookup_addr);
     let (on_winch, cleanup) = sigwinch();
 
