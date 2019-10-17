@@ -13,6 +13,8 @@ This is my first attempt at Rust. :)
 ### Installation
 At the moment, `what` is available through Cargo as a binary package.
 
+`cargo install what`
+
 ### Usage
 `what -i <interface-name>` eg. `what -i eth0`
 
