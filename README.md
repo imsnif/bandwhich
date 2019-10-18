@@ -25,7 +25,7 @@ Important note: There is only support for linux at the moment, mostly because I 
 Note that since `what` sniffs network packets, it requires root privileges - so you might want to use it with (for example) `sudo`.
 
 ### Contributing
-Contributions of any kind are very welcome. If you'd like a new feature, please open an issue or a PR.
+Contributions of any kind are very welcome. If you'd like a new feature (or found a bug), please open an issue or a PR.
 
 ### License
 MIT
