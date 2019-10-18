@@ -1,18 +1,18 @@
-use ::std::collections::HashMap;
+use ::std::collections::{VecDeque, HashMap};
 use ::std::net::Ipv4Addr;
 use ::std::sync::{Condvar, Mutex};
 
 use crate::network::Connection;
 
 pub struct DnsQueue {
-    jobs: Mutex<Vec<Option<Ipv4Addr>>>,
+    jobs: Mutex<VecDeque<Option<Ipv4Addr>>>,
     cvar: Condvar,
 }
 
 impl DnsQueue {
     pub fn new() -> Self {
         DnsQueue {
-            jobs: Mutex::new(Vec::new()),
+            jobs: Mutex::new(VecDeque::new()),
             cvar: Condvar::new(),
         }
     }
@@ -27,7 +27,7 @@ impl DnsQueue {
         let mut queue = self.jobs.lock().unwrap();
         for connection in connections_to_procs.keys() {
             if !ip_to_host.contains_key(&connection.remote_socket.ip) {
-                queue.push(Some(connection.remote_socket.ip));
+                queue.push_back(Some(connection.remote_socket.ip));
             }
         }
         self.cvar.notify_all();
@@ -35,7 +35,7 @@ impl DnsQueue {
     pub fn wait_for_job(&self) -> Option<Ipv4Addr> {
         let mut jobs = self.jobs.lock().unwrap();
         loop {
-            match jobs.pop() {
+            match jobs.pop_front() {
                 Some(job) => return job,
                 None => {
                     jobs = self.cvar.wait(jobs).unwrap();
@@ -46,7 +46,7 @@ impl DnsQueue {
     pub fn end(&self) {
         let mut jobs = self.jobs.lock().unwrap();
         jobs.clear();
-        jobs.push(None);
+        jobs.push_back(None);
         self.cvar.notify_all();
     }
 }
