@@ -62,12 +62,12 @@ fn try_main() -> Result<(), failure::Error> {
 
 pub struct OsInput {
     pub network_interface: NetworkInterface,
-    pub network_frames: Box<DataLinkReceiver>,
+    pub network_frames: Box<dyn DataLinkReceiver>,
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
-    pub keyboard_events: Box<Iterator<Item = Event> + Send>,
-    pub lookup_addr: Box<Fn(&IpAddr) -> Option<String> + Send>,
-    pub on_winch: Box<Fn(Box<Fn()>) + Send>,
-    pub cleanup: Box<Fn() + Send>,
+    pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
+    pub lookup_addr: Box<dyn Fn(&IpAddr) -> Option<String> + Send>,
+    pub on_winch: Box<dyn Fn(Box<dyn Fn()>) + Send>,
+    pub cleanup: Box<dyn Fn() + Send>,
 }
 
 pub fn start<B>(terminal_backend: B, os_input: OsInput)

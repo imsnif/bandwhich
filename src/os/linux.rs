@@ -29,7 +29,7 @@ impl Iterator for KeyboardEvents {
 
 fn get_datalink_channel(
     interface: &NetworkInterface,
-) -> Result<Box<DataLinkReceiver>, failure::Error> {
+) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(0, 1));
     match datalink::channel(interface, config) {
@@ -89,11 +89,11 @@ fn lookup_addr(ip: &IpAddr) -> Option<String> {
     ::dns_lookup::lookup_addr(ip).ok()
 }
 
-fn sigwinch() -> (Box<Fn(Box<Fn()>) + Send>, Box<Fn() + Send>) {
+fn sigwinch() -> (Box<dyn Fn(Box<dyn Fn()>) + Send>, Box<dyn Fn() + Send>) {
     let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
     let on_winch = {
         let signals = signals.clone();
-        move |cb: Box<Fn()>| {
+        move |cb: Box<dyn Fn()>| {
             for signal in signals.forever() {
                 match signal {
                     signal_hook::SIGWINCH => cb(),
