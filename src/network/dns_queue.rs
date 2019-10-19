@@ -1,8 +1,6 @@
-use ::std::collections::{VecDeque, HashMap};
+use ::std::collections::VecDeque;
 use ::std::net::Ipv4Addr;
 use ::std::sync::{Condvar, Mutex};
-
-use crate::network::Connection;
 
 pub struct DnsQueue {
     jobs: Mutex<VecDeque<Option<Ipv4Addr>>>,
@@ -19,16 +17,10 @@ impl DnsQueue {
 }
 
 impl DnsQueue {
-    pub fn find_ips_to_resolve(
-        &self,
-        connections_to_procs: &HashMap<Connection, String>,
-        ip_to_host: &HashMap<Ipv4Addr, String>,
-    ) {
+    pub fn resolve_ips(&self, unresolved_ips: Vec<Ipv4Addr>) {
         let mut queue = self.jobs.lock().unwrap();
-        for connection in connections_to_procs.keys() {
-            if !ip_to_host.contains_key(&connection.remote_socket.ip) {
-                queue.push_back(Some(connection.remote_socket.ip));
-            }
+        for ip in unresolved_ips {
+            queue.push_back(Some(ip))
         }
         self.cvar.notify_all();
     }

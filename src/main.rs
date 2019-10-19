@@ -126,7 +126,15 @@ where
                     let mut network_utilization = network_utilization.lock().unwrap();
                     network_utilization.clone_and_reset()
                 };
-                dns_queue.find_ips_to_resolve(&connections_to_procs, &ip_to_host);
+                let mut unresolved_ips = Vec::new();
+                for connection in connections_to_procs.keys() {
+                    if !ip_to_host.contains_key(&connection.remote_socket.ip) {
+                        unresolved_ips.push(connection.remote_socket.ip);
+                    }
+                }
+                if !unresolved_ips.is_empty() {
+                    dns_queue.resolve_ips(unresolved_ips);
+                }
                 {
                     let mut ui = ui.lock().unwrap();
                     ui.update_state(connections_to_procs, utilization, ip_to_host);
