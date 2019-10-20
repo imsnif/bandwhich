@@ -137,14 +137,14 @@ pub fn get_interface() -> NetworkInterface {
 
 pub fn create_fake_lookup_addr(
     ips_to_hosts: HashMap<IpAddr, String>,
-) -> Box<Fn(&IpAddr) -> Option<String> + Send> {
+) -> Box<dyn Fn(&IpAddr) -> Option<String> + Send> {
     Box::new(move |ip| match ips_to_hosts.get(ip) {
         Some(host) => Some(host.clone()),
         None => None,
     })
 }
 
-pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<Fn(Box<Fn()>) + Send> {
+pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<dyn Fn(Box<dyn Fn()>) + Send> {
     Box::new(move |cb| {
         if should_send_winch_event {
             thread::sleep(time::Duration::from_secs(1));

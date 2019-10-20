@@ -40,11 +40,11 @@ impl Direction {
 
 pub struct Sniffer {
     network_interface: NetworkInterface,
-    network_frames: Box<DataLinkReceiver>,
+    network_frames: Box<dyn DataLinkReceiver>,
 }
 
 impl Sniffer {
-    pub fn new(network_interface: NetworkInterface, network_frames: Box<DataLinkReceiver>) -> Self {
+    pub fn new(network_interface: NetworkInterface, network_frames: Box<dyn DataLinkReceiver>) -> Self {
         Sniffer {
             network_interface,
             network_frames,
