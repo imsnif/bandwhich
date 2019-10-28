@@ -3,14 +3,14 @@ use ::std::net::Ipv4Addr;
 use ::std::sync::{Condvar, Mutex};
 
 pub struct DnsQueue {
-    jobs: Mutex<VecDeque<Option<Ipv4Addr>>>,
+    jobs: Mutex<Option<VecDeque<Ipv4Addr>>>,
     cvar: Condvar,
 }
 
 impl DnsQueue {
     pub fn new() -> Self {
         DnsQueue {
-            jobs: Mutex::new(VecDeque::new()),
+            jobs: Mutex::new(Some(VecDeque::new())),
             cvar: Condvar::new(),
         }
     }
@@ -18,27 +18,26 @@ impl DnsQueue {
 
 impl DnsQueue {
     pub fn resolve_ips(&self, unresolved_ips: Vec<Ipv4Addr>) {
-        let mut queue = self.jobs.lock().unwrap();
-        for ip in unresolved_ips {
-            queue.push_back(Some(ip))
+        let mut jobs = self.jobs.lock().unwrap();
+        if let Some(queue) = jobs.as_mut() {
+            queue.extend(unresolved_ips);
+            self.cvar.notify_all();
         }
-        self.cvar.notify_all();
     }
     pub fn wait_for_job(&self) -> Option<Ipv4Addr> {
         let mut jobs = self.jobs.lock().unwrap();
         loop {
-            match jobs.pop_front() {
-                Some(job) => return job,
+            match jobs.as_mut()?.pop_front() {
+                Some(job) => return Some(job),
                 None => {
-                    jobs = self.cvar.wait(jobs).unwrap();
+                    jobs = self.cvar.wait(jobs).unwrap()
                 }
             }
         }
     }
     pub fn end(&self) {
         let mut jobs = self.jobs.lock().unwrap();
-        jobs.clear();
-        jobs.push_back(None);
+        *jobs = None;
         self.cvar.notify_all();
     }
 }
