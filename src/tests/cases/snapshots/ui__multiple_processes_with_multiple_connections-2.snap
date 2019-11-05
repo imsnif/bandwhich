@@ -1,0 +1,55 @@
+---
+source: src/tests/cases/ui.rs
+expression: "&terminal_draw_events_mirror[1]"
+---
+                          184Bps                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+ 4                                                   1                     0Bps/53Bps           :443 => 2.2.2.2:54321 (tcp)                         4                     0Bps/53Bps          
+ 5                                                   1                     0Bps/45Bps           :443 => 3.3.3.3:1337 (tcp)                          5                     0Bps/45Bps          
+ 1                                                   1                     0Bps/44Bps           :443 => 1.1.1.1:12345 (tcp)                         1                     0Bps/44Bps          
+ 2                                                   1                     0Bps/42Bps           :443 => 4.4.4.4:1337 (tcp)                          2                     0Bps/42Bps          
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                2.2.2.2                                             1                     0Bps/53Bps          
+                                                                                                3.3.3.3                                             1                     0Bps/45Bps          
+                                                                                                1.1.1.1                                             1                     0Bps/44Bps          
+                                                                                                4.4.4.4                                             1                     0Bps/42Bps          
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+

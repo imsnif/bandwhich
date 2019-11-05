@@ -1,3 +1,4 @@
+use ::std::collections::HashMap;
 use ::std::fmt;
 use ::std::net::Ipv4Addr;
 
@@ -30,6 +31,28 @@ pub struct Connection {
     pub protocol: Protocol,
     pub local_port: u16,
 }
+
+pub fn display_ip_or_host(ip: Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) -> String {
+    match ip_to_host.get(&ip) {
+        Some(host) => host.clone(),
+        None => ip.to_string(),
+    }
+}
+
+
+pub fn display_connection_string(
+    connection: &Connection,
+    ip_to_host: &HashMap<Ipv4Addr, String>,
+) -> String {
+    format!(
+        ":{} => {}:{} ({})",
+        connection.local_port,
+        display_ip_or_host(connection.remote_socket.ip, ip_to_host),
+        connection.remote_socket.port,
+        connection.protocol,
+    )
+}
+
 
 impl Connection {
     pub fn new(remote_socket: SocketAddr, local_port: u16, protocol: Protocol) -> Option<Self> {

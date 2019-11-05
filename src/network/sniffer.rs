@@ -64,7 +64,7 @@ impl Sniffer {
                                 Protocol::Tcp,
                                 message.get_source(),
                                 message.get_destination(),
-                                message.payload().len() as u128,
+                                ip_packet.payload().len() as u128,
                             )
                         }
                         IpNextHeaderProtocol(17) => {
@@ -73,7 +73,7 @@ impl Sniffer {
                                 Protocol::Udp,
                                 datagram.get_source(),
                                 datagram.get_destination(),
-                                datagram.payload().len() as u128,
+                                ip_packet.payload().len() as u128,
                             )
                         }
                         _ => return None,

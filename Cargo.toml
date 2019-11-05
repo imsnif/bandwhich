@@ -22,9 +22,11 @@ structopt = "0.3"
 dns-lookup = "1.0.1"
 signal-hook = "0.1.10"
 failure = "0.1.6"
+chrono = "0.4"
 
 [dev-dependencies]
 insta = "0.11.0"
 cargo-insta = "0.11.0"
 packet-builder = "0.3.0"
 pnet_base = "0.22.0"
+regex = "1"

@@ -56,10 +56,10 @@ impl Utilization {
                 });
         match seg.direction {
             Direction::Download => {
-                total_bandwidth.increment_bytes_downloaded(seg.data_length, &self.reset_time)
+                total_bandwidth.increment_bytes_downloaded(seg.data_length, &self.reset_time);
             }
             Direction::Upload => {
-                total_bandwidth.increment_bytes_uploaded(seg.data_length, &self.reset_time)
+                total_bandwidth.increment_bytes_uploaded(seg.data_length, &self.reset_time);
             }
         }
     }

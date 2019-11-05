@@ -127,7 +127,7 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
 
 pub fn get_interface() -> NetworkInterface {
     NetworkInterface {
-        name: String::from("foo"),
+        name: String::from("interface_name"),
         index: 42,
         mac: None,
         ips: vec![IpNetwork::V4("10.0.0.2".parse().unwrap())],

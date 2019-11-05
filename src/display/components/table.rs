@@ -7,7 +7,7 @@ use ::tui::terminal::Frame;
 use ::tui::widgets::{Block, Borders, Row, Widget};
 
 use crate::display::{Bandwidth, DisplayBandwidth, UIState};
-use crate::network::Connection;
+use crate::network::{display_connection_string, display_ip_or_host};
 
 use ::std::net::Ipv4Addr;
 use std::iter::FromIterator;
@@ -28,13 +28,6 @@ fn display_upload_and_download(bandwidth: &impl Bandwidth) -> String {
     )
 }
 
-fn display_ip_or_host(ip: Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) -> String {
-    match ip_to_host.get(&ip) {
-        Some(host) => host.clone(),
-        None => ip.to_string(),
-    }
-}
-
 fn sort_by_bandwidth<'a, T>(
     list: &'a mut Vec<(T, &impl Bandwidth)>,
 ) -> &'a Vec<(T, &'a impl Bandwidth)> {
@@ -52,19 +45,6 @@ fn sort_by_bandwidth<'a, T>(
         b_highest.cmp(&a_highest)
     });
     list
-}
-
-fn display_connection_string(
-    connection: &Connection,
-    ip_to_host: &HashMap<Ipv4Addr, String>,
-) -> String {
-    format!(
-        ":{} => {}:{} ({})",
-        connection.local_port,
-        display_ip_or_host(connection.remote_socket.ip, ip_to_host),
-        connection.remote_socket.port,
-        connection.protocol,
-    )
 }
 
 pub struct Table<'a> {
@@ -119,29 +99,29 @@ impl<'a> Table<'a> {
             rows: processes_rows,
         }
     }
-    pub fn create_remote_ips_table(
+    pub fn create_remote_addresses_table(
         state: &UIState,
         ip_to_host: &HashMap<Ipv4Addr, String>,
     ) -> Self {
-        let mut remote_ips_list = Vec::from_iter(&state.remote_ips);
-        sort_by_bandwidth(&mut remote_ips_list);
-        let remote_ips_rows = remote_ips_list
+        let mut remote_addresses_list = Vec::from_iter(&state.remote_addresses);
+        sort_by_bandwidth(&mut remote_addresses_list);
+        let remote_addresses_rows = remote_addresses_list
             .iter()
-            .map(|(remote_ip, data_for_remote_ip)| {
-                let remote_ip = display_ip_or_host(**remote_ip, &ip_to_host);
+            .map(|(remote_address, data_for_remote_address)| {
+                let remote_address = display_ip_or_host(**remote_address, &ip_to_host);
                 vec![
-                    remote_ip,
-                    data_for_remote_ip.connection_count.to_string(),
-                    display_upload_and_download(*data_for_remote_ip),
+                    remote_address,
+                    data_for_remote_address.connection_count.to_string(),
+                    display_upload_and_download(*data_for_remote_address),
                 ]
             })
             .collect();
-        let remote_ips_title = "Utilization by remote ip";
-        let remote_ips_column_names = &["Remote Address", "Connection Count", "Rate Up/Down"];
+        let remote_addresses_title = "Utilization by remote address";
+        let remote_addresses_column_names = &["Remote Address", "Connection Count", "Rate Up/Down"];
         Table {
-            title: remote_ips_title,
-            column_names: remote_ips_column_names,
-            rows: remote_ips_rows,
+            title: remote_addresses_title,
+            column_names: remote_addresses_column_names,
+            rows: remote_addresses_rows,
         }
     }
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {

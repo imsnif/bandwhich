@@ -4,7 +4,7 @@ mod os;
 #[cfg(test)]
 mod tests;
 
-use display::Ui;
+use display::{Ui, RawTerminalBackend};
 use network::{Connection, DnsQueue, Sniffer, Utilization};
 
 use ::std::net::IpAddr;
@@ -30,7 +30,14 @@ use structopt::StructOpt;
 #[structopt(name = "what")]
 pub struct Opt {
     #[structopt(short, long)]
+    /// The network interface to listen on, eg. eth0
     interface: String,
+    #[structopt(short, long)]
+    /// Machine friendlier output
+    raw: bool,
+    #[structopt(short, long)]
+    /// Do not attempt to resolve IPs to their hostnames
+    no_resolve: bool,
 }
 
 fn main() {
@@ -47,20 +54,27 @@ fn try_main() -> Result<(), failure::Error> {
     );
 
     use os::get_input;
-    let opt = Opt::from_args();
-    let os_input = get_input(opt)?;
-    let stdout = match io::stdout().into_raw_mode() {
-        Ok(stdout) => stdout,
-        Err(_) => failure::bail!(
-            "Failed to get stdout: 'what' does not (yet) support piping, is it being piped?"
-        ),
+    let opts = Opt::from_args();
+    let os_input = get_input(&opts.interface)?;
+    let raw_mode = opts.raw;
+    if raw_mode {
+        let terminal_backend = RawTerminalBackend {};
+        start(terminal_backend, os_input, opts);
+    } else {
+        match io::stdout().into_raw_mode() {
+            Ok(stdout) => {
+                let terminal_backend = TermionBackend::new(stdout);
+                start(terminal_backend, os_input, opts);
+            },
+            Err(_) => failure::bail!(
+                "Failed to get stdout: 'what' does not (yet) support piping, is it being piped?"
+            ),
+        }
     };
-    let terminal_backend = TermionBackend::new(stdout);
-    start(terminal_backend, os_input);
     Ok(())
 }
 
-pub struct OsInput {
+pub struct OsInputOutput {
     pub network_interface: NetworkInterface,
     pub network_frames: Box<dyn DataLinkReceiver>,
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
@@ -68,51 +82,69 @@ pub struct OsInput {
     pub lookup_addr: Box<dyn Fn(&IpAddr) -> Option<String> + Send>,
     pub on_winch: Box<dyn Fn(Box<dyn Fn()>) + Send>,
     pub cleanup: Box<dyn Fn() + Send>,
+    pub write_to_stdout: Box<dyn FnMut(String) + Send>,
 }
 
-pub fn start<B>(terminal_backend: B, os_input: OsInput)
+pub fn start<'a, B>(terminal_backend: B, os_input: OsInputOutput, opts: Opt)
 where
     B: Backend + Send + 'static,
 {
     let running = Arc::new(AtomicBool::new(true));
 
+    let mut active_threads = vec![];
+
     let keyboard_events = os_input.keyboard_events;
     let get_open_sockets = os_input.get_open_sockets;
     let lookup_addr = os_input.lookup_addr;
+    let mut write_to_stdout = os_input.write_to_stdout;
     let on_winch = os_input.on_winch;
     let cleanup = os_input.cleanup;
+
+    let raw_mode = opts.raw;
+    let no_resolve = opts.no_resolve;
 
     let mut sniffer = Sniffer::new(os_input.network_interface, os_input.network_frames);
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend)));
-    let dns_queue = Arc::new(DnsQueue::new());
+
+    let dns_queue = if no_resolve {
+        Arc::new(None)
+    } else {
+        Arc::new(Some(DnsQueue::new()))
+    };
     let ip_to_host = Arc::new(Mutex::new(HashMap::new()));
 
-    let dns_handler = thread::spawn({
-        let dns_queue = dns_queue.clone();
-        let ip_to_host = ip_to_host.clone();
-        move || {
-            while let Some(ip) = dns_queue.wait_for_job() {
-                if let Some(addr) = lookup_addr(&IpAddr::V4(ip)) {
-                    ip_to_host.lock().unwrap().insert(ip, addr);
+    if !no_resolve {
+        active_threads.push(thread::Builder::new().name("dns_resolver".to_string()).spawn({
+            let dns_queue = dns_queue.clone();
+            let ip_to_host = ip_to_host.clone();
+            move || {
+                if let Some(dns_queue) = Option::as_ref(&dns_queue) {
+                    while let Some(ip) = dns_queue.wait_for_job() {
+                        if let Some(addr) = lookup_addr(&IpAddr::V4(ip)) {
+                            ip_to_host.lock().unwrap().insert(ip, addr);
+                        }
+                    }
                 }
             }
-        }
-    });
+        }).unwrap());
+    }
 
-    let resize_handler = thread::spawn({
-        let ui = ui.clone();
-        move || {
-            on_winch({
-                Box::new(move || {
-                    let mut ui = ui.lock().unwrap();
-                    ui.draw();
-                })
-            });
-        }
-    });
+    if !raw_mode {
+        active_threads.push(thread::Builder::new().name("resize_handler".to_string()).spawn({
+            let ui = ui.clone();
+            move || {
+                on_winch({
+                    Box::new(move || {
+                        let mut ui = ui.lock().unwrap();
+                        ui.draw();
+                    })
+                });
+            }
+        }).unwrap());
+    }
 
-    let display_handler = thread::spawn({
+    let display_handler = thread::Builder::new().name("display_handler".to_string()).spawn({
         let running = running.clone();
         let network_utilization = network_utilization.clone();
         let ip_to_host = ip_to_host.clone();
@@ -132,23 +164,33 @@ where
                         unresolved_ips.push(connection.remote_socket.ip);
                     }
                 }
-                if !unresolved_ips.is_empty() {
-                    dns_queue.resolve_ips(unresolved_ips);
+                if let Some(dns_queue) = Option::as_ref(&dns_queue) {
+                    if !unresolved_ips.is_empty() {
+                        dns_queue.resolve_ips(unresolved_ips);
+                    }
                 }
                 {
                     let mut ui = ui.lock().unwrap();
                     ui.update_state(connections_to_procs, utilization, ip_to_host);
-                    ui.draw();
+                    if raw_mode {
+                        ui.output_text(&mut write_to_stdout);
+                    } else {
+                        ui.draw();
+                    }
                 }
                 park_timeout(time::Duration::from_secs(1));
             }
-            let mut ui = ui.lock().unwrap();
-            ui.end();
-            dns_queue.end();
+            if !raw_mode {
+                let mut ui = ui.lock().unwrap();
+                ui.end();
+            }
+            if let Some(dns_queue) = Option::as_ref(&dns_queue) {
+                dns_queue.end();
+            }
         }
-    });
+    }).unwrap();
 
-    let stdin_handler = thread::spawn({
+    active_threads.push(thread::Builder::new().name("stdin_handler".to_string()).spawn({
         let running = running.clone();
         let display_handler = display_handler.thread().clone();
         move || {
@@ -164,18 +206,17 @@ where
                 };
             }
         }
-    });
+    }).unwrap());
+    active_threads.push(display_handler);
 
-    let sniffing_handler = thread::spawn(move || {
+    active_threads.push(thread::Builder::new().name("sniffing_handler".to_string()).spawn(move || {
         while running.load(Ordering::Acquire) {
             if let Some(segment) = sniffer.next() {
                 network_utilization.lock().unwrap().update(&segment)
             }
         }
-    });
-    display_handler.join().unwrap();
-    sniffing_handler.join().unwrap();
-    stdin_handler.join().unwrap();
-    dns_handler.join().unwrap();
-    resize_handler.join().unwrap();
+    }).unwrap());
+    for thread_handler in active_threads {
+        thread_handler.join().unwrap()
+    };
 }

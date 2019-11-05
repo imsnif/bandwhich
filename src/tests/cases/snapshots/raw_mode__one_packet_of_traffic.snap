@@ -1,0 +1,8 @@
+---
+source: src/tests/cases/raw_mode.rs
+expression: formatted
+---
+process: <TIMESTAMP_REMOVED> "1" up/down Bps: 42/0 connections: 1
+connection: <TIMESTAMP_REMOVED> :443 => 1.1.1.1:12345 (tcp) up/down Bps: 42/0 process: "1"
+remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 42/0 connections: 1
+
