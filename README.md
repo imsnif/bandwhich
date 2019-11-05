@@ -39,7 +39,7 @@ Note that since `what` sniffs network packets, it requires root privileges - so 
 ### raw_mode
 `what` also supports an easier-to-parse mode that can be piped or redirected to a file. For example, try:
 ```
-what -i eth0 | grep firefox
+what -i eth0 --raw | grep firefox
 ```
 ### Contributing
 Contributions of any kind are very welcome. If you'd like a new feature (or found a bug), please open an issue or a PR.
