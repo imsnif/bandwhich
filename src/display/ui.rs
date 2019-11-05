@@ -29,7 +29,7 @@ where
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
         Ui {
-            terminal: terminal,
+            terminal,
             state: Default::default(),
             ip_to_host: Default::default(),
         }
