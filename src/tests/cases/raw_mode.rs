@@ -37,7 +37,7 @@ fn build_tcp_packet(
     pkt.packet().to_vec()
 }
 
-fn format_raw_output<'t> (output: Vec<u8>) -> String {
+fn format_raw_output<'t>(output: Vec<u8>) -> String {
     let stdout_utf8 = String::from_utf8(output).unwrap();
     use regex::Regex;
     let timestamp = Regex::new(r"<\d+>").unwrap();
@@ -57,53 +57,6 @@ impl<T> LogWithMirror<T> {
         LogWithMirror { write, mirror }
     }
 }
-
-// #[test]
-// fn basic_startup() {
-//     let keyboard_events = Box::new(KeyboardEvents::new(vec![
-//         None, // sleep
-//         Some(Event::Key(Key::Ctrl('c'))),
-//     ]));
-//     let network_frames = NetworkFrames::new(vec![
-//         None, // sleep
-//     ]);
-// 
-//     let terminal_width = Arc::new(Mutex::new(190));
-//     let terminal_height = Arc::new(Mutex::new(50));
-//     let terminal_events = LogWithMirror::new(Vec::new());
-//     let terminal_draw_events = LogWithMirror::new(Vec::new());
-// 
-//     let backend = TestBackend::new(
-//         terminal_events.write,
-//         terminal_draw_events.write,
-//         terminal_width,
-//         terminal_height,
-//     );
-//     let network_interface = get_interface();
-//     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-//     let on_winch = create_fake_on_winch(false);
-//     let cleanup = Box::new(|| {});
-// 
-//     let os_input = OsInputOutput {
-//         network_interface,
-//         network_frames,
-//         get_open_sockets,
-//         keyboard_events,
-//         lookup_addr,
-//         on_winch,
-//         cleanup,
-//     };
-//     let opts = Opt {
-//         interface: String::from("interface_name"),
-//         raw: true,
-//         no_resolve: false,
-//     };
-//     let fake_stdout = Box::new(Vec::new());
-//     let clone_stdout = fake_stdout.clone();
-//     start(backend, os_input, Box::new(fake_stdout), opts);
-// 
-//     assert_snapshot!(String::from_utf8(*clone_stdout).unwrap());
-// }
 
 #[test]
 fn one_packet_of_traffic() {

@@ -74,10 +74,7 @@ fn basic_startup() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -136,10 +133,7 @@ fn one_packet_of_traffic() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -149,7 +143,7 @@ fn one_packet_of_traffic() {
         lookup_addr,
         on_winch,
         cleanup,
-        write_to_stdout
+        write_to_stdout,
     };
     let opts = Opt {
         interface: String::from("interface_name"),
@@ -209,10 +203,7 @@ fn bi_directional_traffic() {
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
     let cleanup = Box::new(|| {});
 
     let os_input = OsInputOutput {
@@ -284,10 +275,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let cleanup = Box::new(|| {});
     let network_interface = get_interface();
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -358,10 +346,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -432,10 +417,7 @@ fn one_process_with_multiple_connections() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -445,7 +427,7 @@ fn one_process_with_multiple_connections() {
         lookup_addr,
         on_winch,
         cleanup,
-        write_to_stdout
+        write_to_stdout,
     };
     let opts = Opt {
         interface: String::from("interface_name"),
@@ -520,10 +502,7 @@ fn multiple_processes_with_multiple_connections() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -594,10 +573,7 @@ fn multiple_connections_from_remote_address() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -670,10 +646,7 @@ fn sustained_traffic_from_one_process() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -760,10 +733,7 @@ fn sustained_traffic_from_multiple_processes() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -878,10 +848,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -1009,10 +976,7 @@ fn traffic_with_host_names() {
     let lookup_addr = create_fake_lookup_addr(ips_to_hostnames);
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -1140,10 +1104,7 @@ fn no_resolve_mode() {
     let lookup_addr = create_fake_lookup_addr(ips_to_hostnames);
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -1205,10 +1166,7 @@ fn traffic_with_winch_event() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(true);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -1294,10 +1252,7 @@ fn layout_full_width_under_30_height() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -1382,10 +1337,7 @@ fn layout_under_150_width_full_height() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -1470,10 +1422,7 @@ fn layout_under_150_width_under_30_height() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -1558,10 +1507,7 @@ fn layout_under_120_width_full_height() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,
@@ -1646,10 +1592,7 @@ fn layout_under_120_width_under_30_height() {
     let lookup_addr = create_fake_lookup_addr(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({
-        move |_output: String| {
-        }
-    });
+    let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
         network_interface,

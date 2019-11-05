@@ -39,7 +39,6 @@ pub fn display_ip_or_host(ip: Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) 
     }
 }
 
-
 pub fn display_connection_string(
     connection: &Connection,
     ip_to_host: &HashMap<Ipv4Addr, String>,
@@ -52,7 +51,6 @@ pub fn display_connection_string(
         connection.protocol,
     )
 }
-
 
 impl Connection {
     pub fn new(remote_socket: SocketAddr, local_port: u16, protocol: Protocol) -> Option<Self> {

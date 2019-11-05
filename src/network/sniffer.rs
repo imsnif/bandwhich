@@ -44,7 +44,10 @@ pub struct Sniffer {
 }
 
 impl Sniffer {
-    pub fn new(network_interface: NetworkInterface, network_frames: Box<dyn DataLinkReceiver>) -> Self {
+    pub fn new(
+        network_interface: NetworkInterface,
+        network_frames: Box<dyn DataLinkReceiver>,
+    ) -> Self {
         Sniffer {
             network_interface,
             network_frames,

@@ -4,7 +4,7 @@ mod os;
 #[cfg(test)]
 mod tests;
 
-use display::{Ui, RawTerminalBackend};
+use display::{RawTerminalBackend, Ui};
 use network::{Connection, DnsQueue, Sniffer, Utilization};
 
 use ::std::net::IpAddr;
@@ -65,7 +65,7 @@ fn try_main() -> Result<(), failure::Error> {
             Ok(stdout) => {
                 let terminal_backend = TermionBackend::new(stdout);
                 start(terminal_backend, os_input, opts);
-            },
+            }
             Err(_) => failure::bail!(
                 "Failed to get stdout: 'what' does not (yet) support piping, is it being piped?"
             ),
@@ -115,108 +115,131 @@ where
     let ip_to_host = Arc::new(Mutex::new(HashMap::new()));
 
     if !no_resolve {
-        active_threads.push(thread::Builder::new().name("dns_resolver".to_string()).spawn({
-            let dns_queue = dns_queue.clone();
-            let ip_to_host = ip_to_host.clone();
-            move || {
-                if let Some(dns_queue) = Option::as_ref(&dns_queue) {
-                    while let Some(ip) = dns_queue.wait_for_job() {
-                        if let Some(addr) = lookup_addr(&IpAddr::V4(ip)) {
-                            ip_to_host.lock().unwrap().insert(ip, addr);
+        active_threads.push(
+            thread::Builder::new()
+                .name("dns_resolver".to_string())
+                .spawn({
+                    let dns_queue = dns_queue.clone();
+                    let ip_to_host = ip_to_host.clone();
+                    move || {
+                        if let Some(dns_queue) = Option::as_ref(&dns_queue) {
+                            while let Some(ip) = dns_queue.wait_for_job() {
+                                if let Some(addr) = lookup_addr(&IpAddr::V4(ip)) {
+                                    ip_to_host.lock().unwrap().insert(ip, addr);
+                                }
+                            }
                         }
                     }
-                }
-            }
-        }).unwrap());
+                })
+                .unwrap(),
+        );
     }
 
     if !raw_mode {
-        active_threads.push(thread::Builder::new().name("resize_handler".to_string()).spawn({
-            let ui = ui.clone();
-            move || {
-                on_winch({
-                    Box::new(move || {
-                        let mut ui = ui.lock().unwrap();
-                        ui.draw();
-                    })
-                });
-            }
-        }).unwrap());
+        active_threads.push(
+            thread::Builder::new()
+                .name("resize_handler".to_string())
+                .spawn({
+                    let ui = ui.clone();
+                    move || {
+                        on_winch({
+                            Box::new(move || {
+                                let mut ui = ui.lock().unwrap();
+                                ui.draw();
+                            })
+                        });
+                    }
+                })
+                .unwrap(),
+        );
     }
 
-    let display_handler = thread::Builder::new().name("display_handler".to_string()).spawn({
-        let running = running.clone();
-        let network_utilization = network_utilization.clone();
-        let ip_to_host = ip_to_host.clone();
-        let dns_queue = dns_queue.clone();
-        let ui = ui.clone();
-        move || {
-            while running.load(Ordering::Acquire) {
-                let connections_to_procs = get_open_sockets();
-                let ip_to_host = { ip_to_host.lock().unwrap().clone() };
-                let utilization = {
-                    let mut network_utilization = network_utilization.lock().unwrap();
-                    network_utilization.clone_and_reset()
-                };
-                let mut unresolved_ips = Vec::new();
-                for connection in connections_to_procs.keys() {
-                    if !ip_to_host.contains_key(&connection.remote_socket.ip) {
-                        unresolved_ips.push(connection.remote_socket.ip);
+    let display_handler = thread::Builder::new()
+        .name("display_handler".to_string())
+        .spawn({
+            let running = running.clone();
+            let network_utilization = network_utilization.clone();
+            let ip_to_host = ip_to_host.clone();
+            let dns_queue = dns_queue.clone();
+            let ui = ui.clone();
+            move || {
+                while running.load(Ordering::Acquire) {
+                    let connections_to_procs = get_open_sockets();
+                    let ip_to_host = { ip_to_host.lock().unwrap().clone() };
+                    let utilization = {
+                        let mut network_utilization = network_utilization.lock().unwrap();
+                        network_utilization.clone_and_reset()
+                    };
+                    let mut unresolved_ips = Vec::new();
+                    for connection in connections_to_procs.keys() {
+                        if !ip_to_host.contains_key(&connection.remote_socket.ip) {
+                            unresolved_ips.push(connection.remote_socket.ip);
+                        }
                     }
+                    if let Some(dns_queue) = Option::as_ref(&dns_queue) {
+                        if !unresolved_ips.is_empty() {
+                            dns_queue.resolve_ips(unresolved_ips);
+                        }
+                    }
+                    {
+                        let mut ui = ui.lock().unwrap();
+                        ui.update_state(connections_to_procs, utilization, ip_to_host);
+                        if raw_mode {
+                            ui.output_text(&mut write_to_stdout);
+                        } else {
+                            ui.draw();
+                        }
+                    }
+                    park_timeout(time::Duration::from_secs(1));
+                }
+                if !raw_mode {
+                    let mut ui = ui.lock().unwrap();
+                    ui.end();
                 }
                 if let Some(dns_queue) = Option::as_ref(&dns_queue) {
-                    if !unresolved_ips.is_empty() {
-                        dns_queue.resolve_ips(unresolved_ips);
-                    }
+                    dns_queue.end();
                 }
-                {
-                    let mut ui = ui.lock().unwrap();
-                    ui.update_state(connections_to_procs, utilization, ip_to_host);
-                    if raw_mode {
-                        ui.output_text(&mut write_to_stdout);
-                    } else {
-                        ui.draw();
-                    }
-                }
-                park_timeout(time::Duration::from_secs(1));
             }
-            if !raw_mode {
-                let mut ui = ui.lock().unwrap();
-                ui.end();
-            }
-            if let Some(dns_queue) = Option::as_ref(&dns_queue) {
-                dns_queue.end();
-            }
-        }
-    }).unwrap();
+        })
+        .unwrap();
 
-    active_threads.push(thread::Builder::new().name("stdin_handler".to_string()).spawn({
-        let running = running.clone();
-        let display_handler = display_handler.thread().clone();
-        move || {
-            for evt in keyboard_events {
-                match evt {
-                    Event::Key(Key::Ctrl('c')) | Event::Key(Key::Char('q')) => {
-                        running.store(false, Ordering::Release);
-                        cleanup();
-                        display_handler.unpark();
-                        break;
+    active_threads.push(
+        thread::Builder::new()
+            .name("stdin_handler".to_string())
+            .spawn({
+                let running = running.clone();
+                let display_handler = display_handler.thread().clone();
+                move || {
+                    for evt in keyboard_events {
+                        match evt {
+                            Event::Key(Key::Ctrl('c')) | Event::Key(Key::Char('q')) => {
+                                running.store(false, Ordering::Release);
+                                cleanup();
+                                display_handler.unpark();
+                                break;
+                            }
+                            _ => (),
+                        };
                     }
-                    _ => (),
-                };
-            }
-        }
-    }).unwrap());
+                }
+            })
+            .unwrap(),
+    );
     active_threads.push(display_handler);
 
-    active_threads.push(thread::Builder::new().name("sniffing_handler".to_string()).spawn(move || {
-        while running.load(Ordering::Acquire) {
-            if let Some(segment) = sniffer.next() {
-                network_utilization.lock().unwrap().update(&segment)
-            }
-        }
-    }).unwrap());
+    active_threads.push(
+        thread::Builder::new()
+            .name("sniffing_handler".to_string())
+            .spawn(move || {
+                while running.load(Ordering::Acquire) {
+                    if let Some(segment) = sniffer.next() {
+                        network_utilization.lock().unwrap().update(&segment)
+                    }
+                }
+            })
+            .unwrap(),
+    );
     for thread_handler in active_threads {
         thread_handler.join().unwrap()
-    };
+    }
 }

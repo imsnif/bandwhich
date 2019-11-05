@@ -108,7 +108,7 @@ fn sigwinch() -> (Box<dyn Fn(Box<dyn Fn()>) + Send>, Box<dyn Fn() + Send>) {
     (Box::new(on_winch), Box::new(cleanup))
 }
 
-pub fn create_write_to_stdout () -> Box<dyn FnMut(String) + Send> {
+pub fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
     Box::new({
         let mut stdout = io::stdout();
         move |output: String| {

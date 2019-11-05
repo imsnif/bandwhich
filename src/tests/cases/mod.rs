@@ -1,2 +1,2 @@
-pub mod ui;
 pub mod raw_mode;
+pub mod ui;

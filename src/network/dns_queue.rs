@@ -29,9 +29,7 @@ impl DnsQueue {
         loop {
             match jobs.as_mut()?.pop_front() {
                 Some(job) => return Some(job),
-                None => {
-                    jobs = self.cvar.wait(jobs).unwrap()
-                }
+                None => jobs = self.cvar.wait(jobs).unwrap(),
             }
         }
     }
