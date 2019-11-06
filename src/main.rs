@@ -21,6 +21,7 @@ use ::tui::backend::Backend;
 use std::process;
 
 use ::std::io;
+use ::std::time::Instant;
 use ::termion::raw::IntoRawMode;
 use ::tui::backend::TermionBackend;
 
@@ -164,12 +165,10 @@ where
             let ui = ui.clone();
             move || {
                 while running.load(Ordering::Acquire) {
+                    let render_start_time = Instant::now();
+                    let utilization = { network_utilization.lock().unwrap().clone_and_reset() };
                     let connections_to_procs = get_open_sockets();
                     let ip_to_host = { ip_to_host.lock().unwrap().clone() };
-                    let utilization = {
-                        let mut network_utilization = network_utilization.lock().unwrap();
-                        network_utilization.clone_and_reset()
-                    };
                     let mut unresolved_ips = Vec::new();
                     for connection in connections_to_procs.keys() {
                         if !ip_to_host.contains_key(&connection.remote_socket.ip) {
@@ -190,7 +189,8 @@ where
                             ui.draw();
                         }
                     }
-                    park_timeout(time::Duration::from_secs(1));
+                    let render_duration = render_start_time.elapsed();
+                    park_timeout(time::Duration::from_millis(1000) - render_duration);
                 }
                 if !raw_mode {
                     let mut ui = ui.lock().unwrap();

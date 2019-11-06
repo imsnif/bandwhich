@@ -25,7 +25,7 @@ impl Iterator for KeyboardEvents {
             Some(ev) => match ev {
                 Some(ev) => Some(ev),
                 None => {
-                    thread::sleep(time::Duration::from_secs(1));
+                    thread::sleep(time::Duration::from_millis(900));
                     self.next()
                 }
             },
@@ -147,7 +147,7 @@ pub fn create_fake_lookup_addr(
 pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<dyn Fn(Box<dyn Fn()>) + Send> {
     Box::new(move |cb| {
         if should_send_winch_event {
-            thread::sleep(time::Duration::from_secs(1));
+            thread::sleep(time::Duration::from_millis(900));
             cb()
         }
     })
