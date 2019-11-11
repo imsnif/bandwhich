@@ -14,7 +14,7 @@ exclude = ["src/tests/*", "demo.gif"]
 
 [dependencies]
 pnet = "0.22.0"
-procfs = "0.5.3"
+procfs = { version = "0.5.3", optional = true }
 ipnetwork = "0.14.0"
 tui = "0.5"
 termion = "1.5"
