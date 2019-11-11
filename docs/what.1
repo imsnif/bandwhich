@@ -1,0 +1,20 @@
+.TH WHAT 1
+.SH WHAT
+what \- display current network utilization by process, connection and remote IP/hostname
+.SH SYNOPSIS
+.B what
+\fB\-i\fR \fIINTERFACE_NAME\fR
+.SH DESCRIPTION
+.B what
+provides a responsive terminal dashboard for displaying bandwidth information. It sniffs a given network interface and cross references it with the /proc filesystem.
+Optionally, it has a raw mode that can be used to parse and log this data.
+.SH OPTIONS
+.TP
+.BR \-n ", " \-\-no\-resolve
+Do not attempt to resolve IPs to their hostnames
+.TP
+.BR \-r ", " \-\-raw
+Print output to STDOUT so it can be parsed or redirected.
+.TP
+.BR \-v ", " \-\-version
+Print version and exit
