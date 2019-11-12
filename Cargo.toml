@@ -31,5 +31,5 @@ procfs = "0.5.3"
 insta = "0.11.0"
 pnet_base = "0.23.0"
 cargo-insta = "0.11.0"
-packet-builder = { git = "https://github.com/imsnif/packet_builder" }
+packet-builder = { git = "https://github.com/imsnif/packet_builder", version = "0.3.0" }
 regex = "1"
