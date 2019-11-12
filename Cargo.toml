@@ -2,11 +2,11 @@
 edition = "2018"
 name = "what"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.3.2"
+version = "0.3.3"
 homepage = "https://github.com/imsnif/what"
 repository = "https://github.com/imsnif/what"
 readme = "README.md"
-authors = ["Aram Drevekenin <aram@poor.dev>"]
+authors = ["Aram Drevekenin <aram@poor.dev>", "Eduardo Toledo <etoledom@icloud.com>"]
 keywords = ["networking", "utilization", "cli"]
 categories = ["network-programming", "command-line-utilities"]
 license = "MIT"
