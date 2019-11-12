@@ -5,10 +5,8 @@
 
 This is a CLI utility for displaying current network utilization by process, connection and remote IP/hostname
 
-This is my first attempt at Rust. :)
-
 ### How does it work?
-`what` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
+`what` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem on linux or `lsof` on MacOS. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
 
 ### Installation
 
@@ -18,13 +16,13 @@ This is my first attempt at Rust. :)
 yay -S what
 ```
 
-#### Other Linux flavours
+#### MacOS and other Linux flavours
 
 ```
 cargo install what
 ```
 
-Important note: There is only support for linux at the moment, mostly because I don't have access to anything else. I'd very much welcome contributions, and would be happy to provide guidance. Open up an issue/pr if interested.
+Windows is not supported at the moment - if you'd like to contribute a windows port, it would be very much welcome.
 
 ### Usage
 ```
