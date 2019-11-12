@@ -49,9 +49,9 @@ fn main() {
 }
 
 fn try_main() -> Result<(), failure::Error> {
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(target_os = "windows")]
     compile_error!(
-        "Sorry, no implementations for platforms other than linux yet :( - PRs welcome!"
+        "Sorry, no implementations for Windows yet :( - PRs welcome!"
     );
 
     use os::get_input;

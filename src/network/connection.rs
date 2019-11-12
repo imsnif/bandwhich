@@ -4,10 +4,20 @@ use ::std::net::Ipv4Addr;
 
 use ::std::net::SocketAddr;
 
-#[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord)]
+#[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Debug)]
 pub enum Protocol {
     Tcp,
     Udp,
+}
+
+impl Protocol {
+    pub fn from_string(string: &String) -> Option<Self> {
+        match string.as_str() {
+            "TCP" => Some(Protocol::Tcp),
+            "UDP" => Some(Protocol::Udp),
+            _ => None,
+        }
+    }
 }
 
 impl fmt::Display for Protocol {

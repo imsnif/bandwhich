@@ -22,8 +22,9 @@ dns-lookup = "1.0.1"
 signal-hook = "0.1.10"
 failure = "0.1.6"
 chrono = "0.4"
+regex = "*"
 
-[target.'cfg(unix)'.dependencies]
+[target.'cfg(target_os="linux")'.dependencies]
 procfs = "0.5.3"
 
 [dev-dependencies]
