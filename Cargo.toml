@@ -24,7 +24,7 @@ failure = "0.1.6"
 chrono = "0.4"
 regex = "*"
 
-[target.'cfg(unix)'.dependencies]
+[target.'cfg(linux)'.dependencies]
 procfs = "0.5.3"
 
 [dev-dependencies]
