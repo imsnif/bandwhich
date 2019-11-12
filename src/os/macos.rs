@@ -56,6 +56,7 @@ struct RawConnection {
     local_port: String,
     remote_port: String,
     protocol: String,
+    process_name: String,
 }
 
 fn get_open_sockets() -> HashMap<Connection, String> {
@@ -66,34 +67,23 @@ fn get_open_sockets() -> HashMap<Connection, String> {
             .output()
             .expect("failed to execute process");
 
-    // Protocol string (TPC or UDP)
-    // IP Address (in between '->' and ':')
-    // Port (from last position to EOL or next space)
-    let regex = Regex::new(r"(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
+    let regex = Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
+    let lines = String::from_utf8(output.stdout).unwrap().lines();
 
-    let output_string = String::from_utf8(output.stdout).unwrap();
-    let lines = output_string.lines();
-
-
-    for line in lines { //198.252.206.25
-
+    for line in lines {
         let raw_connection_iter = regex.captures_iter(line).filter_map(|cap| {
-            let protocol = String::from(cap.get(1).unwrap().as_str());
-            let local_port = String::from(cap.get(2).unwrap().as_str());
-            let ip = String::from(cap.get(3).unwrap().as_str());
-            let remote_port = String::from(cap.get(4).unwrap().as_str());
-            let connection = RawConnection{ip,local_port, remote_port, protocol};
+            let process_name = String::from(cap.get(1).unwrap().as_str());
+            let protocol = String::from(cap.get(2).unwrap().as_str());
+            let local_port = String::from(cap.get(3).unwrap().as_str());
+            let ip = String::from(cap.get(4).unwrap().as_str());
+            let remote_port = String::from(cap.get(5).unwrap().as_str());
+            let connection = RawConnection{process_name, ip,local_port, remote_port, protocol};
             Some(connection)
         });
 
         let raw_connection_vec = raw_connection_iter.map(|m| m).collect::<Vec<_>>();
-
         let groups = raw_connection_vec.first();
 
-//        println!("IP Vec: {:?}", ip_vec);
-//        println!("Port Vec: {:?}", port_vec);
-//        println!("Protocol Vec: {:?}", protocol_vec);
-        // com.apple   590 someuser   70u  IPv4 0x28ffb9c0382d4a8f      0t0  TCP 10.4.223.181:57830->185.199.111.154:443 (ESTABLISHED)
         if let Some(raw_connection) = raw_connection_vec.first() {
             let protocol = Protocol::from_string(&raw_connection.protocol).unwrap();
             let ipAddress = IpAddr::V4(raw_connection.ip.parse().unwrap());
@@ -101,16 +91,10 @@ fn get_open_sockets() -> HashMap<Connection, String> {
             let local_port = raw_connection.local_port.parse::<u16>().unwrap();
 
             let socketAddr = SocketAddr::new(ipAddress, remote_port);
-//            if protocol == Protocol::Tcp {
-//                println!("Protocol: {:?}", protocol);
-//                println!("IP Address: {:?}", ipAddress.to_string());
-//                println!("Socket port: {:?}", socketAddr.port());
-//                println!("Local port: {:?}", socketAddr.port());
-//            }
             let connection = Connection::new(socketAddr, local_port, protocol).unwrap();
             let procname= String::from("Some process");
 
-            open_sockets.insert(connection, procname.clone());
+            open_sockets.insert(connection, raw_connection.process_name.clone());
         }
     }
 
