@@ -1238,7 +1238,7 @@ dependencies = [
 
 [[package]]
 name = "what"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "cargo-insta 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.7 (registry+https://github.com/rust-lang/crates.io-index)",

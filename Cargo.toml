@@ -2,7 +2,7 @@
 edition = "2018"
 name = "what"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.3.3"
+version = "0.3.4"
 homepage = "https://github.com/imsnif/what"
 repository = "https://github.com/imsnif/what"
 readme = "README.md"
