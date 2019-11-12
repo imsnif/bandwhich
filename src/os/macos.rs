@@ -7,18 +7,16 @@ use ::termion::input::TermRead;
 
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
-use ::std::time;
 
 use std::process::Command;
-use regex::{Regex,RegexSetBuilder};
+use regex::{Regex};
 
 use signal_hook::iterator::Signals;
 
 use crate::network::{Connection, Protocol};
 use crate::OsInputOutput;
-use std::collections::HashSet;
 
-use std::net::{Ipv4Addr, SocketAddr};
+use std::net::{SocketAddr};
 
 struct KeyboardEvents;
 
@@ -35,9 +33,7 @@ impl Iterator for KeyboardEvents {
 fn get_datalink_channel(
     interface: &NetworkInterface,
 ) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
-    let mut config = Config::default();
-
-    match datalink::channel(interface, config) {
+    match datalink::channel(interface, Config::default()) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => failure::bail!("Unknown interface type"),
         Err(e) => failure::bail!("Failed to listen to network interface: {}", e),
@@ -84,17 +80,15 @@ fn get_open_sockets() -> HashMap<Connection, String> {
         });
 
         let raw_connection_vec = raw_connection_iter.map(|m| m).collect::<Vec<_>>();
-        let groups = raw_connection_vec.first();
 
         if let Some(raw_connection) = raw_connection_vec.first() {
             let protocol = Protocol::from_string(&raw_connection.protocol).unwrap();
-            let ipAddress = IpAddr::V4(raw_connection.ip.parse().unwrap());
+            let ip_address = IpAddr::V4(raw_connection.ip.parse().unwrap());
             let remote_port = raw_connection.remote_port.parse::<u16>().unwrap();
             let local_port = raw_connection.local_port.parse::<u16>().unwrap();
 
-            let socketAddr = SocketAddr::new(ipAddress, remote_port);
-            let connection = Connection::new(socketAddr, local_port, protocol).unwrap();
-            let procname= String::from("Some process");
+            let socket_addr = SocketAddr::new(ip_address, remote_port);
+            let connection = Connection::new(socket_addr, local_port, protocol).unwrap();
 
             open_sockets.insert(connection, raw_connection.process_name.clone());
         }

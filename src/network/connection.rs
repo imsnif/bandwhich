@@ -3,7 +3,6 @@ use ::std::fmt;
 use ::std::net::Ipv4Addr;
 
 use ::std::net::SocketAddr;
-use crate::network::Protocol::Tcp;
 
 #[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Debug)]
 pub enum Protocol {
