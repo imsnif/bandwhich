@@ -9,11 +9,16 @@ use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 use ::std::time;
 
-//use ::procfs::FDTarget;
+use std::process::Command;
+use regex::{Regex,RegexSetBuilder};
+
 use signal_hook::iterator::Signals;
 
 use crate::network::{Connection, Protocol};
 use crate::OsInputOutput;
+use std::collections::HashSet;
+
+use std::net::{Ipv4Addr, SocketAddr};
 
 struct KeyboardEvents;
 
@@ -31,9 +36,6 @@ fn get_datalink_channel(
     interface: &NetworkInterface,
 ) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
     let mut config = Config::default();
-//    config.read_timeout = Some(time::Duration::new(0, 1));
-
-    println!("Interface: {:?}", interface);
 
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
@@ -48,45 +50,71 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
         .find(|iface| iface.name == interface_name)
 }
 
+#[derive(Debug)]
+struct RawConnection {
+    ip: String,
+    local_port: String,
+    remote_port: String,
+    protocol: String,
+}
+
 fn get_open_sockets() -> HashMap<Connection, String> {
     let mut open_sockets = HashMap::new();
-    return open_sockets;
-//    let all_procs = procfs::all_processes();
-//
-//    let mut inode_to_procname = HashMap::new();
-//    for process in all_procs {
-//        if let Ok(fds) = process.fd() {
-//            let procname = process.stat.comm;
-//            for fd in fds {
-//                if let FDTarget::Socket(inode) = fd.target {
-//                    inode_to_procname.insert(inode, procname.clone());
-//                }
+
+    let output = Command::new("lsof")
+            .args(&["-n","-P", "-i4"])//"4tcp"
+            .output()
+            .expect("failed to execute process");
+
+    // Protocol string (TPC or UDP)
+    // IP Address (in between '->' and ':')
+    // Port (from last position to EOL or next space)
+    let regex = Regex::new(r"(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
+
+    let output_string = String::from_utf8(output.stdout).unwrap();
+    let lines = output_string.lines();
+
+
+    for line in lines { //198.252.206.25
+
+        let raw_connection_iter = regex.captures_iter(line).filter_map(|cap| {
+            let protocol = String::from(cap.get(1).unwrap().as_str());
+            let local_port = String::from(cap.get(2).unwrap().as_str());
+            let ip = String::from(cap.get(3).unwrap().as_str());
+            let remote_port = String::from(cap.get(4).unwrap().as_str());
+            let connection = RawConnection{ip,local_port, remote_port, protocol};
+            Some(connection)
+        });
+
+        let raw_connection_vec = raw_connection_iter.map(|m| m).collect::<Vec<_>>();
+
+        let groups = raw_connection_vec.first();
+
+//        println!("IP Vec: {:?}", ip_vec);
+//        println!("Port Vec: {:?}", port_vec);
+//        println!("Protocol Vec: {:?}", protocol_vec);
+        // com.apple   590 someuser   70u  IPv4 0x28ffb9c0382d4a8f      0t0  TCP 10.4.223.181:57830->185.199.111.154:443 (ESTABLISHED)
+        if let Some(raw_connection) = raw_connection_vec.first() {
+            let protocol = Protocol::from_string(&raw_connection.protocol).unwrap();
+            let ipAddress = IpAddr::V4(raw_connection.ip.parse().unwrap());
+            let remote_port = raw_connection.remote_port.parse::<u16>().unwrap();
+            let local_port = raw_connection.local_port.parse::<u16>().unwrap();
+
+            let socketAddr = SocketAddr::new(ipAddress, remote_port);
+//            if protocol == Protocol::Tcp {
+//                println!("Protocol: {:?}", protocol);
+//                println!("IP Address: {:?}", ipAddress.to_string());
+//                println!("Socket port: {:?}", socketAddr.port());
+//                println!("Local port: {:?}", socketAddr.port());
 //            }
-//        }
-//    }
-//
-//    let tcp = ::procfs::tcp().unwrap();
-//    for entry in tcp.into_iter() {
-//        let local_port = entry.local_address.port();
-//        if let (Some(connection), Some(procname)) = (
-//            Connection::new(entry.remote_address, local_port, Protocol::Tcp),
-//            inode_to_procname.get(&entry.inode),
-//        ) {
-//            open_sockets.insert(connection, procname.clone());
-//        };
-//    }
-//
-//    let udp = ::procfs::udp().unwrap();
-//    for entry in udp.into_iter() {
-//        let local_port = entry.local_address.port();
-//        if let (Some(connection), Some(procname)) = (
-//            Connection::new(entry.remote_address, local_port, Protocol::Udp),
-//            inode_to_procname.get(&entry.inode),
-//        ) {
-//            open_sockets.insert(connection, procname.clone());
-//        };
-//    }
-//    open_sockets
+            let connection = Connection::new(socketAddr, local_port, protocol).unwrap();
+            let procname= String::from("Some process");
+
+            open_sockets.insert(connection, procname.clone());
+        }
+    }
+
+    return open_sockets;
 }
 
 fn lookup_addr(ip: &IpAddr) -> Option<String> {
