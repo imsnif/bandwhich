@@ -11,7 +11,14 @@ This is my first attempt at Rust. :)
 `what` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
 
 ### Installation
-At the moment, `what` is available through Cargo as a binary crate.
+
+#### Arch Linux
+
+```
+yay -S what
+```
+
+#### Other Linux flavours
 
 ```
 cargo install what
