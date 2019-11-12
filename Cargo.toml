@@ -2,7 +2,7 @@
 edition = "2018"
 name = "what"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.3.0"
+version = "0.3.2"
 homepage = "https://github.com/imsnif/what"
 repository = "https://github.com/imsnif/what"
 readme = "README.md"
@@ -14,7 +14,6 @@ exclude = ["src/tests/*", "demo.gif"]
 
 [dependencies]
 pnet = "0.22.0"
-procfs = { version = "0.5.3", optional = true }
 ipnetwork = "0.14.0"
 tui = "0.5"
 termion = "1.5"
@@ -24,6 +23,9 @@ signal-hook = "0.1.10"
 failure = "0.1.6"
 chrono = "0.4"
 regex = "*"
+
+[target.'cfg(unix)'.dependencies]
+procfs = "0.5.3"
 
 [dev-dependencies]
 insta = "0.11.0"
