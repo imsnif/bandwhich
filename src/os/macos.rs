@@ -68,7 +68,9 @@ fn get_open_sockets() -> HashMap<Connection, String> {
             .expect("failed to execute process");
 
     let regex = Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
-    let lines = String::from_utf8(output.stdout).unwrap().lines();
+
+    let output_string = String::from_utf8(output.stdout).unwrap();
+    let lines = output_string.lines();
 
     for line in lines {
         let raw_connection_iter = regex.captures_iter(line).filter_map(|cap| {
