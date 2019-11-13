@@ -22,6 +22,8 @@ yay -S what
 cargo install what
 ```
 
+If you're on linux, you could also get the generic binary from the releases.
+
 Windows is not supported at the moment - if you'd like to contribute a windows port, it would be very much welcome.
 
 ### Usage
