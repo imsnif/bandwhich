@@ -93,8 +93,6 @@ mod tests {
     use super::*;
 
     const RAW_OUTPUT: &str = "ProcessName 29266 user   39u  IPv4 0x28ffb9c0021196bf      0t0  UDP 192.168.0.1:1111->198.252.206.25:2222";
-    const FULL_RAW_OUTPUT: &str = #"\
-    "#;
 
     #[test]
     fn test_iterator() {

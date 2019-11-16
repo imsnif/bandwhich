@@ -8,19 +8,13 @@ use ::termion::input::TermRead;
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 
-use std::process::Command;
-use regex::{Regex};
-
 use signal_hook::iterator::Signals;
 
-use crate::network::{Connection, Protocol};
+use crate::network::{Connection};
 use crate::OsInputOutput;
 
 use std::net::{SocketAddr};
-<<<<<<< Updated upstream
-=======
 use super::lsof_utils;
->>>>>>> Stashed changes
 
 struct KeyboardEvents;
 
@@ -70,17 +64,10 @@ fn get_open_sockets() -> HashMap<Connection, String> {
         let remote_port = raw_connection.get_remote_port();
         let local_port = raw_connection.get_local_port();
 
-        if let Some(raw_connection) = raw_connection_vec.first() {
-            let protocol = Protocol::from_string(&raw_connection.protocol).unwrap();
-            let ip_address = IpAddr::V4(raw_connection.ip.parse().unwrap());
-            let remote_port = raw_connection.remote_port.parse::<u16>().unwrap();
-            let local_port = raw_connection.local_port.parse::<u16>().unwrap();
+        let socket_addr = SocketAddr::new(ip_address, remote_port);
+        let connection = Connection::new(socket_addr, local_port, protocol).unwrap();
 
-            let socket_addr = SocketAddr::new(ip_address, remote_port);
-            let connection = Connection::new(socket_addr, local_port, protocol).unwrap();
-
-            open_sockets.insert(connection, raw_connection.process_name.clone());
-        }
+        open_sockets.insert(connection, raw_connection.process_name.clone());
     }
 
     return open_sockets;
