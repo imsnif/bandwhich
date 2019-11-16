@@ -473,8 +473,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "packet-builder"
-version = "0.3.0"
-source = "git+https://github.com/imsnif/packet_builder#dd3c7c3f4a615d7ab009912807250bb95c9c9a86"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "derive-new 0.5.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.12.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1253,7 +1253,7 @@ dependencies = [
  "failure 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "insta 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "packet-builder 0.3.0 (git+https://github.com/imsnif/packet_builder)",
+ "packet-builder 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pnet 0.23.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pnet_base 0.23.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "procfs 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1380,7 +1380,7 @@ dependencies = [
 "checksum num-traits 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "6ba9a427cfca2be13aa6f6403b0b7e7368fe982bfa16fccc450ce74c46cd9b32"
 "checksum numtoa 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b8f8bdf33df195859076e54ab11ee78a1b208382d3a26ec40d142ffc1ecc49ef"
 "checksum opaque-debug 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "2839e79665f131bdb5782e51f2c6c9599c133c6098982a54c794358bf432529c"
-"checksum packet-builder 0.3.0 (git+https://github.com/imsnif/packet_builder)" = "<none>"
+"checksum packet-builder 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c3a4c42f976f5e39b18002d165d238fadb0a897e1252cf96e39109f515e85aa8"
 "checksum parking_lot 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f842b1982eb6c2fe34036a4fbfb06dd185a3f5c8edfaacdf7d1ea10b07de6252"
 "checksum parking_lot_core 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)" = "b876b1b9e7ac6e1a74a6da34d25c42e17e8862aa409cbbbdcfc8d86c6f3bc62b"
 "checksum pest 2.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7e4fb201c5c22a55d8b24fef95f78be52738e5e1361129be1b5e862ecdb6894a"
