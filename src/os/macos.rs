@@ -59,6 +59,7 @@ fn get_open_sockets() -> HashMap<Connection, String> {
     let connections = lsof_utils::get_connections();
 
     for raw_connection in connections {
+        println!("Connection: {}", raw_connection.get_ip_address());
         let protocol = raw_connection.get_protocol();
         let ip_address = raw_connection.get_ip_address();
         let remote_port = raw_connection.get_remote_port();
