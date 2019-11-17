@@ -3,6 +3,7 @@ use std::ffi::OsStr;
 use regex::{Regex};
 use crate::network::Protocol;
 use std::net::IpAddr;
+use lazy_static::lazy_static;
 
 #[derive(Debug, Clone)]
 pub struct RawConnection {
@@ -13,9 +14,13 @@ pub struct RawConnection {
     pub process_name: String,
 }
 
+lazy_static! {
+    static ref CONNECTION_REGEX: Regex = Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
+}
+
 impl RawConnection {
-    pub fn new(raw_line: &str, connections_regex: &Regex) -> Option<RawConnection> {
-        let raw_connection_iter = connections_regex.captures_iter(raw_line).filter_map(|cap| {
+    pub fn new(raw_line: &str) -> Option<RawConnection> {
+        let raw_connection_iter = CONNECTION_REGEX.captures_iter(raw_line).filter_map(|cap| {
             let process_name = String::from(cap.get(1).unwrap().as_str());
             let protocol = String::from(cap.get(2).unwrap().as_str());
             let local_port = String::from(cap.get(3).unwrap().as_str());
@@ -71,9 +76,8 @@ pub struct RawConnections {
 
 impl RawConnections {
     pub fn new(content: String) -> RawConnections {
-        let regex = Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
         let lines: Vec<RawConnection> = content.lines()
-            .flat_map(|string| RawConnection::new(string, &regex))
+            .flat_map(|string| RawConnection::new(string))
             .collect();
 
         RawConnections{ content: lines }
