@@ -14,9 +14,7 @@ pub struct RawConnection {
 }
 
 impl RawConnection {
-    pub fn new(raw_line: &str) -> Option<RawConnection> {
-        let connections_regex: Regex = Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
-
+    pub fn new(raw_line: &str, connections_regex: &Regex) -> Option<RawConnection> {
         let raw_connection_iter = connections_regex.captures_iter(raw_line).filter_map(|cap| {
             let process_name = String::from(cap.get(1).unwrap().as_str());
             let protocol = String::from(cap.get(2).unwrap().as_str());
@@ -73,8 +71,9 @@ pub struct RawConnections {
 
 impl RawConnections {
     pub fn new(content: String) -> RawConnections {
+        let regex = Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
         let lines: Vec<RawConnection> = content.lines()
-            .flat_map(|string| RawConnection::new(string))
+            .flat_map(|string| RawConnection::new(string, &regex))
             .collect();
 
         RawConnections{ content: lines }
