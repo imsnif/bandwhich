@@ -88,8 +88,7 @@ impl Iterator for RawConnections {
     type Item = RawConnection;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let line = self.content.pop()?;
-        return Some(line);
+        self.content.pop()
     }
 }
 
