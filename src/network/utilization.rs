@@ -16,9 +16,7 @@ pub struct Utilization {
 impl Utilization {
     pub fn new() -> Self {
         let connections = HashMap::new();
-        Utilization {
-            connections,
-        }
+        Utilization { connections }
     }
     pub fn clone_and_reset(&mut self) -> Self {
         let clone = self.clone();

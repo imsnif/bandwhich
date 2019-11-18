@@ -50,9 +50,7 @@ fn main() {
 
 fn try_main() -> Result<(), failure::Error> {
     #[cfg(target_os = "windows")]
-    compile_error!(
-        "Sorry, no implementations for Windows yet :( - PRs welcome!"
-    );
+    compile_error!("Sorry, no implementations for Windows yet :( - PRs welcome!");
 
     use os::get_input;
     let opts = Opt::from_args();

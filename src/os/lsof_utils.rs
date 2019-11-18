@@ -1,9 +1,9 @@
-use std::process::{Command};
-use std::ffi::OsStr;
-use regex::{Regex};
 use crate::network::Protocol;
-use std::net::IpAddr;
 use lazy_static::lazy_static;
+use regex::Regex;
+use std::ffi::OsStr;
+use std::net::IpAddr;
+use std::process::Command;
 
 #[derive(Debug, Clone)]
 pub struct RawConnection {
@@ -15,7 +15,8 @@ pub struct RawConnection {
 }
 
 lazy_static! {
-    static ref CONNECTION_REGEX: Regex = Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
+    static ref CONNECTION_REGEX: Regex =
+        Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
 }
 
 impl RawConnection {
@@ -26,7 +27,13 @@ impl RawConnection {
             let local_port = String::from(cap.get(3).unwrap().as_str());
             let ip = String::from(cap.get(4).unwrap().as_str());
             let remote_port = String::from(cap.get(5).unwrap().as_str());
-            let connection = RawConnection { process_name, ip, local_port, remote_port, protocol };
+            let connection = RawConnection {
+                process_name,
+                ip,
+                local_port,
+                remote_port,
+                protocol,
+            };
             Some(connection)
         });
         let raw_connection_vec = raw_connection_iter.map(|m| m).collect::<Vec<_>>();
@@ -55,12 +62,14 @@ impl RawConnection {
 }
 
 pub fn get_connections<'a>() -> RawConnections {
-    let content = run(&["-n","-P", "-i4"]);
+    let content = run(&["-n", "-P", "-i4"]);
     RawConnections::new(content)
 }
 
 fn run<'a, I, S>(args: I) -> String
-    where I: IntoIterator<Item=S>, S: AsRef<OsStr>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
 {
     let output = Command::new("lsof")
         .args(args)
@@ -76,11 +85,12 @@ pub struct RawConnections {
 
 impl RawConnections {
     pub fn new(content: String) -> RawConnections {
-        let lines: Vec<RawConnection> = content.lines()
+        let lines: Vec<RawConnection> = content
+            .lines()
             .flat_map(|string| RawConnection::new(string))
             .collect();
 
-        RawConnections{ content: lines }
+        RawConnections { content: lines }
     }
 }
 
@@ -91,7 +101,6 @@ impl Iterator for RawConnections {
         self.content.pop()
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -150,7 +159,10 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     #[test]
     fn test_raw_connection_parse_ip_address() {
         let connection = RawConnection::new(LINE_RAW_OUTPUT).unwrap();
-        assert_eq!(connection.get_ip_address().to_string(), String::from("198.252.206.25"));
+        assert_eq!(
+            connection.get_ip_address().to_string(),
+            String::from("198.252.206.25")
+        );
     }
 
     #[test]

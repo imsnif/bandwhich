@@ -10,11 +10,11 @@ use ::std::net::IpAddr;
 
 use signal_hook::iterator::Signals;
 
-use crate::network::{Connection};
+use crate::network::Connection;
 use crate::OsInputOutput;
 
-use std::net::{SocketAddr};
 use super::lsof_utils;
+use std::net::SocketAddr;
 
 struct KeyboardEvents;
 
