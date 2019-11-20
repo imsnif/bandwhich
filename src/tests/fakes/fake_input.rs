@@ -1,12 +1,19 @@
+use ::async_trait::async_trait;
 use ::ipnetwork::IpNetwork;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::NetworkInterface;
 use ::std::collections::HashMap;
+use ::std::future::Future;
 use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use ::std::pin::Pin;
+use ::std::task::{Context, Poll};
 use ::std::{thread, time};
 use ::termion::event::Event;
 
-use crate::network::{Connection, Protocol};
+use crate::network::{
+    dns::{self, Lookup},
+    Connection, Protocol,
+};
 
 pub struct KeyboardEvents {
     pub events: Vec<Option<Event>>,
@@ -135,15 +142,6 @@ pub fn get_interface() -> NetworkInterface {
     }
 }
 
-pub fn create_fake_lookup_addr(
-    ips_to_hosts: HashMap<IpAddr, String>,
-) -> Box<dyn Fn(&IpAddr) -> Option<String> + Send> {
-    Box::new(move |ip| match ips_to_hosts.get(ip) {
-        Some(host) => Some(host.clone()),
-        None => None,
-    })
-}
-
 pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<dyn Fn(Box<dyn Fn()>) + Send> {
     Box::new(move |cb| {
         if should_send_winch_event {
@@ -151,4 +149,29 @@ pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<dyn Fn(Box<dyn
             cb()
         }
     })
+}
+
+pub fn create_fake_dns_client(ips_to_hosts: HashMap<IpAddr, String>) -> Option<dns::Client> {
+    let dns_client = dns::Client::new(FakeResolver(ips_to_hosts), FakeBackground {}).unwrap();
+    Some(dns_client)
+}
+
+struct FakeResolver(HashMap<IpAddr, String>);
+
+#[async_trait]
+impl Lookup for FakeResolver {
+    async fn lookup(&self, ip: Ipv4Addr) -> Option<String> {
+        let ip = IpAddr::from(ip);
+        self.0.get(&ip).map(|host| host.clone())
+    }
+}
+
+struct FakeBackground {}
+
+impl Future for FakeBackground {
+    type Output = ();
+
+    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
+        Poll::Ready(())
+    }
 }

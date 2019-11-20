@@ -5,7 +5,6 @@ use ::std::io::{self, stdin, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;
 
-use ::std::net::IpAddr;
 use ::std::time;
 
 use signal_hook::iterator::Signals;
@@ -14,7 +13,7 @@ use signal_hook::iterator::Signals;
 use crate::os::linux::get_open_sockets;
 #[cfg(target_os = "macos")]
 use crate::os::macos::get_open_sockets;
-use crate::OsInputOutput;
+use crate::{network::dns, OsInputOutput};
 
 pub struct KeyboardEvents;
 
@@ -46,10 +45,6 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
         .find(|iface| iface.name == interface_name)
 }
 
-fn lookup_addr(ip: &IpAddr) -> Option<String> {
-    ::dns_lookup::lookup_addr(ip).ok()
-}
-
 fn sigwinch() -> (Box<dyn Fn(Box<dyn Fn()>) + Send>, Box<dyn Fn() + Send>) {
     let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
     let on_winch = {
@@ -78,7 +73,7 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
     })
 }
 
-pub fn get_input(interface_name: &str) -> Result<OsInputOutput, failure::Error> {
+pub fn get_input(interface_name: &str, resolve: bool) -> Result<OsInputOutput, failure::Error> {
     let keyboard_events = Box::new(KeyboardEvents);
     let network_interface = match get_interface(interface_name) {
         Some(interface) => interface,
@@ -87,16 +82,22 @@ pub fn get_input(interface_name: &str) -> Result<OsInputOutput, failure::Error> 
         }
     };
     let network_frames = get_datalink_channel(&network_interface)?;
-    let lookup_addr = Box::new(lookup_addr);
     let write_to_stdout = create_write_to_stdout();
     let (on_winch, cleanup) = sigwinch();
+    let dns_client = if resolve {
+        let (resolver, background) = dns::Resolver::new()?;
+        let dns_client = dns::Client::new(resolver, background)?;
+        Some(dns_client)
+    } else {
+        None
+    };
 
     Ok(OsInputOutput {
         network_interface,
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,

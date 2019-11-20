@@ -5,9 +5,10 @@ mod os;
 mod tests;
 
 use display::{RawTerminalBackend, Ui};
-use network::{Connection, DnsQueue, Sniffer, Utilization};
-
-use ::std::net::IpAddr;
+use network::{
+    dns::{self, IpTable},
+    Connection, Sniffer, Utilization,
+};
 
 use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
@@ -54,7 +55,7 @@ fn try_main() -> Result<(), failure::Error> {
 
     use os::get_input;
     let opts = Opt::from_args();
-    let os_input = get_input(&opts.interface)?;
+    let os_input = get_input(&opts.interface, !opts.no_resolve)?;
     let raw_mode = opts.raw;
     if raw_mode {
         let terminal_backend = RawTerminalBackend {};
@@ -69,7 +70,7 @@ fn try_main() -> Result<(), failure::Error> {
                 "Failed to get stdout: 'what' does not (yet) support piping, is it being piped?"
             ),
         }
-    };
+    }
     Ok(())
 }
 
@@ -78,7 +79,7 @@ pub struct OsInputOutput {
     pub network_frames: Box<dyn DataLinkReceiver>,
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
     pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
-    pub lookup_addr: Box<dyn Fn(&IpAddr) -> Option<String> + Send>,
+    pub dns_client: Option<dns::Client>,
     pub on_winch: Box<dyn Fn(Box<dyn Fn()>) + Send>,
     pub cleanup: Box<dyn Fn() + Send>,
     pub write_to_stdout: Box<dyn FnMut(String) + Send>,
@@ -94,45 +95,16 @@ where
 
     let keyboard_events = os_input.keyboard_events;
     let get_open_sockets = os_input.get_open_sockets;
-    let lookup_addr = os_input.lookup_addr;
     let mut write_to_stdout = os_input.write_to_stdout;
+    let mut dns_client = os_input.dns_client;
     let on_winch = os_input.on_winch;
     let cleanup = os_input.cleanup;
 
     let raw_mode = opts.raw;
-    let no_resolve = opts.no_resolve;
 
     let mut sniffer = Sniffer::new(os_input.network_interface, os_input.network_frames);
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend)));
-
-    let dns_queue = if no_resolve {
-        Arc::new(None)
-    } else {
-        Arc::new(Some(DnsQueue::new()))
-    };
-    let ip_to_host = Arc::new(Mutex::new(HashMap::new()));
-
-    if !no_resolve {
-        active_threads.push(
-            thread::Builder::new()
-                .name("dns_resolver".to_string())
-                .spawn({
-                    let dns_queue = dns_queue.clone();
-                    let ip_to_host = ip_to_host.clone();
-                    move || {
-                        if let Some(dns_queue) = Option::as_ref(&dns_queue) {
-                            while let Some(ip) = dns_queue.wait_for_job() {
-                                if let Some(addr) = lookup_addr(&IpAddr::V4(ip)) {
-                                    ip_to_host.lock().unwrap().insert(ip, addr);
-                                }
-                            }
-                        }
-                    }
-                })
-                .unwrap(),
-        );
-    }
 
     if !raw_mode {
         active_threads.push(
@@ -158,25 +130,22 @@ where
         .spawn({
             let running = running.clone();
             let network_utilization = network_utilization.clone();
-            let ip_to_host = ip_to_host.clone();
-            let dns_queue = dns_queue.clone();
             let ui = ui.clone();
             move || {
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
                     let utilization = { network_utilization.lock().unwrap().clone_and_reset() };
                     let connections_to_procs = get_open_sockets();
-                    let ip_to_host = { ip_to_host.lock().unwrap().clone() };
-                    let mut unresolved_ips = Vec::new();
-                    for connection in connections_to_procs.keys() {
-                        if !ip_to_host.contains_key(&connection.remote_socket.ip) {
-                            unresolved_ips.push(connection.remote_socket.ip);
-                        }
-                    }
-                    if let Some(dns_queue) = Option::as_ref(&dns_queue) {
-                        if !unresolved_ips.is_empty() {
-                            dns_queue.resolve_ips(unresolved_ips);
-                        }
+                    let mut ip_to_host = IpTable::new();
+                    if let Some(dns_client) = dns_client.as_mut() {
+                        ip_to_host = dns_client.cache();
+                        let unresolved_ips = connections_to_procs
+                            .keys()
+                            .filter(|conn| !ip_to_host.contains_key(&conn.remote_socket.ip))
+                            .map(|conn| conn.remote_socket.ip)
+                            .collect::<Vec<_>>();
+
+                        dns_client.resolve(unresolved_ips);
                     }
                     {
                         let mut ui = ui.lock().unwrap();
@@ -193,9 +162,6 @@ where
                 if !raw_mode {
                     let mut ui = ui.lock().unwrap();
                     ui.end();
-                }
-                if let Some(dns_queue) = Option::as_ref(&dns_queue) {
-                    dns_queue.end();
                 }
             }
         })

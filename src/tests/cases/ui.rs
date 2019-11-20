@@ -1,6 +1,6 @@
 use crate::tests::fakes::TerminalEvent::*;
 use crate::tests::fakes::{
-    create_fake_lookup_addr, create_fake_on_winch, get_interface, get_open_sockets, KeyboardEvents,
+    create_fake_dns_client, create_fake_on_winch, get_interface, get_open_sockets, KeyboardEvents,
     NetworkFrames, TestBackend,
 };
 
@@ -71,7 +71,7 @@ fn basic_startup() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -81,7 +81,7 @@ fn basic_startup() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -130,7 +130,7 @@ fn one_packet_of_traffic() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -140,7 +140,7 @@ fn one_packet_of_traffic() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -201,7 +201,7 @@ fn bi_directional_traffic() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let write_to_stdout = Box::new({ move |_output: String| {} });
     let cleanup = Box::new(|| {});
@@ -211,7 +211,7 @@ fn bi_directional_traffic() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -274,7 +274,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
@@ -284,7 +284,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
         on_winch,
         cleanup,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         write_to_stdout,
     };
     let opts = Opt {
@@ -343,7 +343,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -353,7 +353,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -414,7 +414,7 @@ fn one_process_with_multiple_connections() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -424,7 +424,7 @@ fn one_process_with_multiple_connections() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -499,7 +499,7 @@ fn multiple_processes_with_multiple_connections() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -509,7 +509,7 @@ fn multiple_processes_with_multiple_connections() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -570,7 +570,7 @@ fn multiple_connections_from_remote_address() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -580,7 +580,7 @@ fn multiple_connections_from_remote_address() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -643,7 +643,7 @@ fn sustained_traffic_from_one_process() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -653,7 +653,7 @@ fn sustained_traffic_from_one_process() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -730,7 +730,7 @@ fn sustained_traffic_from_multiple_processes() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -740,7 +740,7 @@ fn sustained_traffic_from_multiple_processes() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -845,7 +845,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -855,7 +855,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -973,7 +973,7 @@ fn traffic_with_host_names() {
         IpAddr::V4("10.0.0.2".parse().unwrap()),
         String::from("i-like-cheese.com"),
     );
-    let lookup_addr = create_fake_lookup_addr(ips_to_hostnames);
+    let dns_client = create_fake_dns_client(ips_to_hostnames);
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -983,7 +983,7 @@ fn traffic_with_host_names() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -1101,7 +1101,7 @@ fn no_resolve_mode() {
         IpAddr::V4("10.0.0.2".parse().unwrap()),
         String::from("i-like-cheese.com"),
     );
-    let lookup_addr = create_fake_lookup_addr(ips_to_hostnames);
+    let dns_client = None;
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -1111,7 +1111,7 @@ fn no_resolve_mode() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -1163,7 +1163,7 @@ fn traffic_with_winch_event() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(true);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -1173,7 +1173,7 @@ fn traffic_with_winch_event() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -1249,7 +1249,7 @@ fn layout_full_width_under_30_height() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -1259,7 +1259,7 @@ fn layout_full_width_under_30_height() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -1334,7 +1334,7 @@ fn layout_under_150_width_full_height() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -1344,7 +1344,7 @@ fn layout_under_150_width_full_height() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -1419,7 +1419,7 @@ fn layout_under_150_width_under_30_height() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -1429,7 +1429,7 @@ fn layout_under_150_width_under_30_height() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -1504,7 +1504,7 @@ fn layout_under_120_width_full_height() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -1514,7 +1514,7 @@ fn layout_under_120_width_full_height() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
@@ -1589,7 +1589,7 @@ fn layout_under_120_width_under_30_height() {
         terminal_height,
     );
     let network_interface = get_interface();
-    let lookup_addr = create_fake_lookup_addr(HashMap::new());
+    let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
@@ -1599,7 +1599,7 @@ fn layout_under_120_width_under_30_height() {
         network_frames,
         get_open_sockets,
         keyboard_events,
-        lookup_addr,
+        dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
