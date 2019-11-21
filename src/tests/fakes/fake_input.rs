@@ -137,7 +137,7 @@ pub fn get_interface() -> NetworkInterface {
 
 pub fn create_fake_lookup_addr(
     ips_to_hosts: HashMap<IpAddr, String>,
-) -> Box<dyn Fn(&IpAddr) -> Option<String> + Send> {
+) -> Box<dyn Fn(&IpAddr) -> Option<String> + Send + Sync> {
     Box::new(move |ip| match ips_to_hosts.get(ip) {
         Some(host) => Some(host.clone()),
         None => None,

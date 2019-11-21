@@ -78,7 +78,7 @@ pub struct OsInputOutput {
     pub network_frames: Box<dyn DataLinkReceiver>,
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
     pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
-    pub lookup_addr: Box<dyn Fn(&IpAddr) -> Option<String> + Send>,
+    pub lookup_addr: Box<dyn Fn(&IpAddr) -> Option<String> + Send + Sync>,
     pub on_winch: Box<dyn Fn(Box<dyn Fn()>) + Send>,
     pub cleanup: Box<dyn Fn() + Send>,
     pub write_to_stdout: Box<dyn FnMut(String) + Send>,
@@ -94,7 +94,7 @@ where
 
     let keyboard_events = os_input.keyboard_events;
     let get_open_sockets = os_input.get_open_sockets;
-    let lookup_addr = os_input.lookup_addr;
+    let lookup_addr = Arc::new(os_input.lookup_addr);
     let mut write_to_stdout = os_input.write_to_stdout;
     let on_winch = os_input.on_winch;
     let cleanup = os_input.cleanup;
@@ -123,9 +123,15 @@ where
                     move || {
                         if let Some(dns_queue) = Option::as_ref(&dns_queue) {
                             while let Some(ip) = dns_queue.wait_for_job() {
-                                if let Some(addr) = lookup_addr(&IpAddr::V4(ip)) {
-                                    ip_to_host.lock().unwrap().insert(ip, addr);
-                                }
+                                thread::spawn({
+                                    let lookup_addr = lookup_addr.clone();
+                                    let ip_to_host = ip_to_host.clone();
+                                    move || {
+                                        if let Some(addr) = lookup_addr(&IpAddr::V4(ip)) {
+                                            ip_to_host.lock().unwrap().insert(ip, addr);
+                                        }
+                                    }
+                                });
                             }
                         }
                     }
