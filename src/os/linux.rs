@@ -9,7 +9,7 @@ use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 use ::std::time;
 
-use ::procfs::FDTarget;
+use ::procfs::process::FDTarget;
 use signal_hook::iterator::Signals;
 
 use crate::network::{Connection, Protocol};
@@ -47,7 +47,7 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
 
 fn get_open_sockets() -> HashMap<Connection, String> {
     let mut open_sockets = HashMap::new();
-    let all_procs = procfs::all_processes();
+    let all_procs = procfs::process::all_processes().unwrap();
 
     let mut inode_to_procname = HashMap::new();
     for process in all_procs {
@@ -61,7 +61,7 @@ fn get_open_sockets() -> HashMap<Connection, String> {
         }
     }
 
-    let tcp = ::procfs::tcp().unwrap();
+    let tcp = ::procfs::net::tcp().unwrap();
     for entry in tcp.into_iter() {
         let local_port = entry.local_address.port();
         if let (Some(connection), Some(procname)) = (
@@ -72,7 +72,7 @@ fn get_open_sockets() -> HashMap<Connection, String> {
         };
     }
 
-    let udp = ::procfs::udp().unwrap();
+    let udp = ::procfs::net::udp().unwrap();
     for entry in udp.into_iter() {
         let local_port = entry.local_address.port();
         if let (Some(connection), Some(procname)) = (
