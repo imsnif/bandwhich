@@ -1,9 +1,7 @@
 use ::pnet::datalink::Channel::Ethernet;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::{self, Config, NetworkInterface};
-use ::std::io::{self, stdin, Write};
-use ::termion::event::Event;
-use ::termion::input::TermRead;
+use ::std::io::{self, Write};
 
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
@@ -15,17 +13,8 @@ use signal_hook::iterator::Signals;
 use crate::network::{Connection, Protocol};
 use crate::OsInputOutput;
 
-struct KeyboardEvents;
+use crate::os::shared::{KeyboardEvents};
 
-impl Iterator for KeyboardEvents {
-    type Item = Event;
-    fn next(&mut self) -> Option<Event> {
-        match stdin().events().next() {
-            Some(Ok(ev)) => Some(ev),
-            _ => None,
-        }
-    }
-}
 
 fn get_datalink_channel(
     interface: &NetworkInterface,

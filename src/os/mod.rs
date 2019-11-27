@@ -1,3 +1,5 @@
+pub mod shared;
+
 #[cfg(target_os = "linux")]
 mod linux;
 

@@ -16,17 +16,7 @@ use crate::OsInputOutput;
 use super::lsof_utils;
 use std::net::SocketAddr;
 
-struct KeyboardEvents;
-
-impl Iterator for KeyboardEvents {
-    type Item = Event;
-    fn next(&mut self) -> Option<Event> {
-        match stdin().events().next() {
-            Some(Ok(ev)) => Some(ev),
-            _ => None,
-        }
-    }
-}
+use crate::os::shared::KeyboardEvents;
 
 fn get_datalink_channel(
     interface: &NetworkInterface,
