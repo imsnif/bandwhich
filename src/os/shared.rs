@@ -28,7 +28,7 @@ impl Iterator for KeyboardEvents {
     }
 }
 
-pub fn get_datalink_channel(
+fn get_datalink_channel(
     interface: &NetworkInterface,
 ) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
     let mut config = Config::default();
@@ -40,17 +40,17 @@ pub fn get_datalink_channel(
     }
 }
 
-pub fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
+fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
     datalink::interfaces()
         .into_iter()
         .find(|iface| iface.name == interface_name)
 }
 
-pub fn lookup_addr(ip: &IpAddr) -> Option<String> {
+fn lookup_addr(ip: &IpAddr) -> Option<String> {
     ::dns_lookup::lookup_addr(ip).ok()
 }
 
-pub fn sigwinch() -> (Box<dyn Fn(Box<dyn Fn()>) + Send>, Box<dyn Fn() + Send>) {
+fn sigwinch() -> (Box<dyn Fn(Box<dyn Fn()>) + Send>, Box<dyn Fn() + Send>) {
     let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
     let on_winch = {
         let signals = signals.clone();
@@ -69,7 +69,7 @@ pub fn sigwinch() -> (Box<dyn Fn(Box<dyn Fn()>) + Send>, Box<dyn Fn() + Send>) {
     (Box::new(on_winch), Box::new(cleanup))
 }
 
-pub fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
+fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
     Box::new({
         let mut stdout = io::stdout();
         move |output: String| {
