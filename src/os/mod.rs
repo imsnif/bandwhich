@@ -1,4 +1,4 @@
-pub mod shared;
+pub(self) mod shared;
 
 #[cfg(target_os = "linux")]
 mod linux;
