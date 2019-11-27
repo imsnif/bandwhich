@@ -1,16 +1,12 @@
-pub(self) mod shared;
-
 #[cfg(target_os = "linux")]
-mod linux;
-
-#[cfg(target_os = "linux")]
-pub use linux::*;
+pub (self) mod linux;
 
 #[cfg(target_os = "macos")]
-mod macos;
-
-#[cfg(target_os = "macos")]
-pub use macos::*;
+pub (self) mod macos;
 
 #[cfg(target_os = "macos")]
 mod lsof_utils;
+
+mod shared;
+
+pub use shared::*;

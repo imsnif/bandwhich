@@ -1,14 +1,20 @@
 use ::pnet::datalink::Channel::Ethernet;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::{self, Config, NetworkInterface};
+use ::std::io::{self, stdin, Write};
+use ::termion::event::Event;
+use ::termion::input::TermRead;
 
 use ::std::net::IpAddr;
 use ::std::time;
 
 use signal_hook::iterator::Signals;
-use ::std::io::{self, stdin, Write};
-use ::termion::event::Event;
-use ::termion::input::TermRead;
+
+use crate::OsInputOutput;
+#[cfg(target_os = "linux")]
+use crate::os::linux::get_open_sockets;
+#[cfg(target_os = "macos")]
+use crate::os::macos::get_open_sockets;
 
 pub struct KeyboardEvents;
 
@@ -69,5 +75,30 @@ pub fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
         move |output: String| {
             writeln!(stdout, "{}", output).unwrap();
         }
+    })
+}
+
+pub fn get_input(interface_name: &str) -> Result<OsInputOutput, failure::Error> {
+    let keyboard_events = Box::new(KeyboardEvents);
+    let network_interface = match get_interface(interface_name) {
+        Some(interface) => interface,
+        None => {
+            failure::bail!("Cannot find interface {}", interface_name);
+        }
+    };
+    let network_frames = get_datalink_channel(&network_interface)?;
+    let lookup_addr = Box::new(lookup_addr);
+    let write_to_stdout = create_write_to_stdout();
+    let (on_winch, cleanup) = sigwinch();
+
+    Ok(OsInputOutput {
+        network_interface,
+        network_frames,
+        get_open_sockets,
+        keyboard_events,
+        lookup_addr,
+        on_winch,
+        cleanup,
+        write_to_stdout,
     })
 }
