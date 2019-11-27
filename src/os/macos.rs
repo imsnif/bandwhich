@@ -16,23 +16,14 @@ use crate::OsInputOutput;
 use super::lsof_utils;
 use std::net::SocketAddr;
 
-use crate::os::shared::KeyboardEvents;
-
-fn get_datalink_channel(
-    interface: &NetworkInterface,
-) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
-    match datalink::channel(interface, Config::default()) {
-        Ok(Ethernet(_tx, rx)) => Ok(rx),
-        Ok(_) => failure::bail!("Unknown interface type"),
-        Err(e) => failure::bail!("Failed to listen to network interface: {}", e),
-    }
-}
-
-fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
-    datalink::interfaces()
-        .into_iter()
-        .find(|iface| iface.name == interface_name)
-}
+use crate::os::shared::{
+    KeyboardEvents,
+    get_datalink_channel,
+    get_interface,
+    lookup_addr,
+    sigwinch,
+    create_write_to_stdout,
+};
 
 #[derive(Debug)]
 struct RawConnection {
@@ -61,38 +52,6 @@ fn get_open_sockets() -> HashMap<Connection, String> {
     }
 
     return open_sockets;
-}
-
-fn lookup_addr(ip: &IpAddr) -> Option<String> {
-    ::dns_lookup::lookup_addr(ip).ok()
-}
-
-fn sigwinch() -> (Box<dyn Fn(Box<dyn Fn()>) + Send>, Box<dyn Fn() + Send>) {
-    let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
-    let on_winch = {
-        let signals = signals.clone();
-        move |cb: Box<dyn Fn()>| {
-            for signal in signals.forever() {
-                match signal {
-                    signal_hook::SIGWINCH => cb(),
-                    _ => unreachable!(),
-                }
-            }
-        }
-    };
-    let cleanup = move || {
-        signals.close();
-    };
-    (Box::new(on_winch), Box::new(cleanup))
-}
-
-pub fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
-    Box::new({
-        let mut stdout = io::stdout();
-        move |output: String| {
-            writeln!(stdout, "{}", output).unwrap();
-        }
-    })
 }
 
 pub fn get_input(interface_name: &str) -> Result<OsInputOutput, failure::Error> {
