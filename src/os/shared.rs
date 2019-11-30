@@ -10,11 +10,11 @@ use ::std::time;
 
 use signal_hook::iterator::Signals;
 
-use crate::OsInputOutput;
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
 #[cfg(target_os = "macos")]
 use crate::os::macos::get_open_sockets;
+use crate::OsInputOutput;
 
 pub struct KeyboardEvents;
 
