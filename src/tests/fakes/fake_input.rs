@@ -162,7 +162,7 @@ struct FakeResolver(HashMap<IpAddr, String>);
 impl Lookup for FakeResolver {
     async fn lookup(&self, ip: Ipv4Addr) -> Option<String> {
         let ip = IpAddr::from(ip);
-        self.0.get(&ip).map(|host| host.clone())
+        self.0.get(&ip).cloned()
     }
 }
 
