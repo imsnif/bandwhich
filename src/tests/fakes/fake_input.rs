@@ -10,9 +10,12 @@ use ::std::task::{Context, Poll};
 use ::std::{thread, time};
 use ::termion::event::Event;
 
-use crate::network::{
-    dns::{self, Lookup},
-    Connection, Protocol,
+use crate::{
+    network::{
+        dns::{self, Lookup},
+        Connection, Protocol,
+    },
+    os::OnSigWinch,
 };
 
 pub struct KeyboardEvents {
@@ -142,7 +145,7 @@ pub fn get_interface() -> NetworkInterface {
     }
 }
 
-pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<dyn Fn(Box<dyn Fn()>) + Send> {
+pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<OnSigWinch> {
     Box::new(move |cb| {
         if should_send_winch_event {
             thread::sleep(time::Duration::from_millis(900));

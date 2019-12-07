@@ -85,7 +85,7 @@ impl<'a> Table<'a> {
             .iter()
             .map(|(process_name, data_for_process)| {
                 vec![
-                    process_name.to_string(),
+                    (*process_name).to_string(),
                     data_for_process.connection_count.to_string(),
                     display_upload_and_download(*data_for_process),
                 ]

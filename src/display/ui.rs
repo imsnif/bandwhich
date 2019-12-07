@@ -34,7 +34,7 @@ where
             ip_to_host: Default::default(),
         }
     }
-    pub fn output_text(&mut self, write_to_stdout: &mut Box<dyn FnMut(String) + Send>) {
+    pub fn output_text(&mut self, write_to_stdout: &mut (dyn FnMut(String) + Send)) {
         let state = &self.state;
         let ip_to_host = &self.ip_to_host;
         let local_time: DateTime<Local> = Local::now();

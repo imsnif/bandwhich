@@ -45,7 +45,7 @@ impl RawConnection {
     }
 
     pub fn get_protocol(&self) -> Protocol {
-        return Protocol::from_string(&self.protocol).unwrap();
+        return Protocol::from_str(&self.protocol).unwrap();
     }
 
     pub fn get_ip_address(&self) -> IpAddr {
