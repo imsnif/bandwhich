@@ -18,12 +18,14 @@ ipnetwork = "0.15.0"
 tui = "0.5"
 termion = "1.5"
 structopt = "0.3"
-dns-lookup = "1.0.1"
 signal-hook = "0.1.10"
 failure = "0.1.6"
 chrono = "0.4"
 regex = "1.3.1"
 lazy_static = "1.4.0"
+tokio = { version = "^0.2", features = ["rt-core", "sync"] }
+trust-dns-resolver = "0.18.0-alpha.2"
+async-trait = "0.1.21"
 
 [target.'cfg(target_os="linux")'.dependencies]
 procfs = "0.7.4"

@@ -1,9 +1,8 @@
 mod connection;
-mod dns_queue;
+pub mod dns;
 mod sniffer;
 mod utilization;
 
 pub use connection::*;
-pub use dns_queue::*;
 pub use sniffer::*;
 pub use utilization::*;
