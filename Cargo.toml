@@ -6,7 +6,11 @@ version = "0.3.7"
 homepage = "https://github.com/imsnif/what"
 repository = "https://github.com/imsnif/what"
 readme = "README.md"
-authors = ["Aram Drevekenin <aram@poor.dev>", "Eduardo Toledo <etoledom@icloud.com>"]
+authors = [
+  "Aram Drevekenin <aram@poor.dev>",
+  "Eduardo Toledo <etoledom@icloud.com>",
+  "Eduardo Broto <ebroto@tutanota.com>"
+]
 keywords = ["networking", "utilization", "cli"]
 categories = ["network-programming", "command-line-utilities"]
 license = "MIT"
