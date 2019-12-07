@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+
 mod display;
 mod network;
 mod os;
