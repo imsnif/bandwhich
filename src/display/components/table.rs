@@ -64,7 +64,7 @@ impl<'a> Table<'a> {
             .iter()
             .map(|(connection, connection_data)| {
                 vec![
-                    display_connection_string(&connection, &ip_to_host),
+                    display_connection_string(&connection, &ip_to_host, &connection_data.interface),
                     connection_data.process_name.to_string(),
                     display_upload_and_download(*connection_data),
                 ]

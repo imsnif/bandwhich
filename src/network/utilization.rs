@@ -3,14 +3,15 @@ use crate::network::{Connection, Direction, Segment};
 use ::std::collections::HashMap;
 
 #[derive(Clone)]
-pub struct TotalBandwidth {
+pub struct ConnectionInfo {
+    pub interface: String,
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
 }
 
 #[derive(Clone)]
 pub struct Utilization {
-    pub connections: HashMap<Connection, TotalBandwidth>,
+    pub connections: HashMap<Connection, ConnectionInfo>,
 }
 
 impl Utilization {
@@ -23,14 +24,15 @@ impl Utilization {
         self.connections.clear();
         clone
     }
-    pub fn update(&mut self, seg: &Segment) {
-        let total_bandwidth =
-            self.connections
-                .entry(seg.connection.clone())
-                .or_insert(TotalBandwidth {
-                    total_bytes_downloaded: 0,
-                    total_bytes_uploaded: 0,
-                });
+    pub fn update(&mut self, seg: Segment) {
+        let total_bandwidth = self
+            .connections
+            .entry(seg.connection)
+            .or_insert(ConnectionInfo {
+                interface: seg.interface,
+                total_bytes_downloaded: 0,
+                total_bytes_uploaded: 0,
+            });
         match seg.direction {
             Direction::Download => {
                 total_bandwidth.total_bytes_downloaded += seg.data_length;

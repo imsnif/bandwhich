@@ -1,6 +1,6 @@
 use crate::tests::fakes::TerminalEvent::*;
 use crate::tests::fakes::{
-    create_fake_dns_client, create_fake_on_winch, get_interface, get_open_sockets, KeyboardEvents,
+    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, KeyboardEvents,
     NetworkFrames, TestBackend,
 };
 
@@ -55,9 +55,9 @@ fn basic_startup() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         None, // sleep
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -70,14 +70,14 @@ fn basic_startup() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -87,7 +87,7 @@ fn basic_startup() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -110,13 +110,13 @@ fn one_packet_of_traffic() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![Some(build_tcp_packet(
+    let network_frames = vec![NetworkFrames::new(vec![Some(build_tcp_packet(
         "10.0.0.2",
         "1.1.1.1",
         443,
         12345,
         b"I am a fake tcp packet",
-    ))]);
+    ))])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -129,14 +129,14 @@ fn one_packet_of_traffic() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -146,7 +146,7 @@ fn one_packet_of_traffic() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -172,7 +172,7 @@ fn bi_directional_traffic() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
             "1.1.1.1",
@@ -187,7 +187,7 @@ fn bi_directional_traffic() {
             443,
             b"I am a fake tcp download packet",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -200,14 +200,14 @@ fn bi_directional_traffic() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let write_to_stdout = Box::new({ move |_output: String| {} });
     let cleanup = Box::new(|| {});
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -217,7 +217,7 @@ fn bi_directional_traffic() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -243,7 +243,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -258,7 +258,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
             443,
             b"I come from 2.2.2.2",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -273,12 +273,12 @@ fn multiple_packets_of_traffic_from_different_connections() {
     );
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         on_winch,
@@ -288,7 +288,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -314,7 +314,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -329,7 +329,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
             443,
             b"I've come from 1.1.1.1 too!",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -342,14 +342,14 @@ fn multiple_packets_of_traffic_from_single_connection() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -359,7 +359,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -385,7 +385,7 @@ fn one_process_with_multiple_connections() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -400,7 +400,7 @@ fn one_process_with_multiple_connections() {
             443,
             b"Funny that, I'm from 3.3.3.3",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -413,14 +413,14 @@ fn one_process_with_multiple_connections() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -430,7 +430,7 @@ fn one_process_with_multiple_connections() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -456,7 +456,7 @@ fn multiple_processes_with_multiple_connections() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -485,7 +485,7 @@ fn multiple_processes_with_multiple_connections() {
             443,
             b"I'm partial to 4.4.4.4",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -498,14 +498,14 @@ fn multiple_processes_with_multiple_connections() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -515,7 +515,7 @@ fn multiple_processes_with_multiple_connections() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -541,7 +541,7 @@ fn multiple_connections_from_remote_address() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -556,7 +556,7 @@ fn multiple_connections_from_remote_address() {
             443,
             b"Me too, but on a different port",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -569,14 +569,14 @@ fn multiple_connections_from_remote_address() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -586,7 +586,7 @@ fn multiple_connections_from_remote_address() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -613,7 +613,7 @@ fn sustained_traffic_from_one_process() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -629,7 +629,7 @@ fn sustained_traffic_from_one_process() {
             443,
             b"Same here, but one second later",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -642,14 +642,14 @@ fn sustained_traffic_from_one_process() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -659,7 +659,7 @@ fn sustained_traffic_from_one_process() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -686,7 +686,7 @@ fn sustained_traffic_from_multiple_processes() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -716,7 +716,7 @@ fn sustained_traffic_from_multiple_processes() {
             443,
             b"I come 3.3.3.3 one second later",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -729,14 +729,14 @@ fn sustained_traffic_from_multiple_processes() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -746,7 +746,7 @@ fn sustained_traffic_from_multiple_processes() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -773,7 +773,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
@@ -831,7 +831,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
             12345,
             b"10.0.0.2 forever!",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -844,14 +844,14 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -861,7 +861,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -888,7 +888,7 @@ fn traffic_with_host_names() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
@@ -946,7 +946,7 @@ fn traffic_with_host_names() {
             12345,
             b"10.0.0.2 forever!",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -959,7 +959,7 @@ fn traffic_with_host_names() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -979,7 +979,7 @@ fn traffic_with_host_names() {
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -989,7 +989,7 @@ fn traffic_with_host_names() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -1016,7 +1016,7 @@ fn no_resolve_mode() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
@@ -1074,7 +1074,7 @@ fn no_resolve_mode() {
             12345,
             b"10.0.0.2 forever!",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -1087,7 +1087,7 @@ fn no_resolve_mode() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -1107,7 +1107,7 @@ fn no_resolve_mode() {
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -1117,7 +1117,7 @@ fn no_resolve_mode() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: true,
     };
@@ -1143,13 +1143,13 @@ fn traffic_with_winch_event() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![Some(build_tcp_packet(
+    let network_frames = vec![NetworkFrames::new(vec![Some(build_tcp_packet(
         "10.0.0.2",
         "1.1.1.1",
         443,
         12345,
         b"I am a fake tcp packet",
-    ))]);
+    ))])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -1162,14 +1162,14 @@ fn traffic_with_winch_event() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(true);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -1179,7 +1179,7 @@ fn traffic_with_winch_event() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -1206,7 +1206,7 @@ fn layout_full_width_under_30_height() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -1235,7 +1235,7 @@ fn layout_full_width_under_30_height() {
             443,
             b"I'm partial to 4.4.4.4",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(29));
@@ -1248,14 +1248,14 @@ fn layout_full_width_under_30_height() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -1265,7 +1265,7 @@ fn layout_full_width_under_30_height() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -1291,7 +1291,7 @@ fn layout_under_150_width_full_height() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -1320,7 +1320,7 @@ fn layout_under_150_width_full_height() {
             443,
             b"I'm partial to 4.4.4.4",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(149));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -1333,14 +1333,14 @@ fn layout_under_150_width_full_height() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -1350,7 +1350,7 @@ fn layout_under_150_width_full_height() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -1376,7 +1376,7 @@ fn layout_under_150_width_under_30_height() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -1405,7 +1405,7 @@ fn layout_under_150_width_under_30_height() {
             443,
             b"I'm partial to 4.4.4.4",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(149));
     let terminal_height = Arc::new(Mutex::new(29));
@@ -1418,14 +1418,14 @@ fn layout_under_150_width_under_30_height() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -1435,7 +1435,7 @@ fn layout_under_150_width_under_30_height() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -1461,7 +1461,7 @@ fn layout_under_120_width_full_height() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -1490,7 +1490,7 @@ fn layout_under_120_width_full_height() {
             443,
             b"I'm partial to 4.4.4.4",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(119));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -1503,14 +1503,14 @@ fn layout_under_120_width_full_height() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -1520,7 +1520,7 @@ fn layout_under_120_width_full_height() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
@@ -1546,7 +1546,7 @@ fn layout_under_120_width_under_30_height() {
         None, // sleep
         Some(Event::Key(Key::Ctrl('c'))),
     ]));
-    let network_frames = NetworkFrames::new(vec![
+    let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
             "10.0.0.2",
@@ -1575,7 +1575,7 @@ fn layout_under_120_width_under_30_height() {
             443,
             b"I'm partial to 4.4.4.4",
         )),
-    ]);
+    ])];
 
     let terminal_width = Arc::new(Mutex::new(119));
     let terminal_height = Arc::new(Mutex::new(29));
@@ -1588,14 +1588,14 @@ fn layout_under_120_width_under_30_height() {
         terminal_width,
         terminal_height,
     );
-    let network_interface = get_interface();
+    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,
@@ -1605,7 +1605,7 @@ fn layout_under_120_width_under_30_height() {
         write_to_stdout,
     };
     let opts = Opt {
-        interface: String::from("interface_name"),
+        interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
     };
