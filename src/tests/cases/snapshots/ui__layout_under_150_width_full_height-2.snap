@@ -30,10 +30,10 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                      
                                                                                                                                                      
                                                                                                                                                      
- :443 => 2.2.2.2:54321 (tcp)               0Bps/53Bps                      2.2.2.2                                   0Bps/53Bps                      
- :443 => 3.3.3.3:1337 (tcp)                0Bps/45Bps                      3.3.3.3                                   0Bps/45Bps                      
- :443 => 1.1.1.1:12345 (tcp)               0Bps/44Bps                      1.1.1.1                                   0Bps/44Bps                      
- :443 => 4.4.4.4:1337 (tcp)                0Bps/42Bps                      4.4.4.4                                   0Bps/42Bps                      
+ <interface_name>:443 => 2.2.2.2:54321 (t  0Bps/53Bps                      2.2.2.2                                   0Bps/53Bps                      
+ <interface_name>:443 => 3.3.3.3:1337 (tc  0Bps/45Bps                      3.3.3.3                                   0Bps/45Bps                      
+ <interface_name>:443 => 1.1.1.1:12345 (t  0Bps/44Bps                      1.1.1.1                                   0Bps/44Bps                      
+ <interface_name>:443 => 4.4.4.4:1337 (tc  0Bps/42Bps                      4.4.4.4                                   0Bps/42Bps                      
                                                                                                                                                      
                                                                                                                                                      
                                                                                                                                                      
