@@ -37,7 +37,7 @@ fn build_tcp_packet(
     pkt.packet().to_vec()
 }
 
-fn format_raw_output<'t>(output: Vec<u8>) -> String {
+fn format_raw_output(output: Vec<u8>) -> String {
     let stdout_utf8 = String::from_utf8(output).unwrap();
     use regex::Regex;
     let timestamp = Regex::new(r"<\d+>").unwrap();

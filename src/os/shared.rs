@@ -15,6 +15,9 @@ use crate::os::linux::get_open_sockets;
 use crate::os::macos::get_open_sockets;
 use crate::{network::dns, OsInputOutput};
 
+pub type OnSigWinch = dyn Fn(Box<dyn Fn()>) + Send;
+pub type SigCleanup = dyn Fn() + Send;
+
 pub struct KeyboardEvents;
 
 impl Iterator for KeyboardEvents {
@@ -45,7 +48,7 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
         .find(|iface| iface.name == interface_name)
 }
 
-fn sigwinch() -> (Box<dyn Fn(Box<dyn Fn()>) + Send>, Box<dyn Fn() + Send>) {
+fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
     let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
     let on_winch = {
         let signals = signals.clone();

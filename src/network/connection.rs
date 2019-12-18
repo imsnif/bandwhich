@@ -11,8 +11,8 @@ pub enum Protocol {
 }
 
 impl Protocol {
-    pub fn from_string(string: &String) -> Option<Self> {
-        match string.as_str() {
+    pub fn from_str(string: &str) -> Option<Self> {
+        match string {
             "TCP" => Some(Protocol::Tcp),
             "UDP" => Some(Protocol::Udp),
             _ => None,

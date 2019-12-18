@@ -1,3 +1,5 @@
+#![deny(clippy::all)]
+
 mod display;
 mod network;
 mod os;
@@ -9,6 +11,7 @@ use network::{
     dns::{self, IpTable},
     Connection, Sniffer, Utilization,
 };
+use os::OnSigWinch;
 
 use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
@@ -80,12 +83,12 @@ pub struct OsInputOutput {
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
     pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
-    pub on_winch: Box<dyn Fn(Box<dyn Fn()>) + Send>,
+    pub on_winch: Box<OnSigWinch>,
     pub cleanup: Box<dyn Fn() + Send>,
     pub write_to_stdout: Box<dyn FnMut(String) + Send>,
 }
 
-pub fn start<'a, B>(terminal_backend: B, os_input: OsInputOutput, opts: Opt)
+pub fn start<B>(terminal_backend: B, os_input: OsInputOutput, opts: Opt)
 where
     B: Backend + Send + 'static,
 {
@@ -130,7 +133,6 @@ where
         .spawn({
             let running = running.clone();
             let network_utilization = network_utilization.clone();
-            let ui = ui.clone();
             move || {
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
