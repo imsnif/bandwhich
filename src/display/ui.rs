@@ -56,7 +56,7 @@ where
                 display_connection_string(
                     connection,
                     ip_to_host,
-                    &connection_network_data.interface
+                    &connection_network_data.interface_name
                 ),
                 connection_network_data.total_bytes_uploaded,
                 connection_network_data.total_bytes_downloaded,

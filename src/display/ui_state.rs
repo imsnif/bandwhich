@@ -20,7 +20,7 @@ pub struct ConnectionData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub process_name: String,
-    pub interface: String,
+    pub interface_name: String,
 }
 
 impl Bandwidth for ConnectionData {
@@ -74,7 +74,7 @@ impl UIState {
                 connection_data.total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 connection_data.total_bytes_uploaded += connection_info.total_bytes_uploaded;
                 connection_data.process_name = process_name;
-                connection_data.interface = connection_info.interface;
+                connection_data.interface_name = connection_info.interface_name;
                 data_for_remote_address.total_bytes_downloaded +=
                     connection_info.total_bytes_downloaded;
                 data_for_remote_address.total_bytes_uploaded +=

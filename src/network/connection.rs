@@ -52,11 +52,11 @@ pub fn display_ip_or_host(ip: Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) 
 pub fn display_connection_string(
     connection: &Connection,
     ip_to_host: &HashMap<Ipv4Addr, String>,
-    interface: &str,
+    interface_name: &str,
 ) -> String {
     format!(
         "<{}>:{} => {}:{} ({})",
-        interface,
+        interface_name,
         connection.local_port,
         display_ip_or_host(connection.remote_socket.ip, ip_to_host),
         connection.remote_socket.port,
