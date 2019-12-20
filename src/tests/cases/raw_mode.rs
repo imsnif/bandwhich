@@ -12,6 +12,7 @@ use ::std::net::IpAddr;
 
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
+use pnet::datalink::DataLinkReceiver;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
@@ -71,7 +72,7 @@ fn one_packet_of_traffic() {
         443,
         12345,
         b"I am a fake tcp packet",
-    ))])];
+    ))]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -140,7 +141,7 @@ fn bi_directional_traffic() {
             443,
             b"I am a fake tcp download packet",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -209,7 +210,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
             443,
             b"I come from 2.2.2.2",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -278,7 +279,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
             443,
             b"I've come from 1.1.1.1 too!",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -347,7 +348,7 @@ fn one_process_with_multiple_connections() {
             443,
             b"Funny that, I'm from 3.3.3.3",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -430,7 +431,7 @@ fn multiple_processes_with_multiple_connections() {
             443,
             b"I'm partial to 4.4.4.4",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -499,7 +500,7 @@ fn multiple_connections_from_remote_address() {
             443,
             b"Me too, but on a different port",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -570,7 +571,7 @@ fn sustained_traffic_from_one_process() {
             443,
             b"Same here, but one second later",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -655,7 +656,7 @@ fn sustained_traffic_from_multiple_processes() {
             443,
             b"I come 3.3.3.3 one second later",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -768,7 +769,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
             12345,
             b"10.0.0.2 forever!",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -881,7 +882,7 @@ fn traffic_with_host_names() {
             12345,
             b"10.0.0.2 forever!",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));
@@ -1007,7 +1008,7 @@ fn no_resolve_mode() {
             12345,
             b"10.0.0.2 forever!",
         )),
-    ])];
+    ]) as Box<dyn DataLinkReceiver>];
 
     let terminal_width = Arc::new(Mutex::new(190));
     let terminal_height = Arc::new(Mutex::new(50));

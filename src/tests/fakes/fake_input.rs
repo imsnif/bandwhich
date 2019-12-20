@@ -50,7 +50,7 @@ pub struct NetworkFrames {
 }
 
 impl NetworkFrames {
-    pub fn new(packets: Vec<Option<Vec<u8>>>) -> Box<dyn DataLinkReceiver> {
+    pub fn new(packets: Vec<Option<Vec<u8>>>) -> Box<Self> {
         Box::new(NetworkFrames {
             packets,
             current_index: 0,
