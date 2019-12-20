@@ -208,6 +208,7 @@ where
                         network_utilization.lock().unwrap().update(segment);
                     }
                     if !running.load(Ordering::Acquire) {
+                        // Break from the outer loop and finish the thread
                         break 'sniffing;
                     }
                 }
