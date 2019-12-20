@@ -34,11 +34,11 @@ fn get_datalink_channel(
     interface: &NetworkInterface,
 ) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
     let mut config = Config::default();
-    config.read_timeout = Some(time::Duration::new(0, 1));
+    config.read_timeout = Some(time::Duration::new(0, 2_000_000));
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => failure::bail!("Unknown interface type"),
-        Err(e) => failure::bail!("Failed to listen to network interface: {}", e),
+        Err(e) => failure::bail!("Failed to listen on network interface: {}", e),
     }
 }
 
@@ -76,15 +76,27 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
     })
 }
 
-pub fn get_input(interface_name: &str, resolve: bool) -> Result<OsInputOutput, failure::Error> {
-    let keyboard_events = Box::new(KeyboardEvents);
-    let network_interface = match get_interface(interface_name) {
-        Some(interface) => interface,
-        None => {
-            failure::bail!("Cannot find interface {}", interface_name);
+pub fn get_input(
+    interface_name: &Option<String>,
+    resolve: bool,
+) -> Result<OsInputOutput, failure::Error> {
+    let network_interfaces = if let Some(name) = interface_name {
+        match get_interface(&name) {
+            Some(interface) => vec![interface],
+            None => {
+                failure::bail!("Cannot find interface {}", name);
+            }
         }
+    } else {
+        datalink::interfaces()
     };
-    let network_frames = get_datalink_channel(&network_interface)?;
+
+    let network_frames = network_interfaces
+        .iter()
+        .map(|iface| get_datalink_channel(iface))
+        .collect::<Result<Vec<_>, _>>()?;
+
+    let keyboard_events = Box::new(KeyboardEvents);
     let write_to_stdout = create_write_to_stdout();
     let (on_winch, cleanup) = sigwinch();
     let dns_client = if resolve {
@@ -96,7 +108,7 @@ pub fn get_input(interface_name: &str, resolve: bool) -> Result<OsInputOutput, f
     };
 
     Ok(OsInputOutput {
-        network_interface,
+        network_interfaces,
         network_frames,
         get_open_sockets,
         keyboard_events,

@@ -20,6 +20,7 @@ pub struct ConnectionData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub process_name: String,
+    pub interface_name: String,
 }
 
 impl Bandwidth for ConnectionData {
@@ -52,7 +53,7 @@ pub struct UIState {
 impl UIState {
     pub fn new(
         connections_to_procs: HashMap<Connection, String>,
-        network_utilization: Utilization,
+        mut network_utilization: Utilization,
     ) -> Self {
         let mut processes: BTreeMap<String, NetworkData> = BTreeMap::new();
         let mut remote_addresses: BTreeMap<Ipv4Addr, NetworkData> = BTreeMap::new();
@@ -60,32 +61,27 @@ impl UIState {
         let mut total_bytes_downloaded: u128 = 0;
         let mut total_bytes_uploaded: u128 = 0;
         for (connection, process_name) in connections_to_procs {
-            if let Some(connection_bandwidth_utilization) =
-                network_utilization.connections.get(&connection)
-            {
+            if let Some(connection_info) = network_utilization.connections.remove(&connection) {
                 let data_for_remote_address = remote_addresses
                     .entry(connection.remote_socket.ip)
                     .or_default();
                 let connection_data = connections.entry(connection).or_default();
                 let data_for_process = processes.entry(process_name.clone()).or_default();
 
-                data_for_process.total_bytes_downloaded +=
-                    &connection_bandwidth_utilization.total_bytes_downloaded;
-                data_for_process.total_bytes_uploaded +=
-                    &connection_bandwidth_utilization.total_bytes_uploaded;
+                data_for_process.total_bytes_downloaded += connection_info.total_bytes_downloaded;
+                data_for_process.total_bytes_uploaded += connection_info.total_bytes_uploaded;
                 data_for_process.connection_count += 1;
-                connection_data.total_bytes_downloaded +=
-                    &connection_bandwidth_utilization.total_bytes_downloaded;
-                connection_data.total_bytes_uploaded +=
-                    &connection_bandwidth_utilization.total_bytes_uploaded;
+                connection_data.total_bytes_downloaded += connection_info.total_bytes_downloaded;
+                connection_data.total_bytes_uploaded += connection_info.total_bytes_uploaded;
                 connection_data.process_name = process_name;
+                connection_data.interface_name = connection_info.interface_name;
                 data_for_remote_address.total_bytes_downloaded +=
-                    connection_bandwidth_utilization.total_bytes_downloaded;
+                    connection_info.total_bytes_downloaded;
                 data_for_remote_address.total_bytes_uploaded +=
-                    connection_bandwidth_utilization.total_bytes_uploaded;
+                    connection_info.total_bytes_uploaded;
                 data_for_remote_address.connection_count += 1;
-                total_bytes_downloaded += connection_bandwidth_utilization.total_bytes_downloaded;
-                total_bytes_uploaded += connection_bandwidth_utilization.total_bytes_uploaded;
+                total_bytes_downloaded += connection_info.total_bytes_downloaded;
+                total_bytes_uploaded += connection_info.total_bytes_uploaded;
             }
         }
         UIState {

@@ -53,7 +53,11 @@ where
             write_to_stdout(format!(
                 "connection: <{}> {} up/down Bps: {}/{} process: \"{}\"",
                 timestamp,
-                display_connection_string(connection, ip_to_host),
+                display_connection_string(
+                    connection,
+                    ip_to_host,
+                    &connection_network_data.interface_name
+                ),
                 connection_network_data.total_bytes_uploaded,
                 connection_network_data.total_bytes_downloaded,
                 connection_network_data.process_name

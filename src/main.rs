@@ -36,7 +36,7 @@ use structopt::StructOpt;
 pub struct Opt {
     #[structopt(short, long)]
     /// The network interface to listen on, eg. eth0
-    interface: String,
+    interface: Option<String>,
     #[structopt(short, long)]
     /// Machine friendlier output
     raw: bool,
@@ -78,8 +78,8 @@ fn try_main() -> Result<(), failure::Error> {
 }
 
 pub struct OsInputOutput {
-    pub network_interface: NetworkInterface,
-    pub network_frames: Box<dyn DataLinkReceiver>,
+    pub network_interfaces: Vec<NetworkInterface>,
+    pub network_frames: Vec<Box<dyn DataLinkReceiver>>,
     pub get_open_sockets: fn() -> HashMap<Connection, String>,
     pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
@@ -105,7 +105,13 @@ where
 
     let raw_mode = opts.raw;
 
-    let mut sniffer = Sniffer::new(os_input.network_interface, os_input.network_frames);
+    let mut sniffers = os_input
+        .network_interfaces
+        .into_iter()
+        .zip(os_input.network_frames.into_iter())
+        .map(|(iface, frames)| Sniffer::new(iface, frames))
+        .collect::<Vec<Sniffer>>();
+
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend)));
 
@@ -196,10 +202,14 @@ where
     active_threads.push(
         thread::Builder::new()
             .name("sniffing_handler".to_string())
-            .spawn(move || {
-                while running.load(Ordering::Acquire) {
+            .spawn(move || 'sniffing: loop {
+                for sniffer in sniffers.iter_mut() {
                     if let Some(segment) = sniffer.next() {
-                        network_utilization.lock().unwrap().update(&segment)
+                        network_utilization.lock().unwrap().update(segment);
+                    }
+                    if !running.load(Ordering::Acquire) {
+                        // Break from the outer loop and finish the thread
+                        break 'sniffing;
                     }
                 }
             })

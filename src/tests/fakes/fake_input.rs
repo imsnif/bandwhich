@@ -135,14 +135,14 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     open_sockets
 }
 
-pub fn get_interface() -> NetworkInterface {
-    NetworkInterface {
+pub fn get_interfaces() -> Vec<NetworkInterface> {
+    vec![NetworkInterface {
         name: String::from("interface_name"),
         index: 42,
         mac: None,
         ips: vec![IpNetwork::V4("10.0.0.2".parse().unwrap())],
         flags: 42,
-    }
+    }]
 }
 
 pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<OnSigWinch> {

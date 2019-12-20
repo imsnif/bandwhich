@@ -14,6 +14,7 @@ use ::std::net::{IpAddr, SocketAddr};
 use crate::network::{Connection, Protocol};
 
 pub struct Segment {
+    pub interface_name: String,
     pub connection: Connection,
     pub direction: Direction,
     pub data_length: u128,
@@ -81,6 +82,7 @@ impl Sniffer {
                         }
                         _ => return None,
                     };
+                let interface_name = self.network_interface.name.clone();
                 let direction = Direction::new(&self.network_interface.ips, &ip_packet);
                 let from = SocketAddr::new(IpAddr::V4(ip_packet.get_source()), source_port);
                 let to = SocketAddr::new(IpAddr::V4(ip_packet.get_destination()), destination_port);
@@ -90,6 +92,7 @@ impl Sniffer {
                     Direction::Upload => Connection::new(to, source_port, protocol)?,
                 };
                 Some(Segment {
+                    interface_name,
                     connection,
                     data_length,
                     direction,
