@@ -29,7 +29,7 @@ Windows is not supported at the moment - if you'd like to contribute a windows p
 ### Usage
 ```
 USAGE:
-    what [FLAGS] --interface <interface>
+    what [FLAGS] [OPTIONS]
 
 FLAGS:
     -h, --help          Prints help information
@@ -46,14 +46,14 @@ Note that since `what` sniffs network packets, it requires root privileges - so 
 ### raw_mode
 `what` also supports an easier-to-parse mode that can be piped or redirected to a file. For example, try:
 ```
-what -i eth0 --raw | grep firefox
+what --raw | grep firefox
 ```
 ### Contributing
 Contributions of any kind are very welcome. If you'd like a new feature (or found a bug), please open an issue or a PR.
 
 To set up your development environment:
 1. Clone the project
-2. `cargo run -- -i <network interface name>` (you can often find out the name with `ifconfig` or `iwconfig`). You might need root privileges to run this application, so be sure to use (for example) sudo.
+2. `cargo run`, or if you prefer `cargo run -- -i <network interface name>` (you can often find out the name with `ifconfig` or `iwconfig`). You might need root privileges to run this application, so be sure to use (for example) sudo.
     
 To run tests: `cargo test`
 
