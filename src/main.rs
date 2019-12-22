@@ -105,13 +105,6 @@ where
 
     let raw_mode = opts.raw;
 
-    let mut sniffers = os_input
-        .network_interfaces
-        .into_iter()
-        .zip(os_input.network_frames.into_iter())
-        .map(|(iface, frames)| Sniffer::new(iface, frames))
-        .collect::<Vec<Sniffer>>();
-
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend)));
 
@@ -199,22 +192,31 @@ where
     );
     active_threads.push(display_handler);
 
-    active_threads.push(
-        thread::Builder::new()
-            .name("sniffing_handler".to_string())
-            .spawn(move || 'sniffing: loop {
-                for sniffer in sniffers.iter_mut() {
-                    if let Some(segment) = sniffer.next() {
-                        network_utilization.lock().unwrap().update(segment);
+    let sniffer_threads = os_input
+        .network_interfaces
+        .into_iter()
+        .zip(os_input.network_frames.into_iter())
+        .map(|(iface, frames)| {
+            let name = format!("sniffing_handler_{}", iface.name);
+            let running = running.clone();
+            let network_utilization = network_utilization.clone();
+
+            thread::Builder::new()
+                .name(name)
+                .spawn(move || {
+                    let mut sniffer = Sniffer::new(iface, frames);
+
+                    while running.load(Ordering::Acquire) {
+                        if let Some(segment) = sniffer.next() {
+                            network_utilization.lock().unwrap().update(segment);
+                        }
                     }
-                    if !running.load(Ordering::Acquire) {
-                        // Break from the outer loop and finish the thread
-                        break 'sniffing;
-                    }
-                }
-            })
-            .unwrap(),
-    );
+                })
+                .unwrap()
+        })
+        .collect::<Vec<_>>();
+    active_threads.extend(sniffer_threads);
+
     for thread_handler in active_threads {
         thread_handler.join().unwrap()
     }
