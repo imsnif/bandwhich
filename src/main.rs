@@ -34,7 +34,7 @@ use structopt::StructOpt;
 const DISPLAY_DELTA: time::Duration = time::Duration::from_millis(1000);
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "what")]
+#[structopt(name = "bandwhich")]
 pub struct Opt {
     #[structopt(short, long)]
     /// The network interface to listen on, eg. eth0
@@ -72,7 +72,7 @@ fn try_main() -> Result<(), failure::Error> {
                 start(terminal_backend, os_input, opts);
             }
             Err(_) => failure::bail!(
-                "Failed to get stdout: 'what' does not (yet) support piping, is it being piped?"
+                "Failed to get stdout: if you are trying to pipe 'bandwhich' you should use the --raw flag"
             ),
         }
     }
