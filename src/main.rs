@@ -31,6 +31,8 @@ use ::tui::backend::TermionBackend;
 
 use structopt::StructOpt;
 
+const DISPLAY_DELTA: time::Duration = time::Duration::from_millis(1000);
+
 #[derive(StructOpt, Debug)]
 #[structopt(name = "what")]
 pub struct Opt {
@@ -158,7 +160,9 @@ where
                         }
                     }
                     let render_duration = render_start_time.elapsed();
-                    park_timeout(time::Duration::from_millis(1000) - render_duration);
+                    if render_duration < DISPLAY_DELTA {
+                        park_timeout(DISPLAY_DELTA - render_duration);
+                    }
                 }
                 if !raw_mode {
                     let mut ui = ui.lock().unwrap();
