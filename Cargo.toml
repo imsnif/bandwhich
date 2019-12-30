@@ -3,8 +3,8 @@ edition = "2018"
 name = "bandwhich"
 description = "Display current network utilization by process, connection and remote IP/hostname"
 version = "0.6.0"
-homepage = "https://github.com/imsnif/what"
-repository = "https://github.com/imsnif/what"
+homepage = "https://github.com/imsnif/bandwhich"
+repository = "https://github.com/imsnif/bandwhich"
 readme = "README.md"
 authors = [
   "Aram Drevekenin <aram@poor.dev>",
