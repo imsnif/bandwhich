@@ -23,6 +23,7 @@ cargo install bandwhich
 
 If you're on linux, you could also get the generic binary from the releases.
 This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root priviliges to run `bandwhich`. To fix that, there are a few options:
+- Give the executeable elevated permissions: `sudo setcap cap_net_raw,cap_net_admin=+ep $HOME/.cargo/bin/bandwhich`
 - Run `sudo ~/.cargo/bin/bandwhich` instead of just `bandwhich`
 - Create a symlink: `sudo ln -s ~/.cargo/bin/bandwhich /usr/local/bin/` (or another path on root's PATH)
 - Set root's PATH to match your own `sudo env "PATH=$PATH" bandwhich`
