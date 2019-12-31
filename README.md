@@ -15,6 +15,14 @@ This is a CLI utility for displaying current network utilization by process, con
 yay -S bandwhich
 ```
 
+#### Nix/NixOS
+
+`bandwhich` is available in [`nixpkgs`](https://github.com/nixos/nixpkgs/blob/master/pkgs/tools/networking/bandwhich/default.nix), and can be installed, for example, with `nix-env`:
+
+```
+nix-env -iA nixpkgs.bandwhich
+```
+
 #### MacOS and other Linux flavours
 
 ```
