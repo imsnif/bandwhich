@@ -22,11 +22,11 @@ cargo install bandwhich
 ```
 
 If you're on linux, you could also get the generic binary from the releases.
-This installs `what` to `~/.cargo/bin/what` but you need root priviliges to run `what`. To fix that, there are a few options:
-- Run `sudo ~/.cargo/bin/what` instead of just `what`
-- Create a symlink: `sudo ln -s ~/.cargo/bin/what /usr/local/bin/` (or another path on root's PATH)
-- Set root's PATH to match your own `sudo env "PATH=$PATH" what`
-- Pass the desired target directory to cargo: `sudo cargo install what --root /usr/local/bin/`
+This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root priviliges to run `bandwhich`. To fix that, there are a few options:
+- Run `sudo ~/.cargo/bin/bandwhich` instead of just `bandwhich`
+- Create a symlink: `sudo ln -s ~/.cargo/bin/bandwhich /usr/local/bin/` (or another path on root's PATH)
+- Set root's PATH to match your own `sudo env "PATH=$PATH" bandwhich`
+- Pass the desired target directory to cargo: `sudo cargo install bandwhich --root /usr/local/bin/`
 
 Windows is not supported at the moment - if you'd like to contribute a windows port, it would be very much welcome.
 
