@@ -16,8 +16,11 @@ use packet_builder::*;
 use pnet::datalink::DataLinkReceiver;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
+use crate::tests::cases::test_utils::sleep_ctrl_c_event;
 
 use crate::{start, Opt, OsInputOutput};
+
+
 
 fn build_tcp_packet(
     source_ip: &str,
@@ -52,10 +55,6 @@ impl<T> LogWithMirror<T> {
 
 #[test]
 fn basic_startup() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         None, // sleep
     ]) as Box<dyn DataLinkReceiver>];
@@ -81,7 +80,7 @@ fn basic_startup() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_event(1),
         dns_client,
         on_winch,
         cleanup,
