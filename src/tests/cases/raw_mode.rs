@@ -1,11 +1,10 @@
 use crate::tests::fakes::{
-    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, KeyboardEvents,
+    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets,
     NetworkFrames, TestBackend,
 };
 
 use ::insta::assert_snapshot;
 use ::std::sync::{Arc, Mutex};
-use ::termion::event::{Event, Key};
 
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
@@ -17,6 +16,8 @@ use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
 use ::std::io::Write;
+
+use crate::tests::cases::test_utils::sleep_ctrl_c_keyboard_events;
 
 use crate::{start, Opt, OsInputOutput};
 
@@ -61,11 +62,6 @@ impl<T> LogWithMirror<T> {
 
 #[test]
 fn one_packet_of_traffic() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![Some(build_tcp_packet(
         "10.0.0.2",
         "1.1.1.1",
@@ -102,7 +98,7 @@ fn one_packet_of_traffic() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(2),
         dns_client,
         on_winch,
         cleanup,
@@ -121,11 +117,6 @@ fn one_packet_of_traffic() {
 
 #[test]
 fn bi_directional_traffic() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -171,7 +162,7 @@ fn bi_directional_traffic() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(2),
         dns_client,
         on_winch,
         cleanup,
@@ -190,11 +181,6 @@ fn bi_directional_traffic() {
 
 #[test]
 fn multiple_packets_of_traffic_from_different_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -242,7 +228,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
         get_open_sockets,
         on_winch,
         cleanup,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(2),
         dns_client,
         write_to_stdout,
     };
@@ -259,11 +245,6 @@ fn multiple_packets_of_traffic_from_different_connections() {
 
 #[test]
 fn multiple_packets_of_traffic_from_single_connection() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -309,7 +290,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(2),
         dns_client,
         on_winch,
         cleanup,
@@ -328,11 +309,6 @@ fn multiple_packets_of_traffic_from_single_connection() {
 
 #[test]
 fn one_process_with_multiple_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -378,7 +354,7 @@ fn one_process_with_multiple_connections() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(2),
         dns_client,
         on_winch,
         cleanup,
@@ -397,11 +373,6 @@ fn one_process_with_multiple_connections() {
 
 #[test]
 fn multiple_processes_with_multiple_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -461,7 +432,7 @@ fn multiple_processes_with_multiple_connections() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(2),
         dns_client,
         on_winch,
         cleanup,
@@ -480,11 +451,6 @@ fn multiple_processes_with_multiple_connections() {
 
 #[test]
 fn multiple_connections_from_remote_address() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -530,7 +496,7 @@ fn multiple_connections_from_remote_address() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(2),
         dns_client,
         on_winch,
         cleanup,
@@ -549,12 +515,6 @@ fn multiple_connections_from_remote_address() {
 
 #[test]
 fn sustained_traffic_from_one_process() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -601,7 +561,7 @@ fn sustained_traffic_from_one_process() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(3),
         dns_client,
         on_winch,
         cleanup,
@@ -620,12 +580,6 @@ fn sustained_traffic_from_one_process() {
 
 #[test]
 fn sustained_traffic_from_multiple_processes() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -686,7 +640,7 @@ fn sustained_traffic_from_multiple_processes() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(3),
         dns_client,
         on_winch,
         cleanup,
@@ -705,12 +659,6 @@ fn sustained_traffic_from_multiple_processes() {
 
 #[test]
 fn sustained_traffic_from_multiple_processes_bi_directional() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -799,7 +747,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(3),
         dns_client,
         on_winch,
         cleanup,
@@ -818,12 +766,6 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
 
 #[test]
 fn traffic_with_host_names() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -925,7 +867,7 @@ fn traffic_with_host_names() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(3),
         dns_client,
         on_winch,
         cleanup,
@@ -944,12 +886,6 @@ fn traffic_with_host_names() {
 
 #[test]
 fn no_resolve_mode() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -1051,7 +987,7 @@ fn no_resolve_mode() {
         network_interfaces,
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_ctrl_c_keyboard_events(3),
         dns_client,
         on_winch,
         cleanup,
