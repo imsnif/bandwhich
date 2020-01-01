@@ -1,7 +1,7 @@
 use crate::tests::fakes::TerminalEvent::*;
 use crate::tests::fakes::{
-    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets,
-    NetworkFrames, TestBackend,
+    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, NetworkFrames,
+    TestBackend,
 };
 
 use ::insta::assert_snapshot;
@@ -10,16 +10,14 @@ use ::std::sync::{Arc, Mutex};
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 
+use crate::tests::cases::test_utils::sleep_ctrl_c_keyboard_events;
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
 use pnet::datalink::DataLinkReceiver;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
-use crate::tests::cases::test_utils::sleep_ctrl_c_keyboard_events;
 
 use crate::{start, Opt, OsInputOutput};
-
-
 
 fn build_tcp_packet(
     source_ip: &str,
@@ -161,7 +159,6 @@ fn one_packet_of_traffic() {
 
 #[test]
 fn bi_directional_traffic() {
-
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -228,7 +225,6 @@ fn bi_directional_traffic() {
 
 #[test]
 fn multiple_packets_of_traffic_from_different_connections() {
-
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -295,7 +291,6 @@ fn multiple_packets_of_traffic_from_different_connections() {
 
 #[test]
 fn multiple_packets_of_traffic_from_single_connection() {
-
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -362,7 +357,6 @@ fn multiple_packets_of_traffic_from_single_connection() {
 
 #[test]
 fn one_process_with_multiple_connections() {
-
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
