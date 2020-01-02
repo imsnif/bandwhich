@@ -22,7 +22,7 @@ lazy_static! {
 impl RawConnection {
     pub fn new(raw_line: &str) -> Option<RawConnection> {
         let raw_connection_iter = CONNECTION_REGEX.captures_iter(raw_line).filter_map(|cap| {
-            let process_name = String::from(cap.get(1).unwrap().as_str());
+            let process_name = String::from(cap.get(1).unwrap().as_str()).replace("\\x20", " ");
             let protocol = String::from(cap.get(2).unwrap().as_str());
             let local_port = String::from(cap.get(3).unwrap().as_str());
             let ip = String::from(cap.get(4).unwrap().as_str());
@@ -62,7 +62,7 @@ impl RawConnection {
 }
 
 pub fn get_connections<'a>() -> RawConnections {
-    let content = run(&["-n", "-P", "-i4"]);
+    let content = run(&["-n", "-P", "-i4", "+c", "0"]);
     RawConnections::new(content)
 }
 
