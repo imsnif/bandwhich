@@ -21,9 +21,18 @@ yay -S bandwhich
 cargo install bandwhich
 ```
 
+This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root priviliges to run `bandwhich`. To fix that, there are a few options:
+- Give the executable elevated permissions: `sudo setcap cap_net_raw,cap_net_admin=+ep ~/.cargo/bin/bandwhich`
+- Run `sudo ~/.cargo/bin/bandwhich` instead of just `bandwhich`
+- Create a symlink: `sudo ln -s ~/.cargo/bin/bandwhich /usr/local/bin/` (or another path on root's PATH)
+- Set root's PATH to match your own `sudo env "PATH=$PATH" bandwhich`
+- Pass the desired target directory to cargo: `sudo cargo install bandwhich --root /usr/local/bin/`
+
+#### Download a prebuilt binary
 If you're on linux, you could also get the generic binary from the releases.
 
-Windows is not supported at the moment - if you'd like to contribute a windows port, it would be very much welcome.
+#### Windows
+Unfortunately, windows is not supported at the moment - if you'd like to contribute a windows port, it would be very much welcome.
 
 ### Usage
 ```
