@@ -93,19 +93,16 @@ pub fn opts_ui() -> Opt {
 fn opts_factory(raw: bool) -> Opt {
     Opt {
         interface: Some(String::from("interface_name")),
-        raw: raw,
+        raw,
         no_resolve: false,
     }
 }
-
-pub fn test_backend_factory(
-    w: u16,
-    h: u16,
-) -> (
+type BackendWithStreams = (
     Arc<Mutex<Vec<TerminalEvent>>>,
     Arc<Mutex<Vec<String>>>,
     TestBackend,
-) {
+);
+pub fn test_backend_factory(w: u16, h: u16) -> BackendWithStreams {
     let terminal_events: Arc<Mutex<Vec<TerminalEvent>>> = Arc::new(Mutex::new(Vec::new()));
     let terminal_draw_events: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
 

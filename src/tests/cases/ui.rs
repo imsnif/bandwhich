@@ -50,7 +50,10 @@ fn basic_startup() {
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![Clear, HideCursor, Draw, Flush, Clear, ShowCursor];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 1);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -74,7 +77,10 @@ fn one_packet_of_traffic() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -109,7 +115,10 @@ fn bi_directional_traffic() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -144,7 +153,10 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -179,7 +191,10 @@ fn multiple_packets_of_traffic_from_single_connection() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -214,7 +229,10 @@ fn one_process_with_multiple_connections() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -263,7 +281,10 @@ fn multiple_processes_with_multiple_connections() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -298,7 +319,10 @@ fn multiple_connections_from_remote_address() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -335,7 +359,10 @@ fn sustained_traffic_from_one_process() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -386,7 +413,10 @@ fn sustained_traffic_from_multiple_processes() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -465,7 +495,10 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -571,7 +604,10 @@ fn traffic_with_host_names() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -680,7 +716,10 @@ fn no_resolve_mode() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -721,7 +760,10 @@ fn traffic_with_winch_event() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -772,7 +814,10 @@ fn layout_full_width_under_30_height() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -822,7 +867,10 @@ fn layout_under_150_width_full_height() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -871,7 +919,10 @@ fn layout_under_150_width_under_30_height() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -920,7 +971,10 @@ fn layout_under_120_width_full_height() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -968,7 +1022,10 @@ fn layout_under_120_width_under_30_height() {
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
