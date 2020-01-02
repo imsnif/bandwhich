@@ -1,7 +1,4 @@
-use crate::tests::fakes::{
-    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, NetworkFrames,
-    TestBackend,
-};
+use crate::tests::fakes::{create_fake_dns_client, NetworkFrames, TestBackend};
 
 use ::insta::assert_snapshot;
 use ::std::sync::{Arc, Mutex};
@@ -15,11 +12,9 @@ use pnet::datalink::DataLinkReceiver;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
-use ::std::io::Write;
+use crate::tests::cases::test_utils::{os_input_output_dns, os_input_output_stdout};
 
-use crate::tests::cases::test_utils::sleep_and_quit_events;
-
-use crate::{start, Opt, OsInputOutput};
+use crate::{start, Opt};
 
 fn build_tcp_packet(
     source_ip: &str,
@@ -81,29 +76,8 @@ fn one_packet_of_traffic() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(2),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -145,29 +119,8 @@ fn bi_directional_traffic() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(2),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -209,29 +162,8 @@ fn multiple_packets_of_traffic_from_different_connections() {
         terminal_width,
         terminal_height,
     );
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        on_winch,
-        cleanup,
-        keyboard_events: sleep_and_quit_events(2),
-        dns_client,
-        write_to_stdout,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -273,29 +205,8 @@ fn multiple_packets_of_traffic_from_single_connection() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(2),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -337,29 +248,8 @@ fn one_process_with_multiple_connections() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(2),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -415,29 +305,8 @@ fn multiple_processes_with_multiple_connections() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(2),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -479,29 +348,9 @@ fn multiple_connections_from_remote_address() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
 
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(2),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let stdout = Arc::new(Mutex::new(Vec::new()));
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -544,29 +393,9 @@ fn sustained_traffic_from_one_process() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
 
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(3),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let stdout = Arc::new(Mutex::new(Vec::new()));
+    let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -623,29 +452,9 @@ fn sustained_traffic_from_multiple_processes() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
 
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(3),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let stdout = Arc::new(Mutex::new(Vec::new()));
+    let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -730,29 +539,9 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
+    let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
 
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(3),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -837,7 +626,6 @@ fn traffic_with_host_names() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -852,27 +640,8 @@ fn traffic_with_host_names() {
         String::from("i-like-cheese.com"),
     );
     let dns_client = create_fake_dns_client(ips_to_hostnames);
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(3),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let os_input = os_input_output_dns(network_frames, 3, Some(stdout.clone()), dns_client);
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
@@ -957,7 +726,6 @@ fn no_resolve_mode() {
         terminal_width,
         terminal_height,
     );
-    let network_interfaces = get_interfaces();
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -971,28 +739,9 @@ fn no_resolve_mode() {
         IpAddr::V4("10.0.0.2".parse().unwrap()),
         String::from("i-like-cheese.com"),
     );
-    let dns_client = None;
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
 
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events: sleep_and_quit_events(3),
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let stdout = Arc::new(Mutex::new(Vec::new()));
+    let os_input = os_input_output_dns(network_frames, 3, Some(stdout.clone()), None);
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,
