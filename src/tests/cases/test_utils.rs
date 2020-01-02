@@ -1,6 +1,4 @@
-use crate::tests::fakes::{
-    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, KeyboardEvents,
-};
+use crate::tests::fakes::{create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, KeyboardEvents, TerminalEvent, TestBackend};
 use std::iter;
 
 use crate::network::dns::Client;
@@ -95,4 +93,19 @@ fn opts_factory(raw: bool) -> Opt {
         raw: raw,
         no_resolve: false,
     }
+}
+
+pub fn test_backend_factory(w:u16, h:u16)->(Arc<Mutex<Vec<TerminalEvent>>>,Arc<Mutex<Vec<String>>>,TestBackend){
+    let terminal_events:Arc<Mutex<Vec<TerminalEvent>>> = Arc::new(Mutex::new(Vec::new()));
+    let terminal_draw_events:Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+
+    let backend = TestBackend::new(
+        terminal_events.clone(),
+        terminal_draw_events.clone(),
+        Arc::new(Mutex::new(w        )),
+    Arc::new(Mutex::new(h))
+    );
+    (terminal_events, terminal_draw_events, backend)
+
+
 }

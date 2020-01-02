@@ -10,7 +10,7 @@ use ::std::sync::{Arc, Mutex};
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 
-use crate::tests::cases::test_utils::{os_input_output, sleep_and_quit_events, opts_ui};
+use crate::tests::cases::test_utils::{os_input_output, sleep_and_quit_events, opts_ui, test_backend_factory};
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
 use pnet::datalink::DataLinkReceiver;
@@ -56,23 +56,13 @@ fn basic_startup() {
         None, // sleep
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events,backend) = test_backend_factory(190,50);
     let os_input = os_input_output(network_frames, 1);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![Clear, HideCursor, Draw, Flush, Clear, ShowCursor];
     assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
