@@ -1,7 +1,6 @@
 use crate::tests::fakes::TerminalEvent::*;
 use crate::tests::fakes::{
     create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, NetworkFrames,
-
 };
 
 use ::insta::assert_snapshot;

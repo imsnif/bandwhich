@@ -1,4 +1,4 @@
-use crate::tests::fakes::{create_fake_dns_client, NetworkFrames, TestBackend};
+use crate::tests::fakes::{create_fake_dns_client, NetworkFrames};
 
 use ::insta::assert_snapshot;
 use ::std::sync::{Arc, Mutex};
@@ -12,7 +12,9 @@ use pnet::datalink::DataLinkReceiver;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
-use crate::tests::cases::test_utils::{opts_raw, os_input_output_dns, os_input_output_stdout};
+use crate::tests::cases::test_utils::{
+    opts_raw, os_input_output_dns, os_input_output_stdout, test_backend_factory,
+};
 
 use crate::{start, Opt};
 
@@ -42,19 +44,6 @@ fn format_raw_output(output: Vec<u8>) -> String {
     format!("{}", replaced)
 }
 
-struct LogWithMirror<T> {
-    pub write: Arc<Mutex<T>>,
-    pub mirror: Arc<Mutex<T>>,
-}
-
-impl<T> LogWithMirror<T> {
-    pub fn new(log: T) -> Self {
-        let write = Arc::new(Mutex::new(log));
-        let mirror = write.clone();
-        LogWithMirror { write, mirror }
-    }
-}
-
 #[test]
 fn one_packet_of_traffic() {
     let network_frames = vec![NetworkFrames::new(vec![Some(build_tcp_packet(
@@ -64,18 +53,7 @@ fn one_packet_of_traffic() {
         12345,
         b"I am a fake tcp packet",
     ))]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
@@ -103,18 +81,7 @@ fn bi_directional_traffic() {
             b"I am a fake tcp download packet",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
@@ -142,18 +109,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
             b"I come from 2.2.2.2",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
@@ -181,18 +137,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
             b"I've come from 1.1.1.1 too!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
@@ -220,18 +165,7 @@ fn one_process_with_multiple_connections() {
             b"Funny that, I'm from 3.3.3.3",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
@@ -273,18 +207,7 @@ fn multiple_processes_with_multiple_connections() {
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
@@ -312,18 +235,7 @@ fn multiple_connections_from_remote_address() {
             b"Me too, but on a different port",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
 
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
@@ -353,18 +265,7 @@ fn sustained_traffic_from_one_process() {
             b"Same here, but one second later",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
 
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
@@ -408,18 +309,7 @@ fn sustained_traffic_from_multiple_processes() {
             b"I come 3.3.3.3 one second later",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
 
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
@@ -491,18 +381,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
             b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
 
@@ -574,18 +453,7 @@ fn traffic_with_host_names() {
             b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -670,18 +538,7 @@ fn no_resolve_mode() {
             b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (_, _, backend) = test_backend_factory(190, 50);
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
