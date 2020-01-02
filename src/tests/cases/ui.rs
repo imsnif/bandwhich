@@ -1,16 +1,17 @@
 use crate::tests::fakes::TerminalEvent::*;
 use crate::tests::fakes::{
     create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, NetworkFrames,
-    TestBackend,
+
 };
 
 use ::insta::assert_snapshot;
-use ::std::sync::{Arc, Mutex};
 
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 
-use crate::tests::cases::test_utils::{os_input_output, sleep_and_quit_events, opts_ui, test_backend_factory};
+use crate::tests::cases::test_utils::{
+    opts_ui, os_input_output, sleep_and_quit_events, test_backend_factory,
+};
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
 use pnet::datalink::DataLinkReceiver;
@@ -37,26 +38,13 @@ fn build_tcp_packet(
     pkt.packet().to_vec()
 }
 
-struct LogWithMirror<T> {
-    pub write: Arc<Mutex<T>>,
-    pub mirror: Arc<Mutex<T>>,
-}
-
-impl<T> LogWithMirror<T> {
-    pub fn new(log: T) -> Self {
-        let write = Arc::new(Mutex::new(log));
-        let mirror = write.clone();
-        LogWithMirror { write, mirror }
-    }
-}
-
 #[test]
 fn basic_startup() {
     let network_frames = vec![NetworkFrames::new(vec![
         None, // sleep
     ]) as Box<dyn DataLinkReceiver>];
 
-    let (terminal_events, terminal_draw_events,backend) = test_backend_factory(190,50);
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = opts_ui();
     start(backend, os_input, opts);
@@ -80,24 +68,13 @@ fn one_packet_of_traffic() {
         12345,
         b"I am a fake tcp packet",
     ))]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -128,23 +105,13 @@ fn bi_directional_traffic() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -175,23 +142,13 @@ fn multiple_packets_of_traffic_from_different_connections() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -222,23 +179,13 @@ fn multiple_packets_of_traffic_from_single_connection() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -269,23 +216,13 @@ fn one_process_with_multiple_connections() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -330,23 +267,13 @@ fn multiple_processes_with_multiple_connections() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -377,23 +304,13 @@ fn multiple_connections_from_remote_address() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -425,23 +342,14 @@ fn sustained_traffic_from_one_process() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
     let os_input = os_input_output(network_frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -487,23 +395,14 @@ fn sustained_traffic_from_multiple_processes() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
     let os_input = os_input_output(network_frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -577,23 +476,14 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
     let os_input = os_input_output(network_frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -667,17 +557,7 @@ fn traffic_with_host_names() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
@@ -710,8 +590,8 @@ fn traffic_with_host_names() {
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -784,18 +664,7 @@ fn no_resolve_mode() {
             b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
@@ -832,8 +701,8 @@ fn no_resolve_mode() {
     };
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -855,17 +724,7 @@ fn traffic_with_winch_event() {
         b"I am a fake tcp packet",
     ))]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(true);
@@ -885,8 +744,8 @@ fn traffic_with_winch_event() {
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -932,23 +791,14 @@ fn layout_full_width_under_30_height() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(29));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 29);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -993,23 +843,14 @@ fn layout_under_150_width_full_height() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(149));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(149, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -1053,24 +894,14 @@ fn layout_under_150_width_under_30_height() {
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(149, 29);
 
-    let terminal_width = Arc::new(Mutex::new(149));
-    let terminal_height = Arc::new(Mutex::new(29));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -1114,24 +945,14 @@ fn layout_under_120_width_full_height() {
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(119, 50);
 
-    let terminal_width = Arc::new(Mutex::new(119));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
@@ -1175,24 +996,13 @@ fn layout_under_120_width_under_30_height() {
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(119));
-    let terminal_height = Arc::new(Mutex::new(29));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(119, 29);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
 
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_events_mirror = terminal_events.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
