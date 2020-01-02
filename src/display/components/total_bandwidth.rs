@@ -14,7 +14,7 @@ impl<'a> TotalBandwidth<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let title_text = [Text::styled(
             format!(
-                " Total Rate Up/Down: {}/{}",
+                " Total Rate Up / Down: {} / {}",
                 DisplayBandwidth(self.state.total_bytes_uploaded as f64),
                 DisplayBandwidth(self.state.total_bytes_downloaded as f64)
             ),
