@@ -49,7 +49,13 @@ OPTIONS:
     -i, --interface <interface>    The network interface to listen on, eg. eth0
 ```
 
-Note that since `bandwhich` sniffs network packets, it requires root privileges - so you might want to use it with (for example) `sudo`.
+**Note that since `bandwhich` sniffs network packets, it requires root privileges** - so you might want to use it with (for example) `sudo`.
+
+On Linux, you can give the `bandwhich` binary a permanent capability to use the required privileges, so that you don't need to use `sudo bandwhich` anymore:
+
+```bash
+sudo setcap cap_net_raw,cap_net_admin=+ep "$HOME/.cargo/bin/bandwhich"
+```
 
 ### raw_mode
 `bandwhich` also supports an easier-to-parse mode that can be piped or redirected to a file. For example, try:
@@ -62,7 +68,7 @@ Contributions of any kind are very welcome. If you'd like a new feature (or foun
 To set up your development environment:
 1. Clone the project
 2. `cargo run`, or if you prefer `cargo run -- -i <network interface name>` (you can often find out the name with `ifconfig` or `iwconfig`). You might need root privileges to run this application, so be sure to use (for example) sudo.
-    
+
 To run tests: `cargo test`
 
 Note that at the moment the tests do not test the os layer (anything in the `os` folder).
