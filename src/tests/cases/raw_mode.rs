@@ -12,7 +12,7 @@ use pnet::datalink::DataLinkReceiver;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
-use crate::tests::cases::test_utils::{os_input_output_dns, os_input_output_stdout};
+use crate::tests::cases::test_utils::{opts_raw, os_input_output_dns, os_input_output_stdout};
 
 use crate::{start, Opt};
 
@@ -78,11 +78,7 @@ fn one_packet_of_traffic() {
     );
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -121,11 +117,7 @@ fn bi_directional_traffic() {
     );
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -164,11 +156,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
     );
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -207,11 +195,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
     );
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -250,11 +234,7 @@ fn one_process_with_multiple_connections() {
     );
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -307,11 +287,7 @@ fn multiple_processes_with_multiple_connections() {
     );
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -351,11 +327,7 @@ fn multiple_connections_from_remote_address() {
 
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -396,11 +368,7 @@ fn sustained_traffic_from_one_process() {
 
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -455,11 +423,7 @@ fn sustained_traffic_from_multiple_processes() {
 
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -542,11 +506,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
 
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -642,11 +602,7 @@ fn traffic_with_host_names() {
     let dns_client = create_fake_dns_client(ips_to_hostnames);
     let stdout = Arc::new(Mutex::new(Vec::new()));
     let os_input = os_input_output_dns(network_frames, 3, Some(stdout.clone()), dns_client);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);

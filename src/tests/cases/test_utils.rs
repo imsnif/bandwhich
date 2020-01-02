@@ -4,7 +4,7 @@ use crate::tests::fakes::{
 use std::iter;
 
 use crate::network::dns::Client;
-use crate::OsInputOutput;
+use crate::{Opt, OsInputOutput};
 use ::termion::event::{Event, Key};
 use pnet::datalink::DataLinkReceiver;
 use std::collections::HashMap;
@@ -78,5 +78,21 @@ fn os_input_output_factory(
         on_winch,
         cleanup,
         write_to_stdout,
+    }
+}
+
+pub fn opts_raw() -> Opt {
+    opts_factory(true)
+}
+
+pub fn opts_ui() -> Opt {
+    opts_factory(false)
+}
+
+fn opts_factory(raw: bool) -> Opt {
+    Opt {
+        interface: Some(String::from("interface_name")),
+        raw: raw,
+        no_resolve: false,
     }
 }

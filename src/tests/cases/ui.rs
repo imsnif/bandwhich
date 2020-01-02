@@ -10,7 +10,7 @@ use ::std::sync::{Arc, Mutex};
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 
-use crate::tests::cases::test_utils::{os_input_output, sleep_and_quit_events};
+use crate::tests::cases::test_utils::{os_input_output, sleep_and_quit_events, opts_ui};
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
 use pnet::datalink::DataLinkReceiver;
@@ -68,11 +68,7 @@ fn basic_startup() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 1);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -107,11 +103,7 @@ fn one_packet_of_traffic() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -158,11 +150,7 @@ fn bi_directional_traffic() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -209,11 +197,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -260,11 +244,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -311,11 +291,7 @@ fn one_process_with_multiple_connections() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -376,11 +352,7 @@ fn multiple_processes_with_multiple_connections() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -427,11 +399,7 @@ fn multiple_connections_from_remote_address() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -479,11 +447,7 @@ fn sustained_traffic_from_one_process() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 3);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -545,11 +509,7 @@ fn sustained_traffic_from_multiple_processes() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 3);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -639,11 +599,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 3);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -761,11 +717,7 @@ fn traffic_with_host_names() {
         cleanup,
         write_to_stdout,
     };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -940,11 +892,7 @@ fn traffic_with_winch_event() {
         cleanup,
         write_to_stdout,
     };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -1006,11 +954,7 @@ fn layout_full_width_under_30_height() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -1071,11 +1015,7 @@ fn layout_under_150_width_full_height() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -1136,11 +1076,7 @@ fn layout_under_150_width_under_30_height() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -1201,11 +1137,7 @@ fn layout_under_120_width_full_height() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
@@ -1266,11 +1198,7 @@ fn layout_under_120_width_under_30_height() {
         terminal_height,
     );
     let os_input = os_input_output(network_frames, 2);
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
 
     let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
