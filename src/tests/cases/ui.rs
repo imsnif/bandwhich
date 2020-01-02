@@ -47,12 +47,10 @@ fn basic_startup() {
     let os_input = os_input_output(network_frames, 1);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![Clear, HideCursor, Draw, Flush, Clear, ShowCursor];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 1);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -71,14 +69,12 @@ fn one_packet_of_traffic() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -108,14 +104,12 @@ fn bi_directional_traffic() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -145,14 +139,12 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -182,14 +174,12 @@ fn multiple_packets_of_traffic_from_single_connection() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -219,14 +209,12 @@ fn one_process_with_multiple_connections() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -270,14 +258,12 @@ fn multiple_processes_with_multiple_connections() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -307,14 +293,12 @@ fn multiple_connections_from_remote_address() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -346,14 +330,12 @@ fn sustained_traffic_from_one_process() {
     let os_input = os_input_output(network_frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -399,14 +381,12 @@ fn sustained_traffic_from_multiple_processes() {
     let os_input = os_input_output(network_frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -480,14 +460,12 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
     let os_input = os_input_output(network_frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -588,14 +566,12 @@ fn traffic_with_host_names() {
     };
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -699,14 +675,12 @@ fn no_resolve_mode() {
         no_resolve: true,
     };
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -742,14 +716,12 @@ fn traffic_with_winch_event() {
     };
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -795,14 +767,12 @@ fn layout_full_width_under_30_height() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -847,14 +817,12 @@ fn layout_under_150_width_full_height() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -898,14 +866,12 @@ fn layout_under_150_width_under_30_height() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -949,14 +915,12 @@ fn layout_under_120_width_full_height() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -999,14 +963,12 @@ fn layout_under_120_width_under_30_height() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.lock().unwrap();
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(&terminal_events.lock().unwrap()[..], &expected_terminal_events[..]);
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
