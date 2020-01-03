@@ -38,7 +38,11 @@ fn get_datalink_channel(
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => failure::bail!("Unknown interface type"),
-        Err(e) => failure::bail!("Failed to listen on network interface: {}", e),
+        Err(e) => failure::bail!(
+            "Failed to listen on network interface {}: {}",
+            interface.name,
+            e
+        ),
     }
 }
 
@@ -94,7 +98,8 @@ pub fn get_input(
     let network_frames = network_interfaces
         .iter()
         .map(|iface| get_datalink_channel(iface))
-        .collect::<Result<Vec<_>, _>>()?;
+        .filter_map(Result::ok)
+        .collect::<Vec<_>>();
 
     let keyboard_events = Box::new(KeyboardEvents);
     let write_to_stdout = create_write_to_stdout();
