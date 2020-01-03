@@ -34,7 +34,9 @@ fn get_datalink_channel(
     interface: &NetworkInterface,
 ) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
     let mut config = Config::default();
-    if cfg!(not(target_os = "macos")) {
+    if cfg!(target_os = "macos") {
+        config.read_timeout = Some(time::Duration::new(1, 0));
+    } else {
         config.read_timeout = Some(time::Duration::new(2, 0));
     }
     match datalink::channel(interface, config) {
