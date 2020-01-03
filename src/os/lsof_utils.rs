@@ -62,7 +62,7 @@ impl RawConnection {
 }
 
 pub fn get_connections<'a>() -> RawConnections {
-    let content = run(&["-n", "-P", "-i4", "+c", "30"]);
+    let content = run(&["-n", "-P", "-i4"]);
     RawConnections::new(content)
 }
 
