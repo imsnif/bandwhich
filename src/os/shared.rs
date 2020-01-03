@@ -34,11 +34,8 @@ fn get_datalink_channel(
     interface: &NetworkInterface,
 ) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
     let mut config = Config::default();
-    if cfg!(target_os = "macos") {
-        config.read_timeout = Some(time::Duration::new(1, 0));
-    } else {
-        config.read_timeout = Some(time::Duration::new(2, 0));
-    }
+    config.read_timeout = Some(time::Duration::new(1, 0));
+
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => failure::bail!("Unknown interface type"),
