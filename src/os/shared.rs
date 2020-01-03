@@ -106,7 +106,7 @@ pub fn get_input(
         .map(|iface| get_datalink_channel(iface))
         .filter_map(Result::ok)
         .collect::<Vec<_>>();
-    if network_frames.len() == 0 {
+    if network_frames.is_empty() {
         failure::bail!("Could not find any network interface to listen to. Try running with sudo");
     }
 
