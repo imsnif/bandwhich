@@ -25,6 +25,10 @@ nix-env -iA nixpkgs.bandwhich
 
 #### MacOS and other Linux flavours
 
+`bandwhich` can be installed using the Rust package manager, cargo. If it's not in your distro repositories or the available version is too old, you can install it via [rustup](https://rustup.rs/). You can find additional installation instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html).
+
+The minimum supported Rust version is **1.39.0**.
+
 ```
 cargo install bandwhich
 ```
