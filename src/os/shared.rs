@@ -40,11 +40,17 @@ fn get_datalink_channel(
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => failure::bail!("Unknown interface type"),
-        Err(e) => failure::bail!(
-            "Failed to listen on network interface {}: {}",
-            interface.name,
-            e
-        ),
+        Err(e) => {
+            println!("hej");
+            match e.kind() {
+                std::io::ErrorKind::PermissionDenied => failure::bail!("Failed to listen on network interface due to permission error. Try running with sudo"),
+                _ => failure::bail!(
+                    "Failed to listen on network interface {}: {}",
+                    interface.name,
+                    e
+                ),
+            }
+        }
     }
 }
 
