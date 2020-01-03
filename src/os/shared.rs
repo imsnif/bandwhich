@@ -106,6 +106,9 @@ pub fn get_input(
         .map(|iface| get_datalink_channel(iface))
         .filter_map(Result::ok)
         .collect::<Vec<_>>();
+    if network_frames.len() == 0 {
+        failure::bail!("Could not find any network interface to listen to. Try running with sudo");
+    }
 
     let keyboard_events = Box::new(KeyboardEvents);
     let write_to_stdout = create_write_to_stdout();
