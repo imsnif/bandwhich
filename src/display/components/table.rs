@@ -163,14 +163,13 @@ impl<'a> Table<'a> {
             }
         });
 
-        let table_rows =
-            rows.map(|row| Row::StyledData(row.into_iter(), Style::default().fg(Color::White)));
+        let table_rows = rows.map(|row| Row::StyledData(row.into_iter(), Style::default()));
 
         ::tui::widgets::Table::new(column_names.into_iter(), table_rows)
             .block(Block::default().title(self.title).borders(Borders::ALL))
             .header_style(Style::default().fg(Color::Yellow))
             .widths(&widths[..])
-            .style(Style::default().fg(Color::White))
+            .style(Style::default())
             .column_spacing(2)
             .render(frame, rect);
     }
