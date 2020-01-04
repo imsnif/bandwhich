@@ -1,11 +1,7 @@
-use crate::tests::fakes::{
-    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, KeyboardEvents,
-    NetworkFrames, TestBackend,
-};
+use crate::tests::fakes::{create_fake_dns_client, NetworkFrames};
 
 use ::insta::assert_snapshot;
 use ::std::sync::{Arc, Mutex};
-use ::termion::event::{Event, Key};
 
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
@@ -16,9 +12,11 @@ use pnet::datalink::DataLinkReceiver;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
-use ::std::io::Write;
+use crate::tests::cases::test_utils::{
+    opts_raw, os_input_output_dns, os_input_output_stdout, test_backend_factory,
+};
 
-use crate::{start, Opt, OsInputOutput};
+use crate::{start, Opt};
 
 fn build_tcp_packet(
     source_ip: &str,
@@ -46,26 +44,8 @@ fn format_raw_output(output: Vec<u8>) -> String {
     format!("{}", replaced)
 }
 
-struct LogWithMirror<T> {
-    pub write: Arc<Mutex<T>>,
-    pub mirror: Arc<Mutex<T>>,
-}
-
-impl<T> LogWithMirror<T> {
-    pub fn new(log: T) -> Self {
-        let write = Arc::new(Mutex::new(log));
-        let mirror = write.clone();
-        LogWithMirror { write, mirror }
-    }
-}
-
 #[test]
 fn one_packet_of_traffic() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![Some(build_tcp_packet(
         "10.0.0.2",
         "1.1.1.1",
@@ -73,46 +53,10 @@ fn one_packet_of_traffic() {
         12345,
         b"I am a fake tcp packet",
     ))]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -121,11 +65,6 @@ fn one_packet_of_traffic() {
 
 #[test]
 fn bi_directional_traffic() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -142,46 +81,10 @@ fn bi_directional_traffic() {
             b"I am a fake tcp download packet",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -190,11 +93,6 @@ fn bi_directional_traffic() {
 
 #[test]
 fn multiple_packets_of_traffic_from_different_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -211,46 +109,10 @@ fn multiple_packets_of_traffic_from_different_connections() {
             b"I come from 2.2.2.2",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        on_winch,
-        cleanup,
-        keyboard_events,
-        dns_client,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -259,11 +121,6 @@ fn multiple_packets_of_traffic_from_different_connections() {
 
 #[test]
 fn multiple_packets_of_traffic_from_single_connection() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -280,46 +137,10 @@ fn multiple_packets_of_traffic_from_single_connection() {
             b"I've come from 1.1.1.1 too!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -328,11 +149,6 @@ fn multiple_packets_of_traffic_from_single_connection() {
 
 #[test]
 fn one_process_with_multiple_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -349,46 +165,10 @@ fn one_process_with_multiple_connections() {
             b"Funny that, I'm from 3.3.3.3",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -397,11 +177,6 @@ fn one_process_with_multiple_connections() {
 
 #[test]
 fn multiple_processes_with_multiple_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -432,46 +207,10 @@ fn multiple_processes_with_multiple_connections() {
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -480,11 +219,6 @@ fn multiple_processes_with_multiple_connections() {
 
 #[test]
 fn multiple_connections_from_remote_address() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -501,46 +235,11 @@ fn multiple_connections_from_remote_address() {
             b"Me too, but on a different port",
         )),
     ]) as Box<dyn DataLinkReceiver>];
+    let (_, _, backend) = test_backend_factory(190, 50);
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -549,12 +248,6 @@ fn multiple_connections_from_remote_address() {
 
 #[test]
 fn sustained_traffic_from_one_process() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -572,46 +265,11 @@ fn sustained_traffic_from_one_process() {
             b"Same here, but one second later",
         )),
     ]) as Box<dyn DataLinkReceiver>];
+    let (_, _, backend) = test_backend_factory(190, 50);
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -620,12 +278,6 @@ fn sustained_traffic_from_one_process() {
 
 #[test]
 fn sustained_traffic_from_multiple_processes() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -657,46 +309,11 @@ fn sustained_traffic_from_multiple_processes() {
             b"I come 3.3.3.3 one second later",
         )),
     ]) as Box<dyn DataLinkReceiver>];
+    let (_, _, backend) = test_backend_factory(190, 50);
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -705,12 +322,6 @@ fn sustained_traffic_from_multiple_processes() {
 
 #[test]
 fn sustained_traffic_from_multiple_processes_bi_directional() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -770,46 +381,11 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
             b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
+    let (_, _, backend) = test_backend_factory(190, 50);
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
+    let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
 
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -818,12 +394,6 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
 
 #[test]
 fn traffic_with_host_names() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -883,19 +453,7 @@ fn traffic_with_host_names() {
             b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
+    let (_, _, backend) = test_backend_factory(190, 50);
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -910,32 +468,9 @@ fn traffic_with_host_names() {
         String::from("i-like-cheese.com"),
     );
     let dns_client = create_fake_dns_client(ips_to_hostnames);
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
     let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: true,
-        no_resolve: false,
-    };
+    let os_input = os_input_output_dns(network_frames, 3, Some(stdout.clone()), dns_client);
+    let opts = opts_raw();
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
     let formatted = format_raw_output(stdout);
@@ -944,12 +479,6 @@ fn traffic_with_host_names() {
 
 #[test]
 fn no_resolve_mode() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -1009,19 +538,7 @@ fn no_resolve_mode() {
             b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
+    let (_, _, backend) = test_backend_factory(190, 50);
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -1035,28 +552,9 @@ fn no_resolve_mode() {
         IpAddr::V4("10.0.0.2".parse().unwrap()),
         String::from("i-like-cheese.com"),
     );
-    let dns_client = None;
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let stdout = Arc::new(Mutex::new(Vec::new()));
-    let write_to_stdout = Box::new({
-        let stdout = stdout.clone();
-        move |output: String| {
-            let mut stdout = stdout.lock().unwrap();
-            writeln!(&mut stdout, "{}", output).unwrap();
-        }
-    });
 
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
+    let stdout = Arc::new(Mutex::new(Vec::new()));
+    let os_input = os_input_output_dns(network_frames, 3, Some(stdout.clone()), None);
     let opts = Opt {
         interface: Some(String::from("interface_name")),
         raw: true,

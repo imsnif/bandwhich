@@ -1,16 +1,16 @@
 use crate::tests::fakes::TerminalEvent::*;
 use crate::tests::fakes::{
-    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, KeyboardEvents,
-    NetworkFrames, TestBackend,
+    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, NetworkFrames,
 };
 
 use ::insta::assert_snapshot;
-use ::std::sync::{Arc, Mutex};
-use ::termion::event::{Event, Key};
 
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 
+use crate::tests::cases::test_utils::{
+    opts_ui, os_input_output, sleep_and_quit_events, test_backend_factory,
+};
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
 use pnet::datalink::DataLinkReceiver;
@@ -37,68 +37,23 @@ fn build_tcp_packet(
     pkt.packet().to_vec()
 }
 
-struct LogWithMirror<T> {
-    pub write: Arc<Mutex<T>>,
-    pub mirror: Arc<Mutex<T>>,
-}
-
-impl<T> LogWithMirror<T> {
-    pub fn new(log: T) -> Self {
-        let write = Arc::new(Mutex::new(log));
-        let mirror = write.clone();
-        LogWithMirror { write, mirror }
-    }
-}
-
 #[test]
 fn basic_startup() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         None, // sleep
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 1);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![Clear, HideCursor, Draw, Flush, Clear, ShowCursor];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 1);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -106,11 +61,6 @@ fn basic_startup() {
 
 #[test]
 fn one_packet_of_traffic() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![Some(build_tcp_packet(
         "10.0.0.2",
         "1.1.1.1",
@@ -118,48 +68,19 @@ fn one_packet_of_traffic() {
         12345,
         b"I am a fake tcp packet",
     ))]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -168,11 +89,6 @@ fn one_packet_of_traffic() {
 
 #[test]
 fn bi_directional_traffic() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -190,47 +106,19 @@ fn bi_directional_traffic() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-    let cleanup = Box::new(|| {});
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -239,11 +127,6 @@ fn bi_directional_traffic() {
 
 #[test]
 fn multiple_packets_of_traffic_from_different_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -261,47 +144,19 @@ fn multiple_packets_of_traffic_from_different_connections() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        on_winch,
-        cleanup,
-        keyboard_events,
-        dns_client,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -310,11 +165,6 @@ fn multiple_packets_of_traffic_from_different_connections() {
 
 #[test]
 fn multiple_packets_of_traffic_from_single_connection() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -332,47 +182,19 @@ fn multiple_packets_of_traffic_from_single_connection() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -381,11 +203,6 @@ fn multiple_packets_of_traffic_from_single_connection() {
 
 #[test]
 fn one_process_with_multiple_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -403,47 +220,19 @@ fn one_process_with_multiple_connections() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -452,11 +241,6 @@ fn one_process_with_multiple_connections() {
 
 #[test]
 fn multiple_processes_with_multiple_connections() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -488,47 +272,19 @@ fn multiple_processes_with_multiple_connections() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -537,11 +293,6 @@ fn multiple_processes_with_multiple_connections() {
 
 #[test]
 fn multiple_connections_from_remote_address() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -559,47 +310,19 @@ fn multiple_connections_from_remote_address() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -608,12 +331,6 @@ fn multiple_connections_from_remote_address() {
 
 #[test]
 fn sustained_traffic_from_one_process() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -632,47 +349,20 @@ fn sustained_traffic_from_one_process() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let os_input = os_input_output(network_frames, 3);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -681,12 +371,6 @@ fn sustained_traffic_from_one_process() {
 
 #[test]
 fn sustained_traffic_from_multiple_processes() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -719,47 +403,20 @@ fn sustained_traffic_from_multiple_processes() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let os_input = os_input_output(network_frames, 3);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -768,12 +425,6 @@ fn sustained_traffic_from_multiple_processes() {
 
 #[test]
 fn sustained_traffic_from_multiple_processes_bi_directional() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -834,47 +485,20 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let os_input = os_input_output(network_frames, 3);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -883,12 +507,6 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
 
 #[test]
 fn traffic_with_host_names() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -949,18 +567,8 @@ fn traffic_with_host_names() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -980,29 +588,26 @@ fn traffic_with_host_names() {
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interfaces,
+        network_interfaces: get_interfaces(),
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_and_quit_events(3),
         dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
     };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -1011,12 +616,6 @@ fn traffic_with_host_names() {
 
 #[test]
 fn no_resolve_mode() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -1076,19 +675,8 @@ fn no_resolve_mode() {
             b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>];
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
         IpAddr::V4("1.1.1.1".parse().unwrap()),
@@ -1108,10 +696,10 @@ fn no_resolve_mode() {
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interfaces,
+        network_interfaces: get_interfaces(),
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_and_quit_events(3),
         dns_client,
         on_winch,
         cleanup,
@@ -1123,14 +711,15 @@ fn no_resolve_mode() {
         no_resolve: true,
     };
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
@@ -1139,11 +728,6 @@ fn no_resolve_mode() {
 
 #[test]
 fn traffic_with_winch_event() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![Some(build_tcp_packet(
         "10.0.0.2",
         "1.1.1.1",
@@ -1152,47 +736,34 @@ fn traffic_with_winch_event() {
         b"I am a fake tcp packet",
     ))]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(true);
     let cleanup = Box::new(|| {});
     let write_to_stdout = Box::new({ move |_output: String| {} });
 
     let os_input = OsInputOutput {
-        network_interfaces,
+        network_interfaces: get_interfaces(),
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        keyboard_events: sleep_and_quit_events(2),
         dns_client,
         on_winch,
         cleanup,
         write_to_stdout,
     };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -1202,11 +773,6 @@ fn traffic_with_winch_event() {
 
 #[test]
 fn layout_full_width_under_30_height() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -1238,47 +804,20 @@ fn layout_full_width_under_30_height() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(190));
-    let terminal_height = Arc::new(Mutex::new(29));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 29);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -1287,11 +826,6 @@ fn layout_full_width_under_30_height() {
 
 #[test]
 fn layout_under_150_width_full_height() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -1323,47 +857,20 @@ fn layout_under_150_width_full_height() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    let terminal_width = Arc::new(Mutex::new(149));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(149, 50);
 
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -1372,11 +879,6 @@ fn layout_under_150_width_full_height() {
 
 #[test]
 fn layout_under_150_width_under_30_height() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -1407,48 +909,20 @@ fn layout_under_150_width_under_30_height() {
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(149, 29);
 
-    let terminal_width = Arc::new(Mutex::new(149));
-    let terminal_height = Arc::new(Mutex::new(29));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -1457,11 +931,6 @@ fn layout_under_150_width_under_30_height() {
 
 #[test]
 fn layout_under_120_width_full_height() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -1492,48 +961,20 @@ fn layout_under_120_width_full_height() {
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(119, 50);
 
-    let terminal_width = Arc::new(Mutex::new(119));
-    let terminal_height = Arc::new(Mutex::new(50));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
@@ -1542,11 +983,6 @@ fn layout_under_120_width_full_height() {
 
 #[test]
 fn layout_under_120_width_under_30_height() {
-    let keyboard_events = Box::new(KeyboardEvents::new(vec![
-        None, // sleep
-        None, // sleep
-        Some(Event::Key(Key::Ctrl('c'))),
-    ]));
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "1.1.1.1",
@@ -1577,48 +1013,19 @@ fn layout_under_120_width_under_30_height() {
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
-
-    let terminal_width = Arc::new(Mutex::new(119));
-    let terminal_height = Arc::new(Mutex::new(29));
-    let terminal_events = LogWithMirror::new(Vec::new());
-    let terminal_draw_events = LogWithMirror::new(Vec::new());
-
-    let backend = TestBackend::new(
-        terminal_events.write,
-        terminal_draw_events.write,
-        terminal_width,
-        terminal_height,
-    );
-    let network_interfaces = get_interfaces();
-    let dns_client = create_fake_dns_client(HashMap::new());
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
-
-    let os_input = OsInputOutput {
-        network_interfaces,
-        network_frames,
-        get_open_sockets,
-        keyboard_events,
-        dns_client,
-        on_winch,
-        cleanup,
-        write_to_stdout,
-    };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-    };
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(119, 29);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
     start(backend, os_input, opts);
-
-    let terminal_events_mirror = terminal_events.mirror.lock().unwrap();
-    let terminal_draw_events_mirror = terminal_draw_events.mirror.lock().unwrap();
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     let expected_terminal_events = vec![
         Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
     ];
-    assert_eq!(&terminal_events_mirror[..], &expected_terminal_events[..]);
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
