@@ -5,6 +5,7 @@ use ::std::io::{self, stdin, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;
 
+use ::std::io::ErrorKind;
 use ::std::time;
 
 use signal_hook::iterator::Signals;
@@ -32,23 +33,17 @@ impl Iterator for KeyboardEvents {
 
 fn get_datalink_channel(
     interface: &NetworkInterface,
-) -> Result<Box<dyn DataLinkReceiver>, failure::Error> {
+) -> Result<Box<dyn DataLinkReceiver>, std::io::Error> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(1, 0));
 
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
-        Ok(_) => failure::bail!("Unknown interface type"),
-        Err(e) => {
-            match e.kind() {
-                std::io::ErrorKind::PermissionDenied => failure::bail!("Failed to listen on network interface due to permission error. Try running with sudo"),
-                _ => failure::bail!(
-                    "Failed to listen on network interface {}: {}",
-                    interface.name,
-                    e
-                ),
-            }
-        }
+        Ok(_) => Err(std::io::Error::new(
+            ErrorKind::Other,
+            "Unsupported interface type",
+        )),
+        Err(e) => Err(e),
     }
 }
 
@@ -103,11 +98,25 @@ pub fn get_input(
 
     let network_frames = network_interfaces
         .iter()
-        .map(|iface| get_datalink_channel(iface))
+        .map(|iface| get_datalink_channel(iface));
+
+    let available_network_frames = network_frames
+        .clone()
         .filter_map(Result::ok)
         .collect::<Vec<_>>();
-    if network_frames.is_empty() {
-        failure::bail!("Could not find any network interface to listen to. Try running with sudo");
+
+    if available_network_frames.is_empty() {
+        for iface in network_frames {
+            if let Some(iface_error) = iface.err() {
+                match iface_error.kind() {
+                    ErrorKind::PermissionDenied => failure::bail!(
+                        "Insufficient permissions to listen on network interface(s). Try running with sudo.",
+                    ),
+                    _ => ()
+                }
+            }
+        }
+        failure::bail!("Failed to find any network interface to listen on.");
     }
 
     let keyboard_events = Box::new(KeyboardEvents);
@@ -123,7 +132,7 @@ pub fn get_input(
 
     Ok(OsInputOutput {
         network_interfaces,
-        network_frames,
+        network_frames: available_network_frames,
         get_open_sockets,
         keyboard_events,
         dns_client,
