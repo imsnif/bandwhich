@@ -98,7 +98,7 @@ where
         utilization: Utilization,
         ip_to_host: HashMap<Ipv4Addr, String>,
     ) {
-        self.state = UIState::new(connections_to_procs, utilization);
+        self.state = UIState::new(connections_to_procs, utilization, &self.state);
         self.ip_to_host = ip_to_host;
     }
     pub fn end(&mut self) {
