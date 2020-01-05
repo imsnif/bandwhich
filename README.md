@@ -5,7 +5,7 @@
 This is a CLI utility for displaying current network utilization by process, connection and remote IP/hostname
 
 ### How does it work?
-`bandwhich` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem on linux or `lsof` on MacOS. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
+`bandwhich` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem on linux or `lsof` on macOS. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
 
 ### Installation
 
@@ -23,7 +23,13 @@ yay -S bandwhich
 nix-env -iA nixpkgs.bandwhich
 ```
 
-#### MacOS and other Linux flavours
+#### macOS
+
+```
+brew install bandwhich
+```
+
+#### Other Linux flavours
 
 `bandwhich` can be installed using the Rust package manager, cargo. If it's not in your distro repositories or the available version is too old, you can install it via [rustup](https://rustup.rs/). You can find additional installation instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html).
 
