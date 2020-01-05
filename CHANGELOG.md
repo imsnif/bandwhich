@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.7.0] - 2020-01-05
+
 ### Added
 
 - Running instructions (sudo) for a cargo installation (https://github.com/imsnif/bandwhich/pull/42) - [@LoyVanBeek](https://github.com/LoyVanBeek) + [@filalex77](https://github.com/filalex77)
