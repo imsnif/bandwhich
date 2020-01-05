@@ -32,6 +32,15 @@ pub struct ConnectionData {
     pub interface_name: String,
 }
 
+fn calc_avg_bandwidth(prev_bandwidth: u128, curr_bandwidth: u128) -> u128 {
+    if prev_bandwidth == 0 {
+        curr_bandwidth
+    } else {
+        (prev_bandwidth as f32 * BANDWIDTH_DECAY_FACTOR
+            + (1.0 - BANDWIDTH_DECAY_FACTOR) * curr_bandwidth as f32) as u128
+    }
+}
+
 impl Bandwidth for ConnectionData {
     fn get_total_bytes_uploaded(&self) -> u128 {
         self.total_bytes_uploaded
@@ -40,22 +49,13 @@ impl Bandwidth for ConnectionData {
         self.total_bytes_downloaded
     }
     fn get_avg_bytes_uploaded(&self) -> u128 {
-        if self.prev_total_bytes_uploaded == 0 {
-            self.total_bytes_uploaded
-        } else {
-            (self.prev_total_bytes_uploaded as f32 * BANDWIDTH_DECAY_FACTOR
-                + (1.0 - BANDWIDTH_DECAY_FACTOR) * self.total_bytes_uploaded as f32)
-                as u128
-        }
+        calc_avg_bandwidth(self.prev_total_bytes_uploaded, self.total_bytes_uploaded)
     }
     fn get_avg_bytes_downloaded(&self) -> u128 {
-        if self.prev_total_bytes_downloaded == 0 {
-            self.total_bytes_downloaded
-        } else {
-            (self.prev_total_bytes_downloaded as f32 * BANDWIDTH_DECAY_FACTOR
-                + (1.0 - BANDWIDTH_DECAY_FACTOR) * self.total_bytes_downloaded as f32)
-                as u128
-        }
+        calc_avg_bandwidth(
+            self.prev_total_bytes_downloaded,
+            self.total_bytes_downloaded,
+        )
     }
 }
 
@@ -67,22 +67,13 @@ impl Bandwidth for NetworkData {
         self.total_bytes_downloaded
     }
     fn get_avg_bytes_uploaded(&self) -> u128 {
-        if self.prev_total_bytes_uploaded == 0 {
-            self.total_bytes_uploaded
-        } else {
-            (self.prev_total_bytes_uploaded as f32 * BANDWIDTH_DECAY_FACTOR
-                + (1.0 - BANDWIDTH_DECAY_FACTOR) * self.total_bytes_uploaded as f32)
-                as u128
-        }
+        calc_avg_bandwidth(self.prev_total_bytes_uploaded, self.total_bytes_uploaded)
     }
     fn get_avg_bytes_downloaded(&self) -> u128 {
-        if self.prev_total_bytes_downloaded == 0 {
-            self.total_bytes_downloaded
-        } else {
-            (self.prev_total_bytes_downloaded as f32 * BANDWIDTH_DECAY_FACTOR
-                + (1.0 - BANDWIDTH_DECAY_FACTOR) * self.total_bytes_downloaded as f32)
-                as u128
-        }
+        calc_avg_bandwidth(
+            self.prev_total_bytes_downloaded,
+            self.total_bytes_downloaded,
+        )
     }
 }
 

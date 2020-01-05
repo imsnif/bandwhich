@@ -30,8 +30,13 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
+<<<<<<< HEAD
                                                                                                 three.thre  three.three                                                   32      46          
                                                                                                 one.one.on  one                                                            7       6          
+=======
+                                                                                                three.thre  three.three                                                   33    4             
+                                                                                                one.one.on  one                                                           47    48            
+>>>>>>> Update UI snapshots for new bandwidth calculation
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

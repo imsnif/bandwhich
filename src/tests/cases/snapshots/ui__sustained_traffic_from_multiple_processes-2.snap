@@ -30,8 +30,13 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
+<<<<<<< HEAD
                                                                                                                                                                                  61           
                                                                                                                                                                                  51           
+=======
+                                                                                                                                                                               52             
+                                                                                                                                                                               45             
+>>>>>>> Update UI snapshots for new bandwidth calculation
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
