@@ -90,6 +90,7 @@ pub fn get_input(
             Some(interface) => vec![interface],
             None => {
                 failure::bail!("Cannot find interface {}", name);
+                // the homebrew formula relies on this wording, please be careful when changing
             }
         }
     } else {
