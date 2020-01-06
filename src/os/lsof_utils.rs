@@ -7,7 +7,8 @@ use std::process::Command;
 
 #[derive(Debug, Clone)]
 pub struct RawConnection {
-    ip: String,
+    remote_ip: String,
+    local_ip: String,
     local_port: String,
     remote_port: String,
     protocol: String,
@@ -19,17 +20,21 @@ lazy_static! {
         Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
 }
 
+#[allow(clippy::needless_return)]
 impl RawConnection {
     pub fn new(raw_line: &str) -> Option<RawConnection> {
         let raw_connection_iter = CONNECTION_REGEX.captures_iter(raw_line).filter_map(|cap| {
             let process_name = String::from(cap.get(1).unwrap().as_str()).replace("\\x20", " ");
             let protocol = String::from(cap.get(2).unwrap().as_str());
             let local_port = String::from(cap.get(3).unwrap().as_str());
-            let ip = String::from(cap.get(4).unwrap().as_str());
+            let remote_ip = String::from(cap.get(4).unwrap().as_str());
+            // TODO correctly parse local IP from lsof output
+            let local_ip = String::from("0.0.0.0");
             let remote_port = String::from(cap.get(5).unwrap().as_str());
             let connection = RawConnection {
                 process_name,
-                ip,
+                remote_ip,
+                local_ip,
                 local_port,
                 remote_port,
                 protocol,
@@ -48,12 +53,16 @@ impl RawConnection {
         return Protocol::from_str(&self.protocol).unwrap();
     }
 
-    pub fn get_ip_address(&self) -> IpAddr {
-        return IpAddr::V4(self.ip.parse().unwrap());
+    pub fn get_remote_ip(&self) -> IpAddr {
+        return IpAddr::V4(self.remote_ip.parse().unwrap());
     }
 
     pub fn get_remote_port(&self) -> u16 {
         return self.remote_port.parse::<u16>().unwrap();
+    }
+
+    pub fn get_local_ip(&self) -> IpAddr {
+        return IpAddr::V4(self.local_ip.parse().unwrap());
     }
 
     pub fn get_local_port(&self) -> u16 {
@@ -160,7 +169,7 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     fn test_raw_connection_parse_ip_address() {
         let connection = RawConnection::new(LINE_RAW_OUTPUT).unwrap();
         assert_eq!(
-            connection.get_ip_address().to_string(),
+            connection.get_remote_ip().to_string(),
             String::from("198.252.206.25")
         );
     }

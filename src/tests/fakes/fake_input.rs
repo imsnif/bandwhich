@@ -87,9 +87,11 @@ impl DataLinkReceiver for NetworkFrames {
 
 pub fn get_open_sockets() -> HashMap<Connection, String> {
     let mut open_sockets = HashMap::new();
+    let local_ip = IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2));
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 12345),
+            local_ip,
             443,
             Protocol::Tcp,
         )
@@ -99,6 +101,7 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(2, 2, 2, 2)), 54321),
+            local_ip,
             443,
             Protocol::Tcp,
         )
@@ -108,6 +111,7 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(3, 3, 3, 3)), 1337),
+            local_ip,
             443,
             Protocol::Tcp,
         )
@@ -117,6 +121,7 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(4, 4, 4, 4)), 1337),
+            local_ip,
             443,
             Protocol::Tcp,
         )
@@ -126,6 +131,7 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
     open_sockets.insert(
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(1, 1, 1, 1)), 12346),
+            local_ip,
             443,
             Protocol::Tcp,
         )
