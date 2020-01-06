@@ -13,7 +13,7 @@ use ::termion::event::Event;
 use crate::{
     network::{
         dns::{self, Lookup},
-        Connection, Protocol, LocalSocket
+        Connection, LocalSocket, Protocol,
     },
     os::OnSigWinch,
 };

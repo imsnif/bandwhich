@@ -88,7 +88,9 @@ impl Sniffer {
                 let to = SocketAddr::new(IpAddr::V4(ip_packet.get_destination()), destination_port);
 
                 let connection = match direction {
-                    Direction::Download => Connection::new(from, to.ip(), destination_port, protocol)?,
+                    Direction::Download => {
+                        Connection::new(from, to.ip(), destination_port, protocol)?
+                    }
                     Direction::Upload => Connection::new(to, from.ip(), source_port, protocol)?,
                 };
                 Some(Segment {

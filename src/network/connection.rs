@@ -1,6 +1,6 @@
 use ::std::collections::HashMap;
 use ::std::fmt;
-use ::std::net::{Ipv4Addr, IpAddr};
+use ::std::net::{IpAddr, Ipv4Addr};
 
 use ::std::net::SocketAddr;
 
@@ -71,7 +71,12 @@ pub fn display_connection_string(
 }
 
 impl Connection {
-    pub fn new(remote_socket: SocketAddr, local_ip: IpAddr, local_port: u16, protocol: Protocol) -> Option<Self> {
+    pub fn new(
+        remote_socket: SocketAddr,
+        local_ip: IpAddr,
+        local_port: u16,
+        protocol: Protocol,
+    ) -> Option<Self> {
         match remote_socket {
             SocketAddr::V4(remote_socket) => Some(Connection {
                 remote_socket: Socket {

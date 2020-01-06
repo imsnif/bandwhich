@@ -1,6 +1,6 @@
 use ::std::collections::HashMap;
 
-use crate::network::{LocalSocket, Connection};
+use crate::network::{Connection, LocalSocket};
 
 use super::lsof_utils;
 use std::net::SocketAddr;

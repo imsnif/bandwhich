@@ -18,8 +18,7 @@ pub struct RawConnection {
 lazy_static! {
     static ref CONNECTION_REGEX: Regex =
         Regex::new(r"\[?([^\s\]]*)\]?:(\d+)->\[?([^\s\]]*)\]?:(\d+)").unwrap();
-    static ref LISTEN_REGEX: Regex =
-        Regex::new(r"(.*):(.*)").unwrap();
+    static ref LISTEN_REGEX: Regex = Regex::new(r"(.*):(.*)").unwrap();
 }
 
 fn parse_ip_addr(ip: &str) -> IpAddr {
@@ -45,7 +44,11 @@ impl RawConnection {
     pub fn new(raw_line: &str) -> Option<RawConnection> {
         let columns: Vec<&str> = raw_line.split_ascii_whitespace().collect();
         if columns.len() < 9 {
-            println!("lsof's output string has {} columns, different than expected: {:#?}", columns.len(), columns);
+            println!(
+                "lsof's output string has {} columns, different than expected: {:#?}",
+                columns.len(),
+                columns
+            );
             return None;
         }
         let process_name = columns[0].replace("\\x20", " ");
