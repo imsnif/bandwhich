@@ -76,7 +76,7 @@ where
         .output()
         .expect("failed to execute process");
 
-    String::from_utf8(output.stdout).unwrap()
+    String::from_utf8_lossy(&output.stdout).into_owned()
 }
 
 pub struct RawConnections {
