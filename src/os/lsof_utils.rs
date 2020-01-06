@@ -17,35 +17,92 @@ pub struct RawConnection {
 
 lazy_static! {
     static ref CONNECTION_REGEX: Regex =
-        Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
+        Regex::new(r"\[?([^\s\]]*)\]?:(\d+)->\[?([^\s\]]*)\]?:(\d+)").unwrap();
+    static ref LISTEN_REGEX: Regex =
+        Regex::new(r"(.*):(.*)").unwrap();
+}
+
+fn parse_ip_addr(ip: &str) -> IpAddr {
+    if let Ok(v4addr) = ip.parse() {
+        IpAddr::V4(v4addr)
+    } else if let Ok(v6addr) = ip.parse() {
+        IpAddr::V6(v6addr)
+    } else {
+        panic!("{} is not a valid IP address", ip)
+    }
+}
+
+fn get_null_addr(ip_type: &str) -> &str {
+    if ip_type.contains('4') {
+        "0.0.0.0"
+    } else {
+        "::0"
+    }
 }
 
 #[allow(clippy::needless_return)]
 impl RawConnection {
     pub fn new(raw_line: &str) -> Option<RawConnection> {
-        let raw_connection_iter = CONNECTION_REGEX.captures_iter(raw_line).filter_map(|cap| {
-            let process_name = String::from(cap.get(1).unwrap().as_str()).replace("\\x20", " ");
-            let protocol = String::from(cap.get(2).unwrap().as_str());
-            let local_port = String::from(cap.get(3).unwrap().as_str());
-            let remote_ip = String::from(cap.get(4).unwrap().as_str());
-            // TODO correctly parse local IP from lsof output
-            let local_ip = String::from("0.0.0.0");
-            let remote_port = String::from(cap.get(5).unwrap().as_str());
+        let columns: Vec<&str> = raw_line.split_ascii_whitespace().collect();
+        if columns.len() < 9 {
+            println!("lsof's output string has {} columns, different than expected: {:#?}", columns.len(), columns);
+            return None;
+        }
+        let process_name = columns[0].replace("\\x20", " ");
+        // Unneeded
+        // let pid = columns[1];
+        // let username = columns[2];
+        // let fd = columns[3];
+
+        // IPv4 or IPv6
+        let ip_type = columns[4];
+        // let device = columns[5];
+        // let size = columns[6];
+        // UDP/TCP
+        let protocol = String::from(columns[7]);
+        let connection_str = columns[8];
+        // "(LISTEN)" or "(ESTABLISHED)",  this column may or may not be present
+        // let connection_state = columns[9];
+        // If this socket is in a "connected" state
+        if let Some(caps) = CONNECTION_REGEX.captures(connection_str) {
+            let local_ip = String::from(caps.get(1).unwrap().as_str());
+            let local_port = String::from(caps.get(2).unwrap().as_str());
+            let remote_ip = String::from(caps.get(3).unwrap().as_str());
+            let remote_port = String::from(caps.get(4).unwrap().as_str());
             let connection = RawConnection {
-                process_name,
-                remote_ip,
                 local_ip,
                 local_port,
+                remote_ip,
                 remote_port,
                 protocol,
+                process_name,
             };
             Some(connection)
-        });
-        let raw_connection_vec = raw_connection_iter.map(|m| m).collect::<Vec<_>>();
-        if raw_connection_vec.is_empty() {
-            None
+        } else if let Some(caps) = LISTEN_REGEX.captures(connection_str) {
+            let local_ip = if caps.get(1).unwrap().as_str() == "*" {
+                get_null_addr(ip_type)
+            } else {
+                caps.get(1).unwrap().as_str()
+            };
+            let local_ip = String::from(local_ip);
+            let local_port = String::from(if caps.get(2).unwrap().as_str() == "*" {
+                "0"
+            } else {
+                caps.get(2).unwrap().as_str()
+            });
+            let remote_ip = String::from(get_null_addr(ip_type));
+            let remote_port = String::from("0");
+            let connection = RawConnection {
+                local_ip,
+                local_port,
+                remote_ip,
+                remote_port,
+                protocol,
+                process_name,
+            };
+            Some(connection)
         } else {
-            Some(raw_connection_vec[0].clone())
+            None
         }
     }
 
@@ -54,7 +111,7 @@ impl RawConnection {
     }
 
     pub fn get_remote_ip(&self) -> IpAddr {
-        return IpAddr::V4(self.remote_ip.parse().unwrap());
+        return parse_ip_addr(&self.remote_ip);
     }
 
     pub fn get_remote_port(&self) -> u16 {
@@ -62,7 +119,7 @@ impl RawConnection {
     }
 
     pub fn get_local_ip(&self) -> IpAddr {
-        return IpAddr::V4(self.local_ip.parse().unwrap());
+        return parse_ip_addr(&self.local_ip);
     }
 
     pub fn get_local_port(&self) -> u16 {
