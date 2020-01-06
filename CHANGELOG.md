@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Added
 - Brew formula and installation instructions for macOS (https://github.com/imsnif/bandwhich/pull/75) - [@imbsky](https://github.com/imbsky)
 
+### Fixed
+
+- Fix string conversion error on macOS (https://github.com/imsnif/bandwhich/pull/79) - [@zhangxp1998](https://github.com/zhangxp1998)
+
 ## [0.7.0] - 2020-01-05
 
 ### Added
