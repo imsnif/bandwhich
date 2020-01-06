@@ -102,7 +102,7 @@ pub fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connec
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(2, 2, 2, 2)), 54321),
             local_ip,
-            443,
+            4434,
             Protocol::Tcp,
         )
         .unwrap(),
@@ -112,7 +112,7 @@ pub fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connec
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(3, 3, 3, 3)), 1337),
             local_ip,
-            443,
+            4435,
             Protocol::Tcp,
         )
         .unwrap(),
@@ -122,7 +122,7 @@ pub fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connec
         Connection::new(
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(4, 4, 4, 4)), 1337),
             local_ip,
-            443,
+            4432,
             Protocol::Tcp,
         )
         .unwrap(),
@@ -136,7 +136,7 @@ pub fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connec
             Protocol::Tcp,
         )
         .unwrap(),
-        String::from("3"),
+        String::from("1"),
     );
     let mut local_socket_to_procs = HashMap::new();
     let mut connections = std::vec::Vec::new();

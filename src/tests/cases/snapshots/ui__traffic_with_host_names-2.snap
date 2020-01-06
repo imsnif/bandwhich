@@ -6,8 +6,8 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 5                                                                         32      46                                   three.thre  three.three:13  5                     32      46          
- 1                                                                          7       6                                   one.one.on  one:12345 (tcp  1                      7       6          
+ 5                                                                         32      46                               5 => three.thr e.three.three:1  5                     32      46          
+ 1                                                                          7       6                                => one.one.on .one:12345 (tcp  1                      7       6          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

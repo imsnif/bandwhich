@@ -2,9 +2,8 @@
 source: src/tests/cases/raw_mode.rs
 expression: formatted
 ---
-process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/44 connections: 1
-process: <TIMESTAMP_REMOVED> "3" up/down Bps: 0/51 connections: 1
+process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/95 connections: 2
 connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12345 (tcp) up/down Bps: 0/44 process: "1"
-connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12346 (tcp) up/down Bps: 0/51 process: "3"
+connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12346 (tcp) up/down Bps: 0/51 process: "1"
 remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 0/95 connections: 2
 
