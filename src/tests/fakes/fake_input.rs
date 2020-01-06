@@ -13,7 +13,7 @@ use ::termion::event::Event;
 use crate::{
     network::{
         dns::{self, Lookup},
-        Connection, Protocol,
+        Connection, Protocol, LocalSocket
     },
     os::OnSigWinch,
 };
@@ -85,7 +85,7 @@ impl DataLinkReceiver for NetworkFrames {
     }
 }
 
-pub fn get_open_sockets() -> HashMap<Connection, String> {
+pub fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connection>) {
     let mut open_sockets = HashMap::new();
     let local_ip = IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2));
     open_sockets.insert(
@@ -138,7 +138,14 @@ pub fn get_open_sockets() -> HashMap<Connection, String> {
         .unwrap(),
         String::from("3"),
     );
-    open_sockets
+    let mut local_socket_to_procs = HashMap::new();
+    let mut connections = std::vec::Vec::new();
+    for (connection, process_name) in open_sockets {
+        local_socket_to_procs.insert(connection.local_socket, process_name);
+        connections.push(connection);
+    }
+
+    (local_socket_to_procs, connections)
 }
 
 pub fn get_interfaces() -> Vec<NetworkInterface> {

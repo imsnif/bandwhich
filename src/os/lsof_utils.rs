@@ -59,7 +59,10 @@ impl RawConnection {
         // let device = columns[5];
         // let size = columns[6];
         // UDP/TCP
-        let protocol = String::from(columns[7]);
+        let protocol = columns[7].to_ascii_uppercase();
+        if protocol != "TCP" && protocol != "UDP" {
+            return None;
+        }
         let connection_str = columns[8];
         // "(LISTEN)" or "(ESTABLISHED)",  this column may or may not be present
         // let connection_state = columns[9];

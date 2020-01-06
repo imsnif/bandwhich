@@ -1,6 +1,6 @@
 use ::std::collections::HashMap;
 
-use crate::network::Connection;
+use crate::network::{LocalSocket, Connection};
 
 use super::lsof_utils;
 use std::net::SocketAddr;
@@ -14,8 +14,10 @@ struct RawConnection {
     process_name: String,
 }
 
-pub(crate) fn get_open_sockets() -> HashMap<Connection, String> {
+#[allow(clippy::needless_return)]
+pub(crate) fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connection>) {
     let mut open_sockets = HashMap::new();
+    let mut connections_vec = std::vec::Vec::new();
 
     let connections = lsof_utils::get_connections();
 
@@ -29,8 +31,9 @@ pub(crate) fn get_open_sockets() -> HashMap<Connection, String> {
         let socket_addr = SocketAddr::new(remote_ip, remote_port);
         let connection = Connection::new(socket_addr, local_ip, local_port, protocol).unwrap();
 
-        open_sockets.insert(connection, raw_connection.process_name.clone());
+        open_sockets.insert(connection.local_socket, raw_connection.process_name.clone());
+        connections_vec.push(connection);
     }
 
-    return open_sockets;
+    return (open_sockets, connections_vec);
 }
