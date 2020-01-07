@@ -8,8 +8,8 @@ use ::std::net::IpAddr;
 
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
-use pnet_bandwhich_fork::datalink::DataLinkReceiver;
-use pnet_bandwhich_fork::packet::Packet;
+use pnet::datalink::DataLinkReceiver;
+use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
 use crate::tests::cases::test_utils::{

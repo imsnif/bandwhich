@@ -1,6 +1,6 @@
-use ::pnet_bandwhich_fork::datalink::Channel::Ethernet;
-use ::pnet_bandwhich_fork::datalink::DataLinkReceiver;
-use ::pnet_bandwhich_fork::datalink::{self, Config, NetworkInterface};
+use ::pnet::datalink::Channel::Ethernet;
+use ::pnet::datalink::DataLinkReceiver;
+use ::pnet::datalink::{self, Config, NetworkInterface};
 use ::std::io::{self, stdin, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;

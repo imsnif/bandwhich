@@ -1,7 +1,7 @@
 use ::async_trait::async_trait;
 use ::ipnetwork::IpNetwork;
-use ::pnet_bandwhich_fork::datalink::DataLinkReceiver;
-use ::pnet_bandwhich_fork::datalink::NetworkInterface;
+use ::pnet::datalink::DataLinkReceiver;
+use ::pnet::datalink::NetworkInterface;
 use ::std::collections::HashMap;
 use ::std::future::Future;
 use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
