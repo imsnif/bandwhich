@@ -13,9 +13,10 @@ use ::termion::event::Event;
 use crate::{
     network::{
         dns::{self, Lookup},
-        Connection, LocalSocket, Protocol,
+        Connection, Protocol,
     },
     os::OnSigWinch,
+    OpenSockets,
 };
 
 pub struct KeyboardEvents {
@@ -85,7 +86,7 @@ impl DataLinkReceiver for NetworkFrames {
     }
 }
 
-pub fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connection>) {
+pub fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
     let local_ip = IpAddr::V4(Ipv4Addr::new(10, 0, 0, 2));
     open_sockets.insert(
@@ -145,7 +146,10 @@ pub fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connec
         connections.push(connection);
     }
 
-    (local_socket_to_procs, connections)
+    OpenSockets {
+        sockets_to_procs: local_socket_to_procs,
+        connections,
+    }
 }
 
 pub fn get_interfaces() -> Vec<NetworkInterface> {

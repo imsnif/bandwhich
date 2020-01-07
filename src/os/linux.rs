@@ -2,9 +2,10 @@ use ::std::collections::HashMap;
 
 use ::procfs::process::FDTarget;
 
-use crate::network::{Connection, LocalSocket, Protocol};
+use crate::network::{Connection, Protocol};
+use crate::OpenSockets;
 
-pub(crate) fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connection>) {
+pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
     let mut connections = std::vec::Vec::new();
     let all_procs = procfs::process::all_processes().unwrap();
@@ -46,5 +47,8 @@ pub(crate) fn get_open_sockets() -> (HashMap<LocalSocket, String>, std::vec::Vec
             connections.push(connection);
         };
     }
-    (open_sockets, connections)
+    OpenSockets {
+        sockets_to_procs: open_sockets,
+        connections,
+    }
 }

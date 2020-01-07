@@ -21,16 +21,6 @@ lazy_static! {
     static ref LISTEN_REGEX: Regex = Regex::new(r"(.*):(.*)").unwrap();
 }
 
-fn parse_ip_addr(ip: &str) -> IpAddr {
-    if let Ok(v4addr) = ip.parse() {
-        IpAddr::V4(v4addr)
-    } else if let Ok(v6addr) = ip.parse() {
-        IpAddr::V6(v6addr)
-    } else {
-        panic!("{} is not a valid IP address", ip)
-    }
-}
-
 fn get_null_addr(ip_type: &str) -> &str {
     if ip_type.contains('4') {
         "0.0.0.0"
@@ -39,16 +29,12 @@ fn get_null_addr(ip_type: &str) -> &str {
     }
 }
 
-#[allow(clippy::needless_return)]
 impl RawConnection {
     pub fn new(raw_line: &str) -> Option<RawConnection> {
+        // Example row
+        // com.apple   664     user  198u  IPv4 0xeb179a6650592b8d      0t0    TCP 192.168.1.187:58535->1.2.3.4:443 (ESTABLISHED)
         let columns: Vec<&str> = raw_line.split_ascii_whitespace().collect();
         if columns.len() < 9 {
-            println!(
-                "lsof's output string has {} columns, different than expected: {:#?}",
-                columns.len(),
-                columns
-            );
             return None;
         }
         let process_name = columns[0].replace("\\x20", " ");
@@ -71,6 +57,10 @@ impl RawConnection {
         // let connection_state = columns[9];
         // If this socket is in a "connected" state
         if let Some(caps) = CONNECTION_REGEX.captures(connection_str) {
+            // Example
+            // 192.168.1.187:64230->0.1.2.3:5228
+            // *:*
+            // *:4567
             let local_ip = String::from(caps.get(1).unwrap().as_str());
             let local_port = String::from(caps.get(2).unwrap().as_str());
             let remote_ip = String::from(caps.get(3).unwrap().as_str());
@@ -113,23 +103,23 @@ impl RawConnection {
     }
 
     pub fn get_protocol(&self) -> Protocol {
-        return Protocol::from_str(&self.protocol).unwrap();
+        Protocol::from_str(&self.protocol).unwrap()
     }
 
     pub fn get_remote_ip(&self) -> IpAddr {
-        return parse_ip_addr(&self.remote_ip);
+        self.remote_ip.parse().unwrap()
     }
 
     pub fn get_remote_port(&self) -> u16 {
-        return self.remote_port.parse::<u16>().unwrap();
+        self.remote_port.parse::<u16>().unwrap()
     }
 
     pub fn get_local_ip(&self) -> IpAddr {
-        return parse_ip_addr(&self.local_ip);
+        self.local_ip.parse().unwrap()
     }
 
     pub fn get_local_port(&self) -> u16 {
-        return self.local_port.parse::<u16>().unwrap();
+        self.local_port.parse::<u16>().unwrap()
     }
 }
 

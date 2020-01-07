@@ -2,14 +2,14 @@ use crate::network::{Connection, Direction, Segment};
 
 use ::std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ConnectionInfo {
     pub interface_name: String,
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Utilization {
     pub connections: HashMap<Connection, ConnectionInfo>,
 }

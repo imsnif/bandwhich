@@ -79,10 +79,15 @@ fn try_main() -> Result<(), failure::Error> {
     Ok(())
 }
 
+pub struct OpenSockets {
+    sockets_to_procs: HashMap<LocalSocket, String>,
+    connections: Vec<Connection>,
+}
+
 pub struct OsInputOutput {
     pub network_interfaces: Vec<NetworkInterface>,
     pub network_frames: Vec<Box<dyn DataLinkReceiver>>,
-    pub get_open_sockets: fn() -> (HashMap<LocalSocket, String>, std::vec::Vec<Connection>),
+    pub get_open_sockets: fn() -> OpenSockets,
     pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
     pub on_winch: Box<OnSigWinch>,
@@ -138,7 +143,10 @@ where
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
                     let utilization = { network_utilization.lock().unwrap().clone_and_reset() };
-                    let (connections_to_procs, connections) = get_open_sockets();
+                    let OpenSockets {
+                        sockets_to_procs,
+                        connections,
+                    } = get_open_sockets();
                     let mut ip_to_host = IpTable::new();
                     if let Some(dns_client) = dns_client.as_mut() {
                         ip_to_host = dns_client.cache();
@@ -152,7 +160,7 @@ where
                     }
                     {
                         let mut ui = ui.lock().unwrap();
-                        ui.update_state(connections_to_procs, utilization, ip_to_host);
+                        ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
