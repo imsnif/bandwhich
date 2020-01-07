@@ -13,7 +13,7 @@ use network::{
 };
 use os::OnSigWinch;
 
-use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
+use ::pnet_bandwhich_fork::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
 use ::std::sync::atomic::{AtomicBool, Ordering};
 use ::std::sync::{Arc, Mutex};
