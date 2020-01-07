@@ -1,10 +1,10 @@
 ---
-source: src/tests/mod.rs
+source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[0]"
 ---
- Total Rate Up/Down: 0Bps/0Bps                                                                                                                       
+ Total Rate Up / Down: 0Bps / 0Bps                                                                                                                   
 ┌Utilization by process name────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│Process                                             Connection count      Rate Up/Down                                                             │
+│Process                                             Connection count      Rate Up / Down                                                           │
 │                                                                                                                                                   │
 │                                                                                                                                                   │
 │                                                                                                                                                   │
@@ -28,7 +28,7 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                                                                                                                                   │
 └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ┌Utilization by connection───────────────────────────────────────────────┐┌Utilization by remote address────────────────────────────────────────────┐
-│Connection                                Rate Up/Down                  ││Remote Address                            Rate Up/Down                   │
+│Connection                                Rate Up / Down                ││Remote Address                            Rate Up / Down                 │
 │                                                                        ││                                                                         │
 │                                                                        ││                                                                         │
 │                                                                        ││                                                                         │

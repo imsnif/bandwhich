@@ -2,15 +2,11 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[2]"
 ---
-                          51                                                                                                                                                                  
+                              51                                                                                                                                                              
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                51                                                                                             51             
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+                                                                                  51                                                                                             51           
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,7 +26,11 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                               51             
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                 51           
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

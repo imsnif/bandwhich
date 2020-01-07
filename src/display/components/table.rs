@@ -16,13 +16,13 @@ const FIRST_WIDTH_BREAKPOINT: u16 = 50;
 const SECOND_WIDTH_BREAKPOINT: u16 = 71;
 const THIRD_WIDTH_BREAKPOINT: u16 = 95;
 
-const FIRST_COLUMN_WIDTHS: [u16; 4] = [20, 30, 40, 50];
+const FIRST_COLUMN_WIDTHS: [u16; 4] = [10, 30, 40, 50];
 const SECOND_COLUMN_WIDTHS: [u16; 1] = [20];
-const THIRD_COLUMN_WIDTHS: [u16; 4] = [10, 20, 20, 20];
+const THIRD_COLUMN_WIDTHS: [u16; 4] = [20, 20, 20, 20];
 
 fn display_upload_and_download(bandwidth: &impl Bandwidth) -> String {
     format!(
-        "{}/{}",
+        "{} / {}",
         DisplayBandwidth(bandwidth.get_total_bytes_uploaded() as f64),
         DisplayBandwidth(bandwidth.get_total_bytes_downloaded() as f64)
     )
@@ -75,7 +75,7 @@ impl<'a> Table<'a> {
             })
             .collect();
         let connections_title = "Utilization by connection";
-        let connections_column_names = &["Connection", "Process", "Rate Up/Down"];
+        let connections_column_names = &["Connection", "Process", "Rate Up / Down"];
         Table {
             title: connections_title,
             column_names: connections_column_names,
@@ -96,7 +96,7 @@ impl<'a> Table<'a> {
             })
             .collect();
         let processes_title = "Utilization by process name";
-        let processes_column_names = &["Process", "Connection count", "Rate Up/Down"];
+        let processes_column_names = &["Process", "Connection count", "Rate Up / Down"];
         Table {
             title: processes_title,
             column_names: processes_column_names,
@@ -121,7 +121,8 @@ impl<'a> Table<'a> {
             })
             .collect();
         let remote_addresses_title = "Utilization by remote address";
-        let remote_addresses_column_names = &["Remote Address", "Connection Count", "Rate Up/Down"];
+        let remote_addresses_column_names =
+            &["Remote Address", "Connection Count", "Rate Up / Down"];
         Table {
             title: remote_addresses_title,
             column_names: remote_addresses_column_names,
