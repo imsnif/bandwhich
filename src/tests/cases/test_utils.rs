@@ -7,7 +7,7 @@ use std::iter;
 use crate::network::dns::Client;
 use crate::{Opt, OsInputOutput};
 use ::termion::event::{Event, Key};
-use pnet::datalink::DataLinkReceiver;
+use pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use std::collections::HashMap;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
