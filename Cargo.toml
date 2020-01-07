@@ -40,3 +40,7 @@ pnet_base = "0.23.0"
 cargo-insta = "0.11.0"
 packet-builder = "0.4.0"
 regex = "1"
+
+[patch.crates-io]
+pnet = { git = "https://github.com/zhangxp1998/libpnet.git", branch = 'bandwhich'}
+pnet_base = { git = "https://github.com/zhangxp1998/libpnet.git", branch = 'bandwhich'}
