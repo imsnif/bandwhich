@@ -95,17 +95,17 @@ fn bi_directional_traffic() {
 fn multiple_packets_of_traffic_from_different_connections() {
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
-            "1.1.1.1",
+            "2.2.2.2",
             "10.0.0.2",
             12345,
             443,
-            b"I have come from 1.1.1.1",
+            b"I have come from 2.2.2.2",
         )),
         Some(build_tcp_packet(
             "2.2.2.2",
             "10.0.0.2",
             54321,
-            443,
+            4434,
             b"I come from 2.2.2.2",
         )),
     ]) as Box<dyn DataLinkReceiver>];
@@ -158,11 +158,11 @@ fn one_process_with_multiple_connections() {
             b"I have come from 1.1.1.1",
         )),
         Some(build_tcp_packet(
-            "3.3.3.3",
+            "1.1.1.1",
             "10.0.0.2",
-            1337,
+            12346,
             443,
-            b"Funny that, I'm from 3.3.3.3",
+            b"Funny that, I'm from 1.1.1.1",
         )),
     ]) as Box<dyn DataLinkReceiver>];
     let (_, _, backend) = test_backend_factory(190, 50);
@@ -189,21 +189,21 @@ fn multiple_processes_with_multiple_connections() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"Awesome, I'm from 3.3.3.3",
         )),
         Some(build_tcp_packet(
             "2.2.2.2",
             "10.0.0.2",
             54321,
-            443,
+            4434,
             b"You know, 2.2.2.2 is really nice!",
         )),
         Some(build_tcp_packet(
             "4.4.4.4",
             "10.0.0.2",
             1337,
-            443,
+            4432,
             b"I'm partial to 4.4.4.4",
         )),
     ]) as Box<dyn DataLinkReceiver>];
@@ -290,7 +290,7 @@ fn sustained_traffic_from_multiple_processes() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"I come from 3.3.3.3",
         )),
         None, // sleep
@@ -305,7 +305,7 @@ fn sustained_traffic_from_multiple_processes() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"I come 3.3.3.3 one second later",
         )),
     ]) as Box<dyn DataLinkReceiver>];
@@ -326,7 +326,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
-            443,
+            4435,
             1337,
             b"omw to 3.3.3.3",
         )),
@@ -334,7 +334,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"I was just there!",
         )),
         Some(build_tcp_packet(
@@ -355,7 +355,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
-            443,
+            4435,
             1337,
             b"Wait for me!",
         )),
@@ -363,7 +363,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"They're waiting for you...",
         )),
         Some(build_tcp_packet(
@@ -398,7 +398,7 @@ fn traffic_with_host_names() {
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
-            443,
+            4435,
             1337,
             b"omw to 3.3.3.3",
         )),
@@ -406,7 +406,7 @@ fn traffic_with_host_names() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"I was just there!",
         )),
         Some(build_tcp_packet(
@@ -427,7 +427,7 @@ fn traffic_with_host_names() {
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
-            443,
+            4435,
             1337,
             b"Wait for me!",
         )),
@@ -435,7 +435,7 @@ fn traffic_with_host_names() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"They're waiting for you...",
         )),
         Some(build_tcp_packet(
@@ -483,7 +483,7 @@ fn no_resolve_mode() {
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
-            443,
+            4435,
             1337,
             b"omw to 3.3.3.3",
         )),
@@ -491,7 +491,7 @@ fn no_resolve_mode() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"I was just there!",
         )),
         Some(build_tcp_packet(
@@ -512,7 +512,7 @@ fn no_resolve_mode() {
         Some(build_tcp_packet(
             "10.0.0.2",
             "3.3.3.3",
-            443,
+            4435,
             1337,
             b"Wait for me!",
         )),
@@ -520,7 +520,7 @@ fn no_resolve_mode() {
             "3.3.3.3",
             "10.0.0.2",
             1337,
-            443,
+            4435,
             b"They're waiting for you...",
         )),
         Some(build_tcp_packet(

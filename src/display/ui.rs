@@ -5,7 +5,7 @@ use ::tui::Terminal;
 
 use crate::display::components::{Layout, Table, TotalBandwidth};
 use crate::display::UIState;
-use crate::network::{display_connection_string, display_ip_or_host, Connection, Utilization};
+use crate::network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization};
 
 use ::std::net::Ipv4Addr;
 
@@ -94,7 +94,7 @@ where
     }
     pub fn update_state(
         &mut self,
-        connections_to_procs: HashMap<Connection, String>,
+        connections_to_procs: HashMap<LocalSocket, String>,
         utilization: Utilization,
         ip_to_host: HashMap<Ipv4Addr, String>,
     ) {

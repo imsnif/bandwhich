@@ -3,9 +3,11 @@ use ::std::collections::HashMap;
 use ::procfs::process::FDTarget;
 
 use crate::network::{Connection, Protocol};
+use crate::OpenSockets;
 
-pub(crate) fn get_open_sockets() -> HashMap<Connection, String> {
+pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
+    let mut connections = std::vec::Vec::new();
     let all_procs = procfs::process::all_processes().unwrap();
 
     let mut inode_to_procname = HashMap::new();
@@ -23,23 +25,30 @@ pub(crate) fn get_open_sockets() -> HashMap<Connection, String> {
     let tcp = ::procfs::net::tcp().unwrap();
     for entry in tcp.into_iter() {
         let local_port = entry.local_address.port();
+        let local_ip = entry.local_address.ip();
         if let (Some(connection), Some(procname)) = (
-            Connection::new(entry.remote_address, local_port, Protocol::Tcp),
+            Connection::new(entry.remote_address, local_ip, local_port, Protocol::Tcp),
             inode_to_procname.get(&entry.inode),
         ) {
-            open_sockets.insert(connection, procname.clone());
+            open_sockets.insert(connection.local_socket, procname.clone());
+            connections.push(connection);
         };
     }
 
     let udp = ::procfs::net::udp().unwrap();
     for entry in udp.into_iter() {
         let local_port = entry.local_address.port();
+        let local_ip = entry.local_address.ip();
         if let (Some(connection), Some(procname)) = (
-            Connection::new(entry.remote_address, local_port, Protocol::Udp),
+            Connection::new(entry.remote_address, local_ip, local_port, Protocol::Udp),
             inode_to_procname.get(&entry.inode),
         ) {
-            open_sockets.insert(connection, procname.clone());
+            open_sockets.insert(connection.local_socket, procname.clone());
+            connections.push(connection);
         };
     }
-    open_sockets
+    OpenSockets {
+        sockets_to_procs: open_sockets,
+        connections,
+    }
 }

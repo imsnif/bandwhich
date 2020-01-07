@@ -7,7 +7,8 @@ use std::process::Command;
 
 #[derive(Debug, Clone)]
 pub struct RawConnection {
-    ip: String,
+    remote_ip: String,
+    local_ip: String,
     local_port: String,
     remote_port: String,
     protocol: String,
@@ -16,48 +17,109 @@ pub struct RawConnection {
 
 lazy_static! {
     static ref CONNECTION_REGEX: Regex =
-        Regex::new(r"([^\s]+).*(TCP|UDP).*:(.*)->(.*):(\d*)(\s|$)").unwrap();
+        Regex::new(r"\[?([^\s\]]*)\]?:(\d+)->\[?([^\s\]]*)\]?:(\d+)").unwrap();
+    static ref LISTEN_REGEX: Regex = Regex::new(r"(.*):(.*)").unwrap();
+}
+
+fn get_null_addr(ip_type: &str) -> &str {
+    if ip_type.contains('4') {
+        "0.0.0.0"
+    } else {
+        "::0"
+    }
 }
 
 impl RawConnection {
     pub fn new(raw_line: &str) -> Option<RawConnection> {
-        let raw_connection_iter = CONNECTION_REGEX.captures_iter(raw_line).filter_map(|cap| {
-            let process_name = String::from(cap.get(1).unwrap().as_str()).replace("\\x20", " ");
-            let protocol = String::from(cap.get(2).unwrap().as_str());
-            let local_port = String::from(cap.get(3).unwrap().as_str());
-            let ip = String::from(cap.get(4).unwrap().as_str());
-            let remote_port = String::from(cap.get(5).unwrap().as_str());
+        // Example row
+        // com.apple   664     user  198u  IPv4 0xeb179a6650592b8d      0t0    TCP 192.168.1.187:58535->1.2.3.4:443 (ESTABLISHED)
+        let columns: Vec<&str> = raw_line.split_ascii_whitespace().collect();
+        if columns.len() < 9 {
+            return None;
+        }
+        let process_name = columns[0].replace("\\x20", " ");
+        // Unneeded
+        // let pid = columns[1];
+        // let username = columns[2];
+        // let fd = columns[3];
+
+        // IPv4 or IPv6
+        let ip_type = columns[4];
+        // let device = columns[5];
+        // let size = columns[6];
+        // UDP/TCP
+        let protocol = columns[7].to_ascii_uppercase();
+        if protocol != "TCP" && protocol != "UDP" {
+            return None;
+        }
+        let connection_str = columns[8];
+        // "(LISTEN)" or "(ESTABLISHED)",  this column may or may not be present
+        // let connection_state = columns[9];
+        // If this socket is in a "connected" state
+        if let Some(caps) = CONNECTION_REGEX.captures(connection_str) {
+            // Example
+            // 192.168.1.187:64230->0.1.2.3:5228
+            // *:*
+            // *:4567
+            let local_ip = String::from(caps.get(1).unwrap().as_str());
+            let local_port = String::from(caps.get(2).unwrap().as_str());
+            let remote_ip = String::from(caps.get(3).unwrap().as_str());
+            let remote_port = String::from(caps.get(4).unwrap().as_str());
             let connection = RawConnection {
-                process_name,
-                ip,
+                local_ip,
                 local_port,
+                remote_ip,
                 remote_port,
                 protocol,
+                process_name,
             };
             Some(connection)
-        });
-        let raw_connection_vec = raw_connection_iter.map(|m| m).collect::<Vec<_>>();
-        if raw_connection_vec.is_empty() {
-            None
+        } else if let Some(caps) = LISTEN_REGEX.captures(connection_str) {
+            let local_ip = if caps.get(1).unwrap().as_str() == "*" {
+                get_null_addr(ip_type)
+            } else {
+                caps.get(1).unwrap().as_str()
+            };
+            let local_ip = String::from(local_ip);
+            let local_port = String::from(if caps.get(2).unwrap().as_str() == "*" {
+                "0"
+            } else {
+                caps.get(2).unwrap().as_str()
+            });
+            let remote_ip = String::from(get_null_addr(ip_type));
+            let remote_port = String::from("0");
+            let connection = RawConnection {
+                local_ip,
+                local_port,
+                remote_ip,
+                remote_port,
+                protocol,
+                process_name,
+            };
+            Some(connection)
         } else {
-            Some(raw_connection_vec[0].clone())
+            None
         }
     }
 
     pub fn get_protocol(&self) -> Protocol {
-        return Protocol::from_str(&self.protocol).unwrap();
+        Protocol::from_str(&self.protocol).unwrap()
     }
 
-    pub fn get_ip_address(&self) -> IpAddr {
-        return IpAddr::V4(self.ip.parse().unwrap());
+    pub fn get_remote_ip(&self) -> IpAddr {
+        self.remote_ip.parse().unwrap()
     }
 
     pub fn get_remote_port(&self) -> u16 {
-        return self.remote_port.parse::<u16>().unwrap();
+        self.remote_port.parse::<u16>().unwrap()
+    }
+
+    pub fn get_local_ip(&self) -> IpAddr {
+        self.local_ip.parse().unwrap()
     }
 
     pub fn get_local_port(&self) -> u16 {
-        return self.local_port.parse::<u16>().unwrap();
+        self.local_port.parse::<u16>().unwrap()
     }
 }
 
@@ -160,7 +222,7 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     fn test_raw_connection_parse_ip_address() {
         let connection = RawConnection::new(LINE_RAW_OUTPUT).unwrap();
         assert_eq!(
-            connection.get_ip_address().to_string(),
+            connection.get_remote_ip().to_string(),
             String::from("198.252.206.25")
         );
     }
