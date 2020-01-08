@@ -5,6 +5,7 @@ language: rust
 rust:
   - stable
   - beta
+  - nightly
 before_script:
   - rustup component add rustfmt clippy
 script:
@@ -13,6 +14,11 @@ script:
   - cargo build --verbose
   - cargo test --verbose
   - cargo clippy --all-targets --all-features -- -D warnings
+jobs:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
+
 matrix:
   include:
     - rust: nightly
@@ -20,5 +26,3 @@ matrix:
         - rustup component add rustfmt
         # Fallback to git in case clippy is not available in the current nightly
         - rustup component add clippy --toolchain=nightly || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
-  allow_failures:
-    - rust: nightly
