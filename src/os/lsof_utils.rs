@@ -123,12 +123,12 @@ impl RawConnection {
     }
 }
 
-pub fn get_connections<'a>() -> RawConnections {
+pub fn get_connections() -> RawConnections {
     let content = run(&["-n", "-P", "-i4", "+c", "0"]);
     RawConnections::new(content)
 }
 
-fn run<'a, I, S>(args: I) -> String
+fn run<I, S>(args: I) -> String
 where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
