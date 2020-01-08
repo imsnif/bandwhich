@@ -18,7 +18,7 @@ license = "MIT"
 exclude = ["src/tests/*", "demo.gif"]
 
 [dependencies]
-pnet_bandwhich_fork = "0.23.0"
+pnet_bandwhich_fork = "0.23.1"
 ipnetwork = "0.15.0"
 tui = "0.5"
 termion = "1.5"
