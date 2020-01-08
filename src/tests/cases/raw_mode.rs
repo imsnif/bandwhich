@@ -36,12 +36,48 @@ fn build_tcp_packet(
     pkt.packet().to_vec()
 }
 
+fn build_ip_tcp_packet(
+        source_ip: &str,
+    destination_ip: &str,
+    source_port: u16,
+    destination_port: u16,
+    payload: &'static [u8],
+) -> Vec<u8> {
+    let mut pkt_buf = [0u8; 1500];
+    let pkt = packet_builder!(
+         pkt_buf,
+         ipv4({set_source => ipv4addr!(source_ip), set_destination => ipv4addr!(destination_ip) }) /
+         tcp({set_source => source_port, set_destination => destination_port }) /
+         payload(payload)
+    );
+    pkt.packet().to_vec()
+}
+
 fn format_raw_output(output: Vec<u8>) -> String {
     let stdout_utf8 = String::from_utf8(output).unwrap();
     use regex::Regex;
     let timestamp = Regex::new(r"<\d+>").unwrap();
     let replaced = timestamp.replace_all(&stdout_utf8, "<TIMESTAMP_REMOVED>");
     format!("{}", replaced)
+}
+
+#[test]
+fn one_ip_packet_of_traffic() {
+    let network_frames = vec![NetworkFrames::new(vec![Some(build_ip_tcp_packet(
+        "10.0.0.2",
+        "1.1.1.1",
+        443,
+        12345,
+        b"I am a fake tcp packet",
+    ))]) as Box<dyn DataLinkReceiver>];
+    let (_, _, backend) = test_backend_factory(190, 50);
+    let stdout = Arc::new(Mutex::new(Vec::new()));
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = opts_raw();
+    start(backend, os_input, opts);
+    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
+    let formatted = format_raw_output(stdout);
+    assert_snapshot!(formatted);
 }
 
 #[test]
