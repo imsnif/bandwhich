@@ -1,8 +1,8 @@
 use ::std::boxed::Box;
 
 use ::pnet_bandwhich_fork::datalink::{DataLinkReceiver, NetworkInterface};
-use ::pnet_bandwhich_fork::packet::ethernet::{EtherType, EthernetPacket};
-use ::pnet_bandwhich_fork::packet::ip::IpNextHeaderProtocol;
+use ::pnet_bandwhich_fork::packet::ethernet::{EtherTypes, EthernetPacket};
+use ::pnet_bandwhich_fork::packet::ip::IpNextHeaderProtocols;
 use ::pnet_bandwhich_fork::packet::ipv4::Ipv4Packet;
 use ::pnet_bandwhich_fork::packet::tcp::TcpPacket;
 use ::pnet_bandwhich_fork::packet::udp::UdpPacket;
@@ -65,7 +65,7 @@ impl Sniffer {
             _ => {
                 let pkg = EthernetPacket::new(bytes)?;
                 match pkg.get_ethertype() {
-                    EtherType(2048) => Self::handle_v4(Ipv4Packet::new(pkg.payload())?, &self.network_interface),
+                    EtherTypes::Ipv4 => Self::handle_v4(Ipv4Packet::new(pkg.payload())?, &self.network_interface),
                     _ => None,
                 }
             }
@@ -74,7 +74,7 @@ impl Sniffer {
     fn handle_v4(ip_packet: Ipv4Packet, network_interface: &NetworkInterface) -> Option<Segment> {
         let (protocol, source_port, destination_port, data_length) =
             match ip_packet.get_next_level_protocol() {
-                IpNextHeaderProtocol(6) => {
+                IpNextHeaderProtocols::Tcp => {
                     let message = TcpPacket::new(ip_packet.payload())?;
                     (
                         Protocol::Tcp,
@@ -83,7 +83,7 @@ impl Sniffer {
                         ip_packet.payload().len() as u128,
                     )
                 }
-                IpNextHeaderProtocol(17) => {
+                IpNextHeaderProtocols::Udp => {
                     let datagram = UdpPacket::new(ip_packet.payload())?;
                     (
                         Protocol::Udp,
