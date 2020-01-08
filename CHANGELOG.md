@@ -14,7 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 - Fix string conversion error on macOS (https://github.com/imsnif/bandwhich/pull/79) - [@zhangxp1998](https://github.com/zhangxp1998)
 - Proper fix for macos no-screen-of-death (https://github.com/imsnif/bandwhich/pull/83) - [@zhangxp1998](https://github.com/zhangxp1998) + [@imsnif](https://github.com/imsnif)
-- Fix UDP traffic not displayed issue #81 with (https://github.com/imsnif/bandwhich/pull/82) [@zhangxp1998](https://github.com/zhangxp1998)
+- Fix UDP traffic not displayed issue #81 with (https://github.com/imsnif/bandwhich/pull/82) - [@zhangxp1998](https://github.com/zhangxp1998)
+- Fix mac build (https://github.com/imsnif/bandwhich/pull/93) - [@imsnif](https://github.com/imsnif)
+- Better procfs error handling (https://github.com/imsnif/bandwhich/pull/88) - [@zhangxp1998](https://github.com/zhangxp1998)
+
 
 ## [0.7.0] - 2020-01-05
 
