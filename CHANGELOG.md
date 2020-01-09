@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Added
 - Brew formula and installation instructions for macOS (https://github.com/imsnif/bandwhich/pull/75) - [@imbsky](https://github.com/imbsky)
 - UI change: add spacing between up and down rates for readability (https://github.com/imsnif/bandwhich/pull/58) - [@Calinou](https://github.com/Calinou)
+- Support for wireguard interfaces (eg. for VPNs) (https://github.com/imsnif/bandwhich/pull/98) - [@Ma27](https://github.com/Ma27)
 
 ### Fixed
 
