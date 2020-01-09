@@ -10,6 +10,8 @@ use ::std::io::ErrorKind;
 use ::std::time;
 
 use signal_hook::iterator::Signals;
+use failure::{Context, Fail, Backtrace};
+
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
@@ -32,6 +34,53 @@ impl Iterator for KeyboardEvents {
     }
 }
 
+#[derive(Debug)]
+struct MyError {
+    inner: Context<MyErrorKind>,
+}
+impl MyError {
+    pub fn kind(&self) -> MyErrorKind {
+        *self.inner.get_context()
+    }
+}
+
+impl From<MyErrorKind> for MyError {
+    fn from(kind: MyErrorKind) -> MyError {
+        MyError { inner: Context::new(kind) }
+    }
+}
+
+impl From<Context<MyErrorKind>> for MyError {
+    fn from(inner: Context<MyErrorKind>) -> MyError {
+        MyError { inner: inner }
+    }
+}
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
+enum MyErrorKind {
+    #[fail(display = "Custom error message")]
+    Networkfail,
+}
+impl Fail for MyError {
+    fn cause(&self) -> Option<&dyn Fail> {
+        self.inner.cause()
+    }
+
+    fn backtrace(&self) -> Option<&Backtrace> {
+        self.inner.backtrace()
+    }
+}
+
+impl fmt::Display for MyError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Display::fmt(&self.inner, f)
+    }
+}
+
+// A sample function to produce an AppError Err
+fn produce_error() -> Result<(), MyError> {
+    Err(MyError::from(MyErrorKind::Networkfail))
+}
+
 fn get_datalink_channel(
     interface: &NetworkInterface,
 ) -> Result<Box<dyn DataLinkReceiver>, std::io::Error> {
@@ -40,10 +89,7 @@ fn get_datalink_channel(
 
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
-        Ok(_) => Err(std::io::Error::new(
-            ErrorKind::Other,
-            "Unsupported interface type",
-        )),
+        Ok(_) => Err(MyError::from(MyErrorKind::Networkfail)),
         Err(e) => Err(e),
     }
 }
