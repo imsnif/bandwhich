@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Brew formula and installation instructions for macOS (https://github.com/imsnif/bandwhich/pull/75) - [@imbsky](https://github.com/imbsky)
 - UI change: add spacing between up and down rates for readability (https://github.com/imsnif/bandwhich/pull/58) - [@Calinou](https://github.com/Calinou)
 - Support for wireguard interfaces (eg. for VPNs) (https://github.com/imsnif/bandwhich/pull/98) - [@Ma27](https://github.com/Ma27)
+- Void linux installation instructions (https://github.com/imsnif/bandwhich/pull/102) - [@jcgruenhage](https://github.com/jcgruenhage)
+- Arch installation with pacman (https://github.com/imsnif/bandwhich/pull/103) - [@kpcyrd](https://github.com/kpcyrd)
+
 
 ### Fixed
 
