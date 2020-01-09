@@ -65,7 +65,9 @@ impl Sniffer {
             _ => {
                 let pkg = EthernetPacket::new(bytes)?;
                 match pkg.get_ethertype() {
-                    EtherTypes::Ipv4 => Self::handle_v4(Ipv4Packet::new(pkg.payload())?, &self.network_interface),
+                    EtherTypes::Ipv4 => {
+                        Self::handle_v4(Ipv4Packet::new(pkg.payload())?, &self.network_interface)
+                    }
                     _ => None,
                 }
             }
@@ -101,9 +103,7 @@ impl Sniffer {
         let to = SocketAddr::new(IpAddr::V4(ip_packet.get_destination()), destination_port);
 
         let connection = match direction {
-            Direction::Download => {
-                Connection::new(from, to.ip(), destination_port, protocol)?
-            },
+            Direction::Download => Connection::new(from, to.ip(), destination_port, protocol)?,
             Direction::Upload => Connection::new(to, from.ip(), source_port, protocol)?,
         };
         Some(Segment {
