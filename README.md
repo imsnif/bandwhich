@@ -23,6 +23,12 @@ yay -S bandwhich
 nix-env -iA nixpkgs.bandwhich
 ```
 
+#### Void Linux
+
+```
+xbps-install -S bandwhich
+```
+
 #### macOS
 
 ```
