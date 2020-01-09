@@ -2,7 +2,7 @@
 edition = "2018"
 name = "bandwhich"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.7.0"
+version = "0.8.0"
 homepage = "https://github.com/imsnif/bandwhich"
 repository = "https://github.com/imsnif/bandwhich"
 readme = "README.md"

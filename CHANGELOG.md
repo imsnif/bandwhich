@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.8.0] - 2020-01-09
+
 ### Added
 - Brew formula and installation instructions for macOS (https://github.com/imsnif/bandwhich/pull/75) - [@imbsky](https://github.com/imbsky)
 - UI change: add spacing between up and down rates for readability (https://github.com/imsnif/bandwhich/pull/58) - [@Calinou](https://github.com/Calinou)
