@@ -12,7 +12,7 @@ This is a CLI utility for displaying current network utilization by process, con
 #### Arch Linux
 
 ```
-yay -S bandwhich
+pacman -S bandwhich
 ```
 
 #### Nix/NixOS
