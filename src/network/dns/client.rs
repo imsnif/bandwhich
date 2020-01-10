@@ -24,7 +24,7 @@ pub struct Client {
 impl Client {
     pub fn new<R>(resolver: R, mut runtime: Runtime) -> Result<Self, failure::Error>
     where
-        R: Lookup + Send + Sync + 'static
+        R: Lookup + Send + Sync + 'static,
     {
         let cache = Arc::new(Mutex::new(IpTable::new()));
         let pending = Arc::new(Mutex::new(PendingAddrs::new()));
