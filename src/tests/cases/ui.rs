@@ -9,13 +9,17 @@ use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 
 use crate::tests::cases::test_utils::{
-    opts_ui, os_input_output, sleep_and_quit_events, test_backend_factory,
+    opts_ui, os_input_output, os_input_output_factory, sleep_and_quit_events, test_backend_factory,
 };
+use ::termion::event::{Event, Key};
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
 use pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use pnet_bandwhich_fork::packet::Packet;
 use pnet_base::MacAddr;
+use std::iter;
+
+use crate::tests::fakes::KeyboardEvents;
 
 use crate::{start, Opt, OsInputOutput};
 
@@ -57,6 +61,55 @@ fn basic_startup() {
 
     assert_eq!(terminal_draw_events_mirror.len(), 1);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
+}
+
+#[test]
+fn pause_by_space() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        None, // sleep
+        None, // sleep
+        None, // sleep
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"Same here, but one second later",
+        )),
+    ]) as Box<dyn DataLinkReceiver>];
+
+    // sleep for 1s, then press space, sleep for 2s, then quit
+    let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
+    events.push(Some(Event::Key(Key::Char(' '))));
+    events.push(None);
+    events.push(None);
+    events.push(Some(Event::Key(Key::Char(' '))));
+    events.push(Some(Event::Key(Key::Ctrl('c'))));
+
+    let events = Box::new(KeyboardEvents::new(events));
+    let os_input = os_input_output_factory(network_frames, None, None, events);
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let opts = opts_ui();
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
+    assert_eq!(terminal_draw_events_mirror.len(), 3);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+    assert_snapshot!(&terminal_draw_events_mirror[2]);
 }
 
 #[test]

@@ -24,9 +24,9 @@ pub fn os_input_output(
 ) -> OsInputOutput {
     os_input_output_factory(
         network_frames,
-        sleep_num,
         None,
         create_fake_dns_client(HashMap::new()),
+        sleep_and_quit_events(sleep_num),
     )
 }
 pub fn os_input_output_stdout(
@@ -36,9 +36,9 @@ pub fn os_input_output_stdout(
 ) -> OsInputOutput {
     os_input_output_factory(
         network_frames,
-        sleep_num,
         stdout,
         create_fake_dns_client(HashMap::new()),
+        sleep_and_quit_events(sleep_num),
     )
 }
 
@@ -48,14 +48,19 @@ pub fn os_input_output_dns(
     stdout: Option<Arc<Mutex<Vec<u8>>>>,
     dns_client: Option<Client>,
 ) -> OsInputOutput {
-    os_input_output_factory(network_frames, sleep_num, stdout, dns_client)
+    os_input_output_factory(
+        network_frames,
+        stdout,
+        dns_client,
+        sleep_and_quit_events(sleep_num),
+    )
 }
 
-fn os_input_output_factory(
+pub fn os_input_output_factory(
     network_frames: Vec<Box<dyn DataLinkReceiver>>,
-    sleep_num: usize,
     stdout: Option<Arc<Mutex<Vec<u8>>>>,
     dns_client: Option<Client>,
+    keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
 ) -> OsInputOutput {
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
@@ -74,7 +79,7 @@ fn os_input_output_factory(
         network_interfaces: get_interfaces(),
         network_frames,
         get_open_sockets,
-        keyboard_events: sleep_and_quit_events(sleep_num),
+        keyboard_events,
         dns_client,
         on_winch,
         cleanup,
