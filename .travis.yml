@@ -15,10 +15,15 @@ script:
   - cargo clippy --all-targets --all-features -- -D warnings
 matrix:
   include:
-    - rust: nightly
+    - os: linux
+      rust: nightly
       before_script:
         - rustup component add rustfmt
-        # Fallback to git in case clippy is not available in the current nightly
+        - rustup component add clippy --toolchain=nightly || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
+    - os: osx
+      rust: nightly
+      before_script:
+        - rustup component add rustfmt
         - rustup component add clippy --toolchain=nightly || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
   allow_failures:
     - rust: nightly
