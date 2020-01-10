@@ -100,6 +100,7 @@ where
     B: Backend + Send + 'static,
 {
     let running = Arc::new(AtomicBool::new(true));
+    let paused = Arc::new(AtomicBool::new(false));
 
     let mut active_threads = vec![];
 
@@ -121,11 +122,12 @@ where
                 .name("resize_handler".to_string())
                 .spawn({
                     let ui = ui.clone();
+                    let paused = paused.clone();
                     move || {
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
-                                ui.draw();
+                                ui.draw(paused.load(Ordering::SeqCst));
                             })
                         });
                     }
@@ -138,6 +140,7 @@ where
         .name("display_handler".to_string())
         .spawn({
             let running = running.clone();
+            let paused = paused.clone();
             let network_utilization = network_utilization.clone();
             move || {
                 while running.load(Ordering::Acquire) {
@@ -160,11 +163,14 @@ where
                     }
                     {
                         let mut ui = ui.lock().unwrap();
-                        ui.update_state(sockets_to_procs, utilization, ip_to_host);
+                        let paused = paused.load(Ordering::SeqCst);
+                        if !paused {
+                            ui.update_state(sockets_to_procs, utilization, ip_to_host);
+                        }
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw();
+                            ui.draw(paused);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -194,6 +200,10 @@ where
                                 cleanup();
                                 display_handler.unpark();
                                 break;
+                            }
+                            Event::Key(Key::Char(' ')) => {
+                                paused.fetch_xor(true, Ordering::SeqCst);
+                                display_handler.unpark();
                             }
                             _ => (),
                         };
