@@ -1,18 +1,19 @@
 use async_trait::async_trait;
-use std::{future::Future, net::Ipv4Addr};
-use trust_dns_resolver::{error::ResolveErrorKind, AsyncResolver};
+use std::net::Ipv4Addr;
+use trust_dns_resolver::{error::ResolveErrorKind, AsyncResolver, TokioAsyncResolver};
+use tokio::runtime::Handle;
 
 #[async_trait]
 pub trait Lookup {
     async fn lookup(&self, ip: Ipv4Addr) -> Option<String>;
 }
 
-pub struct Resolver(AsyncResolver);
+pub struct Resolver(TokioAsyncResolver);
 
 impl Resolver {
-    pub fn new() -> Result<(Self, impl Future<Output = ()>), failure::Error> {
-        let (resolver, background) = AsyncResolver::from_system_conf()?;
-        Ok((Self(resolver), background))
+    pub async fn new(runtime: Handle) -> Result<Self, failure::Error> {
+        let resolver = AsyncResolver::from_system_conf(runtime).await?;
+        Ok(Self(resolver))
     }
 }
 
