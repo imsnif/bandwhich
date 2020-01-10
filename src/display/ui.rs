@@ -74,7 +74,7 @@ where
             ));
         }
     }
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self, paused: bool) {
         let state = &self.state;
         let ip_to_host = &self.ip_to_host;
         self.terminal
@@ -83,7 +83,10 @@ where
                 let connections = Table::create_connections_table(&state, &ip_to_host);
                 let processes = Table::create_processes_table(&state);
                 let remote_addresses = Table::create_remote_addresses_table(&state, &ip_to_host);
-                let total_bandwidth = TotalBandwidth { state: &state };
+                let total_bandwidth = TotalBandwidth {
+                    state: &state,
+                    paused,
+                };
                 let layout = Layout {
                     header: total_bandwidth,
                     children: vec![processes, connections, remote_addresses],
