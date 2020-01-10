@@ -126,8 +126,7 @@ pub fn get_input(
     let dns_client = if resolve {
         let mut runtime = Runtime::new()?;
         let resolver = runtime
-            .block_on(dns::Resolver::new(runtime.handle().clone()))
-            .unwrap();
+            .block_on(dns::Resolver::new(runtime.handle().clone()))?;
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
     } else {

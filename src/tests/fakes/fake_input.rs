@@ -3,10 +3,7 @@ use ::ipnetwork::IpNetwork;
 use ::pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use ::pnet_bandwhich_fork::datalink::NetworkInterface;
 use ::std::collections::HashMap;
-use ::std::future::Future;
 use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use ::std::pin::Pin;
-use ::std::task::{Context, Poll};
 use ::std::{thread, time};
 use ::termion::event::Event;
 use ::tokio::runtime::Runtime;
@@ -185,15 +182,5 @@ impl Lookup for FakeResolver {
     async fn lookup(&self, ip: Ipv4Addr) -> Option<String> {
         let ip = IpAddr::from(ip);
         self.0.get(&ip).cloned()
-    }
-}
-
-struct FakeBackground {}
-
-impl Future for FakeBackground {
-    type Output = ();
-
-    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Poll::Ready(())
     }
 }

@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use std::net::Ipv4Addr;
 use tokio::runtime::Handle;
-use trust_dns_resolver::{error::ResolveErrorKind, AsyncResolver, TokioAsyncResolver};
+use trust_dns_resolver::{error::ResolveErrorKind, TokioAsyncResolver};
 
 #[async_trait]
 pub trait Lookup {
@@ -12,7 +12,7 @@ pub struct Resolver(TokioAsyncResolver);
 
 impl Resolver {
     pub async fn new(runtime: Handle) -> Result<Self, failure::Error> {
-        let resolver = AsyncResolver::from_system_conf(runtime).await?;
+        let resolver = TokioAsyncResolver::from_system_conf(runtime).await?;
         Ok(Self(resolver))
     }
 }
