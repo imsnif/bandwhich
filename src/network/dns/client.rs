@@ -1,7 +1,6 @@
 use crate::network::dns::{resolver::Lookup, IpTable};
 use std::{
     collections::HashSet,
-    future::Future,
     net::Ipv4Addr,
     sync::{Arc, Mutex},
     thread::{Builder, JoinHandle},
@@ -23,14 +22,12 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new<R, B>(resolver: R, background: B) -> Result<Self, failure::Error>
+    pub fn new<R>(resolver: R, mut runtime: Runtime) -> Result<Self, failure::Error>
     where
         R: Lookup + Send + Sync + 'static,
-        B: Future<Output = ()> + Send + 'static,
     {
         let cache = Arc::new(Mutex::new(IpTable::new()));
         let pending = Arc::new(Mutex::new(PendingAddrs::new()));
-        let mut runtime = Runtime::new()?;
         let (tx, mut rx) = mpsc::channel::<Vec<Ipv4Addr>>(CHANNEL_SIZE);
 
         let handle = Builder::new().name("resolver".into()).spawn({
@@ -39,7 +36,6 @@ impl Client {
             move || {
                 runtime.block_on(async {
                     let resolver = Arc::new(resolver);
-                    tokio::spawn(background);
 
                     while let Some(ips) = rx.recv().await {
                         for ip in ips {

@@ -4,6 +4,7 @@ use ::pnet_bandwhich_fork::datalink::{self, Config, NetworkInterface};
 use ::std::io::{self, stdin, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;
+use ::tokio::runtime::Runtime;
 
 use ::std::io::ErrorKind;
 use ::std::time;
@@ -123,8 +124,9 @@ pub fn get_input(
     let write_to_stdout = create_write_to_stdout();
     let (on_winch, cleanup) = sigwinch();
     let dns_client = if resolve {
-        let (resolver, background) = dns::Resolver::new()?;
-        let dns_client = dns::Client::new(resolver, background)?;
+        let mut runtime = Runtime::new()?;
+        let resolver = runtime.block_on(dns::Resolver::new(runtime.handle().clone()))?;
+        let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
     } else {
         None

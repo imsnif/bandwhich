@@ -3,12 +3,10 @@ use ::ipnetwork::IpNetwork;
 use ::pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use ::pnet_bandwhich_fork::datalink::NetworkInterface;
 use ::std::collections::HashMap;
-use ::std::future::Future;
 use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use ::std::pin::Pin;
-use ::std::task::{Context, Poll};
 use ::std::{thread, time};
 use ::termion::event::Event;
+use ::tokio::runtime::Runtime;
 
 use crate::{
     network::{
@@ -172,7 +170,8 @@ pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<OnSigWinch> {
 }
 
 pub fn create_fake_dns_client(ips_to_hosts: HashMap<IpAddr, String>) -> Option<dns::Client> {
-    let dns_client = dns::Client::new(FakeResolver(ips_to_hosts), FakeBackground {}).unwrap();
+    let runtime = Runtime::new().unwrap();
+    let dns_client = dns::Client::new(FakeResolver(ips_to_hosts), runtime).unwrap();
     Some(dns_client)
 }
 
@@ -183,15 +182,5 @@ impl Lookup for FakeResolver {
     async fn lookup(&self, ip: Ipv4Addr) -> Option<String> {
         let ip = IpAddr::from(ip);
         self.0.get(&ip).cloned()
-    }
-}
-
-struct FakeBackground {}
-
-impl Future for FakeBackground {
-    type Output = ();
-
-    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
-        Poll::Ready(())
     }
 }

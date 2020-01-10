@@ -6,6 +6,8 @@ To set up your development environment:
 
 To run tests: `cargo test`
 
+After tests, check the formatting: `cargo fmt -- --check`
+
 Note that at the moment the tests do not test the os layer (anything in the `os` folder).
 
 If you are stuck, unsure about how to approach an issue or would like some guidance, you are welcome to contact: aram@poor.dev
