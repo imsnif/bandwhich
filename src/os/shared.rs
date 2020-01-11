@@ -42,7 +42,7 @@ fn get_datalink_channel(
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => {
-            let error = MyError::new(MyErrorKind::TypeError("Please do something".to_string()));
+            let error = MyError::new(MyErrorKind::PermissionError("Please do something".to_string()));
             Err(error)
         },
         Err(e) => Err(MyError::new(MyErrorKind::OtherError("Other error".to_string()))),
@@ -111,8 +111,10 @@ pub fn get_input(
     if available_network_frames.is_empty() {
         for iface in network_frames {
             if let Some(iface_error) = iface.err() {
-                if let ErrorKind::PermissionDenied = iface_error.kind() {
-                    failure::bail!(eperm_message())
+                if let MyErrorKind::PermissionError(v) = iface_error.kind() {
+                    failure::bail!(
+                        "Insufficient permissions to listen on network interface(s). Try running with sudo.",
+                    )
                 }
             }
         }

@@ -31,7 +31,7 @@ impl From<Context<MyErrorKind>> for MyError {
 #[derive(Clone, Eq, PartialEq, Debug, Fail)]
 pub enum MyErrorKind {
     #[fail(display = "Type error message {}", _0)]
-    TypeError(String),
+    PermissionError(String),
     #[fail(display = "Other error message {}", _0)]
     OtherError(String),
 }
