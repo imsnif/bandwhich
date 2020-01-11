@@ -111,9 +111,7 @@ pub fn get_input(
         for iface in network_frames {
             if let Some(iface_error) = iface.err() {
                 if let ErrorKind::PermissionDenied = iface_error.kind() {
-                    failure::bail!(
-                        "Insufficient permissions to listen on network interface(s). Try running with sudo.",
-                    )
+                    failure::bail!(eperm_message())
                 }
             }
         }
@@ -142,4 +140,24 @@ pub fn get_input(
         cleanup,
         write_to_stdout,
     })
+}
+
+#[inline]
+#[cfg(target_os = "macos")]
+fn eperm_message() -> &'static str {
+    "Insufficient permissions to listen on network interface(s). Try running with sudo."
+}
+
+#[inline]
+#[cfg(target_os = "linux")]
+fn eperm_message() -> &'static str {
+    r#"
+    Insufficient permissions to listen on network interface(s). You can work around
+    this issue like this:
+
+    * Try running `bandwhich` with `sudo`
+
+    * Build a `setcap(8)` wrapper for `bandwhich` with the following rules:
+        `cap_net_raw,cap_net_admin+ep`
+    "#
 }
