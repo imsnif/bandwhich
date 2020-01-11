@@ -5,7 +5,6 @@ use ::std::io::{self, stdin, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;
 
-use ::std::io::ErrorKind;
 use ::std::time;
 
 use signal_hook::iterator::Signals;
@@ -110,7 +109,7 @@ pub fn get_input(
     if available_network_frames.is_empty() {
         for iface in network_frames {
             if let Some(iface_error) = iface.err() {
-                if let MyErrorKind::PermissionError(v) = iface_error.kind() {
+                if let MyErrorKind::PermissionError(_v) = iface_error.kind() {
                     failure::bail!(
                         "Insufficient permissions to listen on network interface(s). Try running with sudo.",
                     )
