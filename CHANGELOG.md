@@ -5,9 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
-Added
+
+### Added
 
 * Paused UI by pressing <SPACE> key. Does not affect raw mode. (https://github.com/imsnif/bandwhich/pull/106) - [@zhangxp1998](https://github.com/zhangxp1998)
+* Mention setcap option in linux permission error. (https://github.com/imsnif/bandwhich/pull/108) - [@Ma27](https://github.com/Ma27)
+
+### Fixed
+
+* Upgrade trust-dns-resolver. (https://github.com/imsnif/bandwhich/pull/105) - [@bigtoast](https://github.com/bigtoast)
+
 
 ## [0.8.0] - 2020-01-09
 
@@ -17,7 +24,6 @@ Added
 - Support for wireguard interfaces (eg. for VPNs) (https://github.com/imsnif/bandwhich/pull/98) - [@Ma27](https://github.com/Ma27)
 - Void linux installation instructions (https://github.com/imsnif/bandwhich/pull/102) - [@jcgruenhage](https://github.com/jcgruenhage)
 - Arch installation with pacman (https://github.com/imsnif/bandwhich/pull/103) - [@kpcyrd](https://github.com/kpcyrd)
-
 
 ### Fixed
 
