@@ -4,11 +4,6 @@ use failure::{Backtrace, Context, Fail};
 pub struct MyError {
     inner: Context<MyErrorKind>,
 }
-impl MyError {
-    pub fn kind(&self) -> MyErrorKind {
-        *self.inner.get_context()
-    }
-}
 
 impl From<MyErrorKind> for MyError {
     fn from(kind: MyErrorKind) -> MyError {
@@ -24,9 +19,9 @@ impl From<Context<MyErrorKind>> for MyError {
     }
 }
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
-enum MyErrorKind {
-    #[fail(display = "Unsupported interface type")]
-    WrongInterface,
+pub enum MyErrorKind {
+    #[fail(display = "Type error message {}", _0)]
+    TypeError(String),
 }
 impl Fail for MyError {
     fn cause(&self) -> Option<&dyn Fail> {

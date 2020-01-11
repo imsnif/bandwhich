@@ -11,7 +11,7 @@ use ::std::time;
 
 use signal_hook::iterator::Signals;
 mod errors;
-use errors::MyError;
+use errors::{MyError,MyErrorKind};
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
@@ -42,7 +42,7 @@ fn get_datalink_channel(
 
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
-        Ok(_) => Err(MyError::from(MyErrorKind::WrongInterface)),
+        Ok(_) => Err(MyError::from(MyErrorKind::TypeError("Custom error message".to_string()))),
         Err(e) => Err(e),
     }
 }
