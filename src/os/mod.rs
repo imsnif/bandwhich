@@ -8,5 +8,6 @@ pub(self) mod macos;
 mod lsof_utils;
 
 mod shared;
+mod errors;
 
 pub use shared::*;
