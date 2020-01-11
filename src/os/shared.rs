@@ -35,17 +35,17 @@ impl Iterator for KeyboardEvents {
 
 fn get_datalink_channel(
     interface: &NetworkInterface,
-) -> Result<Box<dyn DataLinkReceiver>, std::io::Error> {
+) -> Result<Box<dyn DataLinkReceiver>, MyError> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(1, 0));
 
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => {
-            let error = MyError::from(MyErrorKind::TypeError("Please do something".to_string()));
+            let error = MyError::new(MyErrorKind::TypeError("Please do something".to_string()));
             Err(error)
         },
-        Err(e) => Err(e),
+        Err(e) => Err(MyError::new(MyErrorKind::OtherError("Other error".to_string()))),
     }
 }
 
