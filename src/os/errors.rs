@@ -2,14 +2,16 @@ use std::fmt;
 
 use failure::{Backtrace, Context, Fail};
 
-
 #[derive(Debug)]
 pub struct MyError {
     inner: Context<MyErrorKind>,
 }
-impl MyError{
-    pub fn new(kind:MyErrorKind)->MyError{
+impl MyError {
+    pub fn new(kind: MyErrorKind) -> MyError {
         MyError::from(kind)
+    }
+    pub fn kind(&self) -> MyErrorKind {
+        self.inner.get_context().clone()
     }
 }
 
@@ -23,7 +25,7 @@ impl From<MyErrorKind> for MyError {
 
 impl From<Context<MyErrorKind>> for MyError {
     fn from(inner: Context<MyErrorKind>) -> MyError {
-        MyError { inner}
+        MyError { inner }
     }
 }
 #[derive(Clone, Eq, PartialEq, Debug, Fail)]
@@ -48,4 +50,3 @@ impl fmt::Display for MyError {
         fmt::Display::fmt(&self.inner, f)
     }
 }
-
