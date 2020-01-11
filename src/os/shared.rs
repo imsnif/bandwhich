@@ -11,7 +11,7 @@ use ::std::time;
 
 use signal_hook::iterator::Signals;
 mod errors;
-use errors::*
+use errors::MyError;
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
