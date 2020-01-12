@@ -48,7 +48,9 @@ impl<'a> Layout<'a> {
             })
     }
     fn build_layout(&self, rect: Rect) -> Vec<Rect> {
-        if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
+        if self.children.len() == 1 {
+            self.progressive_split(rect, vec![])
+        } else if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
             self.progressive_split(rect, vec![])
         } else if rect.height < FIRST_HEIGHT_BREAKPOINT {
             self.progressive_split(rect, vec![Direction::Horizontal])
