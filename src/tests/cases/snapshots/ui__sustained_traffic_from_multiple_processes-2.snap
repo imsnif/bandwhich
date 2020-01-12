@@ -2,16 +2,12 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[2]"
 ---
-                              112Bps                                                                                                                                                          
+                              195Bps                                                                                                                                                          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                  61                                                                                             61           
-                                                                                  51                                                                                             51           
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+                                                     2                            35                                                                                             35           
+                                                     2                            30                                                                                             30           
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +26,12 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                                 61           
-                                                                                                                                                                                 51           
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                    2                            35           
+                                                                                                                                                    2                            30           
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
