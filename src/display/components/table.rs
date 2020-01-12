@@ -23,8 +23,8 @@ const THIRD_COLUMN_WIDTHS: [u16; 4] = [20, 20, 20, 20];
 fn display_upload_and_download(bandwidth: &impl Bandwidth) -> String {
     format!(
         "{} / {}",
-        DisplayBandwidth(bandwidth.get_avg_bytes_uploaded() as f64),
-        DisplayBandwidth(bandwidth.get_avg_bytes_downloaded() as f64)
+        DisplayBandwidth(bandwidth.get_total_bytes_uploaded() as f64),
+        DisplayBandwidth(bandwidth.get_total_bytes_downloaded() as f64)
     )
 }
 

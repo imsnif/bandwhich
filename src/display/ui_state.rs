@@ -3,23 +3,17 @@ use ::std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use crate::network::{Connection, LocalSocket, Utilization};
 
-static BANDWIDTH_DECAY_FACTOR: f32 = 0.5;
 static RECALL_LENGTH: usize = 5;
 
 pub trait Bandwidth {
     fn get_total_bytes_downloaded(&self) -> u128;
     fn get_total_bytes_uploaded(&self) -> u128;
-
-    fn get_avg_bytes_downloaded(&self) -> u128;
-    fn get_avg_bytes_uploaded(&self) -> u128;
 }
 
 #[derive(Default)]
 pub struct NetworkData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
-    pub prev_total_bytes_downloaded: u128,
-    pub prev_total_bytes_uploaded: u128,
     pub connection_count: u128,
 }
 
@@ -27,32 +21,21 @@ pub struct NetworkData {
 pub struct ConnectionData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
-    pub prev_total_bytes_downloaded: u128,
-    pub prev_total_bytes_uploaded: u128,
     pub process_name: String,
     pub interface_name: String,
 }
 
 impl NetworkData {
     pub fn divide_by(&mut self, amount: usize) {
-        self.total_bytes_downloaded = self.total_bytes_downloaded / amount as u128;
-        self.total_bytes_uploaded = self.total_bytes_uploaded / amount as u128;
+        self.total_bytes_downloaded /= amount as u128;
+        self.total_bytes_uploaded /= amount as u128;
     }
 }
 
 impl ConnectionData {
     pub fn divide_by(&mut self, amount: usize) {
-        self.total_bytes_downloaded = self.total_bytes_downloaded / amount as u128;
-        self.total_bytes_uploaded = self.total_bytes_uploaded / amount as u128;
-    }
-}
-
-fn calc_avg_bandwidth(prev_bandwidth: u128, curr_bandwidth: u128) -> u128 {
-    if prev_bandwidth == 0 {
-        curr_bandwidth
-    } else {
-        (prev_bandwidth as f32 * BANDWIDTH_DECAY_FACTOR
-            + (1.0 - BANDWIDTH_DECAY_FACTOR) * curr_bandwidth as f32) as u128
+        self.total_bytes_downloaded /= amount as u128;
+        self.total_bytes_uploaded /= amount as u128;
     }
 }
 
@@ -63,15 +46,6 @@ impl Bandwidth for ConnectionData {
     fn get_total_bytes_downloaded(&self) -> u128 {
         self.total_bytes_downloaded
     }
-    fn get_avg_bytes_uploaded(&self) -> u128 {
-        calc_avg_bandwidth(self.prev_total_bytes_uploaded, self.total_bytes_uploaded)
-    }
-    fn get_avg_bytes_downloaded(&self) -> u128 {
-        calc_avg_bandwidth(
-            self.prev_total_bytes_downloaded,
-            self.total_bytes_downloaded,
-        )
-    }
 }
 
 impl Bandwidth for NetworkData {
@@ -80,15 +54,6 @@ impl Bandwidth for NetworkData {
     }
     fn get_total_bytes_downloaded(&self) -> u128 {
         self.total_bytes_downloaded
-    }
-    fn get_avg_bytes_uploaded(&self) -> u128 {
-        calc_avg_bandwidth(self.prev_total_bytes_uploaded, self.total_bytes_uploaded)
-    }
-    fn get_avg_bytes_downloaded(&self) -> u128 {
-        calc_avg_bandwidth(
-            self.prev_total_bytes_downloaded,
-            self.total_bytes_downloaded,
-        )
     }
 }
 
@@ -105,7 +70,7 @@ pub struct UIState {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     utilization_data: VecDeque<UtilizationData>,
- }
+}
 
 impl UIState {
     fn get_proc_name<'a>(
@@ -133,7 +98,10 @@ impl UIState {
         connections_to_procs: HashMap<LocalSocket, String>,
         network_utilization: Utilization,
     ) {
-        self.utilization_data.push_back(UtilizationData { connections_to_procs, network_utilization });
+        self.utilization_data.push_back(UtilizationData {
+            connections_to_procs,
+            network_utilization,
+        });
         if self.utilization_data.len() > RECALL_LENGTH {
             self.utilization_data.pop_front();
         }
@@ -155,7 +123,8 @@ impl UIState {
                 connection_data.interface_name = connection_info.interface_name.clone();
                 data_for_remote_address.total_bytes_downloaded +=
                     connection_info.total_bytes_downloaded;
-                data_for_remote_address.total_bytes_uploaded += connection_info.total_bytes_uploaded;
+                data_for_remote_address.total_bytes_uploaded +=
+                    connection_info.total_bytes_uploaded;
                 data_for_remote_address.connection_count += 1;
                 total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
@@ -164,7 +133,8 @@ impl UIState {
                     UIState::get_proc_name(&connections_to_procs, &connection.local_socket)
                 {
                     let data_for_process = processes.entry(process_name.clone()).or_default();
-                    data_for_process.total_bytes_downloaded += connection_info.total_bytes_downloaded;
+                    data_for_process.total_bytes_downloaded +=
+                        connection_info.total_bytes_downloaded;
                     data_for_process.total_bytes_uploaded += connection_info.total_bytes_uploaded;
                     data_for_process.connection_count += 1;
                     connection_data.process_name = process_name.clone();
