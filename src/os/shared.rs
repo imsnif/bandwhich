@@ -6,7 +6,6 @@ use ::termion::event::Event;
 use ::termion::input::TermRead;
 use ::tokio::runtime::Runtime;
 
-use ::std::io::ErrorKind;
 use ::std::time;
 
 use signal_hook::iterator::Signals;
@@ -45,7 +44,7 @@ fn get_datalink_channel(
             let error = MyError::new(MyErrorKind::PermissionError("Please do something".to_string()));
             Err(error)
         },
-        Err(e) => Err(MyError::new(MyErrorKind::OtherError("Other error".to_string()))),
+        Err(e) => Err(MyError::new(MyErrorKind::OtherError(e.to_string()))),
     }
 }
 
@@ -111,7 +110,7 @@ pub fn get_input(
     if available_network_frames.is_empty() {
         for iface in network_frames {
             if let Some(iface_error) = iface.err() {
-                if let MyErrorKind::PermissionError(v) = iface_error.kind() {
+                if let MyErrorKind::PermissionError(_v) = iface_error.kind() {
                     failure::bail!(
                         "Insufficient permissions to listen on network interface(s). Try running with sudo.",
                     )
