@@ -595,6 +595,9 @@ fn no_resolve_mode() {
         interface: Some(String::from("interface_name")),
         raw: true,
         no_resolve: true,
+        addresses: false,
+        connections: false,
+        processes: false,
     };
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();

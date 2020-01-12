@@ -100,6 +100,9 @@ fn opts_factory(raw: bool) -> Opt {
         interface: Some(String::from("interface_name")),
         raw,
         no_resolve: false,
+        addresses: false,
+        connections: false,
+        processes: false,
     }
 }
 type BackendWithStreams = (

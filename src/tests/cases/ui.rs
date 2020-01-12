@@ -113,6 +113,116 @@ fn pause_by_space() {
 }
 
 #[test]
+fn basic_only_processes() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        None, // sleep
+    ]) as Box<dyn DataLinkReceiver>];
+
+    let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 1);
+    let opts = Opt {
+            interface: Some(String::from("interface_name")),
+            raw:false,
+            no_resolve: false,
+            addresses: false,
+            connections: false,
+            processes: true,
+        };
+
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+}
+#[test]
+fn basic_only_connections() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        None, // sleep
+    ]) as Box<dyn DataLinkReceiver>];
+
+    let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 1);
+    let opts = Opt {
+            interface: Some(String::from("interface_name")),
+            raw:false,
+            no_resolve: false,
+            addresses: false,
+            connections: true,
+            processes: false,
+        };
+
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+}
+
+#[test]
+fn basic_only_addresses() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        None, // sleep
+    ]) as Box<dyn DataLinkReceiver>];
+
+    let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 1);
+    let opts = Opt {
+            interface: Some(String::from("interface_name")),
+            raw:false,
+            no_resolve: false,
+            addresses: true,
+            connections: false,
+            processes: false,
+        };
+
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+}
+
+#[test]
+fn two_windows_split_horizontally() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        None, // sleep
+    ]) as Box<dyn DataLinkReceiver>];
+
+    let (_, terminal_draw_events, backend) = test_backend_factory(60, 50);
+    let os_input = os_input_output(network_frames, 1);
+    let opts = Opt {
+            interface: Some(String::from("interface_name")),
+            raw:false,
+            no_resolve: false,
+            addresses: true,
+            connections: true,
+            processes: false,
+        };
+
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+}
+
+
+#[test]
+fn two_windows_split_vertically() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        None, // sleep
+    ]) as Box<dyn DataLinkReceiver>];
+
+    let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 1);
+    let opts = Opt {
+            interface: Some(String::from("interface_name")),
+            raw:false,
+            no_resolve: false,
+            addresses: true,
+            connections: true,
+            processes: false,
+        };
+
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+}
+
+#[test]
 fn one_packet_of_traffic() {
     let network_frames = vec![NetworkFrames::new(vec![Some(build_tcp_packet(
         "10.0.0.2",
@@ -762,6 +872,9 @@ fn no_resolve_mode() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: true,
+        addresses: false,
+        connections: false,
+        processes: false,
     };
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();

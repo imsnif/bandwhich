@@ -6,10 +6,10 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                      
                                                                                                                                                      
                                                                                                                                                      
- 4                                                   1                     0Bps / 26Bps                                                              
- 1                                                   1                     0Bps / 22Bps                                                              
- 5                                                   1                     0Bps / 22Bps                                                              
- 2                                                   1                     0Bps / 21Bps                                                              
+ 4                                                                               1                                 0Bps / 26Bps                      
+ 1                                                                               1                                 0Bps / 22Bps                      
+ 5                                                                               1                                 0Bps / 22Bps                      
+ 2                                                                               1                                 0Bps / 21Bps                      
                                                                                                                                                      
                                                                                                                                                      
                                                                                                                                                      
