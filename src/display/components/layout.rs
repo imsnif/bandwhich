@@ -2,9 +2,9 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Constraint, Direction, Rect};
 use ::tui::terminal::Frame;
 
+use super::HelpText;
 use super::Table;
 use super::TotalBandwidth;
-use super::HelpText;
 
 const FIRST_HEIGHT_BREAKPOINT: u16 = 30;
 const FIRST_WIDTH_BREAKPOINT: u16 = 120;
@@ -14,7 +14,14 @@ fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
     let parts = ::tui::layout::Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
-        .constraints([Constraint::Length(1), Constraint::Length(rect.height - 2), Constraint::Length(1)].as_ref())
+        .constraints(
+            [
+                Constraint::Length(1),
+                Constraint::Length(rect.height - 2),
+                Constraint::Length(1),
+            ]
+            .as_ref(),
+        )
         .split(rect);
     (parts[0], parts[1], parts[2])
 }

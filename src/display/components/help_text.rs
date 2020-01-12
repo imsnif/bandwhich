@@ -14,7 +14,11 @@ const TEXT_WHEN_NOT_PAUSED: &str = " Press <SPACE> to pause.";
 impl HelpText {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let text = {
-            let content = if self.paused { TEXT_WHEN_PAUSED } else { TEXT_WHEN_NOT_PAUSED };
+            let content = if self.paused {
+                TEXT_WHEN_PAUSED
+            } else {
+                TEXT_WHEN_NOT_PAUSED
+            };
 
             [Text::styled(
                 content,
