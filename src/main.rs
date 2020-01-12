@@ -28,13 +28,12 @@ use ::std::io;
 use ::std::time::Instant;
 use ::termion::raw::IntoRawMode;
 use ::tui::backend::TermionBackend;
-use structopt::{clap::ArgGroup, StructOpt};
+use structopt::StructOpt;
 
 const DISPLAY_DELTA: time::Duration = time::Duration::from_millis(1000);
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "bandwhich")]
-#[structopt(group = ArgGroup::with_name("windows").required(false))]
 pub struct Opt {
     #[structopt(short, long)]
     /// The network interface to listen on, eg. eth0
@@ -45,11 +44,11 @@ pub struct Opt {
     #[structopt(short, long)]
     /// Do not attempt to resolve IPs to their hostnames
     no_resolve: bool,
-    #[structopt(short, long, group("windows"))]
+    #[structopt(short, long)]
     processes: bool,
-    #[structopt(short, long, group("windows"))]
+    #[structopt(short, long)]
     connections: bool,
-    #[structopt(short, long, group("windows"))]
+    #[structopt(short, long)]
     addresses: bool,
 }
 

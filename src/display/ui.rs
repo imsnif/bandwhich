@@ -111,19 +111,25 @@ where
 
     fn get_tables_to_display(&self) -> Vec<Table<'static>> {
         let opts = &self.opts;
+        let mut children: Vec<Table> = Vec::new();
         if opts.processes {
-            vec![self.build_processes_table()]
-        } else if opts.addresses {
-            vec![self.build_addresses_table()]
-        } else if opts.connections {
-            vec![self.build_connections_table()]
-        } else {
-            vec![
+            children.push(self.build_processes_table());
+        }
+        if opts.addresses {
+            children.push(self.build_addresses_table());
+        }
+
+        if opts.connections {
+            children.push(self.build_connections_table());
+        }
+        if !(opts.processes || opts.addresses || opts.connections) {
+            children = vec![
                 self.build_processes_table(),
                 self.build_connections_table(),
                 self.build_addresses_table(),
-            ]
+            ];
         }
+        children
     }
     pub fn update_state(
         &mut self,

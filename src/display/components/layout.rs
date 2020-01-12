@@ -47,10 +47,19 @@ impl<'a> Layout<'a> {
                 layout
             })
     }
-    fn build_layout(&self, rect: Rect) -> Vec<Rect> {
-        if self.children.len() == 1 {
+
+    fn build_two_children_layout(&self, rect: Rect) -> Vec<Rect> {
+        if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
             self.progressive_split(rect, vec![])
-        } else if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
+        } else if rect.width < FIRST_WIDTH_BREAKPOINT {
+            self.progressive_split(rect, vec![Direction::Vertical])
+        } else {
+            self.progressive_split(rect, vec![Direction::Horizontal])
+        }
+    }
+
+    fn build_three_children_layout(&self, rect: Rect) -> Vec<Rect> {
+        if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
             self.progressive_split(rect, vec![])
         } else if rect.height < FIRST_HEIGHT_BREAKPOINT {
             self.progressive_split(rect, vec![Direction::Horizontal])
@@ -60,6 +69,16 @@ impl<'a> Layout<'a> {
             self.progressive_split(rect, vec![Direction::Vertical, Direction::Horizontal])
         } else {
             self.progressive_split(rect, vec![Direction::Horizontal, Direction::Vertical])
+        }
+    }
+
+    fn build_layout(&self, rect: Rect) -> Vec<Rect> {
+        if self.children.len() == 1 {
+            self.progressive_split(rect, vec![])
+        } else if self.children.len() == 2 {
+            self.build_two_children_layout(rect)
+        } else {
+            self.build_three_children_layout(rect)
         }
     }
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
