@@ -2,8 +2,8 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Alignment, Rect};
 use ::tui::style::{Color, Modifier, Style};
 use ::tui::terminal::Frame;
-use ::tui::widgets::{Paragraph, Text, Widget};
-
+use ::tui::widgets::{Block, Borders, Paragraph, Text, Widget};
+use ::pnet_bandwhich_fork::datalink;
 use crate::display::{DisplayBandwidth, UIState};
 
 pub struct TotalBandwidth<'a> {
@@ -20,10 +20,12 @@ impl<'a> TotalBandwidth<'a> {
             } else {
                 Color::Green
             };
+            let interface = datalink::interfaces().into_iter().map(|interface|interface.name).collect::<Vec<String>>();
 
             [Text::styled(
                 format!(
-                    " Total Rate Up / Down: {} / {} {}",
+                    " Interfaces {:?} / Total Rate Up / Down: {} / {} {}",
+                    (interface[0], interface[1]),
                     DisplayBandwidth(self.state.total_bytes_uploaded as f64),
                     DisplayBandwidth(self.state.total_bytes_downloaded as f64),
                     paused_str
