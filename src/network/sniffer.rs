@@ -2,8 +2,9 @@ use ::std::boxed::Box;
 
 use ::pnet_bandwhich_fork::datalink::{DataLinkReceiver, NetworkInterface};
 use ::pnet_bandwhich_fork::packet::ethernet::{EtherTypes, EthernetPacket};
-use ::pnet_bandwhich_fork::packet::ip::IpNextHeaderProtocols;
+use ::pnet_bandwhich_fork::packet::ip::{IpNextHeaderProtocol, IpNextHeaderProtocols};
 use ::pnet_bandwhich_fork::packet::ipv4::Ipv4Packet;
+use ::pnet_bandwhich_fork::packet::ipv6::Ipv6Packet;
 use ::pnet_bandwhich_fork::packet::tcp::TcpPacket;
 use ::pnet_bandwhich_fork::packet::udp::UdpPacket;
 use ::pnet_bandwhich_fork::packet::Packet;
@@ -27,16 +28,52 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn new(network_interface_ips: &[IpNetwork], ip_packet: &Ipv4Packet) -> Self {
+    pub fn new(network_interface_ips: &[IpNetwork], source: IpAddr) -> Self {
         if network_interface_ips
             .iter()
-            .any(|ip_network| ip_network.ip() == ip_packet.get_source())
+            .any(|ip_network| ip_network.ip() == source)
         {
             Direction::Upload
         } else {
             Direction::Download
         }
     }
+}
+
+trait NextLevelProtocol {
+    fn get_next_level_protocol(&self) -> IpNextHeaderProtocol;
+}
+
+impl NextLevelProtocol for Ipv6Packet<'_> {
+    fn get_next_level_protocol(&self) -> IpNextHeaderProtocol {
+        self.get_next_header()
+    }
+}
+
+macro_rules! extract_transport_protocol {
+    (  $ip_packet: ident ) => {{
+        match $ip_packet.get_next_level_protocol() {
+            IpNextHeaderProtocols::Tcp => {
+                let message = TcpPacket::new($ip_packet.payload())?;
+                (
+                    Protocol::Tcp,
+                    message.get_source(),
+                    message.get_destination(),
+                    $ip_packet.payload().len() as u128,
+                )
+            }
+            IpNextHeaderProtocols::Udp => {
+                let datagram = UdpPacket::new($ip_packet.payload())?;
+                (
+                    Protocol::Udp,
+                    datagram.get_source(),
+                    datagram.get_destination(),
+                    $ip_packet.payload().len() as u128,
+                )
+            }
+            _ => return None,
+        }
+    }};
 }
 
 pub struct Sniffer {
@@ -61,50 +98,53 @@ impl Sniffer {
 
         match version {
             4 => Self::handle_v4(ip_packet, &self.network_interface),
-            6 => None, // FIXME v6 support!
+            6 => Self::handle_v6(Ipv6Packet::new(&bytes)?, &self.network_interface),
             _ => {
                 let pkg = EthernetPacket::new(bytes)?;
                 match pkg.get_ethertype() {
                     EtherTypes::Ipv4 => {
                         Self::handle_v4(Ipv4Packet::new(pkg.payload())?, &self.network_interface)
                     }
+                    EtherTypes::Ipv6 => {
+                        Self::handle_v6(Ipv6Packet::new(pkg.payload())?, &self.network_interface)
+                    }
                     _ => None,
                 }
             }
         }
     }
-    fn handle_v4(ip_packet: Ipv4Packet, network_interface: &NetworkInterface) -> Option<Segment> {
+    fn handle_v6(ip_packet: Ipv6Packet, network_interface: &NetworkInterface) -> Option<Segment> {
         let (protocol, source_port, destination_port, data_length) =
-            match ip_packet.get_next_level_protocol() {
-                IpNextHeaderProtocols::Tcp => {
-                    let message = TcpPacket::new(ip_packet.payload())?;
-                    (
-                        Protocol::Tcp,
-                        message.get_source(),
-                        message.get_destination(),
-                        ip_packet.payload().len() as u128,
-                    )
-                }
-                IpNextHeaderProtocols::Udp => {
-                    let datagram = UdpPacket::new(ip_packet.payload())?;
-                    (
-                        Protocol::Udp,
-                        datagram.get_source(),
-                        datagram.get_destination(),
-                        ip_packet.payload().len() as u128,
-                    )
-                }
-                _ => return None,
-            };
+            extract_transport_protocol!(ip_packet);
 
         let interface_name = network_interface.name.clone();
-        let direction = Direction::new(&network_interface.ips, &ip_packet);
-        let from = SocketAddr::new(IpAddr::V4(ip_packet.get_source()), source_port);
-        let to = SocketAddr::new(IpAddr::V4(ip_packet.get_destination()), destination_port);
+        let direction = Direction::new(&network_interface.ips, ip_packet.get_source().into());
+        let from = SocketAddr::new(ip_packet.get_source().into(), source_port);
+        let to = SocketAddr::new(ip_packet.get_destination().into(), destination_port);
 
         let connection = match direction {
-            Direction::Download => Connection::new(from, to.ip(), destination_port, protocol)?,
-            Direction::Upload => Connection::new(to, from.ip(), source_port, protocol)?,
+            Direction::Download => Connection::new(from, to.ip(), destination_port, protocol),
+            Direction::Upload => Connection::new(to, from.ip(), source_port, protocol),
+        };
+        Some(Segment {
+            interface_name,
+            connection,
+            data_length,
+            direction,
+        })
+    }
+    fn handle_v4(ip_packet: Ipv4Packet, network_interface: &NetworkInterface) -> Option<Segment> {
+        let (protocol, source_port, destination_port, data_length) =
+            extract_transport_protocol!(ip_packet);
+
+        let interface_name = network_interface.name.clone();
+        let direction = Direction::new(&network_interface.ips, ip_packet.get_source().into());
+        let from = SocketAddr::new(ip_packet.get_source().into(), source_port);
+        let to = SocketAddr::new(ip_packet.get_destination().into(), destination_port);
+
+        let connection = match direction {
+            Direction::Download => Connection::new(from, to.ip(), destination_port, protocol),
+            Direction::Upload => Connection::new(to, from.ip(), source_port, protocol),
         };
         Some(Segment {
             interface_name,
