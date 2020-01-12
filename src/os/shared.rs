@@ -41,7 +41,7 @@ fn get_datalink_channel(
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => {
-            let error = MyError::new(MyErrorKind::PermissionError("Please do something".to_string()));
+            let error = MyError::new(MyErrorKind::PermissionError("Unsupported interface type".to_string()));
             Err(error)
         },
         Err(e) => Err(MyError::new(MyErrorKind::OtherError(e.to_string()))),
