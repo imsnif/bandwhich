@@ -93,8 +93,7 @@ pub fn get_open_sockets() -> OpenSockets {
             local_ip,
             443,
             Protocol::Tcp,
-        )
-        .unwrap(),
+        ),
         String::from("1"),
     );
     open_sockets.insert(
@@ -103,8 +102,7 @@ pub fn get_open_sockets() -> OpenSockets {
             local_ip,
             4434,
             Protocol::Tcp,
-        )
-        .unwrap(),
+        ),
         String::from("4"),
     );
     open_sockets.insert(
@@ -113,8 +111,7 @@ pub fn get_open_sockets() -> OpenSockets {
             local_ip,
             4435,
             Protocol::Tcp,
-        )
-        .unwrap(),
+        ),
         String::from("5"),
     );
     open_sockets.insert(
@@ -123,8 +120,7 @@ pub fn get_open_sockets() -> OpenSockets {
             local_ip,
             4432,
             Protocol::Tcp,
-        )
-        .unwrap(),
+        ),
         String::from("2"),
     );
     open_sockets.insert(
@@ -133,8 +129,7 @@ pub fn get_open_sockets() -> OpenSockets {
             local_ip,
             443,
             Protocol::Tcp,
-        )
-        .unwrap(),
+        ),
         String::from("1"),
     );
     let mut local_socket_to_procs = HashMap::new();
@@ -179,8 +174,7 @@ struct FakeResolver(HashMap<IpAddr, String>);
 
 #[async_trait]
 impl Lookup for FakeResolver {
-    async fn lookup(&self, ip: Ipv4Addr) -> Option<String> {
-        let ip = IpAddr::from(ip);
+    async fn lookup(&self, ip: IpAddr) -> Option<String> {
         self.0.get(&ip).cloned()
     }
 }
