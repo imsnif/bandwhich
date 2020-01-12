@@ -17,7 +17,6 @@ const SECOND_WIDTH_BREAKPOINT: u16 = 71;
 const THIRD_WIDTH_BREAKPOINT: u16 = 95;
 
 const FIRST_COLUMN_WIDTHS: [u16; 4] = [10, 30, 40, 50];
-const SECOND_COLUMN_WIDTHS: [u16; 1] = [20];
 const THIRD_COLUMN_WIDTHS: [u16; 4] = [20, 20, 20, 20];
 
 fn display_upload_and_download(bandwidth: &impl Bandwidth) -> String {
@@ -137,11 +136,12 @@ impl<'a> Table<'a> {
             vec![FIRST_COLUMN_WIDTHS[2], THIRD_COLUMN_WIDTHS[2]]
         } else {
             vec![
-                FIRST_COLUMN_WIDTHS[3],
-                SECOND_COLUMN_WIDTHS[0],
-                THIRD_COLUMN_WIDTHS[2],
+            rect.width*50/100-1,
+            rect.width*20/100-1,
+            rect.width*30/100-1,
             ]
-        };
+        }
+        ;
 
         let column_names = if rect.width < THIRD_WIDTH_BREAKPOINT {
             vec![self.column_names[0], self.column_names[2]]

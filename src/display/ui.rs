@@ -118,7 +118,6 @@ where
         if opts.addresses {
             children.push(self.build_addresses_table());
         }
-
         if opts.connections {
             children.push(self.build_connections_table());
         }
