@@ -3,7 +3,7 @@ use ::std::collections::HashMap;
 use ::tui::backend::Backend;
 use ::tui::Terminal;
 
-use crate::display::components::{Layout, Table, TotalBandwidth};
+use crate::display::components::{Layout, Table, TotalBandwidth, HelpText};
 use crate::display::UIState;
 use crate::network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization};
 
@@ -87,9 +87,13 @@ where
                     state: &state,
                     paused,
                 };
+                let help_text = HelpText {
+                    paused
+                };
                 let layout = Layout {
                     header: total_bandwidth,
                     children: vec![processes, connections, remote_addresses],
+                    footer: help_text,
                 };
                 layout.render(&mut frame, size);
             })

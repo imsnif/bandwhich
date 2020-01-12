@@ -4,23 +4,25 @@ use ::tui::terminal::Frame;
 
 use super::Table;
 use super::TotalBandwidth;
+use super::HelpText;
 
 const FIRST_HEIGHT_BREAKPOINT: u16 = 30;
 const FIRST_WIDTH_BREAKPOINT: u16 = 120;
 const SECOND_WIDTH_BREAKPOINT: u16 = 150;
 
-fn leave_gap_on_top_of_rect(rect: Rect) -> Rect {
-    let app = ::tui::layout::Layout::default()
+fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
+    let parts = ::tui::layout::Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
-        .constraints([Constraint::Length(1), Constraint::Length(rect.height - 1)].as_ref())
+        .constraints([Constraint::Length(1), Constraint::Length(rect.height - 2), Constraint::Length(1)].as_ref())
         .split(rect);
-    app[1]
+    (parts[0], parts[1], parts[2])
 }
 
 pub struct Layout<'a> {
     pub header: TotalBandwidth<'a>,
     pub children: Vec<Table<'a>>,
+    pub footer: HelpText,
 }
 
 impl<'a> Layout<'a> {
@@ -52,7 +54,7 @@ impl<'a> Layout<'a> {
         }
     }
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
-        let app = leave_gap_on_top_of_rect(rect);
+        let (top, app, bottom) = top_app_and_bottom_split(rect);
         let layout_slots = self.build_layout(app);
         for i in 0..layout_slots.len() {
             if let Some(rect) = layout_slots.get(i) {
@@ -61,6 +63,7 @@ impl<'a> Layout<'a> {
                 }
             }
         }
-        self.header.render(frame, rect);
+        self.header.render(frame, top);
+        self.footer.render(frame, bottom);
     }
 }
