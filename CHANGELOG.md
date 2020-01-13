@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Paused UI by pressing <SPACE> key. Does not affect raw mode. (https://github.com/imsnif/bandwhich/pull/106) - [@zhangxp1998](https://github.com/zhangxp1998)
 * Mention setcap option in linux permission error. (https://github.com/imsnif/bandwhich/pull/108) - [@Ma27](https://github.com/Ma27)
 * Display weighted average bandwidth for the past 5 seconds. (https://github.com/imsnif/bandwhich/pull/77) - [@zhangxp1998](https://github.com/zhangxp1998) + [@imsnif](https://github.com/imsnif)
+* FreeBSD support. (https://github.com/imsnif/bandwhich/pull/110) - [@Erk-](https://github.com/Erk-)
+* Pause help text. (https://github.com/imsnif/bandwhich/pull/111) - [@imsnif](https://github.com/imsnif)
 
 ### Fixed
 
