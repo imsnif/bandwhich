@@ -123,7 +123,10 @@ pub fn get_input(
     let (on_winch, cleanup) = sigwinch();
     let dns_client = if resolve {
         let mut runtime = Runtime::new()?;
-        let resolver = runtime.block_on(dns::Resolver::new(runtime.handle().clone()))?;
+        let resolver = match runtime.block_on(dns::Resolver::new(runtime.handle().clone())) {
+            Ok(resolver) => resolver,
+            Err(_) => failure::bail!("Could not initialize the DNS resolver. Are you offline?"),
+        };
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
     } else {
