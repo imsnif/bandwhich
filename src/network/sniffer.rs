@@ -14,6 +14,7 @@ use ::std::net::{IpAddr, SocketAddr};
 
 use crate::network::{Connection, Protocol};
 
+#[derive(Debug)]
 pub struct Segment {
     pub interface_name: String,
     pub connection: Connection,
@@ -93,12 +94,22 @@ impl Sniffer {
     }
     pub fn next(&mut self) -> Option<Segment> {
         let bytes = self.network_frames.next().ok()?;
-        let ip_packet = Ipv4Packet::new(&bytes)?;
+        // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
+        let payload_offset = if self.network_interface.is_loopback() {
+            // The pnet code for BPF loopback adds a zero'd out Ethernet header
+            14
+        } else {
+            0
+        };
+        let ip_packet = Ipv4Packet::new(&bytes[payload_offset..])?;
         let version = ip_packet.get_version();
 
         match version {
             4 => Self::handle_v4(ip_packet, &self.network_interface),
-            6 => Self::handle_v6(Ipv6Packet::new(&bytes)?, &self.network_interface),
+            6 => Self::handle_v6(
+                Ipv6Packet::new(&bytes[payload_offset..])?,
+                &self.network_interface,
+            ),
             _ => {
                 let pkg = EthernetPacket::new(bytes)?;
                 match pkg.get_ethertype() {

@@ -18,7 +18,7 @@ pub struct RawConnection {
 lazy_static! {
     static ref CONNECTION_REGEX: Regex =
         Regex::new(r"\[?([^\s\]]*)\]?:(\d+)->\[?([^\s\]]*)\]?:(\d+)").unwrap();
-    static ref LISTEN_REGEX: Regex = Regex::new(r"(.*):(.*)").unwrap();
+    static ref LISTEN_REGEX: Regex = Regex::new(r"\[?([^\s\[\]]*)\]?:(.*)").unwrap();
 }
 
 fn get_null_addr(ip_type: &str) -> &str {
