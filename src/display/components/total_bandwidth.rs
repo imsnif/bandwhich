@@ -2,7 +2,7 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Alignment, Rect};
 use ::tui::style::{Color, Modifier, Style};
 use ::tui::terminal::Frame;
-use ::tui::widgets::{Block, Borders, Paragraph, Text, Widget};
+use ::tui::widgets::{Paragraph, Text, Widget};
 use ::pnet_bandwhich_fork::datalink;
 use crate::display::{DisplayBandwidth, UIState};
 
