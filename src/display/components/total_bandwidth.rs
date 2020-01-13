@@ -25,7 +25,7 @@ impl<'a> TotalBandwidth<'a> {
             [Text::styled(
                 format!(
                     " Interfaces {:?} / Total Rate Up / Down: {} / {} {}",
-                    (interface[0], interface[1]),
+                    (&interface[0], &interface[1]),
                     DisplayBandwidth(self.state.total_bytes_uploaded as f64),
                     DisplayBandwidth(self.state.total_bytes_downloaded as f64),
                     paused_str
