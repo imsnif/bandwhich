@@ -1,4 +1,4 @@
-use ::std::collections::{BTreeMap, HashMap, VecDeque};
+use ::std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use ::std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use crate::network::{Connection, LocalSocket, Utilization};
@@ -110,10 +110,13 @@ impl UIState {
         let mut connections: BTreeMap<Connection, ConnectionData> = BTreeMap::new();
         let mut total_bytes_downloaded: u128 = 0;
         let mut total_bytes_uploaded: u128 = 0;
+
+        let mut seen_connections = HashSet::new();
         for state in self.utilization_data.iter().rev() {
             let connections_to_procs = &state.connections_to_procs;
             let network_utilization = &state.network_utilization;
             for (connection, connection_info) in &network_utilization.connections {
+                let connection_previously_seen = seen_connections.contains(connection);
                 let connection_data = connections.entry(connection.clone()).or_default();
                 let data_for_remote_address = remote_addresses
                     .entry(connection.remote_socket.ip)
@@ -125,7 +128,9 @@ impl UIState {
                     connection_info.total_bytes_downloaded;
                 data_for_remote_address.total_bytes_uploaded +=
                     connection_info.total_bytes_uploaded;
-                data_for_remote_address.connection_count += 1;
+                if !connection_previously_seen {
+                    data_for_remote_address.connection_count += 1;
+                }
                 total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
@@ -136,11 +141,14 @@ impl UIState {
                     data_for_process.total_bytes_downloaded +=
                         connection_info.total_bytes_downloaded;
                     data_for_process.total_bytes_uploaded += connection_info.total_bytes_uploaded;
-                    data_for_process.connection_count += 1;
+                    if !connection_previously_seen {
+                        data_for_process.connection_count += 1;
+                    }
                     connection_data.process_name = process_name.clone();
                 } else {
                     connection_data.process_name = String::from("<UNKNOWN>");
                 }
+                seen_connections.insert(connection);
             }
         }
         for (_, network_data) in processes.iter_mut() {
@@ -155,7 +163,7 @@ impl UIState {
         self.processes = processes;
         self.remote_addresses = remote_addresses;
         self.connections = connections;
-        self.total_bytes_downloaded = total_bytes_downloaded;
-        self.total_bytes_uploaded = total_bytes_uploaded;
+        self.total_bytes_downloaded = total_bytes_downloaded / self.utilization_data.len() as u128;
+        self.total_bytes_uploaded = total_bytes_uploaded / self.utilization_data.len() as u128;
     }
 }
