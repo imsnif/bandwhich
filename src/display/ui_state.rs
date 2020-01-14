@@ -26,16 +26,16 @@ pub struct ConnectionData {
 }
 
 impl NetworkData {
-    pub fn divide_by(&mut self, amount: usize) {
-        self.total_bytes_downloaded /= amount as u128;
-        self.total_bytes_uploaded /= amount as u128;
+    pub fn divide_by(&mut self, amount: u128) {
+        self.total_bytes_downloaded /= amount;
+        self.total_bytes_uploaded /= amount;
     }
 }
 
 impl ConnectionData {
-    pub fn divide_by(&mut self, amount: usize) {
-        self.total_bytes_downloaded /= amount as u128;
-        self.total_bytes_uploaded /= amount as u128;
+    pub fn divide_by(&mut self, amount: u128) {
+        self.total_bytes_downloaded /= amount;
+        self.total_bytes_uploaded /= amount;
     }
 }
 
@@ -116,7 +116,7 @@ impl UIState {
             let connections_to_procs = &state.connections_to_procs;
             let network_utilization = &state.network_utilization;
             for (connection, connection_info) in &network_utilization.connections {
-                let connection_previously_seen = seen_connections.contains(connection);
+                let connection_previously_seen = !seen_connections.insert(connection);
                 let connection_data = connections.entry(connection.clone()).or_default();
                 let data_for_remote_address = remote_addresses
                     .entry(connection.remote_socket.ip)
@@ -148,22 +148,26 @@ impl UIState {
                 } else {
                     connection_data.process_name = String::from("<UNKNOWN>");
                 }
-                seen_connections.insert(connection);
             }
         }
+        let divide_by = if self.utilization_data.len() == 0 {
+            1 as u128
+        } else {
+            self.utilization_data.len() as u128
+        };
         for (_, network_data) in processes.iter_mut() {
-            network_data.divide_by(self.utilization_data.len())
+            network_data.divide_by(divide_by)
         }
         for (_, network_data) in remote_addresses.iter_mut() {
-            network_data.divide_by(self.utilization_data.len())
+            network_data.divide_by(divide_by)
         }
         for (_, connection_data) in connections.iter_mut() {
-            connection_data.divide_by(self.utilization_data.len())
+            connection_data.divide_by(divide_by)
         }
         self.processes = processes;
         self.remote_addresses = remote_addresses;
         self.connections = connections;
-        self.total_bytes_downloaded = total_bytes_downloaded / self.utilization_data.len() as u128;
-        self.total_bytes_uploaded = total_bytes_uploaded / self.utilization_data.len() as u128;
+        self.total_bytes_downloaded = total_bytes_downloaded / divide_by;
+        self.total_bytes_uploaded = total_bytes_uploaded / divide_by;
     }
 }
