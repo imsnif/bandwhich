@@ -1,4 +1,4 @@
-use ::std::collections::{BTreeMap, HashMap, VecDeque};
+use ::std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use ::std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use crate::network::{Connection, LocalSocket, Utilization};
@@ -26,16 +26,16 @@ pub struct ConnectionData {
 }
 
 impl NetworkData {
-    pub fn divide_by(&mut self, amount: usize) {
-        self.total_bytes_downloaded /= amount as u128;
-        self.total_bytes_uploaded /= amount as u128;
+    pub fn divide_by(&mut self, amount: u128) {
+        self.total_bytes_downloaded /= amount;
+        self.total_bytes_uploaded /= amount;
     }
 }
 
 impl ConnectionData {
-    pub fn divide_by(&mut self, amount: usize) {
-        self.total_bytes_downloaded /= amount as u128;
-        self.total_bytes_uploaded /= amount as u128;
+    pub fn divide_by(&mut self, amount: u128) {
+        self.total_bytes_downloaded /= amount;
+        self.total_bytes_uploaded /= amount;
     }
 }
 
@@ -110,10 +110,13 @@ impl UIState {
         let mut connections: BTreeMap<Connection, ConnectionData> = BTreeMap::new();
         let mut total_bytes_downloaded: u128 = 0;
         let mut total_bytes_uploaded: u128 = 0;
+
+        let mut seen_connections = HashSet::new();
         for state in self.utilization_data.iter().rev() {
             let connections_to_procs = &state.connections_to_procs;
             let network_utilization = &state.network_utilization;
             for (connection, connection_info) in &network_utilization.connections {
+                let connection_previously_seen = !seen_connections.insert(connection);
                 let connection_data = connections.entry(connection.clone()).or_default();
                 let data_for_remote_address = remote_addresses
                     .entry(connection.remote_socket.ip)
@@ -125,7 +128,9 @@ impl UIState {
                     connection_info.total_bytes_downloaded;
                 data_for_remote_address.total_bytes_uploaded +=
                     connection_info.total_bytes_uploaded;
-                data_for_remote_address.connection_count += 1;
+                if !connection_previously_seen {
+                    data_for_remote_address.connection_count += 1;
+                }
                 total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
@@ -136,26 +141,33 @@ impl UIState {
                     data_for_process.total_bytes_downloaded +=
                         connection_info.total_bytes_downloaded;
                     data_for_process.total_bytes_uploaded += connection_info.total_bytes_uploaded;
-                    data_for_process.connection_count += 1;
+                    if !connection_previously_seen {
+                        data_for_process.connection_count += 1;
+                    }
                     connection_data.process_name = process_name.clone();
                 } else {
                     connection_data.process_name = String::from("<UNKNOWN>");
                 }
             }
         }
+        let divide_by = if self.utilization_data.is_empty() {
+            1 as u128
+        } else {
+            self.utilization_data.len() as u128
+        };
         for (_, network_data) in processes.iter_mut() {
-            network_data.divide_by(self.utilization_data.len())
+            network_data.divide_by(divide_by)
         }
         for (_, network_data) in remote_addresses.iter_mut() {
-            network_data.divide_by(self.utilization_data.len())
+            network_data.divide_by(divide_by)
         }
         for (_, connection_data) in connections.iter_mut() {
-            connection_data.divide_by(self.utilization_data.len())
+            connection_data.divide_by(divide_by)
         }
         self.processes = processes;
         self.remote_addresses = remote_addresses;
         self.connections = connections;
-        self.total_bytes_downloaded = total_bytes_downloaded;
-        self.total_bytes_uploaded = total_bytes_uploaded;
+        self.total_bytes_downloaded = total_bytes_downloaded / divide_by;
+        self.total_bytes_uploaded = total_bytes_uploaded / divide_by;
     }
 }
