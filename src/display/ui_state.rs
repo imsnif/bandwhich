@@ -150,7 +150,7 @@ impl UIState {
                 }
             }
         }
-        let divide_by = if self.utilization_data.len() == 0 {
+        let divide_by = if self.utilization_data.is_empty() {
             1 as u128
         } else {
             self.utilization_data.len() as u128
