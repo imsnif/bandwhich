@@ -100,15 +100,28 @@ pub fn get_input(
 
     let network_frames = network_interfaces
         .iter()
-        .map(|iface| get_datalink_channel(iface));
+        .filter(|iface| iface.is_up() && !iface.ips.is_empty())
+        .map(|iface| (iface, get_datalink_channel(iface)));
 
-    let available_network_frames = network_frames
-        .clone()
-        .filter_map(Result::ok)
-        .collect::<Vec<_>>();
+    let (available_network_frames, network_interfaces) = {
+        let network_frames = network_frames.clone();
+        let mut available_network_frames = Vec::new();
+        let mut available_interfaces: Vec<NetworkInterface> = Vec::new();
+        for (iface, rx) in network_frames.filter_map(|(iface, channel)| {
+            if let Ok(rx) = channel {
+                Some((iface, rx))
+            } else {
+                None
+            }
+        }) {
+            available_interfaces.push(iface.clone());
+            available_network_frames.push(rx);
+        }
+        (available_network_frames, available_interfaces)
+    };
 
     if available_network_frames.is_empty() {
-        for iface in network_frames {
+        for (_, iface) in network_frames {
             if let Some(iface_error) = iface.err() {
                 if let ErrorKind::PermissionDenied = iface_error.kind() {
                     failure::bail!(eperm_message())
