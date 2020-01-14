@@ -95,7 +95,7 @@ impl Sniffer {
     pub fn next(&mut self) -> Option<Segment> {
         let bytes = self.network_frames.next().ok()?;
         // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
-        let payload_offset = if self.network_interface.is_loopback() {
+        let payload_offset = if self.network_interface.is_loopback() && cfg!(target_os = "macos") {
             // The pnet code for BPF loopback adds a zero'd out Ethernet header
             14
         } else {

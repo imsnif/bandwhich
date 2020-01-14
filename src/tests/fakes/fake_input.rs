@@ -151,7 +151,7 @@ pub fn get_interfaces() -> Vec<NetworkInterface> {
         index: 42,
         mac: None,
         ips: vec![IpNetwork::V4("10.0.0.2".parse().unwrap())],
-        // It's important that the IFF_LOOBACK bit is set to 0.
+        // It's important that the IFF_LOOPBACK bit is set to 0.
         // Otherwise sniffer will attempt to start parse packets
         // at offset 14
         flags: 0,
