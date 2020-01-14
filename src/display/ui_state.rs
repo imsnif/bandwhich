@@ -65,7 +65,7 @@ pub struct UtilizationData {
 #[derive(Default)]
 pub struct UIState {
     pub processes: BTreeMap<String, NetworkData>,
-    pub remote_addresses: BTreeMap<Ipv4Addr, NetworkData>,
+    pub remote_addresses: BTreeMap<IpAddr, NetworkData>,
     pub connections: BTreeMap<Connection, ConnectionData>,
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
@@ -106,7 +106,7 @@ impl UIState {
             self.utilization_data.pop_front();
         }
         let mut processes: BTreeMap<String, NetworkData> = BTreeMap::new();
-        let mut remote_addresses: BTreeMap<Ipv4Addr, NetworkData> = BTreeMap::new();
+        let mut remote_addresses: BTreeMap<IpAddr, NetworkData> = BTreeMap::new();
         let mut connections: BTreeMap<Connection, ConnectionData> = BTreeMap::new();
         let mut total_bytes_downloaded: u128 = 0;
         let mut total_bytes_uploaded: u128 = 0;

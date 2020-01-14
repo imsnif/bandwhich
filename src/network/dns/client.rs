@@ -1,7 +1,7 @@
 use crate::network::dns::{resolver::Lookup, IpTable};
 use std::{
     collections::HashSet,
-    net::Ipv4Addr,
+    net::IpAddr,
     sync::{Arc, Mutex},
     thread::{Builder, JoinHandle},
 };
@@ -10,14 +10,14 @@ use tokio::{
     sync::mpsc::{self, Sender},
 };
 
-type PendingAddrs = HashSet<Ipv4Addr>;
+type PendingAddrs = HashSet<IpAddr>;
 
 const CHANNEL_SIZE: usize = 1_000;
 
 pub struct Client {
     cache: Arc<Mutex<IpTable>>,
     pending: Arc<Mutex<PendingAddrs>>,
-    tx: Option<Sender<Vec<Ipv4Addr>>>,
+    tx: Option<Sender<Vec<IpAddr>>>,
     handle: Option<JoinHandle<()>>,
 }
 
@@ -28,7 +28,7 @@ impl Client {
     {
         let cache = Arc::new(Mutex::new(IpTable::new()));
         let pending = Arc::new(Mutex::new(PendingAddrs::new()));
-        let (tx, mut rx) = mpsc::channel::<Vec<Ipv4Addr>>(CHANNEL_SIZE);
+        let (tx, mut rx) = mpsc::channel::<Vec<IpAddr>>(CHANNEL_SIZE);
 
         let handle = Builder::new().name("resolver".into()).spawn({
             let cache = cache.clone();
@@ -65,7 +65,7 @@ impl Client {
         })
     }
 
-    pub fn resolve(&mut self, ips: Vec<Ipv4Addr>) {
+    pub fn resolve(&mut self, ips: Vec<IpAddr>) {
         // Remove ips that are already being resolved
         let ips = ips
             .into_iter()
