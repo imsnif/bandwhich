@@ -18,7 +18,7 @@ where
 {
     terminal: Terminal<B>,
     state: UIState,
-    ip_to_host: HashMap<Ipv4Addr, String>,
+    ip_to_host: HashMap<IpAddr, String>,
     opts: Opt,
 }
 
