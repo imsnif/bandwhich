@@ -9,7 +9,7 @@ use ::tokio::runtime::Runtime;
 use ::std::time;
 
 use signal_hook::iterator::Signals;
-use crate::os::errors::{MyError, MyErrorKind};
+use crate::os::errors::{GetInterfaceError, GetInterfaceErrorKind};
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
@@ -34,17 +34,16 @@ impl Iterator for KeyboardEvents {
 
 fn get_datalink_channel(
     interface: &NetworkInterface,
-) -> Result<Box<dyn DataLinkReceiver>, MyError> {
+) -> Result<Box<dyn DataLinkReceiver>, GetInterfaceError> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(1, 0));
-
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => {
-            let error = MyError::new(MyErrorKind::PermissionError("Please do something".to_string()));
+            let error = GetInterfaceError::new(GetInterfaceErrorKind::OtherError("Please do something".to_string()));
             Err(error)
         },
-        Err(e) => Err(MyError::new(MyErrorKind::OtherError(e.to_string()))),
+        Err(e) => Err(GetInterfaceError::new(GetInterfaceErrorKind::PermissionError("Permission error".to_string()))),
     }
 }
 
@@ -110,7 +109,7 @@ pub fn get_input(
     if available_network_frames.is_empty() {
         for iface in network_frames {
             if let Some(iface_error) = iface.err() {
-                if let MyErrorKind::PermissionError(_v) = iface_error.kind() {
+                if let GetInterfaceErrorKind::PermissionError(_v) = iface_error.kind() {
                     failure::bail!(
                         "Insufficient permissions to listen on network interface(s). Try running with sudo.",
                     )
