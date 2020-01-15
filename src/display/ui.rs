@@ -18,13 +18,14 @@ where
     terminal: Terminal<B>,
     state: UIState,
     ip_to_host: HashMap<IpAddr, String>,
+    interface_name: Option<String>
 }
 
 impl<B> Ui<B>
 where
     B: Backend,
 {
-    pub fn new(terminal_backend: B) -> Self {
+    pub fn new(terminal_backend: B, interface_name: Option<String>) -> Self {
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
@@ -32,6 +33,7 @@ where
             terminal,
             state: Default::default(),
             ip_to_host: Default::default(),
+            interface_name,
         }
     }
     pub fn output_text(&mut self, write_to_stdout: &mut (dyn FnMut(String) + Send)) {
@@ -76,6 +78,7 @@ where
     }
     pub fn draw(&mut self, paused: bool) {
         let state = &self.state;
+        
         let ip_to_host = &self.ip_to_host;
         self.terminal
             .draw(|mut frame| {
@@ -92,7 +95,7 @@ where
                     header: total_bandwidth,
                     children: vec![processes, connections, remote_addresses],
                     footer: help_text,
-                };
+                };        
                 layout.render(&mut frame, size);
             })
             .unwrap();
