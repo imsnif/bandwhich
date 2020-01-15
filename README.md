@@ -29,6 +29,14 @@ nix-env -iA nixpkgs.bandwhich
 xbps-install -S bandwhich
 ```
 
+#### Fedora
+
+`bandwhich` is available in [COPR](https://copr.fedorainfracloud.org/coprs/atim/bandwhich/), and can be installed via DNF:
+
+```
+sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
+```
+
 #### macOS
 
 ```
