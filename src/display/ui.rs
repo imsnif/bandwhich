@@ -77,7 +77,7 @@ where
         }
     }
     pub fn draw(&mut self, paused: bool) {
-        let state = &self.state;        
+        let state = &self.state;
         let ip_to_host = &self.ip_to_host;
         let interface_name = &self.interface_name;
         self.terminal
@@ -96,7 +96,7 @@ where
                     header: total_bandwidth,
                     children: vec![processes, connections, remote_addresses],
                     footer: help_text,
-                };        
+                };
                 layout.render(&mut frame, size);
             })
             .unwrap();
