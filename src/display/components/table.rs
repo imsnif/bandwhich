@@ -136,12 +136,11 @@ impl<'a> Table<'a> {
             vec![FIRST_COLUMN_WIDTHS[2], THIRD_COLUMN_WIDTHS[2]]
         } else {
             vec![
-            rect.width*53/100,
-            rect.width*22/100,
-            rect.width*23/100-1,
+                rect.width * 53 / 100,
+                rect.width * 22 / 100,
+                rect.width * 23 / 100 - 1,
             ]
-        }
-        ;
+        };
 
         let column_names = if rect.width < THIRD_WIDTH_BREAKPOINT {
             vec![self.column_names[0], self.column_names[2]]

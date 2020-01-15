@@ -121,13 +121,13 @@ fn basic_only_processes() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-            interface: Some(String::from("interface_name")),
-            raw:false,
-            no_resolve: false,
-            addresses: false,
-            connections: false,
-            processes: true,
-        };
+        interface: Some(String::from("interface_name")),
+        raw: false,
+        no_resolve: false,
+        addresses: false,
+        connections: false,
+        processes: true,
+    };
 
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
@@ -142,13 +142,13 @@ fn basic_only_connections() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-            interface: Some(String::from("interface_name")),
-            raw:false,
-            no_resolve: false,
-            addresses: false,
-            connections: true,
-            processes: false,
-        };
+        interface: Some(String::from("interface_name")),
+        raw: false,
+        no_resolve: false,
+        addresses: false,
+        connections: true,
+        processes: false,
+    };
 
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
@@ -164,13 +164,13 @@ fn basic_only_addresses() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-            interface: Some(String::from("interface_name")),
-            raw:false,
-            no_resolve: false,
-            addresses: true,
-            connections: false,
-            processes: false,
-        };
+        interface: Some(String::from("interface_name")),
+        raw: false,
+        no_resolve: false,
+        addresses: true,
+        connections: false,
+        processes: false,
+    };
 
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
@@ -186,19 +186,18 @@ fn two_windows_split_horizontally() {
     let (_, terminal_draw_events, backend) = test_backend_factory(60, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-            interface: Some(String::from("interface_name")),
-            raw:false,
-            no_resolve: false,
-            addresses: true,
-            connections: true,
-            processes: false,
-        };
+        interface: Some(String::from("interface_name")),
+        raw: false,
+        no_resolve: false,
+        addresses: true,
+        connections: true,
+        processes: false,
+    };
 
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
     assert_snapshot!(&terminal_draw_events_mirror[0]);
 }
-
 
 #[test]
 fn two_windows_split_vertically() {
@@ -209,13 +208,13 @@ fn two_windows_split_vertically() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-            interface: Some(String::from("interface_name")),
-            raw:false,
-            no_resolve: false,
-            addresses: true,
-            connections: true,
-            processes: false,
-        };
+        interface: Some(String::from("interface_name")),
+        raw: false,
+        no_resolve: false,
+        addresses: true,
+        connections: true,
+        processes: false,
+    };
 
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
