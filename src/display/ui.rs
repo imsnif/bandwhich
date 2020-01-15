@@ -77,9 +77,9 @@ where
         }
     }
     pub fn draw(&mut self, paused: bool) {
-        let state = &self.state;
-        
+        let state = &self.state;        
         let ip_to_host = &self.ip_to_host;
+        let interface_name = &self.interface_name;
         self.terminal
             .draw(|mut frame| {
                 let size = frame.size();
@@ -89,6 +89,7 @@ where
                 let total_bandwidth = TotalBandwidth {
                     state: &state,
                     paused,
+                    interface_name,
                 };
                 let help_text = HelpText { paused };
                 let layout = Layout {

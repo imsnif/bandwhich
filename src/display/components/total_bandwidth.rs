@@ -3,12 +3,12 @@ use ::tui::layout::{Alignment, Rect};
 use ::tui::style::{Color, Modifier, Style};
 use ::tui::terminal::Frame;
 use ::tui::widgets::{Paragraph, Text, Widget};
-use ::pnet_bandwhich_fork::datalink;
-use crate::display::{DisplayBandwidth, UIState};
+use crate::display::{DisplayBandwidth, DisplayString, UIState};
 
 pub struct TotalBandwidth<'a> {
     pub state: &'a UIState,
     pub paused: bool,
+    pub interface_name: &'a Option<String>,
 }
 
 impl<'a> TotalBandwidth<'a> {
@@ -20,12 +20,13 @@ impl<'a> TotalBandwidth<'a> {
             } else {
                 Color::Green
             };
-            let interface = datalink::interfaces().into_iter().map(|interface|interface.name).collect::<Vec<String>>();
 
+            let interface = self.interface_name.as_deref().unwrap_or("[N/A]");
+            
             [Text::styled(
                 format!(
-                    " Interfaces {:?} / Total Rate Up / Down: {} / {} {}",
-                    (&interface[0], &interface[1]),
+                    " Interfaces {} / Total Rate Up / Down: {} / {} {}",
+                    DisplayString(interface),
                     DisplayBandwidth(self.state.total_bytes_uploaded as f64),
                     DisplayBandwidth(self.state.total_bytes_downloaded as f64),
                     paused_str
