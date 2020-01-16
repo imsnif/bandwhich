@@ -2,15 +2,11 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[1]"
 ---
-                              92Bps                                                                                                                                                           
+                       24Bps / 25Bps                                                                                                                                                          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 4                                                   1                    0Bps / 26Bps          <interface_name>:4434 => 2.2.2.2:54321 (tcp)        4                    0Bps / 26Bps         
- 1                                                   1                    0Bps / 22Bps          <interface_name>:443 => 1.1.1.1:12345 (tcp)         1                    0Bps / 22Bps         
- 5                                                   1                    0Bps / 22Bps          <interface_name>:4435 => 3.3.3.3:1337 (tcp)         5                    0Bps / 22Bps         
- 2                                                   1                    0Bps / 21Bps          <interface_name>:4432 => 4.4.4.4:1337 (tcp)         2                    0Bps / 21Bps         
-                                                                                                                                                                                              
+ 1                                                                                                     1                                        24Bps / 25Bps                                 
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,10 +26,14 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                2.2.2.2                                             1                    0Bps / 26Bps         
-                                                                                                1.1.1.1                                             1                    0Bps / 22Bps         
-                                                                                                3.3.3.3                                             1                    0Bps / 22Bps         
-                                                                                                4.4.4.4                                             1                    0Bps / 21Bps         
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

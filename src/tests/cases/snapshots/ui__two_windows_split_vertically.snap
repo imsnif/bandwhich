@@ -3,8 +3,8 @@ source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[0]"
 ---
  Total Rate Up / Down: 0Bps / 0Bps                                                                                                                                                            
-┌Utilization by process name──────────────────────────────────────────────────────────────────┐┌Utilization by connection────────────────────────────────────────────────────────────────────┐
-│Process                                             Connection count     Rate Up / Down      ││Connection                                          Process              Rate Up / Down      │
+┌Utilization by remote address────────────────────────────────────────────────────────────────┐┌Utilization by connection────────────────────────────────────────────────────────────────────┐
+│Remote Address                                      Connection Count     Rate Up / Down      ││Connection                                          Process              Rate Up / Down      │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -26,9 +26,9 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
-│                                                                                             │└─────────────────────────────────────────────────────────────────────────────────────────────┘
-│                                                                                             │┌Utilization by remote address────────────────────────────────────────────────────────────────┐
-│                                                                                             ││Remote Address                                      Connection Count     Rate Up / Down      │
+│                                                                                             ││                                                                                             │
+│                                                                                             ││                                                                                             │
+│                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │

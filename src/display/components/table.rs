@@ -16,8 +16,11 @@ const FIRST_WIDTH_BREAKPOINT: u16 = 50;
 const SECOND_WIDTH_BREAKPOINT: u16 = 71;
 const THIRD_WIDTH_BREAKPOINT: u16 = 95;
 
+const MAX_FIRST_COLUMN_WIDTH_PERCENTAGE: u16 = 53;
+const MAX_SECOND_COLUMN_WIDTH_PERCENTAGE: u16 = 21;
+const MAX_THIRD_COLUMN_WIDTH_PERCENTAGE: u16 = 22;
+
 const FIRST_COLUMN_WIDTHS: [u16; 4] = [10, 30, 40, 50];
-const SECOND_COLUMN_WIDTHS: [u16; 1] = [20];
 const THIRD_COLUMN_WIDTHS: [u16; 4] = [20, 20, 20, 20];
 
 fn display_upload_and_download(bandwidth: &impl Bandwidth) -> String {
@@ -137,9 +140,9 @@ impl<'a> Table<'a> {
             vec![FIRST_COLUMN_WIDTHS[2], THIRD_COLUMN_WIDTHS[2]]
         } else {
             vec![
-                FIRST_COLUMN_WIDTHS[3],
-                SECOND_COLUMN_WIDTHS[0],
-                THIRD_COLUMN_WIDTHS[2],
+                rect.width * MAX_FIRST_COLUMN_WIDTH_PERCENTAGE / 100,
+                rect.width * MAX_SECOND_COLUMN_WIDTH_PERCENTAGE / 100,
+                rect.width * MAX_THIRD_COLUMN_WIDTH_PERCENTAGE / 100 - 1,
             ]
         };
 
