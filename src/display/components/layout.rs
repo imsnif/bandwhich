@@ -47,17 +47,50 @@ impl<'a> Layout<'a> {
                 layout
             })
     }
-    fn build_layout(&self, rect: Rect) -> Vec<Rect> {
+
+    fn build_two_children_layout(&self, rect: Rect) -> Vec<Rect> {
+        // if there are two elements
         if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
+            //if the space is not enough, we drop one element
+            self.progressive_split(rect, vec![])
+        } else if rect.width < FIRST_WIDTH_BREAKPOINT {
+            // if the horizontal space is not enough, we drop one element and we split horizontally
+            self.progressive_split(rect, vec![Direction::Vertical])
+        } else {
+            // by default we display two elements splitting vertically
+            self.progressive_split(rect, vec![Direction::Horizontal])
+        }
+    }
+
+    fn build_three_children_layout(&self, rect: Rect) -> Vec<Rect> {
+        //if there are three elements
+        if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
+            //if the space is not enough, we drop two elements
             self.progressive_split(rect, vec![])
         } else if rect.height < FIRST_HEIGHT_BREAKPOINT {
+            // if the vertical space is not enough, we drop one element and we split vertically
             self.progressive_split(rect, vec![Direction::Horizontal])
         } else if rect.width < FIRST_WIDTH_BREAKPOINT {
+            // if the horizontal space is not enough, we drop one element and we split horizontally
             self.progressive_split(rect, vec![Direction::Vertical])
         } else if rect.width < SECOND_WIDTH_BREAKPOINT {
+            // if the horizontal space is not enough for the default layout, we display one wide element
+            // on top and we split horizontally the bottom
             self.progressive_split(rect, vec![Direction::Vertical, Direction::Horizontal])
         } else {
+            // default layout
             self.progressive_split(rect, vec![Direction::Horizontal, Direction::Vertical])
+        }
+    }
+
+    fn build_layout(&self, rect: Rect) -> Vec<Rect> {
+        if self.children.len() == 1 {
+            // if there's only one element to render, it can take the whole frame
+            vec![rect]
+        } else if self.children.len() == 2 {
+            self.build_two_children_layout(rect)
+        } else {
+            self.build_three_children_layout(rect)
         }
     }
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
