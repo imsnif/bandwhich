@@ -10,31 +10,12 @@ use packet_builder::payload::PayloadData;
 use packet_builder::*;
 use pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use pnet_bandwhich_fork::packet::Packet;
-use pnet_base::MacAddr;
 
 use crate::tests::cases::test_utils::{
-    opts_raw, os_input_output_dns, os_input_output_stdout, test_backend_factory,
+    build_tcp_packet, opts_raw, os_input_output_dns, os_input_output_stdout, test_backend_factory,
 };
 
 use crate::{start, Opt, RenderOpts};
-
-fn build_tcp_packet(
-    source_ip: &str,
-    destination_ip: &str,
-    source_port: u16,
-    destination_port: u16,
-    payload: &'static [u8],
-) -> Vec<u8> {
-    let mut pkt_buf = [0u8; 1500];
-    let pkt = packet_builder!(
-         pkt_buf,
-         ether({set_destination => MacAddr(0,0,0,0,0,0), set_source => MacAddr(0,0,0,0,0,0)}) /
-         ipv4({set_source => ipv4addr!(source_ip), set_destination => ipv4addr!(destination_ip) }) /
-         tcp({set_source => source_port, set_destination => destination_port }) /
-         payload(payload)
-    );
-    pkt.packet().to_vec()
-}
 
 fn build_ip_tcp_packet(
     source_ip: &str,

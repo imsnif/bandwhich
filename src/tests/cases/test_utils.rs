@@ -1,21 +1,63 @@
 use crate::tests::fakes::{
     create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, KeyboardEvents,
-    TerminalEvent, TestBackend,
+    NetworkFrames, TerminalEvent, TestBackend,
 };
 use std::iter;
 
 use crate::network::dns::Client;
 use crate::{Opt, OsInputOutput, RenderOpts};
 use ::termion::event::{Event, Key};
+use packet_builder::*;
 use pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use std::collections::HashMap;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 
+use packet_builder::payload::PayloadData;
+use pnet_bandwhich_fork::packet::Packet;
+use pnet_base::MacAddr;
+
 pub fn sleep_and_quit_events(sleep_num: usize) -> Box<KeyboardEvents> {
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();
     events.push(Some(Event::Key(Key::Ctrl('c'))));
     Box::new(KeyboardEvents::new(events))
+}
+
+pub fn build_tcp_packet(
+    source_ip: &str,
+    destination_ip: &str,
+    source_port: u16,
+    destination_port: u16,
+    payload: &'static [u8],
+) -> Vec<u8> {
+    let mut pkt_buf = [0u8; 1500];
+    let pkt = packet_builder!(
+         pkt_buf,
+         ether({set_destination => MacAddr(0,0,0,0,0,0), set_source => MacAddr(0,0,0,0,0,0)}) /
+         ipv4({set_source => ipv4addr!(source_ip), set_destination => ipv4addr!(destination_ip) }) /
+         tcp({set_source => source_port, set_destination => destination_port }) /
+         payload(payload)
+    );
+    pkt.packet().to_vec()
+}
+
+pub fn sample_frames() -> Vec<Box<dyn DataLinkReceiver>> {
+    vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "1.1.1.1",
+            443,
+            12345,
+            b"I am a fake tcp upload packet",
+        )),
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I am a fake tcp download packet",
+        )),
+    ]) as Box<dyn DataLinkReceiver>]
 }
 
 pub fn os_input_output(
