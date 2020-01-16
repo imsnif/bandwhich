@@ -97,35 +97,30 @@ where
             })
             .unwrap();
     }
-    fn build_processes_table(&self) -> Table<'static> {
-        Table::create_processes_table(&self.state)
-    }
-
-    fn build_addresses_table(&self) -> Table<'static> {
-        Table::create_remote_addresses_table(&self.state, &self.ip_to_host)
-    }
-
-    fn build_connections_table(&self) -> Table<'static> {
-        Table::create_connections_table(&self.state, &self.ip_to_host)
-    }
 
     fn get_tables_to_display(&self) -> Vec<Table<'static>> {
         let opts = &self.opts;
         let mut children: Vec<Table> = Vec::new();
         if opts.processes {
-            children.push(self.build_processes_table());
+            children.push(Table::create_processes_table(&self.state));
         }
         if opts.addresses {
-            children.push(self.build_addresses_table());
+            children.push(Table::create_remote_addresses_table(
+                &self.state,
+                &self.ip_to_host,
+            ));
         }
         if opts.connections {
-            children.push(self.build_connections_table());
+            children.push(Table::create_connections_table(
+                &self.state,
+                &self.ip_to_host,
+            ));
         }
         if !(opts.processes || opts.addresses || opts.connections) {
             children = vec![
-                self.build_processes_table(),
-                self.build_connections_table(),
-                self.build_addresses_table(),
+                Table::create_processes_table(&self.state),
+                Table::create_connections_table(&self.state, &self.ip_to_host),
+                Table::create_remote_addresses_table(&self.state, &self.ip_to_host),
             ];
         }
         children
