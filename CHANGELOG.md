@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
+
+### Added
 * Support Ipv6 (https://github.com/imsnif/bandwhich/pull/70) - [@zhangxp1998](https://github.com/zhangxp1998)
+* Select tables to render from the CLI (https://github.com/imsnif/bandwhich/pull/107) - [@chobeat](https://github.com/chobeat)
 
 ## [0.9.0] - 2020-01-14
 
