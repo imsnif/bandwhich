@@ -34,7 +34,7 @@ where
         Ui {
             terminal,
             state: Default::default(),
-            ip_to_host: Default::default(),           
+            ip_to_host: Default::default(),
             opts,
             interface_name,
         }

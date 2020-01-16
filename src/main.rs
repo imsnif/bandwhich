@@ -122,7 +122,6 @@ where
     let raw_mode = opts.raw;
 
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
-    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, opts.interface)));
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, opts.render_opts, opts.interface)));
 
     if !raw_mode {

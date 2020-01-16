@@ -21,7 +21,6 @@ impl<'a> TotalBandwidth<'a> {
             } else {
                 Color::Green
             };
-            let interface = datalink::interfaces().into_iter().map(|interface|interface.name).collect::<Vec<String>>();
 
             let interface = self.interface_name.as_deref().unwrap_or("[N/A]");
             
