@@ -95,7 +95,11 @@ impl Sniffer {
     pub fn next(&mut self) -> Option<Segment> {
         let bytes = self.network_frames.next().ok()?;
         // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
-        let payload_offset = if self.network_interface.is_loopback() && cfg!(target_os = "macos") {
+        // VPN interfaces (such as utun0, utun1, etc) have POINT_TO_POINT bit set to 1
+        let payload_offset = if (self.network_interface.is_loopback()
+            || self.network_interface.is_point_to_point())
+            && cfg!(target_os = "macos")
+        {
             // The pnet code for BPF loopback adds a zero'd out Ethernet header
             14
         } else {
