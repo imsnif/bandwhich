@@ -5,7 +5,7 @@ expression: formatted
 process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/22 connections: 1
 connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12345 (tcp) up/down Bps: 0/22 process: "1"
 remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 0/22 connections: 1
-process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/31 connections: 2
+process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/31 connections: 1
 connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12345 (tcp) up/down Bps: 0/31 process: "1"
-remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 0/31 connections: 2
+remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 0/31 connections: 1
 

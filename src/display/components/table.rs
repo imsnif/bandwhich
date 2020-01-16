@@ -9,7 +9,7 @@ use ::tui::widgets::{Block, Borders, Row, Widget};
 use crate::display::{Bandwidth, DisplayBandwidth, UIState};
 use crate::network::{display_connection_string, display_ip_or_host};
 
-use ::std::net::Ipv4Addr;
+use ::std::net::IpAddr;
 use std::iter::FromIterator;
 
 const FIRST_WIDTH_BREAKPOINT: u16 = 50;
@@ -54,10 +54,7 @@ pub struct Table<'a> {
 }
 
 impl<'a> Table<'a> {
-    pub fn create_connections_table(
-        state: &UIState,
-        ip_to_host: &HashMap<Ipv4Addr, String>,
-    ) -> Self {
+    pub fn create_connections_table(state: &UIState, ip_to_host: &HashMap<IpAddr, String>) -> Self {
         let mut connections_list = Vec::from_iter(&state.connections);
         sort_by_bandwidth(&mut connections_list);
         let connections_rows = connections_list
@@ -105,7 +102,7 @@ impl<'a> Table<'a> {
     }
     pub fn create_remote_addresses_table(
         state: &UIState,
-        ip_to_host: &HashMap<Ipv4Addr, String>,
+        ip_to_host: &HashMap<IpAddr, String>,
     ) -> Self {
         let mut remote_addresses_list = Vec::from_iter(&state.remote_addresses);
         sort_by_bandwidth(&mut remote_addresses_list);

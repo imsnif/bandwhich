@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
+* Support Ipv6 (https://github.com/imsnif/bandwhich/pull/70) - [@zhangxp1998](https://github.com/zhangxp1998)
+
+## [0.9.0] - 2020-01-14
 
 ### Added
 
@@ -17,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 
 * Upgrade trust-dns-resolver. (https://github.com/imsnif/bandwhich/pull/105) - [@bigtoast](https://github.com/bigtoast)
-
+* Do not listen on inactive interfaces. (https://github.com/imsnif/bandwhich/pull/116) - [@zhangxp1998](https://github.com/zhangxp1998)
 
 ## [0.8.0] - 2020-01-09
 

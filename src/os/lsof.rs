@@ -29,7 +29,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
         let local_port = raw_connection.get_local_port();
 
         let socket_addr = SocketAddr::new(remote_ip, remote_port);
-        let connection = Connection::new(socket_addr, local_ip, local_port, protocol).unwrap();
+        let connection = Connection::new(socket_addr, local_ip, local_port, protocol);
 
         open_sockets.insert(connection.local_socket, raw_connection.process_name.clone());
         connections_vec.push(connection);

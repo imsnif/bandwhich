@@ -7,7 +7,7 @@ use crate::display::components::{HelpText, Layout, Table, TotalBandwidth};
 use crate::display::UIState;
 use crate::network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization};
 
-use ::std::net::Ipv4Addr;
+use ::std::net::IpAddr;
 
 use chrono::prelude::*;
 
@@ -17,14 +17,15 @@ where
 {
     terminal: Terminal<B>,
     state: UIState,
-    ip_to_host: HashMap<Ipv4Addr, String>,
+    ip_to_host: HashMap<IpAddr, String>,
+    interface_name: Option<String>
 }
 
 impl<B> Ui<B>
 where
     B: Backend,
 {
-    pub fn new(terminal_backend: B) -> Self {
+    pub fn new(terminal_backend: B, interface_name: Option<String>) -> Self {
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
@@ -32,6 +33,7 @@ where
             terminal,
             state: Default::default(),
             ip_to_host: Default::default(),
+            interface_name,
         }
     }
     pub fn output_text(&mut self, write_to_stdout: &mut (dyn FnMut(String) + Send)) {
@@ -77,6 +79,7 @@ where
     pub fn draw(&mut self, paused: bool) {
         let state = &self.state;
         let ip_to_host = &self.ip_to_host;
+        let interface_name = &self.interface_name;
         self.terminal
             .draw(|mut frame| {
                 let size = frame.size();
@@ -86,6 +89,7 @@ where
                 let total_bandwidth = TotalBandwidth {
                     state: &state,
                     paused,
+                    interface_name,
                 };
                 let help_text = HelpText { paused };
                 let layout = Layout {
@@ -101,7 +105,7 @@ where
         &mut self,
         connections_to_procs: HashMap<LocalSocket, String>,
         utilization: Utilization,
-        ip_to_host: HashMap<Ipv4Addr, String>,
+        ip_to_host: HashMap<IpAddr, String>,
     ) {
         self.state.update(connections_to_procs, utilization);
         self.ip_to_host.extend(ip_to_host);
