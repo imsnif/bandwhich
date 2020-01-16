@@ -21,7 +21,7 @@ use std::iter;
 
 use crate::tests::fakes::KeyboardEvents;
 
-use crate::{start, Opt, OsInputOutput};
+use crate::{start, Opt, OsInputOutput, RenderOpts};
 
 fn build_tcp_packet(
     source_ip: &str,
@@ -124,9 +124,11 @@ fn basic_only_processes() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
-        addresses: false,
-        connections: false,
-        processes: true,
+        render_opts: RenderOpts {
+            addresses: false,
+            connections: false,
+            processes: true,
+        },
     };
 
     start(backend, os_input, opts);
@@ -145,9 +147,11 @@ fn basic_only_connections() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
-        addresses: false,
-        connections: true,
-        processes: false,
+        render_opts: RenderOpts {
+            addresses: false,
+            connections: true,
+            processes: false,
+        },
     };
 
     start(backend, os_input, opts);
@@ -167,9 +171,11 @@ fn basic_only_addresses() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
-        addresses: true,
-        connections: false,
-        processes: false,
+        render_opts: RenderOpts {
+            addresses: true,
+            connections: false,
+            processes: false,
+        },
     };
 
     start(backend, os_input, opts);
@@ -189,9 +195,11 @@ fn two_windows_split_horizontally() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
-        addresses: true,
-        connections: true,
-        processes: false,
+        render_opts: RenderOpts {
+            addresses: true,
+            connections: true,
+            processes: false,
+        },
     };
 
     start(backend, os_input, opts);
@@ -211,9 +219,11 @@ fn two_windows_split_vertically() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
-        addresses: true,
-        connections: true,
-        processes: false,
+        render_opts: RenderOpts {
+            addresses: true,
+            connections: true,
+            processes: false,
+        },
     };
 
     start(backend, os_input, opts);
@@ -867,14 +877,7 @@ fn no_resolve_mode() {
         cleanup,
         write_to_stdout,
     };
-    let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: true,
-        addresses: false,
-        connections: false,
-        processes: false,
-    };
+    let opts = opts_ui();
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 

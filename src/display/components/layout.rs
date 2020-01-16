@@ -86,7 +86,7 @@ impl<'a> Layout<'a> {
     fn build_layout(&self, rect: Rect) -> Vec<Rect> {
         if self.children.len() == 1 {
             // if there's only one element to render, it can take the whole frame
-            self.progressive_split(rect, vec![])
+            vec![rect]
         } else if self.children.len() == 2 {
             self.build_two_children_layout(rect)
         } else {

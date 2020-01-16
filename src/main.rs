@@ -44,11 +44,14 @@ pub struct Opt {
     #[structopt(short, long)]
     /// Do not attempt to resolve IPs to their hostnames
     no_resolve: bool,
-    #[structopt(short, long)]
+    #[structopt(flatten)]
+    render_opts: RenderOpts,
+}
+
+#[derive(StructOpt, Debug)]
+pub struct RenderOpts {
     processes: bool,
-    #[structopt(short, long)]
     connections: bool,
-    #[structopt(short, long)]
     addresses: bool,
 }
 
@@ -119,7 +122,7 @@ where
     let raw_mode = opts.raw;
 
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
-    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, opts)));
+    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, opts.render_opts)));
 
     if !raw_mode {
         active_threads.push(

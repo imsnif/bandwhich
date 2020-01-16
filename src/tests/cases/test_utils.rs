@@ -5,7 +5,7 @@ use crate::tests::fakes::{
 use std::iter;
 
 use crate::network::dns::Client;
-use crate::{Opt, OsInputOutput};
+use crate::{Opt, OsInputOutput, RenderOpts};
 use ::termion::event::{Event, Key};
 use pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use std::collections::HashMap;
@@ -100,9 +100,11 @@ fn opts_factory(raw: bool) -> Opt {
         interface: Some(String::from("interface_name")),
         raw,
         no_resolve: false,
-        addresses: false,
-        connections: false,
-        processes: false,
+        render_opts: RenderOpts {
+            addresses: false,
+            connections: false,
+            processes: false,
+        },
     }
 }
 type BackendWithStreams = (

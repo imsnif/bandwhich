@@ -16,7 +16,7 @@ use crate::tests::cases::test_utils::{
     opts_raw, os_input_output_dns, os_input_output_stdout, test_backend_factory,
 };
 
-use crate::{start, Opt};
+use crate::{start, Opt, RenderOpts};
 
 fn build_tcp_packet(
     source_ip: &str,
@@ -595,9 +595,11 @@ fn no_resolve_mode() {
         interface: Some(String::from("interface_name")),
         raw: true,
         no_resolve: true,
-        addresses: false,
-        connections: false,
-        processes: false,
+        render_opts: RenderOpts {
+            addresses: false,
+            connections: false,
+            processes: false,
+        },
     };
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();

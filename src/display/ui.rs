@@ -9,7 +9,7 @@ use crate::network::{display_connection_string, display_ip_or_host, LocalSocket,
 
 use ::std::net::IpAddr;
 
-use crate::Opt;
+use crate::RenderOpts;
 use chrono::prelude::*;
 
 pub struct Ui<B>
@@ -19,14 +19,14 @@ where
     terminal: Terminal<B>,
     state: UIState,
     ip_to_host: HashMap<IpAddr, String>,
-    opts: Opt,
+    opts: RenderOpts,
 }
 
 impl<B> Ui<B>
 where
     B: Backend,
 {
-    pub fn new(terminal_backend: B, opts: Opt) -> Self {
+    pub fn new(terminal_backend: B, opts: RenderOpts) -> Self {
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
