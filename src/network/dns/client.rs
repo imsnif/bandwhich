@@ -1,6 +1,6 @@
 use crate::network::dns::{resolver::Lookup, IpTable};
 use std::{
-    collections::HashSet,
+    collections::HashMap,
     net::IpAddr,
     sync::{Arc, Mutex},
     thread::{Builder, JoinHandle},
@@ -10,13 +10,13 @@ use tokio::{
     sync::mpsc::{self, Sender},
 };
 
-type PendingAddrs = HashSet<IpAddr>;
+type PendingAddrs = HashMap<IpAddr,f32>;
+
 
 const CHANNEL_SIZE: usize = 1_000;
 
 pub struct Client {
     cache: Arc<Mutex<IpTable>>,
-    pending: Arc<Mutex<PendingAddrs>>,
     tx: Option<Sender<Vec<IpAddr>>>,
     handle: Option<JoinHandle<()>>,
 }
@@ -38,6 +38,16 @@ impl Client {
                     let resolver = Arc::new(resolver);
 
                     while let Some(ips) = rx.recv().await {
+                        let ips = ips
+                            .into_iter()
+                            .filter(|ip| {
+                                let mut pending = pending.lock().unwrap().clone();
+                                let cnt = pending.entry(*ip).or_insert(0.0);
+                                let pwr_of2 :bool = (*cnt == 0.0) | (cnt.log2() % 1.0 == 0.0);
+                                *cnt += 1.0;
+                                pwr_of2
+                            }).collect::<Vec<_>>();
+
                         for ip in ips {
                             tokio::spawn({
                                 let resolver = resolver.clone();
@@ -47,8 +57,8 @@ impl Client {
                                 async move {
                                     if let Some(name) = resolver.lookup(ip).await {
                                         cache.lock().unwrap().insert(ip, name);
+                                        pending.lock().unwrap().remove(&ip);
                                     }
-                                    pending.lock().unwrap().remove(&ip);
                                 }
                             });
                         }
@@ -59,19 +69,12 @@ impl Client {
 
         Ok(Self {
             cache,
-            pending,
             tx: Some(tx),
             handle: Some(handle),
         })
     }
 
     pub fn resolve(&mut self, ips: Vec<IpAddr>) {
-        // Remove ips that are already being resolved
-        let ips = ips
-            .into_iter()
-            .filter(|ip| self.pending.lock().unwrap().insert(ip.clone()))
-            .collect::<Vec<_>>();
-
         if !ips.is_empty() {
             // Discard the message if the channel is full; it will be retried eventually
             let _ = self.tx.as_mut().unwrap().try_send(ips);
