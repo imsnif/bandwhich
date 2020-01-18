@@ -31,7 +31,6 @@ impl Client {
 
         let handle = Builder::new().name("resolver".into()).spawn({
             let cache = cache.clone();
-            let pending = pending.clone();
             move || {
                 runtime.block_on(async {
                     let resolver = Arc::new(resolver);

@@ -4,9 +4,10 @@ To set up your development environment:
 1. Clone the project
 2. `cargo run`, or if you prefer `cargo run -- -i <network interface name>` (you can often find out the name with `ifconfig` or `iwconfig`). You might need root privileges to run this application, so be sure to use (for example) sudo.
 
-To run tests: `cargo test`
-
-After tests, check the formatting: `cargo fmt -- --check`
+Pre-pull request checklist:
+ - Run tests: `cargo test`
+ - Check the formatting: `cargo fmt -- --check`
+ - Run linter: `cargo clippy --all-targets --all-features -- -D warnings`
 
 Note that at the moment the tests do not test the os layer (anything in the `os` folder).
 
