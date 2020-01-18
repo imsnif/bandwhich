@@ -50,8 +50,14 @@ pub struct Opt {
 
 #[derive(StructOpt, Debug)]
 pub struct RenderOpts {
+    #[structopt(short, long)]
+    /// Show processes table only
     processes: bool,
+    #[structopt(short, long)]
+    /// Show connections table only
     connections: bool,
+    #[structopt(short, long)]
+    /// Show remote addresses table only
     addresses: bool,
 }
 
