@@ -22,11 +22,15 @@ impl<'a> TotalBandwidth<'a> {
                 Color::Green
             };
 
-            let interface = self.interface_name.as_deref().unwrap_or("");
-            
+            let interface = if let Some(val) = self.interface_name.as_deref() {
+                format!("{}: ", val)
+            } else {
+                format!("")
+            };
+
             [Text::styled(
                 format!(
-                    " Interfaces {} / Total Rate Up / Down: {} / {} {}",
+                    "{}Total Rate Up / Down: {} / {} {}",
                     interface,
                     DisplayBandwidth(self.state.total_bytes_uploaded as f64),
                     DisplayBandwidth(self.state.total_bytes_downloaded as f64),

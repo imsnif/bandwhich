@@ -9,7 +9,7 @@ use crate::network::{display_connection_string, display_ip_or_host, LocalSocket,
 
 use ::std::net::IpAddr;
 
-use crate::RenderOpts;
+use crate::Opt;
 use chrono::prelude::*;
 
 pub struct Ui<B>
@@ -19,15 +19,14 @@ where
     terminal: Terminal<B>,
     state: UIState,
     ip_to_host: HashMap<IpAddr, String>,
-    opts: RenderOpts,
-    interface_name: Option<String>,
+    opts: Opt,
 }
 
 impl<B> Ui<B>
 where
     B: Backend,
 {
-    pub fn new(terminal_backend: B, opts: RenderOpts, interface_name: Option<String>) -> Self {
+    pub fn new(terminal_backend: B, opts: Opt) -> Self {
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
@@ -36,7 +35,6 @@ where
             state: Default::default(),
             ip_to_host: Default::default(),
             opts,
-            interface_name,
         }
     }
     pub fn output_text(&mut self, write_to_stdout: &mut (dyn FnMut(String) + Send)) {
@@ -82,7 +80,7 @@ where
     pub fn draw(&mut self, paused: bool) {
         let state = &self.state;
         let children = self.get_tables_to_display();
-        let interface_name = &self.interface_name;
+        let interface_name = &self.opts.interface;
         self.terminal
             .draw(|mut frame| {
                 let size = frame.size();
@@ -103,24 +101,24 @@ where
     }
 
     fn get_tables_to_display(&self) -> Vec<Table<'static>> {
-        let opts = &self.opts;
+        let render_opts = &self.opts.render_opts;
         let mut children: Vec<Table> = Vec::new();
-        if opts.processes {
+        if render_opts.processes {
             children.push(Table::create_processes_table(&self.state));
         }
-        if opts.addresses {
+        if render_opts.addresses {
             children.push(Table::create_remote_addresses_table(
                 &self.state,
                 &self.ip_to_host,
             ));
         }
-        if opts.connections {
+        if render_opts.connections {
             children.push(Table::create_connections_table(
                 &self.state,
                 &self.ip_to_host,
             ));
         }
-        if !(opts.processes || opts.addresses || opts.connections) {
+        if !(render_opts.processes || render_opts.addresses || render_opts.connections) {
             children = vec![
                 Table::create_processes_table(&self.state),
                 Table::create_connections_table(&self.state, &self.ip_to_host),
