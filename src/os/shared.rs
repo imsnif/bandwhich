@@ -43,7 +43,7 @@ fn get_datalink_channel(
             let error = GetInterfaceError::new(GetInterfaceErrorKind::OtherError("Unsupported interface type".to_string()));
             Err(error)
         },
-        Err(e) => Err(GetInterfaceError::new(GetInterfaceErrorKind::PermissionError("use sudo.".to_string()))),
+        Err(e) => Err(GetInterfaceError::new(GetInterfaceErrorKind::PermissionError("Try running with sudo.".to_string()))),
     }
 }
 
