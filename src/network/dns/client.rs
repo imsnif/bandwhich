@@ -10,7 +10,7 @@ use tokio::{
     sync::mpsc::{self, Sender},
 };
 
-type PendingAddrs = HashMap<IpAddr,f32>;
+type PendingAddrs = HashMap<IpAddr, f32>;
 
 const CHANNEL_SIZE: usize = 1_000;
 
@@ -42,10 +42,11 @@ impl Client {
                             .filter(|ip| {
                                 let mut pending = pending.lock().unwrap().clone();
                                 let cnt = pending.entry(*ip).or_insert(0.0);
-                                let pwr_of2 :bool = (*cnt == 0.0) | (cnt.log2() % 1.0 == 0.0);
+                                let pwr_of2: bool = (*cnt == 0.0) | (cnt.log2() % 1.0 == 0.0);
                                 *cnt += 1.0;
                                 pwr_of2
-                            }).collect::<Vec<_>>();
+                            })
+                            .collect::<Vec<_>>();
 
                         for ip in ips {
                             tokio::spawn({
