@@ -40,10 +40,10 @@ fn get_datalink_channel(
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => {
-            let error = GetInterfaceError::new(GetInterfaceErrorKind::OtherError("Please do something".to_string()));
+            let error = GetInterfaceError::new(GetInterfaceErrorKind::OtherError("Unsupported interface type".to_string()));
             Err(error)
         },
-        Err(e) => Err(GetInterfaceError::new(GetInterfaceErrorKind::PermissionError("Permission error".to_string()))),
+        Err(e) => Err(GetInterfaceError::new(GetInterfaceErrorKind::PermissionError("use sudo.".to_string()))),
     }
 }
 
