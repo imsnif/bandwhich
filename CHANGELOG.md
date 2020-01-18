@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Support Ipv6 (https://github.com/imsnif/bandwhich/pull/70) - [@zhangxp1998](https://github.com/zhangxp1998)
 * Select tables to render from the CLI (https://github.com/imsnif/bandwhich/pull/107) - [@chobeat](https://github.com/chobeat)
 
+### Fixed
+* VPN traffic sniffing on mac (https://github.com/imsnif/bandwhich/pull/129) - [@zhangxp1998](https://github.com/zhangxp1998)
+
+
 ## [0.9.0] - 2020-01-14
 
 ### Added
