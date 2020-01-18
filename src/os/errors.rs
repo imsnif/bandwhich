@@ -30,7 +30,7 @@ impl From<Context<GetInterfaceErrorKind>> for GetInterfaceError {
 }
 #[derive(Clone, Eq, PartialEq, Debug, Fail)]
 pub enum GetInterfaceErrorKind {
-    #[fail(display = "Type error message {}", _0)]
+    #[fail(display = "Permission error message {}", _0)]
     PermissionError(String),
     #[fail(display = "Other error message {}", _0)]
     OtherError(String),
