@@ -12,6 +12,13 @@ pub struct TotalBandwidth<'a> {
     pub interface_name: &'a Option<String>,
 }
 
+fn get_interface(name: &Option<String>) -> String {
+    match name {
+        Some(val) => format!("{}: ", val),
+        None => format!(""),
+    }
+}
+
 impl<'a> TotalBandwidth<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let title_text = {
@@ -22,16 +29,12 @@ impl<'a> TotalBandwidth<'a> {
                 Color::Green
             };
 
-            let interface = if let Some(val) = self.interface_name.as_deref() {
-                format!("{}: ", val)
-            } else {
-                format!("")
-            };
+            let interface_name = get_interface(self.interface_name);
 
             [Text::styled(
                 format!(
                     "{}Total Rate Up / Down: {} / {} {}",
-                    interface,
+                    interface_name,
                     DisplayBandwidth(self.state.total_bytes_uploaded as f64),
                     DisplayBandwidth(self.state.total_bytes_downloaded as f64),
                     paused_str
