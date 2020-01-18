@@ -174,6 +174,6 @@ fn eperm_message() -> &'static str {
     * Try running `bandwhich` with `sudo`
 
     * Build a `setcap(8)` wrapper for `bandwhich` with the following rules:
-        `cap_net_raw,cap_net_admin+ep`
+        `cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep`
     "#
 }
