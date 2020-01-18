@@ -72,10 +72,13 @@ USAGE:
     bandwhich [FLAGS] [OPTIONS]
 
 FLAGS:
-    -h, --help          Prints help information
-    -n, --no-resolve    Do not attempt to resolve IPs to their hostnames
-    -r, --raw           Machine friendlier output
-    -V, --version       Prints version information
+    -a, --addresses      Show remote addresses table only
+    -c, --connections    Show connections table only
+    -h, --help           Prints help information
+    -n, --no-resolve     Do not attempt to resolve IPs to their hostnames
+    -p, --processes      Show processes table only
+    -r, --raw            Machine friendlier output
+    -V, --version        Prints version information
 
 OPTIONS:
     -i, --interface <interface>    The network interface to listen on, eg. eth0
