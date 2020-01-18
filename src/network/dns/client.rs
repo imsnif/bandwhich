@@ -12,7 +12,6 @@ use tokio::{
 
 type PendingAddrs = HashMap<IpAddr,f32>;
 
-
 const CHANNEL_SIZE: usize = 1_000;
 
 pub struct Client {
