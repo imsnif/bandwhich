@@ -1,13 +1,5 @@
 use ::std::fmt;
 
-pub struct DisplayString<'a>(pub &'a str);
-
-impl fmt::Display for DisplayString<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
 pub struct DisplayBandwidth(pub f64);
 
 impl fmt::Display for DisplayBandwidth {

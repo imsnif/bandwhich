@@ -4,7 +4,7 @@ use ::tui::style::{Color, Modifier, Style};
 use ::tui::terminal::Frame;
 use ::tui::widgets::{Paragraph, Text, Widget};
 
-use crate::display::{DisplayBandwidth, DisplayString, UIState};
+use crate::display::{DisplayBandwidth, UIState};
 
 pub struct TotalBandwidth<'a> {
     pub state: &'a UIState,
@@ -22,12 +22,12 @@ impl<'a> TotalBandwidth<'a> {
                 Color::Green
             };
 
-            let interface = self.interface_name.as_deref().unwrap_or("[N/A]");
+            let interface = self.interface_name.as_deref().unwrap_or("");
             
             [Text::styled(
                 format!(
                     " Interfaces {} / Total Rate Up / Down: {} / {} {}",
-                    DisplayString(interface),
+                    interface,
                     DisplayBandwidth(self.state.total_bytes_uploaded as f64),
                     DisplayBandwidth(self.state.total_bytes_downloaded as f64),
                     paused_str
