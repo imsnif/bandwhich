@@ -134,17 +134,17 @@ impl UIState {
                 total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
-                let data_for_process: &mut NetworkData;
-
-                if let Some(process_name) =
+                let data_for_process = if let Some(process_name) =
                     UIState::get_proc_name(&connections_to_procs, &connection.local_socket)
                 {
-                    data_for_process = processes.entry(process_name.clone()).or_default();
                     connection_data.process_name = process_name.clone();
+                    processes.entry(process_name.clone()).or_default()
                 } else {
-                    data_for_process = processes.entry(String::from("<UNKNOWN>")).or_default();
                     connection_data.process_name = String::from("<UNKNOWN>");
-                }
+                    processes
+                        .entry(connection_data.process_name.clone())
+                        .or_default()
+                };
 
                 data_for_process.total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 data_for_process.total_bytes_uploaded += connection_info.total_bytes_uploaded;
