@@ -73,13 +73,20 @@ impl<'a> Layout<'a> {
         } else if rect.width < FIRST_WIDTH_BREAKPOINT {
             // if the horizontal space is not enough, we drop one element and we split horizontally
             self.progressive_split(rect, vec![Direction::Vertical])
-        } else if rect.width < SECOND_WIDTH_BREAKPOINT {
-            // if the horizontal space is not enough for the default layout, we display one wide element
-            // on top and we split horizontally the bottom
-            self.progressive_split(rect, vec![Direction::Vertical, Direction::Horizontal])
         } else {
             // default layout
-            self.progressive_split(rect, vec![Direction::Horizontal, Direction::Vertical])
+            let halves = ::tui::layout::Layout::default()
+                .direction(Direction::Vertical)
+                .margin(0)
+                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                .split(rect);
+            let top_quarters = ::tui::layout::Layout::default()
+                .direction(Direction::Horizontal)
+                .margin(0)
+                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                .split(halves[0]);
+
+            vec![top_quarters[0], top_quarters[1], halves[1]]
         }
     }
 
