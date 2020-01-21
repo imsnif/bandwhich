@@ -6,8 +6,8 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                 35                                                                                             35            
-                                                                                 30                                                                                             30            
+                                                                35                                                                                                   35                       
+                                                                30                                                                                                   30                       
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +30,8 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                                35            
-                                                                                                                                                                                30            
+                                                                                                                                                            35                                
+                                                                                                                                                            30                                
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

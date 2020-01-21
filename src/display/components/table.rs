@@ -45,14 +45,10 @@ pub enum ColumnCount {
 }
 
 impl ColumnCount {
-    pub fn as_u16 (&self) -> u16 {
+    pub fn as_u16(&self) -> u16 {
         match &self {
-            ColumnCount::Two => {
-                2
-            },
-            ColumnCount::Three => {
-                3
-            }
+            ColumnCount::Two => 2,
+            ColumnCount::Three => 3,
         }
     }
 }
@@ -69,7 +65,7 @@ pub struct Table<'a> {
     breakpoints: BTreeMap<u16, ColumnData>,
 }
 
-fn truncate_middle <'a>(row: &str, max_length: u16) -> String { // TODO: better
+fn truncate_middle<'a>(row: &str, max_length: u16) -> String {
     if row.len() as u16 > max_length {
         let first_slice = &row[0..(max_length as usize / 2)];
         let second_slice = &row[(row.len() - (max_length / 2) as usize + 3)..row.len()];
@@ -100,22 +96,34 @@ impl<'a> Table<'a> {
         let connections_title = "Utilization by connection";
         let connections_column_names = &["Connection", "Process", "Rate Up / Down"];
         let mut breakpoints = BTreeMap::new();
-        breakpoints.insert(0, ColumnData {
-            column_count: ColumnCount::Two,
-            column_widths: vec![20, 23]
-        });
-        breakpoints.insert(70, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![30, 12, 23]
-        });
-        breakpoints.insert(100, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![60, 12, 23]
-        });
-        breakpoints.insert(140, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![100, 12, 23]
-        });
+        breakpoints.insert(
+            0,
+            ColumnData {
+                column_count: ColumnCount::Two,
+                column_widths: vec![20, 23],
+            },
+        );
+        breakpoints.insert(
+            70,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![30, 12, 23],
+            },
+        );
+        breakpoints.insert(
+            100,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![60, 12, 23],
+            },
+        );
+        breakpoints.insert(
+            140,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![100, 12, 23],
+            },
+        );
         Table {
             title: connections_title,
             column_names: connections_column_names,
@@ -139,22 +147,34 @@ impl<'a> Table<'a> {
         let processes_title = "Utilization by process name";
         let processes_column_names = &["Process", "Connections", "Rate Up / Down"];
         let mut breakpoints = BTreeMap::new();
-        breakpoints.insert(0, ColumnData {
-            column_count: ColumnCount::Two,
-            column_widths: vec![12, 23]
-        });
-        breakpoints.insert(50, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![12, 12, 23]
-        });
-        breakpoints.insert(100, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![40, 12, 23]
-        });
-        breakpoints.insert(140, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![40, 12, 23]
-        });
+        breakpoints.insert(
+            0,
+            ColumnData {
+                column_count: ColumnCount::Two,
+                column_widths: vec![12, 23],
+            },
+        );
+        breakpoints.insert(
+            50,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![12, 12, 23],
+            },
+        );
+        breakpoints.insert(
+            100,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![40, 12, 23],
+            },
+        );
+        breakpoints.insert(
+            140,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![40, 12, 23],
+            },
+        );
         Table {
             title: processes_title,
             column_names: processes_column_names,
@@ -180,25 +200,36 @@ impl<'a> Table<'a> {
             })
             .collect();
         let remote_addresses_title = "Utilization by remote address";
-        let remote_addresses_column_names =
-            &["Remote Address", "Connections", "Rate Up / Down"];
+        let remote_addresses_column_names = &["Remote Address", "Connections", "Rate Up / Down"];
         let mut breakpoints = BTreeMap::new();
-        breakpoints.insert(0, ColumnData {
-            column_count: ColumnCount::Two,
-            column_widths: vec![12, 23]
-        });
-        breakpoints.insert(70, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![30, 12, 23]
-        });
-        breakpoints.insert(100, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![60, 12, 23]
-        });
-        breakpoints.insert(140, ColumnData {
-            column_count: ColumnCount::Three,
-            column_widths: vec![100, 12, 23]
-        });
+        breakpoints.insert(
+            0,
+            ColumnData {
+                column_count: ColumnCount::Two,
+                column_widths: vec![12, 23],
+            },
+        );
+        breakpoints.insert(
+            70,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![30, 12, 23],
+            },
+        );
+        breakpoints.insert(
+            100,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![60, 12, 23],
+            },
+        );
+        breakpoints.insert(
+            140,
+            ColumnData {
+                column_count: ColumnCount::Three,
+                column_widths: vec![100, 12, 23],
+            },
+        );
         Table {
             title: remote_addresses_title,
             column_names: remote_addresses_column_names,
@@ -207,9 +238,6 @@ impl<'a> Table<'a> {
         }
     }
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
-        // the second column is only rendered if there is enough room for it
-        // (over third breakpoint)
-
         let mut column_spacing: u16 = 0;
         let mut widths = &vec![];
         let mut column_count: &ColumnCount = &ColumnCount::Three;
@@ -219,33 +247,36 @@ impl<'a> Table<'a> {
                 widths = &column_data.column_widths;
                 column_count = &column_data.column_count;
 
-                let total_column_width: u16 = widths.iter().sum(); // TODO: better
-                if rect.width < total_column_width {
+                let total_column_width: u16 = widths.iter().sum();
+                if rect.width < total_column_width - column_count.as_u16() {
                     column_spacing = 0;
                 } else {
-                    column_spacing = (rect.width - total_column_width) / column_count.as_u16(); // TODO: better
+                    column_spacing = (rect.width - total_column_width) / column_count.as_u16();
                 }
             }
         }
 
         let column_names = match column_count {
             ColumnCount::Two => {
-                vec![self.column_names[0], self.column_names[2]]
-            },
-            ColumnCount::Three => {
-                vec![self.column_names[0], self.column_names[1], self.column_names[2]]
+                vec![self.column_names[0], self.column_names[2]] // always lose the middle column when needed
             }
+            ColumnCount::Three => vec![
+                self.column_names[0],
+                self.column_names[1],
+                self.column_names[2],
+            ],
         };
 
-        let rows = self.rows.iter().map(|row| {
-            match column_count {
-                ColumnCount::Two => {
-                    vec![truncate_middle(&row[0], widths[0]), truncate_middle(&row[2], widths[1])]
-                },
-                ColumnCount::Three => {
-                    vec![truncate_middle(&row[0], widths[0]), truncate_middle(&row[1], widths[1]), truncate_middle(&row[2], widths[2])]
-                }
-            }
+        let rows = self.rows.iter().map(|row| match column_count {
+            ColumnCount::Two => vec![
+                truncate_middle(&row[0], widths[0]),
+                truncate_middle(&row[2], widths[1]),
+            ],
+            ColumnCount::Three => vec![
+                truncate_middle(&row[0], widths[0]),
+                truncate_middle(&row[1], widths[1]),
+                truncate_middle(&row[2], widths[2]),
+            ],
         });
 
         let table_rows = rows.map(|row| Row::StyledData(row.into_iter(), Style::default()));
