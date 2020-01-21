@@ -54,7 +54,7 @@ cargo install bandwhich
 ```
 
 This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root priviliges to run `bandwhich`. To fix that, there are a few options:
-- Give the executable elevated permissions: `sudo setcap cap_net_raw,cap_net_admin+ep ~/.cargo/bin/bandwhich` (not 100% the same as `sudo`, see explanation below)
+- Give the executable elevated permissions: ``sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep `which bandwhich`` 
 - Run `sudo ~/.cargo/bin/bandwhich` instead of just `bandwhich`
 - Create a symlink: `sudo ln -s ~/.cargo/bin/bandwhich /usr/local/bin/` (or another path on root's PATH)
 - Set root's PATH to match your own `sudo env "PATH=$PATH" bandwhich`
@@ -89,10 +89,10 @@ OPTIONS:
 On Linux, you can give the `bandwhich` binary a permanent capability to use the required privileges, so that you don't need to use `sudo bandwhich` anymore:
 
 ```bash
-sudo setcap cap_net_raw,cap_net_admin+ep "$HOME/.cargo/bin/bandwhich"
+sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep `which bandwhich`
 ```
+`cap_sys_ptrace,cap_dac_read_search` gives `bandwhich` capability to list `/proc/<pid>/fd/` and resolve symlinks in that directory. It needs this capability to determine which opened port belongs to which process. `cap_net_raw,cap_net_admin` gives `bandwhich` capability to capture packets on your system.
 
-This is not 100% the same as running `bandwhich` as `sudo`. The above `setcap` commands gives `bandwhich` capability to sniff network packets. In order to run, `bandwhich` also needs the ability to read `procfs`. Normally processes can read `procfs`, however, if your system has [hidepid](https://linux-audit.com/linux-system-hardening-adding-hidepid-to-proc/) enabled, this assumption might not hold.
 
 ### raw_mode
 `bandwhich` also supports an easier-to-parse mode that can be piped or redirected to a file. For example, try:
