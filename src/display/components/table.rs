@@ -65,13 +65,13 @@ pub struct Table<'a> {
     breakpoints: BTreeMap<u16, ColumnData>,
 }
 
-fn truncate_middle<'a>(row: &str, max_length: u16) -> String {
+fn truncate_middle(row: &str, max_length: u16) -> String {
     if row.len() as u16 > max_length {
         let first_slice = &row[0..(max_length as usize / 2)];
         let second_slice = &row[(row.len() - (max_length / 2) as usize + 3)..row.len()];
         format!("{}...{}", first_slice, second_slice)
     } else {
-        format!("{}", row)
+        row.to_string()
     }
 }
 
@@ -243,7 +243,7 @@ impl<'a> Table<'a> {
         let mut column_count: &ColumnCount = &ColumnCount::Three;
 
         for (width_breakpoint, column_data) in self.breakpoints.iter() {
-            if width_breakpoint < &rect.width {
+            if *width_breakpoint < rect.width {
                 widths = &column_data.column_widths;
                 column_count = &column_data.column_count;
 
