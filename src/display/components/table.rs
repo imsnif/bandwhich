@@ -67,9 +67,9 @@ pub struct Table<'a> {
 
 fn truncate_middle(row: &str, max_length: u16) -> String {
     if row.len() as u16 > max_length {
-        let first_slice = &row[0..(max_length as usize / 2)];
-        let second_slice = &row[(row.len() - (max_length / 2) as usize + 3)..row.len()];
-        format!("{}...{}", first_slice, second_slice)
+        let first_slice = &row[0..(max_length as usize / 2) - 2];
+        let second_slice = &row[(row.len() - (max_length / 2) as usize + 2)..row.len()];
+        format!("{}[..]{}", first_slice, second_slice)
     } else {
         row.to_string()
     }

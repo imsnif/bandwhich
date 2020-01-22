@@ -821,6 +821,115 @@ fn traffic_with_host_names() {
 }
 
 #[test]
+fn truncate_long_hostnames() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "3.3.3.3",
+            4435,
+            1337,
+            b"omw to 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            4435,
+            b"I was just there!",
+        )),
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"Is it nice there? I think 1.1.1.1 is dull",
+        )),
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "1.1.1.1",
+            443,
+            12345,
+            b"Well, I heard 1.1.1.1 is all the rage",
+        )),
+        None, // sleep
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "3.3.3.3",
+            4435,
+            1337,
+            b"Wait for me!",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            4435,
+            b"They're waiting for you...",
+        )),
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"1.1.1.1 forever!",
+        )),
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "1.1.1.1",
+            443,
+            12345,
+            b"10.0.0.2 forever!",
+        )),
+    ]) as Box<dyn DataLinkReceiver>];
+
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+
+    let mut ips_to_hostnames = HashMap::new();
+    ips_to_hostnames.insert(
+        IpAddr::V4("1.1.1.1".parse().unwrap()),
+        String::from("i.am.not.too.long"),
+    );
+    ips_to_hostnames.insert(
+        IpAddr::V4("3.3.3.3".parse().unwrap()),
+        String::from("i.am.an.obnoxiosuly.long.hostname.why.would.anyone.do.this.really.i.ask"),
+    );
+    ips_to_hostnames.insert(
+        IpAddr::V4("10.0.0.2".parse().unwrap()),
+        String::from("i-like-cheese.com"),
+    );
+    let dns_client = create_fake_dns_client(ips_to_hostnames);
+    let on_winch = create_fake_on_winch(false);
+    let cleanup = Box::new(|| {});
+    let write_to_stdout = Box::new({ move |_output: String| {} });
+
+    let os_input = OsInputOutput {
+        network_interfaces: get_interfaces(),
+        network_frames,
+        get_open_sockets,
+        keyboard_events: sleep_and_quit_events(3),
+        dns_client,
+        on_winch,
+        cleanup,
+        write_to_stdout,
+    };
+    let opts = opts_ui();
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
+
+    assert_eq!(terminal_draw_events_mirror.len(), 3);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+    assert_snapshot!(&terminal_draw_events_mirror[2]);
+}
+
+#[test]
 fn no_resolve_mode() {
     let network_frames = vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
