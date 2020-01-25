@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [0.11.0] - 2020-01-25
 
 ### Added
-* List unknown processes in processes table as well (hhttps://github.com/imsnif/bandwhich/pull/132) - [@jcfvalente](https://github.com/jcfvalente)
+* List unknown processes in processes table as well (https://github.com/imsnif/bandwhich/pull/132) - [@jcfvalente](https://github.com/jcfvalente)
 * New layout (https://github.com/imsnif/bandwhich/pull/139) - [@imsnif](https://github.com/imsnif)
 
 ## [0.10.0] - 2020-01-18
