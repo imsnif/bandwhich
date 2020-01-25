@@ -119,8 +119,8 @@ where
         if !(opts.processes || opts.addresses || opts.connections) {
             children = vec![
                 Table::create_processes_table(&self.state),
-                Table::create_connections_table(&self.state, &self.ip_to_host),
                 Table::create_remote_addresses_table(&self.state, &self.ip_to_host),
+                Table::create_connections_table(&self.state, &self.ip_to_host),
             ];
         }
         children

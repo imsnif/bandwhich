@@ -6,8 +6,8 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                                                   1                    28Bps / 30Bps         <interface_name>:443 => one.one.one.one:12345 (tcp  1                    28Bps / 30Bps        
- 5                                                   1                    17Bps / 18Bps         <interface_name>:4435 => three.three.three.three:1  5                    17Bps / 18Bps        
+ 1                           1                           28Bps / 30Bps                          one.one.one.one                         1                     28Bps / 30Bps                   
+ 5                           1                           17Bps / 18Bps                          three.three.three.three                 1                     17Bps / 18Bps                   
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +30,8 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                one.one.one.one                                     1                    28Bps / 30Bps        
-                                                                                                three.three.three.three                             1                    17Bps / 18Bps        
+ <interface_name>:443 => one.one.one.one:12345 (tcp)                                                                   1                             28Bps / 30Bps                            
+ <interface_name>:4435 => three.three.three.three:1337 (tcp)                                                           5                             17Bps / 18Bps                            
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

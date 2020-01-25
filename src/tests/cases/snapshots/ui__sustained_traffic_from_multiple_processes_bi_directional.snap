@@ -6,8 +6,8 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                                                   1                    28Bps / 30Bps         <interface_name>:443 => 1.1.1.1:12345 (tcp)         1                    28Bps / 30Bps        
- 5                                                   1                    17Bps / 18Bps         <interface_name>:4435 => 3.3.3.3:1337 (tcp)         5                    17Bps / 18Bps        
+ 1                           1                           28Bps / 30Bps                          1.1.1.1                                 1                     28Bps / 30Bps                   
+ 5                           1                           17Bps / 18Bps                          3.3.3.3                                 1                     17Bps / 18Bps                   
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +30,8 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                1.1.1.1                                             1                    28Bps / 30Bps        
-                                                                                                3.3.3.3                                             1                    17Bps / 18Bps        
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                           1                             28Bps / 30Bps                            
+ <interface_name>:4435 => 3.3.3.3:1337 (tcp)                                                                           5                             17Bps / 18Bps                            
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
