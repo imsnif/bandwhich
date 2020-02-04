@@ -3,39 +3,39 @@ use std::fmt;
 use failure::{Backtrace, Context, Fail};
 
 #[derive(Debug)]
-pub struct MyError {
-    inner: Context<MyErrorKind>,
+pub struct GetInterfaceError {
+    inner: Context<GetInterfaceErrorKind>,
 }
-impl MyError {
-    pub fn new(kind: MyErrorKind) -> MyError {
-        MyError::from(kind)
+impl GetInterfaceError {
+    pub fn new(kind: GetInterfaceErrorKind) -> GetInterfaceError {
+        GetInterfaceError::from(kind)
     }
-    pub fn kind(&self) -> MyErrorKind {
+    pub fn kind(&self) -> GetInterfaceErrorKind {
         self.inner.get_context().clone()
     }
 }
 
-impl From<MyErrorKind> for MyError {
-    fn from(kind: MyErrorKind) -> MyError {
-        MyError {
+impl From<GetInterfaceErrorKind> for GetInterfaceError {
+    fn from(kind: GetInterfaceErrorKind) -> GetInterfaceError {
+        GetInterfaceError {
             inner: Context::new(kind),
         }
     }
 }
 
-impl From<Context<MyErrorKind>> for MyError {
-    fn from(inner: Context<MyErrorKind>) -> MyError {
-        MyError { inner }
+impl From<Context<GetInterfaceErrorKind>> for GetInterfaceError {
+    fn from(inner: Context<GetInterfaceErrorKind>) -> GetInterfaceError {
+        GetInterfaceError { inner }
     }
 }
 #[derive(Clone, Eq, PartialEq, Debug, Fail)]
-pub enum MyErrorKind {
-    #[fail(display = "Type error message {}", _0)]
+pub enum GetInterfaceErrorKind {
+    #[fail(display = "Permission error message {}", _0)]
     PermissionError(String),
     #[fail(display = "Other error message {}", _0)]
     OtherError(String),
 }
-impl Fail for MyError {
+impl Fail for GetInterfaceError {
     fn cause(&self) -> Option<&dyn Fail> {
         self.inner.cause()
     }
@@ -45,7 +45,7 @@ impl Fail for MyError {
     }
 }
 
-impl fmt::Display for MyError {
+impl fmt::Display for GetInterfaceError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Display::fmt(&self.inner, f)
     }
