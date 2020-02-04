@@ -114,9 +114,7 @@ pub fn get_input(
         for iface in network_frames {
             if let Some(iface_error) = iface.err() {
                 if let GetInterfaceErrorKind::PermissionError(_v) = iface_error.kind() {
-                    failure::bail!(
-                        "Insufficient permissions to listen on network interface(s). Try running with sudo.",
-                    )
+                    failure::bail!(eperm_message())
                 }
             }
         }
