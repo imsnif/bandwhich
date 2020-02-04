@@ -8,8 +8,8 @@ use ::tokio::runtime::Runtime;
 
 use ::std::time;
 
-use signal_hook::iterator::Signals;
 use crate::os::errors::{GetInterfaceError, GetInterfaceErrorKind};
+use signal_hook::iterator::Signals;
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
@@ -40,10 +40,14 @@ fn get_datalink_channel(
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => {
-            let error = GetInterfaceError::new(GetInterfaceErrorKind::OtherError("Unsupported interface type".to_string()));
+            let error = GetInterfaceError::new(GetInterfaceErrorKind::OtherError(
+                "Unsupported interface type".to_string(),
+            ));
             Err(error)
-        },
-        Err(e) => Err(GetInterfaceError::new(GetInterfaceErrorKind::PermissionError(format!("{}. Try running with sudo.", e)))),
+        }
+        Err(e) => Err(GetInterfaceError::new(
+            GetInterfaceErrorKind::PermissionError(format!("{}. Try running with sudo.", e)),
+        )),
     }
 }
 
