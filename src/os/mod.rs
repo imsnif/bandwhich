@@ -7,7 +7,7 @@ pub(self) mod macos;
 #[cfg(target_os = "macos")]
 mod lsof_utils;
 
-mod shared;
 mod errors;
+mod shared;
 
 pub use shared::*;
