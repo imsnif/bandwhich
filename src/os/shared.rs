@@ -1,7 +1,7 @@
 use ::pnet_bandwhich_fork::datalink::Channel::Ethernet;
 use ::pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use ::pnet_bandwhich_fork::datalink::{self, Config, NetworkInterface};
-use ::std::io::{self, stdin, Write};
+use ::std::io::{self, stdin, ErrorKind, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;
 use ::tokio::runtime::Runtime;
@@ -39,15 +39,17 @@ fn get_datalink_channel(
     config.read_timeout = Some(time::Duration::new(1, 0));
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
-        Ok(_) => {
-            let error = GetInterfaceError::new(GetInterfaceErrorKind::OtherError(
-                "Unsupported interface type".to_string(),
-            ));
-            Err(error)
-        }
-        Err(e) => Err(GetInterfaceError::new(
-            GetInterfaceErrorKind::PermissionError(format!("{}. Try running with sudo.", e)),
-        )),
+        Ok(_) => Err(GetInterfaceError::new(GetInterfaceErrorKind::OtherError(
+            "Unsupported interface type".to_string(),
+        ))),
+        Err(e) => match e.kind() {
+            ErrorKind::PermissionDenied => Err(GetInterfaceError::new(
+                GetInterfaceErrorKind::PermissionError(format!("{}. Try running with sudo.", e)),
+            )),
+            _ => Err(GetInterfaceError::new(
+                GetInterfaceErrorKind::OtherError(format!("{}", e)),
+            )),
+        },
     }
 }
 
