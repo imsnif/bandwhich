@@ -46,9 +46,9 @@ fn get_datalink_channel(
             ErrorKind::PermissionDenied => Err(GetInterfaceError::new(
                 GetInterfaceErrorKind::PermissionError(format!("{}. Try running with sudo.", e)),
             )),
-            _ => Err(GetInterfaceError::new(
-                GetInterfaceErrorKind::OtherError(format!("{}", e)),
-            )),
+            _ => Err(GetInterfaceError::new(GetInterfaceErrorKind::OtherError(
+                format!("{}", e),
+            ))),
         },
     }
 }
