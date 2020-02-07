@@ -8,7 +8,7 @@ use ::tokio::runtime::Runtime;
 
 use ::std::time;
 
-use crate::os::errors::{GetInterfaceErrorKind};
+use crate::os::errors::GetInterfaceErrorKind;
 use signal_hook::iterator::Signals;
 
 #[cfg(target_os = "linux")]
