@@ -34,20 +34,21 @@ impl Iterator for KeyboardEvents {
 
 fn get_datalink_channel(
     interface: &NetworkInterface,
-) -> Result<Box<dyn DataLinkReceiver>, GetInterfaceError> {
+) -> Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(1, 0));
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
-        Ok(_) => Err(GetInterfaceError::new(GetInterfaceErrorKind::OtherError(
+        Ok(_) => Err(GetInterfaceErrorKind::OtherError(
             "Unsupported interface type".to_string(),
-        ))),
+        )),
         Err(e) => match e.kind() {
-            ErrorKind::PermissionDenied => Err(GetInterfaceError::new(
-                GetInterfaceErrorKind::PermissionError(format!("{}. Try running with sudo.", e)),
+            ErrorKind::PermissionDenied => Err(GetInterfaceErrorKind::PermissionError(
+                interface.name.to_owned(),
             )),
-            _ => Err(GetInterfaceError::new(GetInterfaceErrorKind::OtherError(
-                format!("{}", e),
+            _ => Err(GetInterfaceErrorKind::OtherError(format!(
+                "{}::{}",
+                &interface.name, e
             ))),
         },
     }
@@ -115,8 +116,9 @@ pub fn get_input(
     if available_network_frames.is_empty() {
         for iface in network_frames {
             if let Some(iface_error) = iface.err() {
-                if let GetInterfaceErrorKind::PermissionError(_v) = iface_error.kind() {
-                    failure::bail!(eperm_message())
+                match iface_error {
+                    GetInterfaceErrorKind::PermissionError(_) => failure::bail!(eperm_message()),
+                    error => failure::bail!(error),
                 }
             }
         }
