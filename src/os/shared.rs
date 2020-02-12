@@ -87,6 +87,43 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
         }
     })
 }
+#[derive(Debug)]
+pub struct Node {
+    permission: Vec<GetInterfaceErrorKind>,
+    other: Vec<GetInterfaceErrorKind>,
+}
+
+pub fn handle_errors<I>(network_frames: I) -> Result<i32, failure::Error> 
+where
+    I: Iterator<Item = Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>>,
+{
+    let filtered = network_frames.fold(
+        Node {
+            permission: vec![],
+            other: vec![],
+        },
+        |mut acc, elem| {
+            if let Some(iface_error) = elem.err() {
+                match iface_error {
+                    GetInterfaceErrorKind::PermissionError(v) => {
+                        let value = GetInterfaceErrorKind::PermissionError(v);
+                        acc.permission.push(value)
+                    }
+                    e => acc.other.push(e),
+                }
+            };
+            acc
+        },
+    );
+    if filtered.permission.len() > 1 {
+        Ok(1)
+    } else {
+        failure::bail!("Error {}")
+       // filtered.permission.iter().for_each(|elem| failure::bail!("Error {}", elem))
+    }
+
+
+}
 
 pub fn get_input(
     interface_name: &Option<String>,
@@ -114,14 +151,16 @@ pub fn get_input(
         .collect::<Vec<_>>();
 
     if available_network_frames.is_empty() {
-        for iface in network_frames {
-            if let Some(iface_error) = iface.err() {
-                match iface_error {
-                    GetInterfaceErrorKind::PermissionError(_) => failure::bail!(eperm_message()),
-                    error => failure::bail!(error),
-                }
-            }
-        }
+        handle_errors(network_frames);
+
+        // for iface in network_frames {
+        //     if let Some(iface_error) = iface.err() {
+        //         match iface_error {
+        //             GetInterfaceErrorKind::PermissionError(_) => failure::bail!(eperm_message()),
+        //             error => failure::bail!(error),
+        //         }
+        //     }
+        // }
         failure::bail!("Failed to find any network interface to listen on.");
     }
 
