@@ -89,41 +89,10 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
 }
 #[derive(Debug)]
 pub struct Node {
-    permission: Vec<GetInterfaceErrorKind>,
-    other: Vec<GetInterfaceErrorKind>,
+    permission: String,
+    other: String,
 }
 
-pub fn handle_errors<I>(network_frames: I) -> Result<i32, failure::Error> 
-where
-    I: Iterator<Item = Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>>,
-{
-    let filtered = network_frames.fold(
-        Node {
-            permission: vec![],
-            other: vec![],
-        },
-        |mut acc, elem| {
-            if let Some(iface_error) = elem.err() {
-                match iface_error {
-                    GetInterfaceErrorKind::PermissionError(v) => {
-                        let value = GetInterfaceErrorKind::PermissionError(v);
-                        acc.permission.push(value)
-                    }
-                    e => acc.other.push(e),
-                }
-            };
-            acc
-        },
-    );
-    if filtered.permission.len() > 1 {
-        Ok(1)
-    } else {
-        failure::bail!("Error {}")
-       // filtered.permission.iter().for_each(|elem| failure::bail!("Error {}", elem))
-    }
-
-
-}
 
 pub fn get_input(
     interface_name: &Option<String>,
@@ -151,17 +120,29 @@ pub fn get_input(
         .collect::<Vec<_>>();
 
     if available_network_frames.is_empty() {
-        handle_errors(network_frames);
+        let filtered = network_frames.fold(
+            Node {
+                permission: String::from(""),
+                other: String::from(""),
+            },
+            |mut acc, elem| {
+                if let Some(iface_error) = elem.err() {
+                    match iface_error {
+                        GetInterfaceErrorKind::PermissionError(v) => {
+                            let value = GetInterfaceErrorKind::PermissionError(v);
+                            acc.permission = format!("{} \n {}", acc.permission, value)
+                        }
+                        e => acc.other = format!("{} \n {}", acc.other, e),
+                    }
+                };
+                acc
+            },
+        );
+        println!("Filtered {:?}", filtered);
+     
+        failure::bail!(filtered.permission);
 
-        // for iface in network_frames {
-        //     if let Some(iface_error) = iface.err() {
-        //         match iface_error {
-        //             GetInterfaceErrorKind::PermissionError(_) => failure::bail!(eperm_message()),
-        //             error => failure::bail!(error),
-        //         }
-        //     }
-        // }
-        failure::bail!("Failed to find any network interface to listen on.");
+        // failure::bail!("Failed to find any network interface \n to listen on.");
     }
 
     let keyboard_events = Box::new(KeyboardEvents);
