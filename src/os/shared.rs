@@ -88,11 +88,30 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
     })
 }
 #[derive(Debug)]
-pub struct Node {
-    permission: String,
+pub struct UserErrors {
+    permission: bool,
     other: String,
 }
-
+pub fn handle_errors<I>(network_frames: I) -> String
+where
+    I: Iterator<Item = Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>>,
+{
+    let mut is_permission_error = false;
+    let errors = network_frames.fold(String::from(""), |mut acc, elem| {
+        if let Some(iface_error) = elem.err() {
+            match (iface_error, is_permission_error) {
+                (GetInterfaceErrorKind::PermissionError(_), false) => is_permission_error = true,
+                (error, _) => acc = format!("{} \n {}", acc, error),
+            };
+        }
+        acc
+    });
+    if is_permission_error {
+        format!("{} \n {}", eperm_message(), errors)
+    } else {
+        errors
+    }
+}
 
 pub fn get_input(
     interface_name: &Option<String>,
@@ -120,29 +139,12 @@ pub fn get_input(
         .collect::<Vec<_>>();
 
     if available_network_frames.is_empty() {
-        let filtered = network_frames.fold(
-            Node {
-                permission: String::from(""),
-                other: String::from(""),
-            },
-            |mut acc, elem| {
-                if let Some(iface_error) = elem.err() {
-                    match iface_error {
-                        GetInterfaceErrorKind::PermissionError(v) => {
-                            let value = GetInterfaceErrorKind::PermissionError(v);
-                            acc.permission = format!("{} \n {}", acc.permission, value)
-                        }
-                        e => acc.other = format!("{} \n {}", acc.other, e),
-                    }
-                };
-                acc
-            },
-        );
-        println!("Filtered {:?}", filtered);
-     
-        failure::bail!(filtered.permission);
+        let all_errors = handle_errors(network_frames);
+        if !all_errors.is_empty() {
+            failure::bail!(all_errors);
+        }
 
-        // failure::bail!("Failed to find any network interface \n to listen on.");
+        failure::bail!("Failed to find any network interface \n to listen on.");
     }
 
     let keyboard_events = Box::new(KeyboardEvents);
