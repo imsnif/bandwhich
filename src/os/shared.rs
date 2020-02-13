@@ -106,6 +106,7 @@ where
         }
         acc
     });
+    
     if is_permission_error {
         format!("{} \n {}", eperm_message(), errors)
     } else {
