@@ -87,11 +87,13 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
         }
     })
 }
+
 #[derive(Debug)]
 pub struct UserErrors {
     permission: bool,
     other: String,
 }
+
 pub fn collect_errors<I>(network_frames: I) -> String
 where
     I: Iterator<Item = Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>>,
