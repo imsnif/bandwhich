@@ -92,7 +92,6 @@ pub struct UserErrors {
     permission: bool,
     other: String,
 }
-//acc = format!("{} \n {}", acc, error)
 pub fn collect_errors<I>(network_frames: I) -> String
 where
     I: Iterator<Item = Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>>,
@@ -102,12 +101,12 @@ where
             permission: false,
             other: String::from(""),
         },
-        |mut acc, elem| {
+        |acc, elem| {
             if let Some(iface_error) = elem.err() {
                 match iface_error {
                     GetInterfaceErrorKind::PermissionError(_) => UserErrors {
                         permission: true,
-                        ..acc
+                        other: acc.other.to_owned()
                     },
                     error => UserErrors {
                         other: format!("{} \n {}", acc.other, error),
@@ -115,7 +114,7 @@ where
                     },
                 };
             }
-            acc
+           acc
         },
     );
 
