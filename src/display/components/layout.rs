@@ -2,25 +2,33 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Constraint, Direction, Rect};
 use ::tui::terminal::Frame;
 
+use super::HelpText;
 use super::Table;
 use super::TotalBandwidth;
 
 const FIRST_HEIGHT_BREAKPOINT: u16 = 30;
 const FIRST_WIDTH_BREAKPOINT: u16 = 120;
-const SECOND_WIDTH_BREAKPOINT: u16 = 150;
 
-fn leave_gap_on_top_of_rect(rect: Rect) -> Rect {
-    let app = ::tui::layout::Layout::default()
+fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
+    let parts = ::tui::layout::Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
-        .constraints([Constraint::Length(1), Constraint::Length(rect.height - 1)].as_ref())
+        .constraints(
+            [
+                Constraint::Length(1),
+                Constraint::Length(rect.height - 2),
+                Constraint::Length(1),
+            ]
+            .as_ref(),
+        )
         .split(rect);
-    app[1]
+    (parts[0], parts[1], parts[2])
 }
 
 pub struct Layout<'a> {
     pub header: TotalBandwidth<'a>,
     pub children: Vec<Table<'a>>,
+    pub footer: HelpText,
 }
 
 impl<'a> Layout<'a> {
@@ -38,21 +46,61 @@ impl<'a> Layout<'a> {
                 layout
             })
     }
-    fn build_layout(&self, rect: Rect) -> Vec<Rect> {
+
+    fn build_two_children_layout(&self, rect: Rect) -> Vec<Rect> {
+        // if there are two elements
         if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
-            self.progressive_split(rect, vec![])
+            // if the space is not enough, we drop one element
+            vec![rect]
+        } else if rect.width < FIRST_WIDTH_BREAKPOINT {
+            // if the horizontal space is not enough, we drop one element and we split horizontally
+            self.progressive_split(rect, vec![Direction::Vertical])
+        } else {
+            // by default we display two elements splitting vertically
+            self.progressive_split(rect, vec![Direction::Horizontal])
+        }
+    }
+
+    fn build_three_children_layout(&self, rect: Rect) -> Vec<Rect> {
+        // if there are three elements
+        if rect.height < FIRST_HEIGHT_BREAKPOINT && rect.width < FIRST_WIDTH_BREAKPOINT {
+            //if the space is not enough, we drop two elements
+            vec![rect]
         } else if rect.height < FIRST_HEIGHT_BREAKPOINT {
+            // if the vertical space is not enough, we drop one element and we split vertically
             self.progressive_split(rect, vec![Direction::Horizontal])
         } else if rect.width < FIRST_WIDTH_BREAKPOINT {
+            // if the horizontal space is not enough, we drop one element and we split horizontally
             self.progressive_split(rect, vec![Direction::Vertical])
-        } else if rect.width < SECOND_WIDTH_BREAKPOINT {
-            self.progressive_split(rect, vec![Direction::Vertical, Direction::Horizontal])
         } else {
-            self.progressive_split(rect, vec![Direction::Horizontal, Direction::Vertical])
+            // default layout
+            let halves = ::tui::layout::Layout::default()
+                .direction(Direction::Vertical)
+                .margin(0)
+                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                .split(rect);
+            let top_quarters = ::tui::layout::Layout::default()
+                .direction(Direction::Horizontal)
+                .margin(0)
+                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                .split(halves[0]);
+
+            vec![top_quarters[0], top_quarters[1], halves[1]]
+        }
+    }
+
+    fn build_layout(&self, rect: Rect) -> Vec<Rect> {
+        if self.children.len() == 1 {
+            // if there's only one element to render, it can take the whole frame
+            vec![rect]
+        } else if self.children.len() == 2 {
+            self.build_two_children_layout(rect)
+        } else {
+            self.build_three_children_layout(rect)
         }
     }
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
-        let app = leave_gap_on_top_of_rect(rect);
+        let (top, app, bottom) = top_app_and_bottom_split(rect);
         let layout_slots = self.build_layout(app);
         for i in 0..layout_slots.len() {
             if let Some(rect) = layout_slots.get(i) {
@@ -61,6 +109,7 @@ impl<'a> Layout<'a> {
                 }
             }
         }
-        self.header.render(frame, rect);
+        self.header.render(frame, top);
+        self.footer.render(frame, bottom);
     }
 }

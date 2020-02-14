@@ -28,7 +28,6 @@ use ::std::io;
 use ::std::time::Instant;
 use ::termion::raw::IntoRawMode;
 use ::tui::backend::TermionBackend;
-
 use structopt::StructOpt;
 
 const DISPLAY_DELTA: time::Duration = time::Duration::from_millis(1000);
@@ -45,6 +44,21 @@ pub struct Opt {
     #[structopt(short, long)]
     /// Do not attempt to resolve IPs to their hostnames
     no_resolve: bool,
+    #[structopt(flatten)]
+    render_opts: RenderOpts,
+}
+
+#[derive(StructOpt, Debug)]
+pub struct RenderOpts {
+    #[structopt(short, long)]
+    /// Show processes table only
+    processes: bool,
+    #[structopt(short, long)]
+    /// Show connections table only
+    connections: bool,
+    #[structopt(short, long)]
+    /// Show remote addresses table only
+    addresses: bool,
 }
 
 fn main() {
@@ -114,7 +128,7 @@ where
     let raw_mode = opts.raw;
 
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
-    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend)));
+    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, opts.render_opts)));
 
     if !raw_mode {
         active_threads.push(

@@ -6,15 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.11.0] - 2020-01-25
+
+### Added
+* List unknown processes in processes table as well (https://github.com/imsnif/bandwhich/pull/132) - [@jcfvalente](https://github.com/jcfvalente)
+* New layout (https://github.com/imsnif/bandwhich/pull/139) - [@imsnif](https://github.com/imsnif)
+
+## [0.10.0] - 2020-01-18
+
+### Added
+* Support Ipv6 (https://github.com/imsnif/bandwhich/pull/70) - [@zhangxp1998](https://github.com/zhangxp1998)
+* Select tables to render from the CLI (https://github.com/imsnif/bandwhich/pull/107) - [@chobeat](https://github.com/chobeat)
+
+### Fixed
+* VPN traffic sniffing on mac (https://github.com/imsnif/bandwhich/pull/129) - [@zhangxp1998](https://github.com/zhangxp1998)
+
+## [0.9.0] - 2020-01-14
+
 ### Added
 
 * Paused UI by pressing <SPACE> key. Does not affect raw mode. (https://github.com/imsnif/bandwhich/pull/106) - [@zhangxp1998](https://github.com/zhangxp1998)
 * Mention setcap option in linux permission error. (https://github.com/imsnif/bandwhich/pull/108) - [@Ma27](https://github.com/Ma27)
+* Display weighted average bandwidth for the past 5 seconds. (https://github.com/imsnif/bandwhich/pull/77) - [@zhangxp1998](https://github.com/zhangxp1998) + [@imsnif](https://github.com/imsnif)
+* FreeBSD support. (https://github.com/imsnif/bandwhich/pull/110) - [@Erk-](https://github.com/Erk-)
+* Pause help text. (https://github.com/imsnif/bandwhich/pull/111) - [@imsnif](https://github.com/imsnif)
 
 ### Fixed
 
 * Upgrade trust-dns-resolver. (https://github.com/imsnif/bandwhich/pull/105) - [@bigtoast](https://github.com/bigtoast)
-
+* Do not listen on inactive interfaces. (https://github.com/imsnif/bandwhich/pull/116) - [@zhangxp1998](https://github.com/zhangxp1998)
 
 ## [0.8.0] - 2020-01-09
 

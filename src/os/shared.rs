@@ -13,8 +13,8 @@ use signal_hook::iterator::Signals;
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
-#[cfg(target_os = "macos")]
-use crate::os::macos::get_open_sockets;
+#[cfg(any(target_os = "macos", target_os = "freebsd"))]
+use crate::os::lsof::get_open_sockets;
 use crate::{network::dns, OsInputOutput};
 
 pub type OnSigWinch = dyn Fn(Box<dyn Fn()>) + Send;
@@ -94,16 +94,21 @@ pub struct UserErrors {
     other: String,
 }
 
-pub fn collect_errors<I>(network_frames: I) -> String
+pub fn collect_errors<'a, I>(network_frames: I) -> String
 where
-    I: Iterator<Item = Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>>,
+    I: Iterator<
+        Item = (
+            &'a NetworkInterface,
+            Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>,
+        ),
+    >,
 {
     let errors = network_frames.fold(
         UserErrors {
             permission: false,
             other: String::from(""),
         },
-        |acc, elem| {
+        |acc, (_, elem)| {
             if let Some(iface_error) = elem.err() {
                 match iface_error {
                     GetInterfaceErrorKind::PermissionError(_) => {
@@ -148,15 +153,28 @@ pub fn get_input(
 
     let network_frames = network_interfaces
         .iter()
-        .map(|iface| get_datalink_channel(iface));
+        .filter(|iface| iface.is_up() && !iface.ips.is_empty())
+        .map(|iface| (iface, get_datalink_channel(iface)));
 
-    let available_network_frames = network_frames
-        .clone()
-        .filter_map(Result::ok)
-        .collect::<Vec<_>>();
+    let (available_network_frames, network_interfaces) = {
+        let network_frames = network_frames.clone();
+        let mut available_network_frames = Vec::new();
+        let mut available_interfaces: Vec<NetworkInterface> = Vec::new();
+        for (iface, rx) in network_frames.filter_map(|(iface, channel)| {
+            if let Ok(rx) = channel {
+                Some((iface, rx))
+            } else {
+                None
+            }
+        }) {
+            available_interfaces.push(iface.clone());
+            available_network_frames.push(rx);
+        }
+        (available_network_frames, available_interfaces)
+    };
 
     if available_network_frames.is_empty() {
-        let all_errors = collect_errors(network_frames);
+        let all_errors = collect_errors(network_frames.clone());
         if !all_errors.is_empty() {
             failure::bail!(all_errors);
         }
@@ -169,7 +187,10 @@ pub fn get_input(
     let (on_winch, cleanup) = sigwinch();
     let dns_client = if resolve {
         let mut runtime = Runtime::new()?;
-        let resolver = runtime.block_on(dns::Resolver::new(runtime.handle().clone()))?;
+        let resolver = match runtime.block_on(dns::Resolver::new(runtime.handle().clone())) {
+            Ok(resolver) => resolver,
+            Err(_) => failure::bail!("Could not initialize the DNS resolver. Are you offline?"),
+        };
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
     } else {
@@ -189,7 +210,7 @@ pub fn get_input(
 }
 
 #[inline]
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "freebsd"))]
 fn eperm_message() -> &'static str {
     "Insufficient permissions to listen on network interface(s). Try running with sudo."
 }
@@ -204,6 +225,6 @@ fn eperm_message() -> &'static str {
     * Try running `bandwhich` with `sudo`
 
     * Build a `setcap(8)` wrapper for `bandwhich` with the following rules:
-        `cap_net_raw,cap_net_admin+ep`
+        `cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep`
     "#
 }

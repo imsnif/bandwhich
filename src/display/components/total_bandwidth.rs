@@ -2,7 +2,7 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Alignment, Rect};
 use ::tui::style::{Color, Modifier, Style};
 use ::tui::terminal::Frame;
-use ::tui::widgets::{Block, Borders, Paragraph, Text, Widget};
+use ::tui::widgets::{Paragraph, Text, Widget};
 
 use crate::display::{DisplayBandwidth, UIState};
 
@@ -32,7 +32,6 @@ impl<'a> TotalBandwidth<'a> {
             )]
         };
         Paragraph::new(title_text.iter())
-            .block(Block::default().borders(Borders::NONE))
             .alignment(Alignment::Left)
             .render(frame, rect);
     }

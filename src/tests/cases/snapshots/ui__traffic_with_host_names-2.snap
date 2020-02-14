@@ -2,16 +2,12 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[2]"
 ---
-                       69      82                                                                                                                                                             
+                       53      60                                                                                                                                                             
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 5                                                                         32      46                               5 => three.thr e.three.three:1  5                     32      46          
- 1                                                                          7       6                                => one.one.on .one:12345 (tcp  1                      7       6          
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+                                                         31       2                                                                                           31       2                      
+                                                         22      27                                                                                           22      27                      
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +26,12 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                three.thre  three.three                                                   32      46          
-                                                                                                one.one.on  one                                                            7       6          
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                     31       2                               
+                                                                                                                                                     22      27                               
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

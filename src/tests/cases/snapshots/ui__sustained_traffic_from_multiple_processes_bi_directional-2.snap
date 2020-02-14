@@ -2,16 +2,12 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[2]"
 ---
-                       69      82                                                                                                                                                             
+                       53      60                                                                                                                                                             
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 5                                                                         32      46                               5 => 3.3.3.3:1 37               5                     32      46          
- 1                                                                          7       6                                => 1.1.1.1:12 45               1                      7       6          
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+                                                         31       2                                                                                           31       2                      
+                                                         22      27                                                                                           22      27                      
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +26,12 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                3 3 3 3                                                                   32      46          
-                                                                                                1 1 1 1                                                                    7       6          
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                     31       2                               
+                                                                                                                                                     22      27                               
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

@@ -1,6 +1,6 @@
 use ::std::collections::HashMap;
 use ::std::fmt;
-use ::std::net::{IpAddr, Ipv4Addr};
+use ::std::net::IpAddr;
 
 use ::std::net::SocketAddr;
 
@@ -14,7 +14,7 @@ impl Protocol {
     // Currently, linux implementation doesn't use this function.
     // Without this #[cfg] clippy complains about dead code, and CI refuses
     // to pass.
-    #[cfg(target_os = "macos")]
+    #[cfg(any(target_os = "macos", target_os = "freebsd"))]
     pub fn from_str(string: &str) -> Option<Self> {
         match string {
             "TCP" => Some(Protocol::Tcp),
@@ -35,7 +35,7 @@ impl fmt::Display for Protocol {
 
 #[derive(Clone, Ord, PartialOrd, PartialEq, Eq, Hash, Debug, Copy)]
 pub struct Socket {
-    pub ip: Ipv4Addr,
+    pub ip: IpAddr,
     pub port: u16,
 }
 
@@ -52,7 +52,7 @@ pub struct Connection {
     pub local_socket: LocalSocket,
 }
 
-pub fn display_ip_or_host(ip: Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) -> String {
+pub fn display_ip_or_host(ip: IpAddr, ip_to_host: &HashMap<IpAddr, String>) -> String {
     match ip_to_host.get(&ip) {
         Some(host) => host.clone(),
         None => ip.to_string(),
@@ -61,7 +61,7 @@ pub fn display_ip_or_host(ip: Ipv4Addr, ip_to_host: &HashMap<Ipv4Addr, String>) 
 
 pub fn display_connection_string(
     connection: &Connection,
-    ip_to_host: &HashMap<Ipv4Addr, String>,
+    ip_to_host: &HashMap<IpAddr, String>,
     interface_name: &str,
 ) -> String {
     format!(
@@ -80,20 +80,17 @@ impl Connection {
         local_ip: IpAddr,
         local_port: u16,
         protocol: Protocol,
-    ) -> Option<Self> {
-        match remote_socket {
-            SocketAddr::V4(remote_socket) => Some(Connection {
-                remote_socket: Socket {
-                    ip: *remote_socket.ip(),
-                    port: remote_socket.port(),
-                },
-                local_socket: LocalSocket {
-                    ip: local_ip,
-                    port: local_port,
-                    protocol,
-                },
-            }),
-            _ => None,
+    ) -> Self {
+        Connection {
+            remote_socket: Socket {
+                ip: remote_socket.ip(),
+                port: remote_socket.port(),
+            },
+            local_socket: LocalSocket {
+                ip: local_ip,
+                port: local_port,
+                protocol,
+            },
         }
     }
 }

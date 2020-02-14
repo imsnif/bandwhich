@@ -29,6 +29,14 @@ nix-env -iA nixpkgs.bandwhich
 xbps-install -S bandwhich
 ```
 
+#### Fedora
+
+`bandwhich` is available in [COPR](https://copr.fedorainfracloud.org/coprs/atim/bandwhich/), and can be installed via DNF:
+
+```
+sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
+```
+
 #### macOS
 
 ```
@@ -46,7 +54,7 @@ cargo install bandwhich
 ```
 
 This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root priviliges to run `bandwhich`. To fix that, there are a few options:
-- Give the executable elevated permissions: `sudo setcap cap_net_raw,cap_net_admin=+ep ~/.cargo/bin/bandwhich`
+- Give the executable elevated permissions: ``sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep `which bandwhich`` 
 - Run `sudo ~/.cargo/bin/bandwhich` instead of just `bandwhich`
 - Create a symlink: `sudo ln -s ~/.cargo/bin/bandwhich /usr/local/bin/` (or another path on root's PATH)
 - Set root's PATH to match your own `sudo env "PATH=$PATH" bandwhich`
@@ -64,10 +72,13 @@ USAGE:
     bandwhich [FLAGS] [OPTIONS]
 
 FLAGS:
-    -h, --help          Prints help information
-    -n, --no-resolve    Do not attempt to resolve IPs to their hostnames
-    -r, --raw           Machine friendlier output
-    -V, --version       Prints version information
+    -a, --addresses      Show remote addresses table only
+    -c, --connections    Show connections table only
+    -h, --help           Prints help information
+    -n, --no-resolve     Do not attempt to resolve IPs to their hostnames
+    -p, --processes      Show processes table only
+    -r, --raw            Machine friendlier output
+    -V, --version        Prints version information
 
 OPTIONS:
     -i, --interface <interface>    The network interface to listen on, eg. eth0
@@ -78,8 +89,10 @@ OPTIONS:
 On Linux, you can give the `bandwhich` binary a permanent capability to use the required privileges, so that you don't need to use `sudo bandwhich` anymore:
 
 ```bash
-sudo setcap cap_net_raw,cap_net_admin=+ep "$HOME/.cargo/bin/bandwhich"
+sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep `which bandwhich`
 ```
+`cap_sys_ptrace,cap_dac_read_search` gives `bandwhich` capability to list `/proc/<pid>/fd/` and resolve symlinks in that directory. It needs this capability to determine which opened port belongs to which process. `cap_net_raw,cap_net_admin` gives `bandwhich` capability to capture packets on your system.
+
 
 ### raw_mode
 `bandwhich` also supports an easier-to-parse mode that can be piped or redirected to a file. For example, try:

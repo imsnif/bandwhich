@@ -2,15 +2,11 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[1]"
 ---
-                       49Bps / 51Bps                                                                                                                                                          
+                       24Bps / 25Bps                                                                                                                                                          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                                                   1                     49Bps / 51Bps        <interface_name>:443 => 1.1.1.1:12345 (tcp)         1                     49Bps / 51Bps       
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+ 1                           1                           24Bps / 25Bps                          1.1.1.1                                 1                     24Bps / 25Bps                   
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,7 +26,11 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                1.1.1.1                                             1                     49Bps / 51Bps       
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                           1                             24Bps / 25Bps                            
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
