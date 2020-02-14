@@ -92,25 +92,37 @@ pub struct UserErrors {
     permission: bool,
     other: String,
 }
-pub fn handle_errors<I>(network_frames: I) -> String
+//acc = format!("{} \n {}", acc, error)
+pub fn collect_errors<I>(network_frames: I) -> String
 where
     I: Iterator<Item = Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>>,
 {
-    let mut is_permission_error = false;
-    let errors = network_frames.fold(String::from(""), |mut acc, elem| {
-        if let Some(iface_error) = elem.err() {
-            match (iface_error, is_permission_error) {
-                (GetInterfaceErrorKind::PermissionError(_), false) => is_permission_error = true,
-                (error, _) => acc = format!("{} \n {}", acc, error),
-            };
-        }
-        acc
-    });
-    
-    if is_permission_error {
-        format!("{} \n {}", eperm_message(), errors)
+    let errors = network_frames.fold(
+        UserErrors {
+            permission: false,
+            other: String::from(""),
+        },
+        |mut acc, elem| {
+            if let Some(iface_error) = elem.err() {
+                match iface_error {
+                    GetInterfaceErrorKind::PermissionError(_) => UserErrors {
+                        permission: true,
+                        ..acc
+                    },
+                    error => UserErrors {
+                        other: format!("{} \n {}", acc.other, error),
+                        ..acc
+                    },
+                };
+            }
+            acc
+        },
+    );
+
+    if errors.permission {
+        format!("{} \n {}", eperm_message(), errors.other)
     } else {
-        errors
+        errors.other
     }
 }
 
@@ -140,7 +152,7 @@ pub fn get_input(
         .collect::<Vec<_>>();
 
     if available_network_frames.is_empty() {
-        let all_errors = handle_errors(network_frames);
+        let all_errors = collect_errors(network_frames);
         if !all_errors.is_empty() {
             failure::bail!(all_errors);
         }
