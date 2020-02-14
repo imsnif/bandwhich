@@ -104,20 +104,23 @@ where
         |acc, elem| {
             if let Some(iface_error) = elem.err() {
                 match iface_error {
-                    GetInterfaceErrorKind::PermissionError(_) => UserErrors {
-                        permission: true,
-                        other: acc.other.to_owned()
-                    },
-                    error => UserErrors {
-                        other: format!("{} \n {}", acc.other, error),
-                        ..acc
-                    },
+                    GetInterfaceErrorKind::PermissionError(_) => {
+                        return UserErrors {
+                            permission: true,
+                            ..acc
+                        }
+                    }
+                    error => {
+                        return UserErrors {
+                            other: format!("{} \n {}", acc.other, error),
+                            ..acc
+                        }
+                    }
                 };
             }
-           acc
+            acc
         },
     );
-
     if errors.permission {
         format!("{} \n {}", eperm_message(), errors.other)
     } else {
@@ -156,7 +159,7 @@ pub fn get_input(
             failure::bail!(all_errors);
         }
 
-        failure::bail!("Failed to find any network interface \n to listen on.");
+        failure::bail!("Failed to find any network interface to listen on.");
     }
 
     let keyboard_events = Box::new(KeyboardEvents);
