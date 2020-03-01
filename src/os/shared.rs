@@ -40,9 +40,10 @@ fn get_datalink_channel(
 
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
-        Ok(_) => Err(GetInterfaceErrorKind::OtherError(
-            format!("{}: Unsupported interface type", interface.name)
-        )),
+        Ok(_) => Err(GetInterfaceErrorKind::OtherError(format!(
+            "{}: Unsupported interface type",
+            interface.name
+        ))),
         Err(e) => match e.kind() {
             ErrorKind::PermissionDenied => Err(GetInterfaceErrorKind::PermissionError(
                 interface.name.to_owned(),
@@ -117,12 +118,12 @@ where
                             return UserErrors {
                                 permission: Some(format!("{}, {}", prev_interface, interface_name)),
                                 ..acc
-                            }
+                            };
                         } else {
                             return UserErrors {
                                 permission: Some(interface_name),
                                 ..acc
-                            }
+                            };
                         }
                     }
                     error => {
@@ -130,12 +131,12 @@ where
                             return UserErrors {
                                 other: Some(format!("{} \n {}", prev_errors, error)),
                                 ..acc
-                            }
+                            };
                         } else {
                             return UserErrors {
                                 other: Some(format!("{}", error)),
                                 ..acc
-                            }
+                            };
                         }
                     }
                 };
@@ -145,12 +146,19 @@ where
     );
     if let Some(interface_name) = errors.permission {
         if let Some(other_errors) = errors.other {
-            format!("\n\n{}: {} \nAdditional Errors: \n {}", interface_name, eperm_message(), other_errors)
+            format!(
+                "\n\n{}: {} \nAdditional Errors: \n {}",
+                interface_name,
+                eperm_message(),
+                other_errors
+            )
         } else {
             format!("\n\n{}: {}", interface_name, eperm_message())
         }
     } else {
-        let other_errors = errors.other.expect("asked to collect errors but found no errors");
+        let other_errors = errors
+            .other
+            .expect("asked to collect errors but found no errors");
         format!("\n\n {}", other_errors)
     }
 }
