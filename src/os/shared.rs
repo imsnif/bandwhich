@@ -37,17 +37,18 @@ fn get_datalink_channel(
 ) -> Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(1, 0));
+
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => Err(GetInterfaceErrorKind::OtherError(
-            "Unsupported interface type".to_string(),
+            format!("{}: Unsupported interface type", interface.name)
         )),
         Err(e) => match e.kind() {
             ErrorKind::PermissionDenied => Err(GetInterfaceErrorKind::PermissionError(
                 interface.name.to_owned(),
             )),
             _ => Err(GetInterfaceErrorKind::OtherError(format!(
-                "{}::{}",
+                "{}: {}",
                 &interface.name, e
             ))),
         },
@@ -90,8 +91,8 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
 
 #[derive(Debug)]
 pub struct UserErrors {
-    permission: bool,
-    other: String,
+    permission: Option<String>,
+    other: Option<String>,
 }
 
 pub fn collect_errors<'a, I>(network_frames: I) -> String
@@ -105,22 +106,36 @@ where
 {
     let errors = network_frames.fold(
         UserErrors {
-            permission: false,
-            other: String::from(""),
+            permission: None,
+            other: None,
         },
         |acc, (_, elem)| {
             if let Some(iface_error) = elem.err() {
                 match iface_error {
-                    GetInterfaceErrorKind::PermissionError(_) => {
-                        return UserErrors {
-                            permission: true,
-                            ..acc
+                    GetInterfaceErrorKind::PermissionError(interface_name) => {
+                        if let Some(prev_interface) = acc.permission {
+                            return UserErrors {
+                                permission: Some(format!("{}, {}", prev_interface, interface_name)),
+                                ..acc
+                            }
+                        } else {
+                            return UserErrors {
+                                permission: Some(interface_name),
+                                ..acc
+                            }
                         }
                     }
                     error => {
-                        return UserErrors {
-                            other: format!("{} \n {}", acc.other, error),
-                            ..acc
+                        if let Some(prev_errors) = acc.other {
+                            return UserErrors {
+                                other: Some(format!("{} \n {}", prev_errors, error)),
+                                ..acc
+                            }
+                        } else {
+                            return UserErrors {
+                                other: Some(format!("{}", error)),
+                                ..acc
+                            }
                         }
                     }
                 };
@@ -128,10 +143,15 @@ where
             acc
         },
     );
-    if errors.permission {
-        format!("{} \n {}", eperm_message(), errors.other)
+    if let Some(interface_name) = errors.permission {
+        if let Some(other_errors) = errors.other {
+            format!("\n\n{}: {} \nAdditional Errors: \n {}", interface_name, eperm_message(), other_errors)
+        } else {
+            format!("\n\n{}: {}", interface_name, eperm_message())
+        }
     } else {
-        errors.other
+        let other_errors = errors.other.expect("asked to collect errors but found no errors");
+        format!("\n\n {}", other_errors)
     }
 }
 
