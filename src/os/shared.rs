@@ -1,14 +1,14 @@
 use ::pnet_bandwhich_fork::datalink::Channel::Ethernet;
 use ::pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use ::pnet_bandwhich_fork::datalink::{self, Config, NetworkInterface};
-use ::std::io::{self, stdin, Write};
+use ::std::io::{self, stdin, ErrorKind, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;
 use ::tokio::runtime::Runtime;
 
-use ::std::io::ErrorKind;
 use ::std::time;
 
+use crate::os::errors::GetInterfaceErrorKind;
 use signal_hook::iterator::Signals;
 
 #[cfg(target_os = "linux")]
@@ -34,17 +34,25 @@ impl Iterator for KeyboardEvents {
 
 fn get_datalink_channel(
     interface: &NetworkInterface,
-) -> Result<Box<dyn DataLinkReceiver>, std::io::Error> {
+) -> Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(1, 0));
 
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
-        Ok(_) => Err(std::io::Error::new(
-            ErrorKind::Other,
-            "Unsupported interface type",
-        )),
-        Err(e) => Err(e),
+        Ok(_) => Err(GetInterfaceErrorKind::OtherError(format!(
+            "{}: Unsupported interface type",
+            interface.name
+        ))),
+        Err(e) => match e.kind() {
+            ErrorKind::PermissionDenied => Err(GetInterfaceErrorKind::PermissionError(
+                interface.name.to_owned(),
+            )),
+            _ => Err(GetInterfaceErrorKind::OtherError(format!(
+                "{}: {}",
+                &interface.name, e
+            ))),
+        },
     }
 }
 
@@ -80,6 +88,79 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
             writeln!(stdout, "{}", output).unwrap();
         }
     })
+}
+
+#[derive(Debug)]
+pub struct UserErrors {
+    permission: Option<String>,
+    other: Option<String>,
+}
+
+pub fn collect_errors<'a, I>(network_frames: I) -> String
+where
+    I: Iterator<
+        Item = (
+            &'a NetworkInterface,
+            Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind>,
+        ),
+    >,
+{
+    let errors = network_frames.fold(
+        UserErrors {
+            permission: None,
+            other: None,
+        },
+        |acc, (_, elem)| {
+            if let Some(iface_error) = elem.err() {
+                match iface_error {
+                    GetInterfaceErrorKind::PermissionError(interface_name) => {
+                        if let Some(prev_interface) = acc.permission {
+                            return UserErrors {
+                                permission: Some(format!("{}, {}", prev_interface, interface_name)),
+                                ..acc
+                            };
+                        } else {
+                            return UserErrors {
+                                permission: Some(interface_name),
+                                ..acc
+                            };
+                        }
+                    }
+                    error => {
+                        if let Some(prev_errors) = acc.other {
+                            return UserErrors {
+                                other: Some(format!("{} \n {}", prev_errors, error)),
+                                ..acc
+                            };
+                        } else {
+                            return UserErrors {
+                                other: Some(format!("{}", error)),
+                                ..acc
+                            };
+                        }
+                    }
+                };
+            }
+            acc
+        },
+    );
+    if let Some(interface_name) = errors.permission {
+        if let Some(other_errors) = errors.other {
+            format!(
+                "\n\n{}: {} \nAdditional Errors: \n {}",
+                interface_name,
+                eperm_message(),
+                other_errors
+            )
+        } else {
+            format!("\n\n{}: {}", interface_name, eperm_message())
+        }
+    } else {
+        let other_errors = errors
+            .other
+            .expect("asked to collect errors but found no errors");
+        format!("\n\n {}", other_errors)
+    }
 }
 
 pub fn get_input(
@@ -121,13 +202,11 @@ pub fn get_input(
     };
 
     if available_network_frames.is_empty() {
-        for (_, iface) in network_frames {
-            if let Some(iface_error) = iface.err() {
-                if let ErrorKind::PermissionDenied = iface_error.kind() {
-                    failure::bail!(eperm_message())
-                }
-            }
+        let all_errors = collect_errors(network_frames.clone());
+        if !all_errors.is_empty() {
+            failure::bail!(all_errors);
         }
+
         failure::bail!("Failed to find any network interface to listen on.");
     }
 

@@ -7,6 +7,7 @@ pub(self) mod lsof;
 #[cfg(any(target_os = "macos", target_os = "freebsd"))]
 mod lsof_utils;
 
+mod errors;
 mod shared;
 
 pub use shared::*;
