@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+* Add custom error handling (https://github.com/imsnif/bandwhich/pull/104) - [@captain-yossarian](https://github.com/captain-yossarian)
+
 ## [0.11.0] - 2020-01-25
 
 ### Added
