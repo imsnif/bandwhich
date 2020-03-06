@@ -58,6 +58,7 @@ This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root privilig
 - Run `sudo ~/.cargo/bin/bandwhich` instead of just `bandwhich`
 - Create a symlink: `sudo ln -s ~/.cargo/bin/bandwhich /usr/local/bin/` (or another path on root's PATH)
 - Set root's PATH to match your own: `sudo env "PATH=$PATH" bandwhich`
+- Tell sudo to use your user's environment variables: `sudo -E bandwhich`
 - Pass the desired target directory to cargo: `sudo cargo install bandwhich --root /usr/local/bin/`
 
 #### Download a prebuilt binary
