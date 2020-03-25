@@ -8,6 +8,7 @@ static RECALL_LENGTH: usize = 5;
 pub trait Bandwidth {
     fn get_total_bytes_downloaded(&self) -> u128;
     fn get_total_bytes_uploaded(&self) -> u128;
+    fn combine_bandwidth(&mut self, other: &impl Bandwidth);
 }
 
 #[derive(Default)]
@@ -39,21 +40,31 @@ impl ConnectionData {
     }
 }
 
+// These impls seem super repetitive, should we add either a macro or make Bandwidth
+// a nested struct in NetworkData and ConnectionData?
 impl Bandwidth for ConnectionData {
+    fn get_total_bytes_downloaded(&self) -> u128 {
+        self.total_bytes_downloaded
+    }
     fn get_total_bytes_uploaded(&self) -> u128 {
         self.total_bytes_uploaded
     }
-    fn get_total_bytes_downloaded(&self) -> u128 {
-        self.total_bytes_downloaded
+    fn combine_bandwidth(&mut self, other: &impl Bandwidth) {
+        self.total_bytes_downloaded += other.get_total_bytes_downloaded();
+        self.total_bytes_uploaded += other.get_total_bytes_uploaded();
     }
 }
 
 impl Bandwidth for NetworkData {
+    fn get_total_bytes_downloaded(&self) -> u128 {
+        self.total_bytes_downloaded
+    }
     fn get_total_bytes_uploaded(&self) -> u128 {
         self.total_bytes_uploaded
     }
-    fn get_total_bytes_downloaded(&self) -> u128 {
-        self.total_bytes_downloaded
+    fn combine_bandwidth(&mut self, other: &impl Bandwidth) {
+        self.total_bytes_downloaded += other.get_total_bytes_downloaded();
+        self.total_bytes_uploaded += other.get_total_bytes_uploaded();
     }
 }
 
@@ -69,7 +80,8 @@ pub struct UIState {
     pub connections: BTreeMap<Connection, ConnectionData>,
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
-    utilization_data: VecDeque<UtilizationData>,
+    pub cumulative_mode: bool,
+    pub utilization_data: VecDeque<UtilizationData>, // This needs to be public for the struct-update syntax
 }
 
 impl UIState {
@@ -167,10 +179,32 @@ impl UIState {
         for (_, connection_data) in connections.iter_mut() {
             connection_data.divide_by(divide_by)
         }
-        self.processes = processes;
-        self.remote_addresses = remote_addresses;
-        self.connections = connections;
-        self.total_bytes_downloaded = total_bytes_downloaded / divide_by;
-        self.total_bytes_uploaded = total_bytes_uploaded / divide_by;
+
+        if self.cumulative_mode {
+            merge_bandwidth(&mut self.processes, processes);
+            merge_bandwidth(&mut self.remote_addresses, remote_addresses);
+            merge_bandwidth(&mut self.connections, connections);
+            self.total_bytes_downloaded += total_bytes_downloaded / divide_by;
+            self.total_bytes_uploaded += total_bytes_uploaded / divide_by;
+        } else {
+            self.processes = processes;
+            self.remote_addresses = remote_addresses;
+            self.connections = connections;
+            self.total_bytes_downloaded = total_bytes_downloaded / divide_by;
+            self.total_bytes_uploaded = total_bytes_uploaded / divide_by;
+        }
+    }
+}
+
+fn merge_bandwidth<K, V>(self_map: &mut BTreeMap<K, V>, other_map: BTreeMap<K, V>)
+where
+    K: Eq + Ord,
+    V: Bandwidth,
+{
+    for (key, b_other) in other_map {
+        self_map
+            .entry(key)
+            .and_modify(|b_self| b_self.combine_bandwidth(&b_other))
+            .or_insert(b_other);
     }
 }

@@ -146,6 +146,7 @@ fn opts_factory(raw: bool) -> Opt {
             addresses: false,
             connections: false,
             processes: false,
+            total: false,
         },
     }
 }

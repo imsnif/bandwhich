@@ -107,6 +107,7 @@ fn basic_only_processes() {
             addresses: false,
             connections: false,
             processes: true,
+            total: false,
         },
     };
 
@@ -131,6 +132,7 @@ fn basic_only_connections() {
             addresses: false,
             connections: true,
             processes: false,
+            total: false,
         },
     };
 
@@ -155,6 +157,7 @@ fn basic_only_addresses() {
             addresses: true,
             connections: false,
             processes: false,
+            total: false,
         },
     };
 
@@ -177,6 +180,7 @@ fn two_packets_only_processes() {
             addresses: false,
             connections: false,
             processes: true,
+            total: false,
         },
     };
 
@@ -200,6 +204,7 @@ fn two_packets_only_connections() {
             addresses: false,
             connections: true,
             processes: false,
+            total: false,
         },
     };
 
@@ -223,6 +228,7 @@ fn two_packets_only_addresses() {
             addresses: true,
             connections: false,
             processes: false,
+            total: false,
         },
     };
 
@@ -248,6 +254,7 @@ fn two_windows_split_horizontally() {
             addresses: true,
             connections: true,
             processes: false,
+            total: false,
         },
     };
 
@@ -272,6 +279,7 @@ fn two_windows_split_vertically() {
             addresses: true,
             connections: true,
             processes: false,
+            total: false,
         },
     };
 

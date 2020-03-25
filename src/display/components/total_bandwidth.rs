@@ -13,6 +13,7 @@ pub struct TotalBandwidth<'a> {
 
 impl<'a> TotalBandwidth<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
+        let c_mode = self.state.cumulative_mode;
         let title_text = {
             let paused_str = if self.paused { "[PAUSED]" } else { "" };
             let color = if self.paused {
@@ -23,9 +24,9 @@ impl<'a> TotalBandwidth<'a> {
 
             [Text::styled(
                 format!(
-                    " Total Rate Up / Down: {} / {} {}",
-                    DisplayBandwidth(self.state.total_bytes_uploaded as f64),
-                    DisplayBandwidth(self.state.total_bytes_downloaded as f64),
+                    " Total Up / Down: {} / {} {}",
+                    DisplayBandwidth(self.state.total_bytes_uploaded as f64, c_mode),
+                    DisplayBandwidth(self.state.total_bytes_downloaded as f64, c_mode),
                     paused_str
                 ),
                 Style::default().fg(color).modifier(Modifier::BOLD),

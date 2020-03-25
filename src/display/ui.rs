@@ -32,7 +32,10 @@ where
         terminal.hide_cursor().unwrap();
         Ui {
             terminal,
-            state: Default::default(),
+            state: UIState {
+                cumulative_mode: opts.total,
+                ..Default::default()
+            },
             ip_to_host: Default::default(),
             opts,
         }

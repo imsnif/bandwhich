@@ -12,11 +12,11 @@ use crate::network::{display_connection_string, display_ip_or_host};
 use ::std::net::IpAddr;
 use std::iter::FromIterator;
 
-fn display_upload_and_download(bandwidth: &impl Bandwidth) -> String {
+fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> String {
     format!(
         "{} / {}",
-        DisplayBandwidth(bandwidth.get_total_bytes_uploaded() as f64),
-        DisplayBandwidth(bandwidth.get_total_bytes_downloaded() as f64)
+        DisplayBandwidth(bandwidth.get_total_bytes_uploaded() as f64, total),
+        DisplayBandwidth(bandwidth.get_total_bytes_downloaded() as f64, total)
     )
 }
 
@@ -89,12 +89,12 @@ impl<'a> Table<'a> {
                         &connection_data.interface_name,
                     ),
                     connection_data.process_name.to_string(),
-                    display_upload_and_download(*connection_data),
+                    display_upload_and_download(*connection_data, state.cumulative_mode),
                 ]
             })
             .collect();
         let connections_title = "Utilization by connection";
-        let connections_column_names = &["Connection", "Process", "Rate Up / Down"];
+        let connections_column_names = &["Connection", "Process", "Up / Down"];
         let mut breakpoints = BTreeMap::new();
         breakpoints.insert(
             0,
@@ -140,12 +140,12 @@ impl<'a> Table<'a> {
                 vec![
                     (*process_name).to_string(),
                     data_for_process.connection_count.to_string(),
-                    display_upload_and_download(*data_for_process),
+                    display_upload_and_download(*data_for_process, state.cumulative_mode),
                 ]
             })
             .collect();
         let processes_title = "Utilization by process name";
-        let processes_column_names = &["Process", "Connections", "Rate Up / Down"];
+        let processes_column_names = &["Process", "Connections", "Up / Down"];
         let mut breakpoints = BTreeMap::new();
         breakpoints.insert(
             0,
@@ -195,12 +195,12 @@ impl<'a> Table<'a> {
                 vec![
                     remote_address,
                     data_for_remote_address.connection_count.to_string(),
-                    display_upload_and_download(*data_for_remote_address),
+                    display_upload_and_download(*data_for_remote_address, state.cumulative_mode),
                 ]
             })
             .collect();
         let remote_addresses_title = "Utilization by remote address";
-        let remote_addresses_column_names = &["Remote Address", "Connections", "Rate Up / Down"];
+        let remote_addresses_column_names = &["Remote Address", "Connections", "Up / Down"];
         let mut breakpoints = BTreeMap::new();
         breakpoints.insert(
             0,

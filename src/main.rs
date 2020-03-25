@@ -59,6 +59,9 @@ pub struct RenderOpts {
     #[structopt(short, long)]
     /// Show remote addresses table only
     addresses: bool,
+    #[structopt(short, long)]
+    /// Show total (cumulative) usages
+    total: bool, // I don't like `total` as much as `cumulative`, but -c is taken?
 }
 
 fn main() {
