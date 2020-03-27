@@ -9,8 +9,8 @@ use ::tui::widgets::{Block, Borders, Row, Widget};
 use crate::display::{Bandwidth, DisplayBandwidth, UIState};
 use crate::network::{display_connection_string, display_ip_or_host};
 
-use ::std::net::IpAddr;
-use std::iter::FromIterator;
+use ::std::net::IpAddr; // Just curious, why not just std::net::IpAddr?
+use std::iter::FromIterator; // This line doesn't have the leading :: here
 
 fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> String {
     format!(
@@ -20,6 +20,7 @@ fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> Strin
     )
 }
 
+// Why is this returning the sorted list when it mutates things?
 fn sort_by_bandwidth<'a, T>(
     list: &'a mut Vec<(T, &impl Bandwidth)>,
 ) -> &'a Vec<(T, &'a impl Bandwidth)> {
@@ -38,6 +39,12 @@ fn sort_by_bandwidth<'a, T>(
     });
     list
 }
+// I'd suggest using this:
+// fn sort_by_bandwidth<T>(list: &mut Vec<(T, impl Bandwidth)>) {
+//     list.sort_by_key(|(_, b)| {
+//         cmp::max(b.get_total_bytes_downloaded(), b.get_total_bytes_uploaded())
+//     });
+// }
 
 pub enum ColumnCount {
     Two,

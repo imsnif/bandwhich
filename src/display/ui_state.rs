@@ -1,9 +1,12 @@
+use ::std::cmp;
 use ::std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use ::std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::iter::FromIterator;
 
 use crate::network::{Connection, LocalSocket, Utilization};
 
 static RECALL_LENGTH: usize = 5;
+static MAX_BANDWIDTH_ITEMS: usize = 1000; // Would this be better suited as a `const`?
 
 pub trait Bandwidth {
     fn get_total_bytes_downloaded(&self) -> u128;
@@ -11,14 +14,14 @@ pub trait Bandwidth {
     fn combine_bandwidth(&mut self, other: &impl Bandwidth);
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct NetworkData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub connection_count: u128,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct ConnectionData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
@@ -75,6 +78,13 @@ pub struct UtilizationData {
 
 #[derive(Default)]
 pub struct UIState {
+    // We aren't really taking advantage of the self-sorting of the BTreeMap here,
+    // but it would be rather difficult to, as it sorts by key, not value. Perhaps we
+    // should just use a HashMap?
+    // We could also use a HashMap internally for insertions and merging, but cache a
+    // sorted vector so that doesn't need sorting during the display step. This would
+    // also fix Bandwhich eating CPU cycles when paused, but is a bit of a non-issue
+    // with `MAX_BANDWIDTH_ITEMS` in place.
     pub processes: BTreeMap<String, NetworkData>,
     pub remote_addresses: BTreeMap<IpAddr, NetworkData>,
     pub connections: BTreeMap<Connection, ConnectionData>,
@@ -193,6 +203,9 @@ impl UIState {
             self.total_bytes_downloaded = total_bytes_downloaded / divide_by;
             self.total_bytes_uploaded = total_bytes_uploaded / divide_by;
         }
+        prune_map(&mut self.processes);
+        prune_map(&mut self.remote_addresses);
+        prune_map(&mut self.connections);
     }
 }
 
@@ -207,4 +220,21 @@ where
             .and_modify(|b_self| b_self.combine_bandwidth(&b_other))
             .or_insert(b_other);
     }
+}
+
+fn prune_map(map: &mut BTreeMap<impl Eq + Ord + Clone, impl Bandwidth + Clone>) {
+    if map.len() > MAX_BANDWIDTH_ITEMS {
+        let mut bandwidth_list = Vec::from_iter(map.clone());
+        sort_by_bandwidth(&mut bandwidth_list);
+        for (key, _) in &bandwidth_list[MAX_BANDWIDTH_ITEMS..] {
+            map.remove(key);
+        }
+    }
+}
+
+// This is duplicated from table.rs temporarily
+fn sort_by_bandwidth<T>(list: &mut Vec<(T, impl Bandwidth)>) {
+    list.sort_by_key(|(_, b)| {
+        cmp::max(b.get_total_bytes_downloaded(), b.get_total_bytes_uploaded())
+    });
 }
