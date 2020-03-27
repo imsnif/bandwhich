@@ -235,6 +235,9 @@ fn prune_map(map: &mut BTreeMap<impl Eq + Ord + Clone, impl Bandwidth + Clone>) 
 // This is duplicated from table.rs temporarily
 fn sort_by_bandwidth<T>(list: &mut Vec<(T, impl Bandwidth)>) {
     list.sort_by_key(|(_, b)| {
-        cmp::max(b.get_total_bytes_downloaded(), b.get_total_bytes_uploaded())
+        cmp::Reverse(cmp::max(
+            b.get_total_bytes_downloaded(),
+            b.get_total_bytes_uploaded(),
+        ))
     });
 }

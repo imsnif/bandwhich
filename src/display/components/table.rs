@@ -42,7 +42,10 @@ fn sort_by_bandwidth<'a, T>(
 // I'd suggest using this:
 // fn sort_by_bandwidth<T>(list: &mut Vec<(T, impl Bandwidth)>) {
 //     list.sort_by_key(|(_, b)| {
-//         cmp::max(b.get_total_bytes_downloaded(), b.get_total_bytes_uploaded())
+//         cmp::Reverse(cmp::max(
+//             b.get_total_bytes_downloaded(),
+//             b.get_total_bytes_uploaded(),
+//         ))
 //     });
 // }
 
