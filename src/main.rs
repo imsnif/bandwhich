@@ -61,7 +61,7 @@ pub struct RenderOpts {
     addresses: bool,
     #[structopt(short, long)]
     /// Show total (cumulative) usages
-    total: bool, // I don't like `total` as much as `cumulative`, but -c is taken?
+    total_utilization: bool,
 }
 
 fn main() {

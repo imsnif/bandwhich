@@ -1,12 +1,12 @@
 use ::std::cmp;
 use ::std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
+use ::std::iter::FromIterator;
 use ::std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
-use std::iter::FromIterator;
 
 use crate::network::{Connection, LocalSocket, Utilization};
 
 static RECALL_LENGTH: usize = 5;
-static MAX_BANDWIDTH_ITEMS: usize = 1000; // Would this be better suited as a `const`?
+static MAX_BANDWIDTH_ITEMS: usize = 1000;
 
 pub trait Bandwidth {
     fn get_total_bytes_downloaded(&self) -> u128;
@@ -43,8 +43,6 @@ impl ConnectionData {
     }
 }
 
-// These impls seem super repetitive, should we add either a macro or make Bandwidth
-// a nested struct in NetworkData and ConnectionData?
 impl Bandwidth for ConnectionData {
     fn get_total_bytes_downloaded(&self) -> u128 {
         self.total_bytes_downloaded
@@ -91,7 +89,7 @@ pub struct UIState {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub cumulative_mode: bool,
-    pub utilization_data: VecDeque<UtilizationData>, // This needs to be public for the struct-update syntax
+    pub utilization_data: VecDeque<UtilizationData>,
 }
 
 impl UIState {
@@ -137,6 +135,7 @@ impl UIState {
         for state in self.utilization_data.iter().rev() {
             let connections_to_procs = &state.connections_to_procs;
             let network_utilization = &state.network_utilization;
+
             for (connection, connection_info) in &network_utilization.connections {
                 let connection_previously_seen = !seen_connections.insert(connection);
                 let connection_data = connections.entry(connection.clone()).or_default();

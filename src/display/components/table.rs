@@ -9,8 +9,8 @@ use ::tui::widgets::{Block, Borders, Row, Widget};
 use crate::display::{Bandwidth, DisplayBandwidth, UIState};
 use crate::network::{display_connection_string, display_ip_or_host};
 
-use ::std::net::IpAddr; // Just curious, why not just std::net::IpAddr?
-use std::iter::FromIterator; // This line doesn't have the leading :: here
+use ::std::iter::FromIterator;
+use ::std::net::IpAddr;
 
 fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> String {
     format!(

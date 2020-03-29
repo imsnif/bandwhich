@@ -33,7 +33,7 @@ where
         Ui {
             terminal,
             state: UIState {
-                cumulative_mode: opts.total,
+                cumulative_mode: opts.total_utilization,
                 ..Default::default()
             },
             ip_to_host: Default::default(),
