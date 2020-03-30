@@ -1,7 +1,7 @@
+use ::pnet_bandwhich_fork::datalink::pcap::Config;
 use ::pnet_bandwhich_fork::datalink::Channel::Ethernet;
 use ::pnet_bandwhich_fork::datalink::DataLinkReceiver;
 use ::pnet_bandwhich_fork::datalink::{self, NetworkInterface};
-use ::pnet_bandwhich_fork::datalink::pcap::Config;
 use ::std::io::{self, stdin, ErrorKind, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;
