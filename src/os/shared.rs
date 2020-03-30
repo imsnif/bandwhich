@@ -1,6 +1,7 @@
 use ::pnet_bandwhich_fork::datalink::Channel::Ethernet;
 use ::pnet_bandwhich_fork::datalink::DataLinkReceiver;
-use ::pnet_bandwhich_fork::datalink::{self, Config, NetworkInterface};
+use ::pnet_bandwhich_fork::datalink::{self, NetworkInterface};
+use ::pnet_bandwhich_fork::datalink::pcap::Config;
 use ::std::io::{self, stdin, ErrorKind, Write};
 use ::termion::event::Event;
 use ::termion::input::TermRead;
@@ -38,7 +39,7 @@ fn get_datalink_channel(
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(1, 0));
 
-    match datalink::channel(interface, config) {
+    match datalink::pcap::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => Err(GetInterfaceErrorKind::OtherError(format!(
             "{}: Unsupported interface type",

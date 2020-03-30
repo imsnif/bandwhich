@@ -18,7 +18,6 @@ license = "MIT"
 exclude = ["src/tests/*", "demo.gif"]
 
 [dependencies]
-pnet_bandwhich_fork = "0.23.1"
 ipnetwork = "0.15.0"
 tui = "0.5"
 termion = "1.5"
@@ -31,6 +30,10 @@ lazy_static = "1.4.0"
 tokio = { version = "0.2", features = ["rt-core", "sync"] }
 trust-dns-resolver = "0.18.1"
 async-trait = "0.1.21"
+
+[dependencies.pnet_bandwhich_fork]
+version = "0.23.1"
+features = ["pcap"]
 
 [target.'cfg(target_os="linux")'.dependencies]
 procfs = "0.7.4"
