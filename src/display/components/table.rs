@@ -14,11 +14,11 @@ use ::std::net::IpAddr;
 fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> String {
     format!(
         "{} / {}",
-        DisplayBandwidth{
+        DisplayBandwidth {
             bandwidth: bandwidth.get_total_bytes_uploaded() as f64,
             as_rate: !total,
         },
-        DisplayBandwidth{
+        DisplayBandwidth {
             bandwidth: bandwidth.get_total_bytes_downloaded() as f64,
             as_rate: !total,
         },
