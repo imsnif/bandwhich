@@ -7,7 +7,7 @@ pub struct DisplayBandwidth {
 
 impl fmt::Display for DisplayBandwidth {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let suffix = if self.as_rate { "" } else { "ps" };
+        let suffix = if self.as_rate { "ps" } else { "" };
         if self.bandwidth > 999_999_999.0 {
             write!(f, "{:.2}GB{}", self.bandwidth / 1_000_000_000.0, suffix)
         } else if self.bandwidth > 999_999.0 {
