@@ -30,12 +30,11 @@ where
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
+        let mut state: UIState = Default::default();
+        state.cumulative_mode = opts.total_utilization;
         Ui {
             terminal,
-            state: UIState {
-                cumulative_mode: opts.total_utilization,
-                ..Default::default()
-            },
+            state,
             ip_to_host: Default::default(),
             opts,
         }

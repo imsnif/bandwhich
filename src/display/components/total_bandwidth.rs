@@ -25,8 +25,14 @@ impl<'a> TotalBandwidth<'a> {
             [Text::styled(
                 format!(
                     " Total Up / Down: {} / {} {}",
-                    DisplayBandwidth(self.state.total_bytes_uploaded as f64, c_mode),
-                    DisplayBandwidth(self.state.total_bytes_downloaded as f64, c_mode),
+                    DisplayBandwidth{
+                        bandwidth: self.state.total_bytes_uploaded as f64,
+                        as_rate: !c_mode,
+                    },
+                    DisplayBandwidth{
+                        bandwidth: self.state.total_bytes_downloaded as f64,
+                        as_rate: !c_mode,
+                    },
                     paused_str
                 ),
                 Style::default().fg(color).modifier(Modifier::BOLD),
