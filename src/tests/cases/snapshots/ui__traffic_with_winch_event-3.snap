@@ -2,7 +2,7 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[2]"
 ---
-                       21Bps / 0Bps                                                                                                                                                           
+                  21Bps / 0Bps                                                                                                                                                                
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

@@ -2,7 +2,7 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[1]"
 ---
- Total Rate Up / Down: 0Bps / 0Bps [PAUSED]                                                                                                                                                   
+ Total Up / Down: 0Bps / 0Bps [PAUSED]                                                                                                                                                        
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
