@@ -207,7 +207,7 @@ fn multiple_processes_with_multiple_connections() {
             "10.0.0.2",
             1337,
             4435,
-            b"Awesome, I'm from 3.3.3.3",
+            b"Greetings traveller, I'm from 3.3.3.3",
         )),
         Some(build_tcp_packet(
             "2.2.2.2",
