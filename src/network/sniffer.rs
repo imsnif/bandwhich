@@ -92,7 +92,7 @@ impl Sniffer {
         Sniffer {
             network_interface,
             network_frames,
-            dns_shown
+            dns_shown,
         }
     }
     pub fn next(&mut self) -> Option<Segment> {
@@ -120,9 +120,11 @@ impl Sniffer {
             _ => {
                 let pkg = EthernetPacket::new(bytes)?;
                 match pkg.get_ethertype() {
-                    EtherTypes::Ipv4 => {
-                        Self::handle_v4(Ipv4Packet::new(pkg.payload())?, &self.network_interface, self.dns_shown)
-                    }
+                    EtherTypes::Ipv4 => Self::handle_v4(
+                        Ipv4Packet::new(pkg.payload())?,
+                        &self.network_interface,
+                        self.dns_shown,
+                    ),
                     EtherTypes::Ipv6 => {
                         Self::handle_v6(Ipv6Packet::new(pkg.payload())?, &self.network_interface)
                     }

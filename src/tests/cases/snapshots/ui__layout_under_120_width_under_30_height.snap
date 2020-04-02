@@ -30,5 +30,5 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                                                                                                     │
 │                                                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
- Press <SPACE> to pause.                                                                                               
+ Press <SPACE> to pause (DNS queries hidden).                                                                          
 
