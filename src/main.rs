@@ -48,7 +48,7 @@ pub struct Opt {
     render_opts: RenderOpts,
 }
 
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Copy, Clone)]
 pub struct RenderOpts {
     #[structopt(short, long)]
     /// Show processes table only
@@ -59,6 +59,9 @@ pub struct RenderOpts {
     #[structopt(short, long)]
     /// Show remote addresses table only
     addresses: bool,
+    #[structopt(short, long)]
+    /// Show DNS queries
+    show_dns: bool,
 }
 
 fn main() {
@@ -115,6 +118,7 @@ where
 {
     let running = Arc::new(AtomicBool::new(true));
     let paused = Arc::new(AtomicBool::new(false));
+    let dns_shown = Arc::new(AtomicBool::new(opts.render_opts.show_dns));
 
     let mut active_threads = vec![];
 
@@ -137,11 +141,15 @@ where
                 .spawn({
                     let ui = ui.clone();
                     let paused = paused.clone();
+                    let show_dns = dns_shown.clone();
                     move || {
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
-                                ui.draw(paused.load(Ordering::SeqCst));
+                                ui.draw(
+                                    paused.load(Ordering::SeqCst),
+                                    show_dns.load(Ordering::SeqCst),
+                                );
                             })
                         });
                     }
@@ -155,6 +163,7 @@ where
         .spawn({
             let running = running.clone();
             let paused = paused.clone();
+            let show_dns = dns_shown.clone();
             let network_utilization = network_utilization.clone();
             move || {
                 while running.load(Ordering::Acquire) {
@@ -184,7 +193,7 @@ where
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused);
+                            ui.draw(paused, show_dns.load(Ordering::SeqCst));
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -235,12 +244,13 @@ where
         .map(|(iface, frames)| {
             let name = format!("sniffing_handler_{}", iface.name);
             let running = running.clone();
+            let show_dns = opts.render_opts.show_dns.clone();
             let network_utilization = network_utilization.clone();
 
             thread::Builder::new()
                 .name(name)
                 .spawn(move || {
-                    let mut sniffer = Sniffer::new(iface, frames);
+                    let mut sniffer = Sniffer::new(iface, frames, show_dns);
 
                     while running.load(Ordering::Acquire) {
                         if let Some(segment) = sniffer.next() {

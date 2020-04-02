@@ -580,6 +580,7 @@ fn no_resolve_mode() {
             addresses: false,
             connections: false,
             processes: false,
+            show_dns: false,
         },
     };
     start(backend, os_input, opts);
