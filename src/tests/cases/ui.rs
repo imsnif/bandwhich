@@ -733,7 +733,6 @@ fn sustained_traffic_from_multiple_processes_total() {
     assert_snapshot!(&terminal_draw_events_mirror[2]);
 }
 
-
 #[test]
 fn sustained_traffic_from_multiple_processes_bi_directional() {
     let network_frames = vec![NetworkFrames::new(vec![
