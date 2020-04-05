@@ -108,6 +108,7 @@ fn basic_only_processes() {
             addresses: false,
             connections: false,
             processes: true,
+            total_utilization: false,
         },
     };
 
