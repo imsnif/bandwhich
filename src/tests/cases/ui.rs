@@ -103,6 +103,32 @@ fn basic_only_processes() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
+        show_dns: false,
+        render_opts: RenderOpts {
+            addresses: false,
+            connections: false,
+            processes: true,
+        },
+    };
+
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+}
+
+#[test]
+fn basic_processes_with_dns_queries() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        None, // sleep
+    ]) as Box<dyn DataLinkReceiver>];
+
+    let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let os_input = os_input_output(network_frames, 1);
+    let opts = Opt {
+        interface: Some(String::from("interface_name")),
+        raw: false,
+        no_resolve: false,
+        show_dns: true,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,
@@ -127,6 +153,7 @@ fn basic_only_connections() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: false,
             connections: true,
@@ -151,6 +178,7 @@ fn basic_only_addresses() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: true,
             connections: false,
@@ -173,6 +201,7 @@ fn two_packets_only_processes() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,
@@ -196,6 +225,7 @@ fn two_packets_only_connections() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: false,
             connections: true,
@@ -219,6 +249,7 @@ fn two_packets_only_addresses() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: true,
             connections: false,
@@ -244,6 +275,7 @@ fn two_windows_split_horizontally() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: true,
             connections: true,
@@ -268,6 +300,7 @@ fn two_windows_split_vertically() {
         interface: Some(String::from("interface_name")),
         raw: false,
         no_resolve: false,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: true,
             connections: true,

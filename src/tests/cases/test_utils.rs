@@ -57,6 +57,13 @@ pub fn sample_frames() -> Vec<Box<dyn DataLinkReceiver>> {
             443,
             b"I am a fake tcp download packet",
         )),
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "1.1.1.1",
+            54321,
+            53,
+            b"I am a fake DNS query packet",
+        )),
     ]) as Box<dyn DataLinkReceiver>]
 }
 
@@ -142,6 +149,7 @@ fn opts_factory(raw: bool) -> Opt {
         interface: Some(String::from("interface_name")),
         raw,
         no_resolve: false,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,

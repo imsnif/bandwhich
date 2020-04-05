@@ -77,7 +77,7 @@ where
             ));
         }
     }
-    pub fn draw(&mut self, paused: bool) {
+    pub fn draw(&mut self, paused: bool, show_dns: bool) {
         let state = &self.state;
         let children = self.get_tables_to_display();
         self.terminal
@@ -87,7 +87,7 @@ where
                     state: &state,
                     paused,
                 };
-                let help_text = HelpText { paused };
+                let help_text = HelpText { paused, show_dns };
                 let layout = Layout {
                     header: total_bandwidth,
                     children,
