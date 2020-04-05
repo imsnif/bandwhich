@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+* Hide DNS queries by default. This can be overridden with `-s, --show-dns` (https://github.com/imsnif/bandwhich/pull/161) - [@olesh0](https://github.com/olehs0)
+
 ### Fixed
 *  Fix the loss of large, merged packets (https://github.com/imsnif/bandwhich/pull/158) - [@TheLostLambda](https://github.com/TheLostLambda)
 
