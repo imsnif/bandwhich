@@ -576,11 +576,11 @@ fn no_resolve_mode() {
         interface: Some(String::from("interface_name")),
         raw: true,
         no_resolve: true,
+        show_dns: false,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,
             processes: false,
-            show_dns: false,
         },
     };
     start(backend, os_input, opts);

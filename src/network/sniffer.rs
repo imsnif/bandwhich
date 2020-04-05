@@ -166,16 +166,14 @@ impl Sniffer {
         let from = SocketAddr::new(ip_packet.get_source().into(), source_port);
         let to = SocketAddr::new(ip_packet.get_destination().into(), destination_port);
 
-        if !show_dns {
-            if from.port() == 53 {
-                return None;
-            }
-        }
-
         let connection = match direction {
             Direction::Download => Connection::new(from, to.ip(), destination_port, protocol),
             Direction::Upload => Connection::new(to, from.ip(), source_port, protocol),
         };
+
+        if !show_dns && connection.remote_socket.port == 53 {
+            return None;
+        }
         Some(Segment {
             interface_name,
             connection,

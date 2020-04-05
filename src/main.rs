@@ -46,6 +46,9 @@ pub struct Opt {
     no_resolve: bool,
     #[structopt(flatten)]
     render_opts: RenderOpts,
+    #[structopt(short, long)]
+    /// Show DNS queries
+    show_dns: bool,
 }
 
 #[derive(StructOpt, Debug, Copy, Clone)]
@@ -59,9 +62,6 @@ pub struct RenderOpts {
     #[structopt(short, long)]
     /// Show remote addresses table only
     addresses: bool,
-    #[structopt(short, long)]
-    /// Show DNS queries
-    show_dns: bool,
 }
 
 fn main() {
@@ -118,7 +118,7 @@ where
 {
     let running = Arc::new(AtomicBool::new(true));
     let paused = Arc::new(AtomicBool::new(false));
-    let dns_shown = Arc::new(AtomicBool::new(opts.render_opts.show_dns));
+    let dns_shown = opts.show_dns;
 
     let mut active_threads = vec![];
 
@@ -141,15 +141,11 @@ where
                 .spawn({
                     let ui = ui.clone();
                     let paused = paused.clone();
-                    let show_dns = dns_shown.clone();
                     move || {
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
-                                ui.draw(
-                                    paused.load(Ordering::SeqCst),
-                                    show_dns.load(Ordering::SeqCst),
-                                );
+                                ui.draw(paused.load(Ordering::SeqCst), dns_shown);
                             })
                         });
                     }
@@ -163,7 +159,6 @@ where
         .spawn({
             let running = running.clone();
             let paused = paused.clone();
-            let show_dns = dns_shown.clone();
             let network_utilization = network_utilization.clone();
             move || {
                 while running.load(Ordering::Acquire) {
@@ -193,7 +188,7 @@ where
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, show_dns.load(Ordering::SeqCst));
+                            ui.draw(paused, dns_shown);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -244,7 +239,7 @@ where
         .map(|(iface, frames)| {
             let name = format!("sniffing_handler_{}", iface.name);
             let running = running.clone();
-            let show_dns = opts.render_opts.show_dns.clone();
+            let show_dns = opts.show_dns;
             let network_utilization = network_utilization.clone();
 
             thread::Builder::new()
