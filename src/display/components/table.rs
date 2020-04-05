@@ -10,33 +10,19 @@ use crate::display::{Bandwidth, DisplayBandwidth, UIState};
 use crate::network::{display_connection_string, display_ip_or_host};
 
 use ::std::net::IpAddr;
-use std::iter::FromIterator;
 
-fn display_upload_and_download(bandwidth: &impl Bandwidth) -> String {
+fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> String {
     format!(
         "{} / {}",
-        DisplayBandwidth(bandwidth.get_total_bytes_uploaded() as f64),
-        DisplayBandwidth(bandwidth.get_total_bytes_downloaded() as f64)
+        DisplayBandwidth {
+            bandwidth: bandwidth.get_total_bytes_uploaded() as f64,
+            as_rate: !total,
+        },
+        DisplayBandwidth {
+            bandwidth: bandwidth.get_total_bytes_downloaded() as f64,
+            as_rate: !total,
+        },
     )
-}
-
-fn sort_by_bandwidth<'a, T>(
-    list: &'a mut Vec<(T, &impl Bandwidth)>,
-) -> &'a Vec<(T, &'a impl Bandwidth)> {
-    list.sort_by(|(_, a), (_, b)| {
-        let a_highest = if a.get_total_bytes_downloaded() > a.get_total_bytes_uploaded() {
-            a.get_total_bytes_downloaded()
-        } else {
-            a.get_total_bytes_uploaded()
-        };
-        let b_highest = if b.get_total_bytes_downloaded() > b.get_total_bytes_uploaded() {
-            b.get_total_bytes_downloaded()
-        } else {
-            b.get_total_bytes_uploaded()
-        };
-        b_highest.cmp(&a_highest)
-    });
-    list
 }
 
 pub enum ColumnCount {
@@ -77,9 +63,8 @@ fn truncate_middle(row: &str, max_length: u16) -> String {
 
 impl<'a> Table<'a> {
     pub fn create_connections_table(state: &UIState, ip_to_host: &HashMap<IpAddr, String>) -> Self {
-        let mut connections_list = Vec::from_iter(&state.connections);
-        sort_by_bandwidth(&mut connections_list);
-        let connections_rows = connections_list
+        let connections_rows = state
+            .connections
             .iter()
             .map(|(connection, connection_data)| {
                 vec![
@@ -89,12 +74,12 @@ impl<'a> Table<'a> {
                         &connection_data.interface_name,
                     ),
                     connection_data.process_name.to_string(),
-                    display_upload_and_download(*connection_data),
+                    display_upload_and_download(connection_data, state.cumulative_mode),
                 ]
             })
             .collect();
         let connections_title = "Utilization by connection";
-        let connections_column_names = &["Connection", "Process", "Rate Up / Down"];
+        let connections_column_names = &["Connection", "Process", "Up / Down"];
         let mut breakpoints = BTreeMap::new();
         breakpoints.insert(
             0,
@@ -132,20 +117,19 @@ impl<'a> Table<'a> {
         }
     }
     pub fn create_processes_table(state: &UIState) -> Self {
-        let mut processes_list = Vec::from_iter(&state.processes);
-        sort_by_bandwidth(&mut processes_list);
-        let processes_rows = processes_list
+        let processes_rows = state
+            .processes
             .iter()
             .map(|(process_name, data_for_process)| {
                 vec![
                     (*process_name).to_string(),
                     data_for_process.connection_count.to_string(),
-                    display_upload_and_download(*data_for_process),
+                    display_upload_and_download(data_for_process, state.cumulative_mode),
                 ]
             })
             .collect();
         let processes_title = "Utilization by process name";
-        let processes_column_names = &["Process", "Connections", "Rate Up / Down"];
+        let processes_column_names = &["Process", "Connections", "Up / Down"];
         let mut breakpoints = BTreeMap::new();
         breakpoints.insert(
             0,
@@ -186,21 +170,20 @@ impl<'a> Table<'a> {
         state: &UIState,
         ip_to_host: &HashMap<IpAddr, String>,
     ) -> Self {
-        let mut remote_addresses_list = Vec::from_iter(&state.remote_addresses);
-        sort_by_bandwidth(&mut remote_addresses_list);
-        let remote_addresses_rows = remote_addresses_list
+        let remote_addresses_rows = state
+            .remote_addresses
             .iter()
             .map(|(remote_address, data_for_remote_address)| {
-                let remote_address = display_ip_or_host(**remote_address, &ip_to_host);
+                let remote_address = display_ip_or_host(*remote_address, &ip_to_host);
                 vec![
                     remote_address,
                     data_for_remote_address.connection_count.to_string(),
-                    display_upload_and_download(*data_for_remote_address),
+                    display_upload_and_download(data_for_remote_address, state.cumulative_mode),
                 ]
             })
             .collect();
         let remote_addresses_title = "Utilization by remote address";
-        let remote_addresses_column_names = &["Remote Address", "Connections", "Rate Up / Down"];
+        let remote_addresses_column_names = &["Remote Address", "Connections", "Up / Down"];
         let mut breakpoints = BTreeMap::new();
         breakpoints.insert(
             0,

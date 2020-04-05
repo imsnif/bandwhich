@@ -2,16 +2,12 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[2]"
 ---
-                         65                                                                                                                                                                   
+                  98    109B                                                                                                                                                                  
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                35                                                                                                   35                       
-                                                                30                                                                                                   30                       
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+                                                         59    62                                                                                             59    62                        
+                                                         39    45                                                                                             39    45                        
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +26,12 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                            35                                
-                                                                                                                                                            30                                
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                     59    62                                 
+                                                                                                                                                     39    45                                 
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

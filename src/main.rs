@@ -62,6 +62,9 @@ pub struct RenderOpts {
     #[structopt(short, long)]
     /// Show remote addresses table only
     addresses: bool,
+    #[structopt(short, long)]
+    /// Show total (cumulative) usages
+    total_utilization: bool,
 }
 
 fn main() {

@@ -2,9 +2,9 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[0]"
 ---
- Total Rate Up / Down: 0Bps / 0Bps                          
+ Total Up / Down: 0Bps / 0Bps                               
 ┌Utilization by remote address─────────────────────────────┐
-│Remote Address          Rate Up / Down                    │
+│Remote Address          Up / Down                         │
 │                                                          │
 │                                                          │
 │                                                          │
@@ -28,7 +28,7 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                                          │
 └──────────────────────────────────────────────────────────┘
 ┌Utilization by connection─────────────────────────────────┐
-│Connection                  Rate Up / Down                │
+│Connection                  Up / Down                     │
 │                                                          │
 │                                                          │
 │                                                          │
