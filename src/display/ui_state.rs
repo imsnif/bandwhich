@@ -139,14 +139,14 @@ impl UIState {
                 total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
-                let data_for_process = if let Some(proc_info) =
+                let data_for_process = if let Some(proc_pid) =
                     UIState::get_proc_info(&connections_to_procs, &connection.local_socket)
                 {
-                    connection_data.process_name = proc_info.procname.clone();
+                    connection_data.process_name = proc_pid.procname.clone();
                     processes
                         .entry(ProcessPid {
-                            procname: proc_info.procname.clone(),
-                            pid: proc_info.pid,
+                            procname: proc_pid.procname.clone(),
+                            pid: proc_pid.pid,
                         })
                         .or_default()
                 } else {

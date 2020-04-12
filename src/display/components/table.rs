@@ -42,6 +42,7 @@ fn sort_by_bandwidth<'a, T>(
 pub enum ColumnCount {
     Two,
     Three,
+    Four,
 }
 
 impl ColumnCount {
@@ -49,6 +50,7 @@ impl ColumnCount {
         match &self {
             ColumnCount::Two => 2,
             ColumnCount::Three => 3,
+            ColumnCount::Four => 4,
         }
     }
 }
@@ -136,10 +138,14 @@ impl<'a> Table<'a> {
         sort_by_bandwidth(&mut processes_list);
         let processes_rows = processes_list
             .iter()
-            .map(|(proc_info, data_for_process)| {
+            .map(|(proc_pid, data_for_process)| {
                 vec![
-                    (*proc_info.procname).to_string(),
-                    proc_info.pid.to_string(),
+                    (*proc_pid.procname).to_string(),
+                    if proc_pid.pid > 0 {
+                        proc_pid.pid.to_string()
+                    } else {
+                        "".to_string()
+                    },
                     data_for_process.connection_count.to_string(),
                     display_upload_and_download(*data_for_process),
                 ]
@@ -148,13 +154,6 @@ impl<'a> Table<'a> {
         let processes_title = "Utilization by process name";
         let processes_column_names = &["Process", "PID", "Connections", "Rate Up / Down"];
         let mut breakpoints = BTreeMap::new();
-        breakpoints.insert(
-            0,
-            ColumnData {
-                column_count: ColumnCount::Two,
-                column_widths: vec![12, 23],
-            },
-        );
         breakpoints.insert(
             0,
             ColumnData {
@@ -172,8 +171,8 @@ impl<'a> Table<'a> {
         breakpoints.insert(
             100,
             ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![40, 12, 23],
+                column_count: ColumnCount::Four,
+                column_widths: vec![40, 12, 12, 23],
             },
         );
         breakpoints.insert(
@@ -273,6 +272,12 @@ impl<'a> Table<'a> {
                 self.column_names[1],
                 self.column_names[2],
             ],
+            ColumnCount::Four => vec![
+                self.column_names[0],
+                self.column_names[1],
+                self.column_names[2],
+                self.column_names[3],
+            ],
         };
 
         let rows = self.rows.iter().map(|row| match column_count {
@@ -284,6 +289,12 @@ impl<'a> Table<'a> {
                 truncate_middle(&row[0], widths[0]),
                 truncate_middle(&row[1], widths[1]),
                 truncate_middle(&row[2], widths[2]),
+            ],
+            ColumnCount::Four => vec![
+                truncate_middle(&row[0], widths[0]),
+                truncate_middle(&row[1], widths[1]),
+                truncate_middle(&row[2], widths[2]),
+                truncate_middle(&row[3], widths[3]),
             ],
         });
 

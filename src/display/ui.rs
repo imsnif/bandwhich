@@ -43,11 +43,11 @@ where
         let ip_to_host = &self.ip_to_host;
         let local_time: DateTime<Local> = Local::now();
         let timestamp = local_time.timestamp();
-        for (proc_info, process_network_data) in &state.processes {
+        for (proc_pid, process_network_data) in &state.processes {
             write_to_stdout(format!(
                 "process: <{}> \"{}\" up/down Bps: {}/{} connections: {}",
                 timestamp,
-                proc_info.procname,
+                proc_pid.procname,
                 process_network_data.total_bytes_uploaded,
                 process_network_data.total_bytes_downloaded,
                 process_network_data.connection_count
