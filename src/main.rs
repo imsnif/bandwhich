@@ -12,6 +12,7 @@ use network::{
     Connection, LocalSocket, Sniffer, Utilization,
 };
 use os::OnSigWinch;
+use os::ProcessPid;
 
 use ::pnet_bandwhich_fork::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
@@ -94,7 +95,7 @@ fn try_main() -> Result<(), failure::Error> {
 }
 
 pub struct OpenSockets {
-    sockets_to_procs: HashMap<LocalSocket, String>,
+    sockets_to_procs: HashMap<LocalSocket, ProcessPid>,
     connections: Vec<Connection>,
 }
 

@@ -14,6 +14,7 @@ use crate::{
         Connection, Protocol,
     },
     os::OnSigWinch,
+    os::ProcessPid,
     OpenSockets,
 };
 
@@ -94,7 +95,10 @@ pub fn get_open_sockets() -> OpenSockets {
             443,
             Protocol::Tcp,
         ),
-        String::from("1"),
+        ProcessPid {
+            procname: String::from("1"),
+            pid: 1,
+        },
     );
     open_sockets.insert(
         Connection::new(
@@ -103,7 +107,10 @@ pub fn get_open_sockets() -> OpenSockets {
             4434,
             Protocol::Tcp,
         ),
-        String::from("4"),
+        ProcessPid {
+            procname: String::from("4"),
+            pid: 4,
+        },
     );
     open_sockets.insert(
         Connection::new(
@@ -112,7 +119,10 @@ pub fn get_open_sockets() -> OpenSockets {
             4435,
             Protocol::Tcp,
         ),
-        String::from("5"),
+        ProcessPid {
+            procname: String::from("5"),
+            pid: 5,
+        },
     );
     open_sockets.insert(
         Connection::new(
@@ -121,7 +131,10 @@ pub fn get_open_sockets() -> OpenSockets {
             4432,
             Protocol::Tcp,
         ),
-        String::from("2"),
+        ProcessPid {
+            procname: String::from("2"),
+            pid: 2,
+        },
     );
     open_sockets.insert(
         Connection::new(
@@ -130,7 +143,10 @@ pub fn get_open_sockets() -> OpenSockets {
             443,
             Protocol::Tcp,
         ),
-        String::from("1"),
+        ProcessPid {
+            procname: String::from("1"),
+            pid: 1,
+        },
     );
     let mut local_socket_to_procs = HashMap::new();
     let mut connections = std::vec::Vec::new();

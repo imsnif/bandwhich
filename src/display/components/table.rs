@@ -136,17 +136,25 @@ impl<'a> Table<'a> {
         sort_by_bandwidth(&mut processes_list);
         let processes_rows = processes_list
             .iter()
-            .map(|(process_name, data_for_process)| {
+            .map(|(proc_info, data_for_process)| {
                 vec![
-                    (*process_name).to_string(),
+                    (*proc_info.procname).to_string(),
+                    proc_info.pid.to_string(),
                     data_for_process.connection_count.to_string(),
                     display_upload_and_download(*data_for_process),
                 ]
             })
             .collect();
         let processes_title = "Utilization by process name";
-        let processes_column_names = &["Process", "Connections", "Rate Up / Down"];
+        let processes_column_names = &["Process", "PID", "Connections", "Rate Up / Down"];
         let mut breakpoints = BTreeMap::new();
+        breakpoints.insert(
+            0,
+            ColumnData {
+                column_count: ColumnCount::Two,
+                column_widths: vec![12, 23],
+            },
+        );
         breakpoints.insert(
             0,
             ColumnData {

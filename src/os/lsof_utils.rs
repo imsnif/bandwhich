@@ -13,6 +13,7 @@ pub struct RawConnection {
     remote_port: String,
     protocol: String,
     pub process_name: String,
+    pub pid: i32,
 }
 
 lazy_static! {
@@ -38,8 +39,8 @@ impl RawConnection {
             return None;
         }
         let process_name = columns[0].replace("\\x20", " ");
+        let pid = columns[1];
         // Unneeded
-        // let pid = columns[1];
         // let username = columns[2];
         // let fd = columns[3];
 
@@ -72,6 +73,7 @@ impl RawConnection {
                 remote_port,
                 protocol,
                 process_name,
+                pid,
             };
             Some(connection)
         } else if let Some(caps) = LISTEN_REGEX.captures(connection_str) {
@@ -95,6 +97,7 @@ impl RawConnection {
                 remote_port,
                 protocol,
                 process_name,
+                pid,
             };
             Some(connection)
         } else {
