@@ -1,7 +1,7 @@
 use crate::os::ProcessPid;
 use ::std::cmp;
 use ::std::collections::{HashMap, HashSet, VecDeque};
-use ::std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use ::std::net::{IpAddr, Ipv4Addr};
 use core::hash::Hash;
 use std::iter::FromIterator;
 
@@ -100,15 +100,7 @@ impl UIState {
         }) {
             Some(&proc_pid)
         } else {
-            if let Some(proc_pid) = connections_to_procs.get(&LocalSocket {
-                ip: IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)),
-                port: local_socket.port,
-                protocol: local_socket.protocol,
-            }) {
-                Some(&proc_pid)
-            } else {
-                None
-            }
+            None
         }
     }
     pub fn update(
