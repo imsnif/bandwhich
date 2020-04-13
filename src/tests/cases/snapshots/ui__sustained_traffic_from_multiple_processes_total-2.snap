@@ -1,17 +1,13 @@
 ---
 source: src/tests/cases/ui.rs
-expression: "&terminal_draw_events_mirror[1]"
+expression: "&terminal_draw_events_mirror[2]"
 ---
-                  45Bps / 49Bps                                                                                                                                                               
+                       106B                                                                                                                                                                   
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                           1                           1                                      i.am.not.too.long                       1                     28Bps / 30Bps                   
- 5                           5                           1                                      i.am.an.obnox[..].really.i.ask          1                     17Bps / 18Bps                   
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+                                                                                                                                                                   57                         
+                                                                                                                                                                   4                          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +26,12 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- <interface_name>:443 => i.am.not.too.long:12345 (tcp)                                                                 1                             28Bps / 30Bps                            
- <interface_name>:4435 => i.am.an.obnoxiosuly.lon[..]why.would.anyone.do.this.really.i.ask:1337 (tcp)                  5                             17Bps / 18Bps                            
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                          57                                  
+                                                                                                                                                          4                                   
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

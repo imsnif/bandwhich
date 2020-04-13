@@ -47,9 +47,12 @@ pub struct Opt {
     no_resolve: bool,
     #[structopt(flatten)]
     render_opts: RenderOpts,
+    #[structopt(short, long)]
+    /// Show DNS queries
+    show_dns: bool,
 }
 
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Copy, Clone)]
 pub struct RenderOpts {
     #[structopt(short, long)]
     /// Show processes table only
@@ -60,6 +63,9 @@ pub struct RenderOpts {
     #[structopt(short, long)]
     /// Show remote addresses table only
     addresses: bool,
+    #[structopt(short, long)]
+    /// Show total (cumulative) usages
+    total_utilization: bool,
 }
 
 fn main() {
@@ -116,6 +122,7 @@ where
 {
     let running = Arc::new(AtomicBool::new(true));
     let paused = Arc::new(AtomicBool::new(false));
+    let dns_shown = opts.show_dns;
 
     let mut active_threads = vec![];
 
@@ -142,7 +149,7 @@ where
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
-                                ui.draw(paused.load(Ordering::SeqCst));
+                                ui.draw(paused.load(Ordering::SeqCst), dns_shown);
                             })
                         });
                     }
@@ -185,7 +192,7 @@ where
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused);
+                            ui.draw(paused, dns_shown);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -236,12 +243,13 @@ where
         .map(|(iface, frames)| {
             let name = format!("sniffing_handler_{}", iface.name);
             let running = running.clone();
+            let show_dns = opts.show_dns;
             let network_utilization = network_utilization.clone();
 
             thread::Builder::new()
                 .name(name)
                 .spawn(move || {
-                    let mut sniffer = Sniffer::new(iface, frames);
+                    let mut sniffer = Sniffer::new(iface, frames, show_dns);
 
                     while running.load(Ordering::Acquire) {
                         if let Some(segment) = sniffer.next() {

@@ -2,7 +2,7 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[0]"
 ---
- Total Rate Up / Down: 0Bps / 0Bps                                                                                     
+ Total Up / Down: 0Bps / 0Bps                                                                                          
 ┌Utilization by process name──────────────────────────────────────────────────────────────────────────────────────────┐
 │Process                                         PID                 Connections         Rate Up / Down               │
 │                                                                                                                     │
@@ -28,7 +28,7 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ┌Utilization by remote address────────────────────────────────────────────────────────────────────────────────────────┐
-│Remote Address                                                      Connections         Rate Up / Down               │
+│Remote Address                                                      Connections         Up / Down                    │
 │                                                                                                                     │
 │                                                                                                                     │
 │                                                                                                                     │
@@ -51,5 +51,5 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                                                                                                     │
 │                                                                                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
- Press <SPACE> to pause.                                                                                               
+ Press <SPACE> to pause (DNS queries hidden).                                                                          
 

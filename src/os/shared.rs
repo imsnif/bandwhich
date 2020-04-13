@@ -37,6 +37,7 @@ fn get_datalink_channel(
 ) -> Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind> {
     let mut config = Config::default();
     config.read_timeout = Some(time::Duration::new(1, 0));
+    config.read_buffer_size = 65536;
 
     match datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),

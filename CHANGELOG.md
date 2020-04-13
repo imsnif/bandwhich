@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.13.0] - 2020-04-05
+
+### Added
+* Hide DNS queries by default. This can be overridden with `-s, --show-dns` (https://github.com/imsnif/bandwhich/pull/161) - [@olesh0](https://github.com/olehs0)
+* Show cumulative utilization in "total utilization" mode. Trigger with `-t, --total-utilization` (https://github.com/imsnif/bandwhich/pull/155) - [@TheLostLambda](https://github.com/TheLostLambda)
+
+### Fixed
+*  Fix the loss of large, merged packets (https://github.com/imsnif/bandwhich/pull/158) - [@TheLostLambda](https://github.com/TheLostLambda)
+
 ## [0.12.0] - 2020-03-01
 
 ### Added

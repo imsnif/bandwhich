@@ -31,9 +31,11 @@ where
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
+        let mut state: UIState = Default::default();
+        state.cumulative_mode = opts.total_utilization;
         Ui {
             terminal,
-            state: Default::default(),
+            state,
             ip_to_host: Default::default(),
             opts,
         }
@@ -78,7 +80,7 @@ where
             ));
         }
     }
-    pub fn draw(&mut self, paused: bool) {
+    pub fn draw(&mut self, paused: bool, show_dns: bool) {
         let state = &self.state;
         let children = self.get_tables_to_display();
         self.terminal
@@ -88,7 +90,7 @@ where
                     state: &state,
                     paused,
                 };
-                let help_text = HelpText { paused };
+                let help_text = HelpText { paused, show_dns };
                 let layout = Layout {
                     header: total_bandwidth,
                     children,

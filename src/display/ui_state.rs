@@ -1,24 +1,30 @@
 use crate::os::ProcessPid;
-use ::std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
+use ::std::cmp;
+use ::std::collections::{HashMap, HashSet, VecDeque};
 use ::std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use core::hash::Hash;
+use std::iter::FromIterator;
 
 use crate::network::{Connection, LocalSocket, Utilization};
 
 static RECALL_LENGTH: usize = 5;
+static MAX_BANDWIDTH_ITEMS: usize = 1000;
 
 pub trait Bandwidth {
     fn get_total_bytes_downloaded(&self) -> u128;
     fn get_total_bytes_uploaded(&self) -> u128;
+    fn combine_bandwidth(&mut self, other: &Self);
+    fn divide_by(&mut self, amount: u128);
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct NetworkData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub connection_count: u128,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct ConnectionData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
@@ -26,35 +32,38 @@ pub struct ConnectionData {
     pub interface_name: String,
 }
 
-impl NetworkData {
-    pub fn divide_by(&mut self, amount: u128) {
-        self.total_bytes_downloaded /= amount;
-        self.total_bytes_uploaded /= amount;
+impl Bandwidth for NetworkData {
+    fn get_total_bytes_downloaded(&self) -> u128 {
+        self.total_bytes_downloaded
     }
-}
-
-impl ConnectionData {
-    pub fn divide_by(&mut self, amount: u128) {
+    fn get_total_bytes_uploaded(&self) -> u128 {
+        self.total_bytes_uploaded
+    }
+    fn combine_bandwidth(&mut self, other: &NetworkData) {
+        self.total_bytes_downloaded += other.get_total_bytes_downloaded();
+        self.total_bytes_uploaded += other.get_total_bytes_uploaded();
+        self.connection_count = other.connection_count;
+    }
+    fn divide_by(&mut self, amount: u128) {
         self.total_bytes_downloaded /= amount;
         self.total_bytes_uploaded /= amount;
     }
 }
 
 impl Bandwidth for ConnectionData {
-    fn get_total_bytes_uploaded(&self) -> u128 {
-        self.total_bytes_uploaded
-    }
     fn get_total_bytes_downloaded(&self) -> u128 {
         self.total_bytes_downloaded
     }
-}
-
-impl Bandwidth for NetworkData {
     fn get_total_bytes_uploaded(&self) -> u128 {
         self.total_bytes_uploaded
     }
-    fn get_total_bytes_downloaded(&self) -> u128 {
-        self.total_bytes_downloaded
+    fn combine_bandwidth(&mut self, other: &ConnectionData) {
+        self.total_bytes_downloaded += other.get_total_bytes_downloaded();
+        self.total_bytes_uploaded += other.get_total_bytes_uploaded();
+    }
+    fn divide_by(&mut self, amount: u128) {
+        self.total_bytes_downloaded /= amount;
+        self.total_bytes_uploaded /= amount;
     }
 }
 
@@ -65,12 +74,16 @@ pub struct UtilizationData {
 
 #[derive(Default)]
 pub struct UIState {
-    pub processes: BTreeMap<ProcessPid, NetworkData>,
-    pub remote_addresses: BTreeMap<IpAddr, NetworkData>,
-    pub connections: BTreeMap<Connection, ConnectionData>,
+    pub processes: Vec<(ProcessPid, NetworkData)>,
+    pub remote_addresses: Vec<(IpAddr, NetworkData)>,
+    pub connections: Vec<(Connection, ConnectionData)>,
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
+    pub cumulative_mode: bool,
     utilization_data: VecDeque<UtilizationData>,
+    processes_map: HashMap<ProcessPid, NetworkData>,
+    remote_addresses_map: HashMap<IpAddr, NetworkData>,
+    connections_map: HashMap<Connection, ConnectionData>,
 }
 
 impl UIState {
@@ -110,9 +123,9 @@ impl UIState {
         if self.utilization_data.len() > RECALL_LENGTH {
             self.utilization_data.pop_front();
         }
-        let mut processes: BTreeMap<ProcessPid, NetworkData> = BTreeMap::new();
-        let mut remote_addresses: BTreeMap<IpAddr, NetworkData> = BTreeMap::new();
-        let mut connections: BTreeMap<Connection, ConnectionData> = BTreeMap::new();
+        let mut processes: HashMap<ProcessPid, NetworkData> = HashMap::new();
+        let mut remote_addresses: HashMap<IpAddr, NetworkData> = HashMap::new();
+        let mut connections: HashMap<Connection, ConnectionData> = HashMap::new();
         let mut total_bytes_downloaded: u128 = 0;
         let mut total_bytes_uploaded: u128 = 0;
 
@@ -120,6 +133,7 @@ impl UIState {
         for state in self.utilization_data.iter().rev() {
             let connections_to_procs = &state.connections_to_procs;
             let network_utilization = &state.network_utilization;
+
             for (connection, connection_info) in &network_utilization.connections {
                 let connection_previously_seen = !seen_connections.insert(connection);
                 let connection_data = connections.entry(connection.clone()).or_default();
@@ -180,10 +194,54 @@ impl UIState {
         for (_, connection_data) in connections.iter_mut() {
             connection_data.divide_by(divide_by)
         }
-        self.processes = processes;
-        self.remote_addresses = remote_addresses;
-        self.connections = connections;
-        self.total_bytes_downloaded = total_bytes_downloaded / divide_by;
-        self.total_bytes_uploaded = total_bytes_uploaded / divide_by;
+
+        if self.cumulative_mode {
+            merge_bandwidth(&mut self.processes_map, processes);
+            merge_bandwidth(&mut self.remote_addresses_map, remote_addresses);
+            merge_bandwidth(&mut self.connections_map, connections);
+            self.total_bytes_downloaded += total_bytes_downloaded / divide_by;
+            self.total_bytes_uploaded += total_bytes_uploaded / divide_by;
+        } else {
+            self.processes_map = processes;
+            self.remote_addresses_map = remote_addresses;
+            self.connections_map = connections;
+            self.total_bytes_downloaded = total_bytes_downloaded / divide_by;
+            self.total_bytes_uploaded = total_bytes_uploaded / divide_by;
+        }
+        self.processes = sort_and_prune(&mut self.processes_map);
+        self.remote_addresses = sort_and_prune(&mut self.remote_addresses_map);
+        self.connections = sort_and_prune(&mut self.connections_map);
     }
+}
+
+fn merge_bandwidth<K, V>(self_map: &mut HashMap<K, V>, other_map: HashMap<K, V>)
+where
+    K: Eq + Hash,
+    V: Bandwidth,
+{
+    for (key, b_other) in other_map {
+        self_map
+            .entry(key)
+            .and_modify(|b_self| b_self.combine_bandwidth(&b_other))
+            .or_insert(b_other);
+    }
+}
+
+fn sort_and_prune<K, V>(map: &mut HashMap<K, V>) -> Vec<(K, V)>
+where
+    K: Eq + Hash + Clone,
+    V: Bandwidth + Clone,
+{
+    let mut bandwidth_list = Vec::from_iter(map.clone());
+    bandwidth_list.sort_by_key(|(_, b)| {
+        cmp::Reverse(b.get_total_bytes_downloaded() + b.get_total_bytes_uploaded())
+    });
+
+    if bandwidth_list.len() > MAX_BANDWIDTH_ITEMS {
+        for (key, _) in &bandwidth_list[MAX_BANDWIDTH_ITEMS..] {
+            map.remove(key);
+        }
+    }
+
+    bandwidth_list
 }

@@ -2,16 +2,12 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[1]"
 ---
-                  45Bps / 49Bps                                                                                                                                                               
+                       41B                                                                                                                                                                    
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                           1                           1                                      i.am.not.too.long                       1                     28Bps / 30Bps                   
- 5                           5                           1                                      i.am.an.obnox[..].really.i.ask          1                     17Bps / 18Bps                   
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+ 1                           1                           1                                      1.1.1.1                                 1                     0B / 22B                        
+ 5                           5                           1                                      3.3.3.3                                 1                     0B / 19B                        
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +26,12 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- <interface_name>:443 => i.am.not.too.long:12345 (tcp)                                                                 1                             28Bps / 30Bps                            
- <interface_name>:4435 => i.am.an.obnoxiosuly.lon[..]why.would.anyone.do.this.really.i.ask:1337 (tcp)                  5                             17Bps / 18Bps                            
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                           1                             0B / 22B                                 
+ <interface_name>:4435 => 3.3.3.3:1337 (tcp)                                                                           5                             0B / 19B                                 
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

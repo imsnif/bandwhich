@@ -5,8 +5,9 @@ use ::procfs::process::FDTarget;
 
 use crate::network::{Connection, Protocol};
 use crate::OpenSockets;
+use core::hash::Hash;
 
-#[derive(Eq, PartialEq, PartialOrd)]
+#[derive(Clone, Hash, Eq, PartialEq, PartialOrd)]
 pub struct ProcessPid {
     pub procname: String,
     pub pid: i32,
