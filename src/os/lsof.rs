@@ -14,7 +14,7 @@ struct RawConnection {
     remote_port: String,
     protocol: String,
     process_name: String,
-    pid: u32,
+    pid: i32,
 }
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
@@ -37,7 +37,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
             connection.local_socket,
             ProcessPid {
                 procname: raw_connection.process_name.clone(),
-                pid: raw_connection.pid,
+                pid: raw_connection.get_pid()
             },
         );
         connections_vec.push(connection);
