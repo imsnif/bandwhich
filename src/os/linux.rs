@@ -1,23 +1,10 @@
-use ::std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use ::std::collections::HashMap;
 
 use ::procfs::process::FDTarget;
 
+use crate::os::shared::ProcessPid;
 use crate::network::{Connection, Protocol};
 use crate::OpenSockets;
-use core::hash::Hash;
-
-#[derive(Clone, Hash, Eq, PartialEq, PartialOrd)]
-pub struct ProcessPid {
-    pub procname: String,
-    pub pid: i32,
-}
-
-impl Ord for ProcessPid {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.pid.cmp(&other.pid)
-    }
-}
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();

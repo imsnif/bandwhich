@@ -10,5 +10,4 @@ mod lsof_utils;
 mod errors;
 mod shared;
 
-pub use linux::*;
 pub use shared::*;

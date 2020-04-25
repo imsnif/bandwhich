@@ -6,6 +6,8 @@ use ::termion::event::Event;
 use ::termion::input::TermRead;
 use ::tokio::runtime::Runtime;
 
+use core::hash::Hash;
+use ::std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use ::std::time;
 
 use crate::os::errors::GetInterfaceErrorKind;
@@ -90,6 +92,19 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
         }
     })
 }
+
+#[derive(Clone, Hash, Eq, PartialEq, PartialOrd)]
+pub struct ProcessPid {
+    pub procname: String,
+    pub pid: i32,
+}
+
+impl Ord for ProcessPid {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.pid.cmp(&other.pid)
+    }
+}
+
 
 #[derive(Debug)]
 pub struct UserErrors {
