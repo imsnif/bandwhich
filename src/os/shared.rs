@@ -6,9 +6,9 @@ use ::termion::event::Event;
 use ::termion::input::TermRead;
 use ::tokio::runtime::Runtime;
 
-use core::hash::Hash;
 use ::std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use ::std::time;
+use core::hash::Hash;
 
 use crate::os::errors::GetInterfaceErrorKind;
 use signal_hook::iterator::Signals;
@@ -104,7 +104,6 @@ impl Ord for ProcessPid {
         self.pid.cmp(&other.pid)
     }
 }
-
 
 #[derive(Debug)]
 pub struct UserErrors {

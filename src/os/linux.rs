@@ -2,8 +2,8 @@ use ::std::collections::HashMap;
 
 use ::procfs::process::FDTarget;
 
-use crate::os::shared::ProcessPid;
 use crate::network::{Connection, Protocol};
+use crate::os::shared::ProcessPid;
 use crate::OpenSockets;
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
