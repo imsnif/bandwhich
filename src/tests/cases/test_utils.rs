@@ -121,7 +121,7 @@ pub fn os_input_output_factory(
                 writeln!(&mut stdout, "{}", output).unwrap();
             }
         }),
-        None => Box::new({ move |_output: String| {} }),
+        None => Box::new(move |_output: String| {}),
     };
 
     OsInputOutput {
