@@ -29,7 +29,6 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
         let local_ip = raw_connection.get_local_ip();
         let remote_port = raw_connection.get_remote_port();
         let local_port = raw_connection.get_local_port();
-        let pid = raw_connection.get_pid();
 
         let socket_addr = SocketAddr::new(remote_ip, remote_port);
         let connection = Connection::new(socket_addr, local_ip, local_port, protocol);
@@ -38,7 +37,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
             connection.local_socket,
             ProcessPid {
                 procname: raw_connection.process_name.clone(),
-                pid,
+                pid: raw_connection.pid
             },
         );
         connections_vec.push(connection);
