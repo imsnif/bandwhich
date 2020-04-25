@@ -1,6 +1,7 @@
 use ::std::collections::HashMap;
 
 use crate::network::Connection;
+use crate::os::shared::ProcessPid;
 use crate::OpenSockets;
 
 use super::lsof_utils;
@@ -13,6 +14,7 @@ struct RawConnection {
     remote_port: String,
     protocol: String,
     process_name: String,
+    pid: u32,
 }
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
@@ -27,11 +29,18 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
         let local_ip = raw_connection.get_local_ip();
         let remote_port = raw_connection.get_remote_port();
         let local_port = raw_connection.get_local_port();
+        let pid = raw_connection.get_pid();
 
         let socket_addr = SocketAddr::new(remote_ip, remote_port);
         let connection = Connection::new(socket_addr, local_ip, local_port, protocol);
 
-        open_sockets.insert(connection.local_socket, raw_connection.process_name.clone());
+        open_sockets.insert(
+            connection.local_socket,
+            ProcessPid {
+                procname: raw_connection.process_name.clone(),
+                pid,
+            },
+        );
         connections_vec.push(connection);
     }
 

@@ -13,7 +13,7 @@ pub struct RawConnection {
     remote_port: String,
     protocol: String,
     pub process_name: String,
-    pub pid: i32,
+    pid: u32,
 }
 
 lazy_static! {
@@ -123,6 +123,10 @@ impl RawConnection {
 
     pub fn get_local_port(&self) -> u16 {
         self.local_port.parse::<u16>().unwrap()
+    }
+
+    pub fn get_pid(&self) -> u32 {
+        &self.pid
     }
 }
 
