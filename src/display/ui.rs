@@ -79,7 +79,7 @@ where
             ));
         }
     }
-    pub fn draw(&mut self, paused: bool, show_dns: bool) {
+    pub fn draw(&mut self, paused: bool, show_dns: bool, elapsed_time: std::time::Duration) {
         let state = &self.state;
         let children = self.get_tables_to_display();
         self.terminal
@@ -87,6 +87,7 @@ where
                 let size = frame.size();
                 let total_bandwidth = TotalBandwidth {
                     state: &state,
+                    elapsed_time,
                     paused,
                 };
                 let help_text = HelpText { paused, show_dns };

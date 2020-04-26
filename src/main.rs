@@ -121,6 +121,8 @@ where
 {
     let running = Arc::new(AtomicBool::new(true));
     let paused = Arc::new(AtomicBool::new(false));
+    let last_start_time = Arc::new(Mutex::new(Instant::now()));
+    let cumulative_time = Arc::new(Mutex::new(std::time::Duration::new(0, 0)));
     let dns_shown = opts.show_dns;
 
     let mut active_threads = vec![];
@@ -148,7 +150,7 @@ where
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
-                                ui.draw(paused.load(Ordering::SeqCst), dns_shown);
+                                ui.draw(paused.load(Ordering::SeqCst), dns_shown, std::time::Duration::new(131, 0));
                             })
                         });
                     }
@@ -163,6 +165,9 @@ where
             let running = running.clone();
             let paused = paused.clone();
             let network_utilization = network_utilization.clone();
+            let last_start_time = last_start_time.clone();
+            let cumulative_time = cumulative_time.clone();
+
             move || {
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
@@ -188,10 +193,16 @@ where
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
+                        let elapsed_time = if paused {
+                            cumulative_time.lock().unwrap().clone()
+                        } else {
+                            *cumulative_time.lock().unwrap() + last_start_time.lock().unwrap().elapsed()
+                        };
+
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, dns_shown);
+                            ui.draw(paused, dns_shown, elapsed_time);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -223,7 +234,20 @@ where
                                 break;
                             }
                             Event::Key(Key::Char(' ')) => {
-                                paused.fetch_xor(true, Ordering::SeqCst);
+                                let restarting = paused.fetch_xor(true, Ordering::SeqCst);
+                                if restarting {
+                                    *last_start_time.lock().unwrap() = Instant::now();
+                                } else {
+                                    let last_start_time_clone = {
+                                        last_start_time.lock().unwrap().clone()
+                                    };
+                                    let current_cumulative_time_clone = {
+                                        cumulative_time.lock().unwrap().clone()
+                                    };
+                                    let new_cumulative_time = current_cumulative_time_clone + last_start_time_clone.elapsed();
+                                    *cumulative_time.lock().unwrap() = new_cumulative_time;
+                                }
+
                                 display_handler.unpark();
                             }
                             _ => (),
