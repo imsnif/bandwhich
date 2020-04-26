@@ -150,7 +150,11 @@ where
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
-                                ui.draw(paused.load(Ordering::SeqCst), dns_shown, std::time::Duration::new(131, 0));
+                                ui.draw(
+                                    paused.load(Ordering::SeqCst),
+                                    dns_shown,
+                                    std::time::Duration::new(131, 0),
+                                );
                             })
                         });
                     }
@@ -196,7 +200,8 @@ where
                         let elapsed_time = if paused {
                             cumulative_time.lock().unwrap().clone()
                         } else {
-                            *cumulative_time.lock().unwrap() + last_start_time.lock().unwrap().elapsed()
+                            *cumulative_time.lock().unwrap()
+                                + last_start_time.lock().unwrap().elapsed()
                         };
 
                         if raw_mode {
@@ -238,13 +243,12 @@ where
                                 if restarting {
                                     *last_start_time.lock().unwrap() = Instant::now();
                                 } else {
-                                    let last_start_time_clone = {
-                                        last_start_time.lock().unwrap().clone()
-                                    };
-                                    let current_cumulative_time_clone = {
-                                        cumulative_time.lock().unwrap().clone()
-                                    };
-                                    let new_cumulative_time = current_cumulative_time_clone + last_start_time_clone.elapsed();
+                                    let last_start_time_clone =
+                                        { last_start_time.lock().unwrap().clone() };
+                                    let current_cumulative_time_clone =
+                                        { cumulative_time.lock().unwrap().clone() };
+                                    let new_cumulative_time = current_cumulative_time_clone
+                                        + last_start_time_clone.elapsed();
                                     *cumulative_time.lock().unwrap() = new_cumulative_time;
                                 }
 

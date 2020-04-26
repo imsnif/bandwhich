@@ -51,10 +51,12 @@ impl<'a> TotalBandwidth<'a> {
                 (self.elapsed_time.as_secs() % 3600) / 60,
                 self.elapsed_time.as_secs() % 60
             ),
-            Style::default().fg(Color::LightBlue).modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::LightBlue)
+                .modifier(Modifier::BOLD),
         )];
         Paragraph::new(elapsed_time_text.iter())
-          .alignment(Alignment::Right)
-          .render(frame, rect);
+            .alignment(Alignment::Right)
+            .render(frame, rect);
     }
 }
