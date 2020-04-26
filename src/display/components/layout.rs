@@ -2,9 +2,9 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Constraint, Direction, Rect};
 use ::tui::terminal::Frame;
 
+use super::HeaderDetails;
 use super::HelpText;
 use super::Table;
-use super::HeaderDetails;
 
 const FIRST_HEIGHT_BREAKPOINT: u16 = 30;
 const FIRST_WIDTH_BREAKPOINT: u16 = 120;

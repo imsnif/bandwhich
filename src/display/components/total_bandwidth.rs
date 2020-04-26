@@ -46,8 +46,8 @@ impl<'a> HeaderDetails<'a> {
         };
 
         Paragraph::new(title_text.iter())
-          .alignment(Alignment::Left)
-          .render(frame, rect);
+            .alignment(Alignment::Left)
+            .render(frame, rect);
     }
 
     fn render_elapsed_time(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
@@ -59,11 +59,11 @@ impl<'a> HeaderDetails<'a> {
                 self.elapsed_time.as_secs() % 60
             ),
             Style::default()
-              .fg(Color::LightBlue)
-              .modifier(Modifier::BOLD),
+                .fg(Color::LightBlue)
+                .modifier(Modifier::BOLD),
         )];
         Paragraph::new(elapsed_time_text.iter())
-          .alignment(Alignment::Right)
-          .render(frame, rect);
+            .alignment(Alignment::Right)
+            .render(frame, rect);
     }
 }

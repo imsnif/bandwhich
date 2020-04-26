@@ -28,8 +28,8 @@ use ::std::io;
 use ::std::time::Instant;
 use ::termion::raw::IntoRawMode;
 use ::tui::backend::TermionBackend;
-use structopt::StructOpt;
 use std::sync::RwLock;
+use structopt::StructOpt;
 
 const DISPLAY_DELTA: time::Duration = time::Duration::from_millis(1000);
 
@@ -245,7 +245,8 @@ where
                                     *last_start_time.write().unwrap() = Instant::now();
                                 } else {
                                     let last_start_time_copy = *last_start_time.read().unwrap();
-                                    let current_cumulative_time_copy = *cumulative_time.read().unwrap();
+                                    let current_cumulative_time_copy =
+                                        *cumulative_time.read().unwrap();
                                     let new_cumulative_time = current_cumulative_time_copy
                                         + last_start_time_copy.elapsed();
                                     *cumulative_time.write().unwrap() = new_cumulative_time;

@@ -3,7 +3,7 @@ use ::std::collections::HashMap;
 use ::tui::backend::Backend;
 use ::tui::Terminal;
 
-use crate::display::components::{HelpText, Layout, Table, HeaderDetails};
+use crate::display::components::{HeaderDetails, HelpText, Layout, Table};
 use crate::display::UIState;
 use crate::network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization};
 
@@ -79,6 +79,7 @@ where
             ));
         }
     }
+
     pub fn draw(&mut self, paused: bool, show_dns: bool, elapsed_time: std::time::Duration) {
         let state = &self.state;
         let children = self.get_tables_to_display();
