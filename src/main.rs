@@ -29,6 +29,7 @@ use ::std::time::Instant;
 use ::termion::raw::IntoRawMode;
 use ::tui::backend::TermionBackend;
 use structopt::StructOpt;
+use std::sync::RwLock;
 
 const DISPLAY_DELTA: time::Duration = time::Duration::from_millis(1000);
 
@@ -121,8 +122,8 @@ where
 {
     let running = Arc::new(AtomicBool::new(true));
     let paused = Arc::new(AtomicBool::new(false));
-    let last_start_time = Arc::new(Mutex::new(Instant::now()));
-    let cumulative_time = Arc::new(Mutex::new(std::time::Duration::new(0, 0)));
+    let last_start_time = Arc::new(RwLock::new(Instant::now()));
+    let cumulative_time = Arc::new(RwLock::new(std::time::Duration::new(0, 0)));
     let dns_shown = opts.show_dns;
 
     let mut active_threads = vec![];
@@ -198,10 +199,10 @@ where
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
                         let elapsed_time = if paused {
-                            cumulative_time.lock().unwrap().clone()
+                            *cumulative_time.read().unwrap()
                         } else {
-                            *cumulative_time.lock().unwrap()
-                                + last_start_time.lock().unwrap().elapsed()
+                            *cumulative_time.read().unwrap()
+                                + last_start_time.read().unwrap().elapsed()
                         };
 
                         if raw_mode {
@@ -241,15 +242,13 @@ where
                             Event::Key(Key::Char(' ')) => {
                                 let restarting = paused.fetch_xor(true, Ordering::SeqCst);
                                 if restarting {
-                                    *last_start_time.lock().unwrap() = Instant::now();
+                                    *last_start_time.write().unwrap() = Instant::now();
                                 } else {
-                                    let last_start_time_clone =
-                                        { last_start_time.lock().unwrap().clone() };
-                                    let current_cumulative_time_clone =
-                                        { cumulative_time.lock().unwrap().clone() };
-                                    let new_cumulative_time = current_cumulative_time_clone
-                                        + last_start_time_clone.elapsed();
-                                    *cumulative_time.lock().unwrap() = new_cumulative_time;
+                                    let last_start_time_copy = *last_start_time.read().unwrap();
+                                    let current_cumulative_time_copy = *cumulative_time.read().unwrap();
+                                    let new_cumulative_time = current_cumulative_time_copy
+                                        + last_start_time_copy.elapsed();
+                                    *cumulative_time.write().unwrap() = new_cumulative_time;
                                 }
 
                                 display_handler.unpark();
