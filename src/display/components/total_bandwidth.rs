@@ -53,7 +53,7 @@ impl<'a> HeaderDetails<'a> {
     fn render_elapsed_time(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let elapsed_time_text = [Text::styled(
             format!(
-                "Total Elapsed Time: {:02}:{:02}:{:02}",
+                "Total Elapsed Time: {:02}:{:02}:{:02} ",
                 self.elapsed_time.as_secs() / 3600,
                 (self.elapsed_time.as_secs() % 3600) / 60,
                 self.elapsed_time.as_secs() % 60
