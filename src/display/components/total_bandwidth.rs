@@ -6,14 +6,19 @@ use ::tui::widgets::{Paragraph, Text, Widget};
 
 use crate::display::{DisplayBandwidth, UIState};
 
-pub struct TotalBandwidth<'a> {
+pub struct HeaderDetails<'a> {
     pub state: &'a UIState,
     pub elapsed_time: std::time::Duration,
     pub paused: bool,
 }
 
-impl<'a> TotalBandwidth<'a> {
+impl<'a> HeaderDetails<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
+        self.render_bandwidth(frame, rect);
+        self.render_elapsed_time(frame, rect);
+    }
+
+    fn render_bandwidth(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let c_mode = self.state.cumulative_mode;
         let title_text = {
             let paused_str = if self.paused { "[PAUSED]" } else { "" };
@@ -41,9 +46,11 @@ impl<'a> TotalBandwidth<'a> {
         };
 
         Paragraph::new(title_text.iter())
-            .alignment(Alignment::Left)
-            .render(frame, rect);
+          .alignment(Alignment::Left)
+          .render(frame, rect);
+    }
 
+    fn render_elapsed_time(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let elapsed_time_text = [Text::styled(
             format!(
                 "Total Elapsed Time: {:02}:{:02}:{:02}",
@@ -52,11 +59,11 @@ impl<'a> TotalBandwidth<'a> {
                 self.elapsed_time.as_secs() % 60
             ),
             Style::default()
-                .fg(Color::LightBlue)
-                .modifier(Modifier::BOLD),
+              .fg(Color::LightBlue)
+              .modifier(Modifier::BOLD),
         )];
         Paragraph::new(elapsed_time_text.iter())
-            .alignment(Alignment::Right)
-            .render(frame, rect);
+          .alignment(Alignment::Right)
+          .render(frame, rect);
     }
 }

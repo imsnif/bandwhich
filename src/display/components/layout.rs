@@ -4,7 +4,7 @@ use ::tui::terminal::Frame;
 
 use super::HelpText;
 use super::Table;
-use super::TotalBandwidth;
+use super::HeaderDetails;
 
 const FIRST_HEIGHT_BREAKPOINT: u16 = 30;
 const FIRST_WIDTH_BREAKPOINT: u16 = 120;
@@ -26,7 +26,7 @@ fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
 }
 
 pub struct Layout<'a> {
-    pub header: TotalBandwidth<'a>,
+    pub header: HeaderDetails<'a>,
     pub children: Vec<Table<'a>>,
     pub footer: HelpText,
 }

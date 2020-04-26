@@ -3,7 +3,7 @@ use ::std::collections::HashMap;
 use ::tui::backend::Backend;
 use ::tui::Terminal;
 
-use crate::display::components::{HelpText, Layout, Table, TotalBandwidth};
+use crate::display::components::{HelpText, Layout, Table, HeaderDetails};
 use crate::display::UIState;
 use crate::network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization};
 
@@ -85,7 +85,7 @@ where
         self.terminal
             .draw(|mut frame| {
                 let size = frame.size();
-                let total_bandwidth = TotalBandwidth {
+                let total_bandwidth = HeaderDetails {
                     state: &state,
                     elapsed_time,
                     paused,
