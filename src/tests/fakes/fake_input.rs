@@ -14,7 +14,7 @@ use crate::{
         Connection, Protocol,
     },
     os::OnSigWinch,
-    os::ProcessPid,
+    os::ProcessInfo,
     OpenSockets,
 };
 
@@ -95,7 +95,7 @@ pub fn get_open_sockets() -> OpenSockets {
             443,
             Protocol::Tcp,
         ),
-        ProcessPid {
+        ProcessInfo {
             procname: String::from("1"),
             pid: 1,
         },
@@ -107,7 +107,7 @@ pub fn get_open_sockets() -> OpenSockets {
             4434,
             Protocol::Tcp,
         ),
-        ProcessPid {
+        ProcessInfo {
             procname: String::from("4"),
             pid: 4,
         },
@@ -119,7 +119,7 @@ pub fn get_open_sockets() -> OpenSockets {
             4435,
             Protocol::Tcp,
         ),
-        ProcessPid {
+        ProcessInfo {
             procname: String::from("5"),
             pid: 5,
         },
@@ -131,7 +131,7 @@ pub fn get_open_sockets() -> OpenSockets {
             4432,
             Protocol::Tcp,
         ),
-        ProcessPid {
+        ProcessInfo {
             procname: String::from("2"),
             pid: 2,
         },
@@ -143,7 +143,7 @@ pub fn get_open_sockets() -> OpenSockets {
             443,
             Protocol::Tcp,
         ),
-        ProcessPid {
+        ProcessInfo {
             procname: String::from("1"),
             pid: 1,
         },

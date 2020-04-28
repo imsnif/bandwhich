@@ -122,11 +122,11 @@ impl<'a> Table<'a> {
         let processes_rows = state
             .processes
             .iter()
-            .map(|(proc_pid, data_for_process)| {
+            .map(|(proc_info, data_for_process)| {
                 vec![
-                    (*proc_pid.procname).to_string(),
-                    if proc_pid.pid > 0 {
-                        proc_pid.pid.to_string()
+                    (*proc_info.procname).to_string(),
+                    if proc_info.pid > 0 {
+                        proc_info.pid.to_string()
                     } else {
                         "".to_string()
                     },

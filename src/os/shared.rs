@@ -94,12 +94,12 @@ fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
 }
 
 #[derive(Clone, Hash, Eq, PartialEq, PartialOrd)]
-pub struct ProcessPid {
+pub struct ProcessInfo {
     pub procname: String,
     pub pid: i32,
 }
 
-impl Ord for ProcessPid {
+impl Ord for ProcessInfo {
     fn cmp(&self, other: &Self) -> Ordering {
         self.pid.cmp(&other.pid)
     }

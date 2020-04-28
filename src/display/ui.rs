@@ -6,7 +6,7 @@ use ::tui::Terminal;
 use crate::display::components::{HelpText, Layout, Table, TotalBandwidth};
 use crate::display::UIState;
 use crate::network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization};
-use crate::os::ProcessPid;
+use crate::os::ProcessInfo;
 
 use ::std::net::IpAddr;
 
@@ -45,11 +45,11 @@ where
         let ip_to_host = &self.ip_to_host;
         let local_time: DateTime<Local> = Local::now();
         let timestamp = local_time.timestamp();
-        for (proc_pid, process_network_data) in &state.processes {
+        for (proc_info, process_network_data) in &state.processes {
             write_to_stdout(format!(
                 "process: <{}> \"{}\" up/down Bps: {}/{} connections: {}",
                 timestamp,
-                proc_pid.procname,
+                proc_info.procname,
                 process_network_data.total_bytes_uploaded,
                 process_network_data.total_bytes_downloaded,
                 process_network_data.connection_count
@@ -130,7 +130,7 @@ where
     }
     pub fn update_state(
         &mut self,
-        connections_to_procs: HashMap<LocalSocket, ProcessPid>,
+        connections_to_procs: HashMap<LocalSocket, ProcessInfo>,
         utilization: Utilization,
         ip_to_host: HashMap<IpAddr, String>,
     ) {

@@ -1,7 +1,7 @@
 use ::std::collections::HashMap;
 
 use crate::network::Connection;
-use crate::os::shared::ProcessPid;
+use crate::os::shared::ProcessInfo;
 use crate::OpenSockets;
 
 use super::lsof_utils;
@@ -35,7 +35,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
 
         open_sockets.insert(
             connection.local_socket,
-            ProcessPid {
+            ProcessInfo {
                 procname: raw_connection.process_name.clone(),
                 pid: raw_connection.get_pid(),
             },

@@ -1,4 +1,4 @@
-use crate::os::ProcessPid;
+use crate::os::ProcessInfo;
 use ::std::cmp;
 use ::std::collections::{HashMap, HashSet, VecDeque};
 use ::std::net::{IpAddr, Ipv4Addr};
@@ -68,44 +68,44 @@ impl Bandwidth for ConnectionData {
 }
 
 pub struct UtilizationData {
-    connections_to_procs: HashMap<LocalSocket, ProcessPid>,
+    connections_to_procs: HashMap<LocalSocket, ProcessInfo>,
     network_utilization: Utilization,
 }
 
 #[derive(Default)]
 pub struct UIState {
-    pub processes: Vec<(ProcessPid, NetworkData)>,
+    pub processes: Vec<(ProcessInfo, NetworkData)>,
     pub remote_addresses: Vec<(IpAddr, NetworkData)>,
     pub connections: Vec<(Connection, ConnectionData)>,
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub cumulative_mode: bool,
     utilization_data: VecDeque<UtilizationData>,
-    processes_map: HashMap<ProcessPid, NetworkData>,
+    processes_map: HashMap<ProcessInfo, NetworkData>,
     remote_addresses_map: HashMap<IpAddr, NetworkData>,
     connections_map: HashMap<Connection, ConnectionData>,
 }
 
 impl UIState {
     fn get_proc_info<'a>(
-        connections_to_procs: &'a HashMap<LocalSocket, ProcessPid>,
+        connections_to_procs: &'a HashMap<LocalSocket, ProcessInfo>,
         local_socket: &LocalSocket,
-    ) -> Option<&'a ProcessPid> {
-        if let Some(proc_pid) = connections_to_procs.get(local_socket) {
-            Some(&proc_pid)
-        } else if let Some(proc_pid) = connections_to_procs.get(&LocalSocket {
+    ) -> Option<&'a ProcessInfo> {
+        if let Some(proc_info) = connections_to_procs.get(local_socket) {
+            Some(&proc_info)
+        } else if let Some(proc_info) = connections_to_procs.get(&LocalSocket {
             ip: IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
             port: local_socket.port,
             protocol: local_socket.protocol,
         }) {
-            Some(&proc_pid)
+            Some(&proc_info)
         } else {
             None
         }
     }
     pub fn update(
         &mut self,
-        connections_to_procs: HashMap<LocalSocket, ProcessPid>,
+        connections_to_procs: HashMap<LocalSocket, ProcessInfo>,
         network_utilization: Utilization,
     ) {
         self.utilization_data.push_back(UtilizationData {
@@ -115,7 +115,7 @@ impl UIState {
         if self.utilization_data.len() > RECALL_LENGTH {
             self.utilization_data.pop_front();
         }
-        let mut processes: HashMap<ProcessPid, NetworkData> = HashMap::new();
+        let mut processes: HashMap<ProcessInfo, NetworkData> = HashMap::new();
         let mut remote_addresses: HashMap<IpAddr, NetworkData> = HashMap::new();
         let mut connections: HashMap<Connection, ConnectionData> = HashMap::new();
         let mut total_bytes_downloaded: u128 = 0;
@@ -145,20 +145,20 @@ impl UIState {
                 total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
-                let data_for_process = if let Some(proc_pid) =
+                let data_for_process = if let Some(proc_info) =
                     UIState::get_proc_info(&connections_to_procs, &connection.local_socket)
                 {
-                    connection_data.process_name = proc_pid.procname.clone();
+                    connection_data.process_name = proc_info.procname.clone();
                     processes
-                        .entry(ProcessPid {
-                            procname: proc_pid.procname.clone(),
-                            pid: proc_pid.pid,
+                        .entry(ProcessInfo {
+                            procname: proc_info.procname.clone(),
+                            pid: proc_info.pid,
                         })
                         .or_default()
                 } else {
                     connection_data.process_name = String::from("<UNKNOWN>");
                     processes
-                        .entry(ProcessPid {
+                        .entry(ProcessInfo {
                             procname: connection_data.process_name.clone(),
                             pid: 0,
                         })
