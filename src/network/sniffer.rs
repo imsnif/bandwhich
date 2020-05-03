@@ -29,7 +29,7 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn new(network_interface_ips: &Vec<IpNetwork>, source: IpAddr) -> Self {
+    pub fn new(network_interface_ips: &[IpNetwork], source: IpAddr) -> Self {
         if network_interface_ips
             .iter()
             .any(|ip_network| ip_network.ip() == source)
