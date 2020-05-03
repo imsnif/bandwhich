@@ -8,13 +8,13 @@ use crate::network::dns::Client;
 use crate::{Opt, OsInputOutput, RenderOpts};
 use ::termion::event::{Event, Key};
 use packet_builder::*;
-use pnet_bandwhich_fork::datalink::DataLinkReceiver;
+use pnet::datalink::DataLinkReceiver;
 use std::collections::HashMap;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 
 use packet_builder::payload::PayloadData;
-use pnet_bandwhich_fork::packet::Packet;
+use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
 pub fn sleep_and_quit_events(sleep_num: usize) -> Box<KeyboardEvents> {

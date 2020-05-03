@@ -13,7 +13,7 @@ use crate::tests::cases::test_utils::{
     sleep_and_quit_events, test_backend_factory,
 };
 use ::termion::event::{Event, Key};
-use pnet_bandwhich_fork::datalink::DataLinkReceiver;
+use pnet::datalink::DataLinkReceiver;
 use std::iter;
 
 use crate::tests::fakes::KeyboardEvents;
