@@ -131,7 +131,7 @@ impl UIState {
 
             for (connection, connection_info) in &network_utilization.connections {
                 let connection_previously_seen = !seen_connections.insert(connection);
-                let connection_data = connections.entry(connection.clone()).or_default();
+                let connection_data = connections.entry(*connection).or_default();
                 let data_for_remote_address = remote_addresses
                     .entry(connection.remote_socket.ip)
                     .or_default();

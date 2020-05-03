@@ -1012,7 +1012,7 @@ fn traffic_with_host_names() {
     let dns_client = create_fake_dns_client(ips_to_hostnames);
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
+    let write_to_stdout = Box::new(move |_output: String| {});
 
     let os_input = OsInputOutput {
         network_interfaces: get_interfaces(),
@@ -1121,7 +1121,7 @@ fn truncate_long_hostnames() {
     let dns_client = create_fake_dns_client(ips_to_hostnames);
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
+    let write_to_stdout = Box::new(move |_output: String| {});
 
     let os_input = OsInputOutput {
         network_interfaces: get_interfaces(),
@@ -1229,7 +1229,7 @@ fn no_resolve_mode() {
     let dns_client = None;
     let on_winch = create_fake_on_winch(false);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
+    let write_to_stdout = Box::new(move |_output: String| {});
 
     let os_input = OsInputOutput {
         network_interfaces: get_interfaces(),
@@ -1273,7 +1273,7 @@ fn traffic_with_winch_event() {
     let dns_client = create_fake_dns_client(HashMap::new());
     let on_winch = create_fake_on_winch(true);
     let cleanup = Box::new(|| {});
-    let write_to_stdout = Box::new({ move |_output: String| {} });
+    let write_to_stdout = Box::new(move |_output: String| {});
 
     let os_input = OsInputOutput {
         network_interfaces: get_interfaces(),
