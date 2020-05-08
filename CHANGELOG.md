@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+* Add terabytes as a display unit (for cumulative mode) (https://github.com/imsnif/bandwhich/pull/168) - [@TheLostLambda](https://github.com/TheLostLambda)
+
 ## [0.14.0] - 2020-05-03
 
 ### Fixed
