@@ -14,19 +14,19 @@ pub struct HeaderDetails<'a> {
 
 impl<'a> HeaderDetails<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
-        self.render_bandwidth(frame, rect);
-        self.render_elapsed_time(frame, rect);
+        let color = if self.paused {
+            Color::Yellow
+        } else {
+            Color::Green
+        };
+        if self.state.cumulative_mode { self.render_elapsed_time(frame, rect, &color) };
+        self.render_bandwidth(frame, rect, &color);
     }
 
-    fn render_bandwidth(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
+    fn render_bandwidth(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
         let c_mode = self.state.cumulative_mode;
         let title_text = {
             let paused_str = if self.paused { "[PAUSED]" } else { "" };
-            let color = if self.paused {
-                Color::Yellow
-            } else {
-                Color::Green
-            };
 
             [Text::styled(
                 format!(
@@ -41,7 +41,7 @@ impl<'a> HeaderDetails<'a> {
                     },
                     paused_str
                 ),
-                Style::default().fg(color).modifier(Modifier::BOLD),
+                Style::default().fg(*color).modifier(Modifier::BOLD),
             )]
         };
 
@@ -50,16 +50,16 @@ impl<'a> HeaderDetails<'a> {
             .render(frame, rect);
     }
 
-    fn render_elapsed_time(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
+    fn render_elapsed_time(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
         let elapsed_time_text = [Text::styled(
             format!(
-                "Total Elapsed Time: {:02}:{:02}:{:02} ",
+                "Duration: {:02}:{:02}:{:02} ",
                 self.elapsed_time.as_secs() / 3600,
                 (self.elapsed_time.as_secs() % 3600) / 60,
                 self.elapsed_time.as_secs() % 60
             ),
             Style::default()
-                .fg(Color::LightBlue)
+                .fg(*color)
                 .modifier(Modifier::BOLD),
         )];
         Paragraph::new(elapsed_time_text.iter())
