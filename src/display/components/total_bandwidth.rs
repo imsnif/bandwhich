@@ -59,9 +59,17 @@ impl<'a> HeaderDetails<'a> {
     }
 
     fn render_elapsed_time(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
+        const SECONDS_IN_DAY: u64 = 86400;
+        let plural = if self.elapsed_time.as_secs() / SECONDS_IN_DAY == 1 {
+            ""
+        } else {
+            "s"
+        };
         let elapsed_time_text = [Text::styled(
             format!(
-                "Duration: {:02}:{:02}:{:02} ",
+                "{:01} day{}, {:02}:{:02}:{:02} ",
+                self.elapsed_time.as_secs() / SECONDS_IN_DAY,
+                plural,
                 self.elapsed_time.as_secs() / 3600,
                 (self.elapsed_time.as_secs() % 3600) / 60,
                 self.elapsed_time.as_secs() % 60
