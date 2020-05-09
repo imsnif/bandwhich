@@ -86,16 +86,10 @@ impl<'a> HeaderDetails<'a> {
     }
 
     fn header_parts(&self, rect: Rect) -> Vec<Rect> {
-        let number = {
-            match rect.width {
-                0..=62 => 1,
-                63..=93 => 2,
-                _ => 3,
-            }
-        };
-
-        let constraints: Vec<Constraint> = (0..number)
-            .map(|_| Constraint::Percentage(100 / number))
+        const MAX_BANDWIDTH_STRING_LENGTH: u16 = 31;
+        let number_of_columns = rect.width / MAX_BANDWIDTH_STRING_LENGTH;
+        let constraints: Vec<Constraint> = (0..number_of_columns)
+            .map(|_| Constraint::Percentage(100 / number_of_columns))
             .collect();
 
         ::tui::layout::Layout::default()
