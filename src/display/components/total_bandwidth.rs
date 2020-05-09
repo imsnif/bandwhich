@@ -87,7 +87,10 @@ impl<'a> HeaderDetails<'a> {
 
     fn header_parts(&self, rect: Rect) -> Vec<Rect> {
         const MAX_BANDWIDTH_STRING_LENGTH: u16 = 31;
-        let number_of_columns = rect.width / MAX_BANDWIDTH_STRING_LENGTH;
+        let number_of_columns = *[3, rect.width / MAX_BANDWIDTH_STRING_LENGTH]
+            .iter()
+            .min()
+            .unwrap();
         let constraints: Vec<Constraint> = (0..number_of_columns)
             .map(|_| Constraint::Percentage(100 / number_of_columns))
             .collect();
