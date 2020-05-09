@@ -15,18 +15,7 @@ pub struct HeaderDetails<'a> {
 
 impl<'a> HeaderDetails<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
-        let parts = ::tui::layout::Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(0)
-            .constraints(
-                [
-                    Constraint::Percentage(33),
-                    Constraint::Percentage(33),
-                    Constraint::Percentage(33),
-                ]
-                .as_ref(),
-            )
-            .split(rect);
+        let parts = self.header_parts(rect);
 
         let color = if self.paused {
             Color::Yellow
@@ -34,11 +23,15 @@ impl<'a> HeaderDetails<'a> {
             Color::Green
         };
 
-        if self.state.cumulative_mode {
-            self.render_elapsed_time(frame, parts[2], &color)
-        };
-        self.render_paused(frame, parts[1], &color);
-        self.render_bandwidth(frame, parts[0], &color);
+        if parts.get(0).is_some() {
+            self.render_bandwidth(frame, parts[0], &color);
+        }
+        if parts.get(1).is_some() {
+            self.render_paused(frame, parts[1], &color);
+        }
+        if parts.get(2).is_some() && self.state.cumulative_mode {
+            self.render_elapsed_time(frame, parts[2], &color);
+        }
     }
 
     fn render_bandwidth(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
@@ -90,5 +83,25 @@ impl<'a> HeaderDetails<'a> {
                 .alignment(Alignment::Center)
                 .render(frame, rect);
         }
+    }
+
+    fn header_parts(&self, rect: Rect) -> Vec<Rect> {
+        let number = {
+            match rect.width {
+                0..=62 => 1,
+                63..=93 => 2,
+                _ => 3,
+            }
+        };
+
+        let constraints: Vec<Constraint> = (0..number)
+            .map(|_| Constraint::Percentage(100 / number))
+            .collect();
+
+        ::tui::layout::Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(0)
+            .constraints(constraints.as_ref())
+            .split(rect)
     }
 }
