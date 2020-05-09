@@ -99,6 +99,7 @@ impl<'a> Layout<'a> {
             self.build_three_children_layout(rect)
         }
     }
+
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let (top, app, bottom) = top_app_and_bottom_split(rect);
         let layout_slots = self.build_layout(app);
