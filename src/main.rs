@@ -15,7 +15,7 @@ use os::OnSigWinch;
 
 use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
-use ::std::sync::atomic::{AtomicBool, Ordering};
+use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use ::std::sync::{Arc, Mutex};
 use ::std::thread::park_timeout;
 use ::std::{thread, time};
@@ -108,7 +108,7 @@ pub struct OsInputOutput {
     pub network_interfaces: Vec<NetworkInterface>,
     pub network_frames: Vec<Box<dyn DataLinkReceiver>>,
     pub get_open_sockets: fn() -> OpenSockets,
-    pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
+    pub keyboard_events: Box<dyn Iterator<Item=Event> + Send>,
     pub dns_client: Option<dns::Client>,
     pub on_winch: Box<OnSigWinch>,
     pub cleanup: Box<dyn Fn() + Send>,
@@ -121,6 +121,7 @@ where
 {
     let running = Arc::new(AtomicBool::new(true));
     let paused = Arc::new(AtomicBool::new(false));
+    let ui_offset = Arc::new(AtomicUsize::new(0));
     let dns_shown = opts.show_dns;
 
     let mut active_threads = vec![];
@@ -144,11 +145,16 @@ where
                 .spawn({
                     let ui = ui.clone();
                     let paused = paused.clone();
+                    let ui_offset = ui_offset.clone();
+
                     move || {
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
-                                ui.draw(paused.load(Ordering::SeqCst), dns_shown);
+                                ui.draw(paused.load(Ordering::SeqCst),
+                                        dns_shown,
+                                        ui_offset.load(Ordering::SeqCst),
+                                );
                             })
                         });
                     }
@@ -163,6 +169,9 @@ where
             let running = running.clone();
             let paused = paused.clone();
             let network_utilization = network_utilization.clone();
+            let ui = ui.clone();
+            let ui_offset = ui_offset.clone();
+
             move || {
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
@@ -191,7 +200,7 @@ where
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, dns_shown);
+                            ui.draw(paused, dns_shown, ui_offset.load(Ordering::SeqCst));
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -213,8 +222,12 @@ where
             .spawn({
                 let running = running.clone();
                 let display_handler = display_handler.thread().clone();
+                let ui = ui.clone();
+                
                 move || {
                     for evt in keyboard_events {
+                        let mut ui = ui.lock().unwrap();
+
                         match evt {
                             Event::Key(Key::Ctrl('c')) | Event::Key(Key::Char('q')) => {
                                 running.store(false, Ordering::Release);
@@ -225,6 +238,12 @@ where
                             Event::Key(Key::Char(' ')) => {
                                 paused.fetch_xor(true, Ordering::SeqCst);
                                 display_handler.unpark();
+                            }
+                            Event::Key(Key::Char('\t')) => {
+                                let table_count = ui.get_table_count();
+                                let new = ui_offset.load(Ordering::SeqCst) + 1 % table_count;
+                                ui_offset.store(new, Ordering::SeqCst);
+                                ui.draw(paused.load(Ordering::SeqCst), dns_shown, new);
                             }
                             _ => (),
                         };
