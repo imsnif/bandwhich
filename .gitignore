@@ -12,3 +12,5 @@ debian/*
 !debian/copyright
 !debian/rules
 !debian/source
+
+.idea/

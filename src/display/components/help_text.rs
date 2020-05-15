@@ -9,10 +9,13 @@ pub struct HelpText {
     pub show_dns: bool,
 }
 
-const TEXT_WHEN_PAUSED: &str = " Press <SPACE> to resume";
-const TEXT_WHEN_NOT_PAUSED: &str = " Press <SPACE> to pause";
+const FIRST_WIDTH_BREAKPOINT: u16 = 77;
+
+const TEXT_WHEN_PAUSED: &str = " Press <SPACE> to resume.";
+const TEXT_WHEN_NOT_PAUSED: &str = " Press <SPACE> to pause.";
 const TEXT_WHEN_DNS_NOT_SHOWN: &str = " (DNS queries hidden).";
 const TEXT_WHEN_DNS_SHOWN: &str = " (DNS queries shown).";
+const TEXT_TAB_TIP: &str = " Use <TAB> to rearrange tables.";
 
 impl HelpText {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
@@ -29,8 +32,14 @@ impl HelpText {
                 TEXT_WHEN_DNS_NOT_SHOWN
             };
 
+            let tab_text = if rect.width >= FIRST_WIDTH_BREAKPOINT {
+                TEXT_TAB_TIP
+            } else {
+                ""
+            };
+
             [Text::styled(
-                format!("{}{}", pause_content, dns_content),
+                format!("{}{}{}", pause_content, dns_content, tab_text),
                 Style::default().modifier(Modifier::BOLD),
             )]
         };
