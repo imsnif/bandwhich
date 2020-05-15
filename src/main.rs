@@ -108,7 +108,7 @@ pub struct OsInputOutput {
     pub network_interfaces: Vec<NetworkInterface>,
     pub network_frames: Vec<Box<dyn DataLinkReceiver>>,
     pub get_open_sockets: fn() -> OpenSockets,
-    pub keyboard_events: Box<dyn Iterator<Item=Event> + Send>,
+    pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
     pub on_winch: Box<OnSigWinch>,
     pub cleanup: Box<dyn Fn() + Send>,
