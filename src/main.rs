@@ -151,9 +151,10 @@ where
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
-                                ui.draw(paused.load(Ordering::SeqCst),
-                                        dns_shown,
-                                        ui_offset.load(Ordering::SeqCst),
+                                ui.draw(
+                                    paused.load(Ordering::SeqCst),
+                                    dns_shown,
+                                    ui_offset.load(Ordering::SeqCst),
                                 );
                             })
                         });
@@ -168,9 +169,10 @@ where
         .spawn({
             let running = running.clone();
             let paused = paused.clone();
+            let ui_offset = ui_offset.clone();
+
             let network_utilization = network_utilization.clone();
             let ui = ui.clone();
-            let ui_offset = ui_offset.clone();
 
             move || {
                 while running.load(Ordering::Acquire) {
@@ -194,13 +196,14 @@ where
                     {
                         let mut ui = ui.lock().unwrap();
                         let paused = paused.load(Ordering::SeqCst);
+                        let ui_offset = ui_offset.load(Ordering::SeqCst);
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, dns_shown, ui_offset.load(Ordering::SeqCst));
+                            ui.draw(paused, dns_shown, ui_offset);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -222,8 +225,7 @@ where
             .spawn({
                 let running = running.clone();
                 let display_handler = display_handler.thread().clone();
-                let ui = ui.clone();
-                
+
                 move || {
                     for evt in keyboard_events {
                         let mut ui = ui.lock().unwrap();
