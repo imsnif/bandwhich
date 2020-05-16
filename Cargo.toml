@@ -2,7 +2,7 @@
 edition = "2018"
 name = "bandwhich"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.13.0"
+version = "0.14.0"
 homepage = "https://github.com/imsnif/bandwhich"
 repository = "https://github.com/imsnif/bandwhich"
 readme = "README.md"
@@ -19,8 +19,8 @@ license = "MIT"
 exclude = ["src/tests/*", "demo.gif"]
 
 [dependencies]
-pnet_bandwhich_fork = "0.23.1"
-ipnetwork = "0.15.0"
+pnet = "0.26.0"
+ipnetwork = "0.16.0"
 tui = "0.5"
 termion = "1.5"
 structopt = "0.3"
@@ -38,8 +38,7 @@ procfs = "0.7.4"
 
 [dev-dependencies]
 insta = "0.12.0"
-pnet = "0.23.0"
-pnet_base = "0.23.0"
+pnet_base = "0.26.0"
 cargo-insta = "0.11.0"
-packet-builder = "0.4.0"
+packet-builder = "0.5.0"
 regex = "1"

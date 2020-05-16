@@ -69,7 +69,7 @@ impl Client {
         // Remove ips that are already being resolved
         let ips = ips
             .into_iter()
-            .filter(|ip| self.pending.lock().unwrap().insert(ip.clone()))
+            .filter(|ip| self.pending.lock().unwrap().insert(*ip))
             .collect::<Vec<_>>();
 
         if !ips.is_empty() {
