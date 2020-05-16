@@ -655,7 +655,7 @@ fn sustained_traffic_from_one_process_total() {
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
+    assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
 }
 
 #[test]
@@ -764,7 +764,7 @@ fn sustained_traffic_from_multiple_processes_total() {
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
+    assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
 }
 
 #[test]
@@ -929,7 +929,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional_total() {
 
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
+    assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
 }
 
 #[test]

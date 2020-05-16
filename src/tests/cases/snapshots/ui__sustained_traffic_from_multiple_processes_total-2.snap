@@ -1,8 +1,8 @@
 ---
 source: src/tests/cases/ui.rs
-expression: "&terminal_draw_events_mirror[2]"
+expression: "&terminal_draw_events_mirror[2].replace(\"1 \\n\", \"2 \\n\")"
 ---
-                       106B                                                                                                                                                                   
+                       106B                                                                                                                                                                 2 
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
