@@ -17,8 +17,13 @@ pub struct HeaderDetails<'a> {
 impl<'a> HeaderDetails<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let bandwidth = self.bandwidth_string();
-        let elapsed_time = self.elapsed_time_string();
-        let print_elapsed_time = bandwidth.len() + elapsed_time.len() + 1 <= rect.width as usize;
+        let mut elapsed_time = None;
+        let mut print_elapsed_time = false;
+        if self.state.cumulative_mode {
+            elapsed_time = Some(self.elapsed_time_string());
+            print_elapsed_time =
+                bandwidth.len() + elapsed_time.as_ref().unwrap().len() + 1 <= rect.width as usize;
+        }
 
         let color = if self.paused {
             Color::Yellow
@@ -27,15 +32,21 @@ impl<'a> HeaderDetails<'a> {
         };
 
         if print_elapsed_time {
-            self.render_elapsed_time(frame, rect, &color);
+            self.render_elapsed_time(frame, rect, elapsed_time.as_ref().unwrap(), &color);
         }
-        self.render_bandwidth(frame, rect, &color);
+        self.render_bandwidth(frame, rect, &bandwidth, &color);
     }
 
-    fn render_bandwidth(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
+    fn render_bandwidth(
+        &self,
+        frame: &mut Frame<impl Backend>,
+        rect: Rect,
+        bandwidth: &String,
+        color: &Color,
+    ) {
         let bandwidth_text = {
             [Text::styled(
-                self.bandwidth_string(),
+                bandwidth,
                 Style::default().fg(*color).modifier(Modifier::BOLD),
             )]
         };
@@ -61,9 +72,15 @@ impl<'a> HeaderDetails<'a> {
         )
     }
 
-    fn render_elapsed_time(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
+    fn render_elapsed_time(
+        &self,
+        frame: &mut Frame<impl Backend>,
+        rect: Rect,
+        elapsed_time: &String,
+        color: &Color,
+    ) {
         let elapsed_time_text = [Text::styled(
-            self.elapsed_time_string(),
+            elapsed_time,
             Style::default().fg(*color).modifier(Modifier::BOLD),
         )];
         Paragraph::new(elapsed_time_text.iter())
@@ -75,7 +92,7 @@ impl<'a> HeaderDetails<'a> {
         match self.elapsed_time.as_secs() / SECONDS_IN_DAY {
             0 => "".to_string(),
             1 => "1 day, ".to_string(),
-            n => format!("{} days, ", n)
+            n => format!("{} days, ", n),
         }
     }
 
