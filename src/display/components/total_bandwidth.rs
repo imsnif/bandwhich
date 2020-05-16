@@ -5,7 +5,8 @@ use ::tui::terminal::Frame;
 use ::tui::widgets::{Paragraph, Text, Widget};
 
 use crate::display::{DisplayBandwidth, UIState};
-use tui::layout::{Constraint, Direction};
+
+const SECONDS_IN_DAY: u64 = 86400;
 
 pub struct HeaderDetails<'a> {
     pub state: &'a UIState,
@@ -15,7 +16,9 @@ pub struct HeaderDetails<'a> {
 
 impl<'a> HeaderDetails<'a> {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
-        let parts = self.header_parts(rect);
+        let bandwidth = self.bandwidth_string();
+        let elapsed_time = self.elapsed_time_string();
+        let print_elapsed_time = bandwidth.len() + elapsed_time.len() + 1 <= rect.width as usize;
 
         let color = if self.paused {
             Color::Yellow
@@ -23,57 +26,44 @@ impl<'a> HeaderDetails<'a> {
             Color::Green
         };
 
-        if parts.get(0).is_some() {
-            self.render_bandwidth(frame, parts[0], &color);
+        if print_elapsed_time {
+            self.render_elapsed_time(frame, rect, &color);
         }
-        if parts.get(1).is_some() {
-            self.render_paused(frame, parts[1], &color);
-        }
-        if parts.get(2).is_some() && self.state.cumulative_mode {
-            self.render_elapsed_time(frame, parts[2], &color);
-        }
+        self.render_bandwidth(frame, rect, &color);
     }
 
     fn render_bandwidth(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
-        let c_mode = self.state.cumulative_mode;
-        let title_text = {
+        let bandwidth_text = {
             [Text::styled(
-                format!(
-                    " Total Up / Down: {} / {}",
-                    DisplayBandwidth {
-                        bandwidth: self.state.total_bytes_uploaded as f64,
-                        as_rate: !c_mode,
-                    },
-                    DisplayBandwidth {
-                        bandwidth: self.state.total_bytes_downloaded as f64,
-                        as_rate: !c_mode,
-                    }
-                ),
+                self.bandwidth_string(),
                 Style::default().fg(*color).modifier(Modifier::BOLD),
             )]
         };
 
-        Paragraph::new(title_text.iter())
+        Paragraph::new(bandwidth_text.iter())
             .alignment(Alignment::Left)
             .render(frame, rect);
     }
 
+    fn bandwidth_string(&self) -> String {
+        let c_mode = self.state.cumulative_mode;
+        format!(
+            " Total Up / Down: {} / {}{}",
+            DisplayBandwidth {
+                bandwidth: self.state.total_bytes_uploaded as f64,
+                as_rate: !c_mode,
+            },
+            DisplayBandwidth {
+                bandwidth: self.state.total_bytes_downloaded as f64,
+                as_rate: !c_mode,
+            },
+            if self.paused { " [PAUSED]" } else { "" }
+        )
+    }
+
     fn render_elapsed_time(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
-        const SECONDS_IN_DAY: u64 = 86400;
-        let plural = if self.elapsed_time.as_secs() / SECONDS_IN_DAY == 1 {
-            ""
-        } else {
-            "s"
-        };
         let elapsed_time_text = [Text::styled(
-            format!(
-                "{:01} day{}, {:02}:{:02}:{:02} ",
-                self.elapsed_time.as_secs() / SECONDS_IN_DAY,
-                plural,
-                self.elapsed_time.as_secs() / 3600,
-                (self.elapsed_time.as_secs() % 3600) / 60,
-                self.elapsed_time.as_secs() % 60
-            ),
+            self.elapsed_time_string(),
             Style::default().fg(*color).modifier(Modifier::BOLD),
         )];
         Paragraph::new(elapsed_time_text.iter())
@@ -81,32 +71,21 @@ impl<'a> HeaderDetails<'a> {
             .render(frame, rect);
     }
 
-    fn render_paused(&self, frame: &mut Frame<impl Backend>, rect: Rect, color: &Color) {
-        if self.paused {
-            let paused_text = [Text::styled(
-                format!("PAUSED"),
-                Style::default().fg(*color).modifier(Modifier::BOLD),
-            )];
-            Paragraph::new(paused_text.iter())
-                .alignment(Alignment::Center)
-                .render(frame, rect);
+    fn days_string(&self) -> String {
+        match self.elapsed_time.as_secs() / SECONDS_IN_DAY {
+            0 => "".to_string(),
+            1 => "1 day, ".to_string(),
+            n => format!("{} days, ", n)
         }
     }
 
-    fn header_parts(&self, rect: Rect) -> Vec<Rect> {
-        const MAX_BANDWIDTH_STRING_LENGTH: u16 = 31;
-        let number_of_columns = *[3, rect.width / MAX_BANDWIDTH_STRING_LENGTH]
-            .iter()
-            .min()
-            .unwrap();
-        let constraints: Vec<Constraint> = (0..number_of_columns)
-            .map(|_| Constraint::Percentage(100 / number_of_columns))
-            .collect();
-
-        ::tui::layout::Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(0)
-            .constraints(constraints.as_ref())
-            .split(rect)
+    fn elapsed_time_string(&self) -> String {
+        format!(
+            "{}{:02}:{:02}:{:02} ",
+            self.days_string(),
+            (self.elapsed_time.as_secs() % SECONDS_IN_DAY) / 3600,
+            (self.elapsed_time.as_secs() % 3600) / 60,
+            self.elapsed_time.as_secs() % 60
+        )
     }
 }
