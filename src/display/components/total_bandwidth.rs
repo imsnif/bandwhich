@@ -15,15 +15,16 @@ pub struct HeaderDetails<'a> {
 }
 
 impl<'a> HeaderDetails<'a> {
+    #[allow(clippy::int_plus_one)]
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let bandwidth = self.bandwidth_string();
         let mut elapsed_time = None;
-        let mut print_elapsed_time = false;
-        if self.state.cumulative_mode {
+        let print_elapsed_time = if self.state.cumulative_mode {
             elapsed_time = Some(self.elapsed_time_string());
-            print_elapsed_time =
-                bandwidth.len() + elapsed_time.as_ref().unwrap().len() + 1 <= rect.width as usize;
-        }
+            bandwidth.len() + elapsed_time.as_ref().unwrap().len() + 1 <= rect.width as usize
+        } else {
+            false
+        };
 
         let color = if self.paused {
             Color::Yellow
@@ -32,22 +33,22 @@ impl<'a> HeaderDetails<'a> {
         };
 
         if print_elapsed_time {
-            self.render_elapsed_time(frame, rect, elapsed_time.as_ref().unwrap(), &color);
+            self.render_elapsed_time(frame, rect, elapsed_time.as_ref().unwrap(), color);
         }
-        self.render_bandwidth(frame, rect, &bandwidth, &color);
+        self.render_bandwidth(frame, rect, &bandwidth, color);
     }
 
     fn render_bandwidth(
         &self,
         frame: &mut Frame<impl Backend>,
         rect: Rect,
-        bandwidth: &String,
-        color: &Color,
+        bandwidth: &str,
+        color: Color,
     ) {
         let bandwidth_text = {
             [Text::styled(
                 bandwidth,
-                Style::default().fg(*color).modifier(Modifier::BOLD),
+                Style::default().fg(color).modifier(Modifier::BOLD),
             )]
         };
 
@@ -76,12 +77,12 @@ impl<'a> HeaderDetails<'a> {
         &self,
         frame: &mut Frame<impl Backend>,
         rect: Rect,
-        elapsed_time: &String,
-        color: &Color,
+        elapsed_time: &str,
+        color: Color,
     ) {
         let elapsed_time_text = [Text::styled(
             elapsed_time,
-            Style::default().fg(*color).modifier(Modifier::BOLD),
+            Style::default().fg(color).modifier(Modifier::BOLD),
         )];
         Paragraph::new(elapsed_time_text.iter())
             .alignment(Alignment::Right)
