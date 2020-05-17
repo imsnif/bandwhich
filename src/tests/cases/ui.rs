@@ -128,8 +128,8 @@ fn rearranged_by_tab() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
     let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, Flush, Draw, Flush, Draw,
-        Flush, Draw, Flush, Draw, Flush, Clear, ShowCursor
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Draw, Flush, Draw, Flush, Clear,
+        ShowCursor,
     ];
     assert_eq!(
         &terminal_events.lock().unwrap()[..],
@@ -1561,7 +1561,6 @@ fn layout_under_50_width_under_50_height() {
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
 }
-
 
 #[test]
 fn layout_under_70_width_under_30_height() {
