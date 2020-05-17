@@ -2,7 +2,11 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[1]"
 ---
- Total Up / Down: 0Bps / 0Bps [PAUSED]                                                                                                                                                        
+                         22Bps                                                                                                                                                                
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+ 1                           1                           0Bps / 22Bps                           1.1.1.1                                 1                     0Bps / 22Bps                    
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -26,6 +30,7 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                           1                             0Bps / 22Bps                             
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -47,9 +52,4 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                  resume. Use <TAB> to rea range tables. (DNS queries hi den).                                                                                                                
 

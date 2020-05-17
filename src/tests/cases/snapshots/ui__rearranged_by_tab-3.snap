@@ -1,8 +1,36 @@
 ---
 source: src/tests/cases/ui.rs
-expression: "&terminal_draw_events_mirror[1]"
+expression: "&terminal_draw_events_mirror[2]"
 ---
- Total Up / Down: 0Bps / 0Bps [PAUSED]                                                                                                                                                        
+                                                                                                                                                                                              
+                remote addr ss                                                                                 connection────                                                                 
+ Remote Address                          Connections           Up / Down                        Connection                              Proc ss                                               
+                                                                                                                                                                                              
+  .1.1.1                                 1                     0Bps / 22Bps                     <interface_na[..]1:12345 (tcp)                                                                
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                proc ss name                                                                                                                                                                  
+ Proc ss                                                                       Connections                                       Up / Down                                                    
+                                                                                                                                                                                              
+ 1                                                                             1                                                 0Bps / 22Bps                                                 
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -24,32 +52,4 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                  resume. Use <TAB> to rea range tables. (DNS queries hi den).                                                                                                                
 
