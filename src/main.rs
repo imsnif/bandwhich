@@ -6,7 +6,7 @@ mod os;
 #[cfg(test)]
 mod tests;
 
-use display::{RawTerminalBackend, Ui};
+use display::{elapsed_time, RawTerminalBackend, Ui};
 use network::{
     dns::{self, IpTable},
     Connection, LocalSocket, Sniffer, Utilization,
@@ -147,14 +147,21 @@ where
                 .spawn({
                     let ui = ui.clone();
                     let paused = paused.clone();
+                    let cumulative_time = cumulative_time.clone();
+                    let last_start_time = last_start_time.clone();
                     move || {
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
+                                let paused = paused.load(Ordering::SeqCst);
                                 ui.draw(
-                                    paused.load(Ordering::SeqCst),
+                                    paused,
                                     dns_shown,
-                                    std::time::Duration::new(131, 0),
+                                    elapsed_time(
+                                        *last_start_time.read().unwrap(),
+                                        *cumulative_time.read().unwrap(),
+                                        paused,
+                                    ),
                                 );
                             })
                         });
@@ -198,12 +205,11 @@ where
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
-                        let elapsed_time = if paused {
-                            *cumulative_time.read().unwrap()
-                        } else {
-                            *cumulative_time.read().unwrap()
-                                + last_start_time.read().unwrap().elapsed()
-                        };
+                        let elapsed_time = elapsed_time(
+                            *last_start_time.read().unwrap(),
+                            *cumulative_time.read().unwrap(),
+                            paused,
+                        );
 
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);

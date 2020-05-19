@@ -1,10 +1,10 @@
+use crate::display::{DisplayBandwidth, UIState};
+use ::std::time::{Duration, Instant};
 use ::tui::backend::Backend;
 use ::tui::layout::{Alignment, Rect};
 use ::tui::style::{Color, Modifier, Style};
 use ::tui::terminal::Frame;
 use ::tui::widgets::{Paragraph, Text, Widget};
-
-use crate::display::{DisplayBandwidth, UIState};
 
 const SECONDS_IN_DAY: u64 = 86400;
 
@@ -12,6 +12,14 @@ pub struct HeaderDetails<'a> {
     pub state: &'a UIState,
     pub elapsed_time: std::time::Duration,
     pub paused: bool,
+}
+
+pub fn elapsed_time(last_start_time: Instant, cumulative_time: Duration, paused: bool) -> Duration {
+    if paused {
+        cumulative_time
+    } else {
+        cumulative_time + last_start_time.elapsed()
+    }
 }
 
 impl<'a> HeaderDetails<'a> {
