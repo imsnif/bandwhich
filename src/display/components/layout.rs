@@ -100,12 +100,12 @@ impl<'a> Layout<'a> {
         }
     }
 
-    pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
+    pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect, ui_offset: usize) {
         let (top, app, bottom) = top_app_and_bottom_split(rect);
         let layout_slots = self.build_layout(app);
         for i in 0..layout_slots.len() {
             if let Some(rect) = layout_slots.get(i) {
-                if let Some(child) = self.children.get(i) {
+                if let Some(child) = self.children.get((i + ui_offset) % self.children.len()) {
                     child.render(frame, *rect);
                 }
             }

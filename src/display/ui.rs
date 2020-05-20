@@ -11,6 +11,7 @@ use ::std::net::IpAddr;
 
 use crate::RenderOpts;
 use chrono::prelude::*;
+use std::time::Duration;
 
 pub struct Ui<B>
 where
@@ -61,7 +62,7 @@ where
                 display_connection_string(
                     connection,
                     ip_to_host,
-                    &connection_network_data.interface_name
+                    &connection_network_data.interface_name,
                 ),
                 connection_network_data.total_bytes_uploaded,
                 connection_network_data.total_bytes_downloaded,
@@ -80,7 +81,7 @@ where
         }
     }
 
-    pub fn draw(&mut self, paused: bool, show_dns: bool, elapsed_time: std::time::Duration) {
+    pub fn draw(&mut self, paused: bool, show_dns: bool, elapsed_time: Duration, ui_offset: usize) {
         let state = &self.state;
         let children = self.get_tables_to_display();
         self.terminal
@@ -97,7 +98,7 @@ where
                     children,
                     footer: help_text,
                 };
-                layout.render(&mut frame, size);
+                layout.render(&mut frame, size, ui_offset);
             })
             .unwrap();
     }
@@ -129,6 +130,11 @@ where
         }
         children
     }
+
+    pub fn get_table_count(&self) -> usize {
+        self.get_tables_to_display().len()
+    }
+
     pub fn update_state(
         &mut self,
         connections_to_procs: HashMap<LocalSocket, String>,

@@ -92,6 +92,58 @@ fn pause_by_space() {
 }
 
 #[test]
+fn rearranged_by_tab() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        None, // sleep
+        None, // sleep
+        None, // sleep
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"Same here, but one second later",
+        )),
+    ]) as Box<dyn DataLinkReceiver>];
+
+    // sleep for 1s, then press tab, sleep for 2s, then quit
+    let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
+    events.push(None);
+    events.push(Some(Event::Key(Key::Char('\t'))));
+    events.push(None);
+    events.push(None);
+    events.push(Some(Event::Key(Key::Ctrl('c'))));
+
+    let events = Box::new(KeyboardEvents::new(events));
+    let os_input = os_input_output_factory(network_frames, None, None, events);
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
+    let opts = opts_ui();
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Draw, Flush, Draw, Flush, Draw, Flush, Clear,
+        ShowCursor,
+    ];
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
+    assert_eq!(terminal_draw_events_mirror.len(), 5);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+    assert_snapshot!(&terminal_draw_events_mirror[2]);
+    assert_snapshot!(&terminal_draw_events_mirror[3]);
+    assert_snapshot!(&terminal_draw_events_mirror[4]);
+}
+
+#[test]
 fn basic_only_processes() {
     let network_frames = vec![NetworkFrames::new(vec![
         None, // sleep
@@ -1441,6 +1493,108 @@ fn layout_under_120_width_under_30_height() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
     let (terminal_events, terminal_draw_events, backend) = test_backend_factory(119, 29);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
+
+    assert_eq!(terminal_draw_events_mirror.len(), 2);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+}
+
+#[test]
+fn layout_under_50_width_under_50_height() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            4435,
+            b"Greetings traveller, I'm from 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "2.2.2.2",
+            "10.0.0.2",
+            54321,
+            4434,
+            b"You know, 2.2.2.2 is really nice!",
+        )),
+        Some(build_tcp_packet(
+            "4.4.4.4",
+            "10.0.0.2",
+            1337,
+            4432,
+            b"I'm partial to 4.4.4.4",
+        )),
+    ]) as Box<dyn DataLinkReceiver>];
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(49, 49);
+    let os_input = os_input_output(network_frames, 2);
+    let opts = opts_ui();
+    start(backend, os_input, opts);
+    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
+
+    let expected_terminal_events = vec![
+        Clear, HideCursor, Draw, Flush, Draw, Flush, Clear, ShowCursor,
+    ];
+    assert_eq!(
+        &terminal_events.lock().unwrap()[..],
+        &expected_terminal_events[..]
+    );
+
+    assert_eq!(terminal_draw_events_mirror.len(), 2);
+    assert_snapshot!(&terminal_draw_events_mirror[0]);
+    assert_snapshot!(&terminal_draw_events_mirror[1]);
+}
+
+#[test]
+fn layout_under_70_width_under_30_height() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            4435,
+            b"Greetings traveller, I'm from 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "2.2.2.2",
+            "10.0.0.2",
+            54321,
+            4434,
+            b"You know, 2.2.2.2 is really nice!",
+        )),
+        Some(build_tcp_packet(
+            "4.4.4.4",
+            "10.0.0.2",
+            1337,
+            4432,
+            b"I'm partial to 4.4.4.4",
+        )),
+    ]) as Box<dyn DataLinkReceiver>];
+    let (terminal_events, terminal_draw_events, backend) = test_backend_factory(69, 29);
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);

@@ -1,8 +1,12 @@
 ---
 source: src/tests/cases/ui.rs
-expression: "&terminal_draw_events_mirror[1]"
+expression: "&terminal_draw_events_mirror[3]"
 ---
- Total Up / Down: 0Bps / 0Bps [PAUSED]                                                                                                                                                        
+                         14                                                                                                                                                                   
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                      14                                                                                             14                       
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -26,6 +30,7 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
+                                                                                                                                        14                                                    
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -47,9 +52,4 @@ expression: "&terminal_draw_events_mirror[1]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                  resume. Use <TAB> to rea range tables. (DNS queries hi den).                                                                                                                
 
