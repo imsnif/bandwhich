@@ -43,6 +43,18 @@ sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
 brew install bandwhich
 ```
 
+#### OpenWRT
+
+To install `bandwhich` on OpenWRT, you'll need to compile a binary that would fit its processor architecture. This might mean you would have to cross compile if, for example, you're working on an `x86_64` and the OpenWRT is installed on an `arm7`.
+Here is an example of cross compiling in this situation:
+
+- Check the processor architecture of your router by using `uname -m`
+- Clone the bandwhich repository `git clone https://github.com/imsnif/bandwhich`
+- Install `cross` using `cargo install cross`
+- build the `bandwhich` package using `cross build --target armv7-unknown-linux-musleabihf`
+- Copy the binary files from `target/armv7-unknown-linux-musleabihf/debug/bandwhich` to the router using `scp` by running `scp bandwhich root@192.168.1.1:~/` (here, 192.168.1.1 would be the IP address of your router).
+- Finally enter the router using ssh and run the binary directly with `./bandwhich`
+
 #### Other Linux flavours
 
 `bandwhich` can be installed using the Rust package manager, cargo. If it's not in your distro repositories or the available version is too old, you can install it via [rustup](https://rustup.rs/). You can find additional installation instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html).
