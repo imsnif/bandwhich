@@ -64,9 +64,6 @@ This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root privilig
 - Tell sudo to use your user's environment variables: `sudo -E bandwhich`
 - Pass the desired target directory to cargo: `sudo cargo install bandwhich --root /usr/local/bin/`
 
-#### Download a prebuilt binary
-If you're on linux, you could also get the generic binary from the releases.
-
 #### OpenWRT
 
 To install `bandwhich` on OpenWRT, you'll need to compile a binary that would fit its processor architecture. This might mean you would have to cross compile if, for example, you're working on an `x86_64` and the OpenWRT is installed on an `arm7`.
