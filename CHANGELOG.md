@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.15.0] - 2020-05-03
+
 ### Added
 * Ability to change the window layout with <TAB> (https://github.com/imsnif/bandwhich/pull/118) - [@Louis-Lesage](https://github.com/Louis-Lesage)
 * Show duration of current capture when running in "total utilization" mode. - [@Eosis](https://github.com/Eosis)
