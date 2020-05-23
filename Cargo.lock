@@ -72,7 +72,7 @@ dependencies = [
 
 [[package]]
 name = "bandwhich"
-version = "0.14.0"
+version = "0.15.0"
 dependencies = [
  "async-trait 0.1.21 (registry+https://github.com/rust-lang/crates.io-index)",
  "cargo-insta 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
