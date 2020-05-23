@@ -43,17 +43,8 @@ sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
 brew install bandwhich
 ```
 
-#### OpenWRT
-
-To install `bandwhich` on OpenWRT, you'll need to compile a binary that would fit its processor architecture. This might mean you would have to cross compile if, for example, you're working on an `x86_64` and the OpenWRT is installed on an `arm7`.
-Here is an example of cross compiling in this situation:
-
-- Check the processor architecture of your router by using `uname -m`
-- Clone the bandwhich repository `git clone https://github.com/imsnif/bandwhich`
-- Install `cross` using `cargo install cross`
-- build the `bandwhich` package using `cross build --target armv7-unknown-linux-musleabihf`
-- Copy the binary files from `target/armv7-unknown-linux-musleabihf/debug/bandwhich` to the router using `scp` by running `scp bandwhich root@192.168.1.1:~/` (here, 192.168.1.1 would be the IP address of your router).
-- Finally enter the router using ssh and run the binary directly with `./bandwhich`
+#### Download a prebuilt binary
+If you're on linux, you could also get the generic binary from the releases.
 
 #### Other Linux flavours
 
@@ -75,6 +66,18 @@ This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root privilig
 
 #### Download a prebuilt binary
 If you're on linux, you could also get the generic binary from the releases.
+
+#### OpenWRT
+
+To install `bandwhich` on OpenWRT, you'll need to compile a binary that would fit its processor architecture. This might mean you would have to cross compile if, for example, you're working on an `x86_64` and the OpenWRT is installed on an `arm7`.
+Here is an example of cross compiling in this situation:
+
+- Check the processor architecture of your router by using `uname -m`
+- Clone the bandwhich repository `git clone https://github.com/imsnif/bandwhich`
+- Install `cross` using `cargo install cross`
+- build the `bandwhich` package using `cross build --target armv7-unknown-linux-musleabihf`
+- Copy the binary files from `target/armv7-unknown-linux-musleabihf/debug/bandwhich` to the router using `scp` by running `scp bandwhich root@192.168.1.1:~/` (here, 192.168.1.1 would be the IP address of your router).
+- Finally enter the router using ssh and run the binary directly with `./bandwhich`
 
 #### Windows
 Unfortunately, windows is not supported at the moment - if you'd like to contribute a windows port, it would be very much welcome.
