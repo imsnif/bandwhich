@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Added
 * Ability to change the window layout with <TAB> (https://github.com/imsnif/bandwhich/pull/118) - [@Louis-Lesage](https://github.com/Louis-Lesage)
+* Show duration of current capture when running in "total utilization" mode. - [@Eosis](https://github.com/Eosis)
 
 ### Fixed
 * Add terabytes as a display unit (for cumulative mode) (https://github.com/imsnif/bandwhich/pull/168) - [@TheLostLambda](https://github.com/TheLostLambda)

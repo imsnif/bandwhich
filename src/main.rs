@@ -6,7 +6,7 @@ mod os;
 #[cfg(test)]
 mod tests;
 
-use display::{RawTerminalBackend, Ui};
+use display::{elapsed_time, RawTerminalBackend, Ui};
 use network::{
     dns::{self, IpTable},
     Connection, LocalSocket, Sniffer, Utilization,
@@ -17,20 +17,21 @@ use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
 use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use ::std::sync::{Arc, Mutex};
+use ::std::thread;
 use ::std::thread::park_timeout;
-use ::std::{thread, time};
 use ::termion::event::{Event, Key};
 use ::tui::backend::Backend;
 
 use std::process;
 
 use ::std::io;
-use ::std::time::Instant;
+use ::std::time::{Duration, Instant};
 use ::termion::raw::IntoRawMode;
 use ::tui::backend::TermionBackend;
+use std::sync::RwLock;
 use structopt::StructOpt;
 
-const DISPLAY_DELTA: time::Duration = time::Duration::from_millis(1000);
+const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "bandwhich")]
@@ -121,6 +122,8 @@ where
 {
     let running = Arc::new(AtomicBool::new(true));
     let paused = Arc::new(AtomicBool::new(false));
+    let last_start_time = Arc::new(RwLock::new(Instant::now()));
+    let cumulative_time = Arc::new(RwLock::new(Duration::new(0, 0)));
     let ui_offset = Arc::new(AtomicUsize::new(0));
     let dns_shown = opts.show_dns;
 
@@ -145,15 +148,23 @@ where
                 .spawn({
                     let ui = ui.clone();
                     let paused = paused.clone();
+                    let cumulative_time = cumulative_time.clone();
+                    let last_start_time = last_start_time.clone();
                     let ui_offset = ui_offset.clone();
 
                     move || {
                         on_winch({
                             Box::new(move || {
                                 let mut ui = ui.lock().unwrap();
+                                let paused = paused.load(Ordering::SeqCst);
                                 ui.draw(
-                                    paused.load(Ordering::SeqCst),
+                                    paused,
                                     dns_shown,
+                                    elapsed_time(
+                                        *last_start_time.read().unwrap(),
+                                        *cumulative_time.read().unwrap(),
+                                        paused,
+                                    ),
                                     ui_offset.load(Ordering::SeqCst),
                                 );
                             })
@@ -172,6 +183,8 @@ where
             let ui_offset = ui_offset.clone();
 
             let network_utilization = network_utilization.clone();
+            let last_start_time = last_start_time.clone();
+            let cumulative_time = cumulative_time.clone();
             let ui = ui.clone();
 
             move || {
@@ -200,10 +213,16 @@ where
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
+                        let elapsed_time = elapsed_time(
+                            *last_start_time.read().unwrap(),
+                            *cumulative_time.read().unwrap(),
+                            paused,
+                        );
+
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, dns_shown, ui_offset);
+                            ui.draw(paused, dns_shown, elapsed_time, ui_offset);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -238,14 +257,31 @@ where
                                 break;
                             }
                             Event::Key(Key::Char(' ')) => {
-                                paused.fetch_xor(true, Ordering::SeqCst);
+                                let restarting = paused.fetch_xor(true, Ordering::SeqCst);
+                                if restarting {
+                                    *last_start_time.write().unwrap() = Instant::now();
+                                } else {
+                                    let last_start_time_copy = *last_start_time.read().unwrap();
+                                    let current_cumulative_time_copy =
+                                        *cumulative_time.read().unwrap();
+                                    let new_cumulative_time = current_cumulative_time_copy
+                                        + last_start_time_copy.elapsed();
+                                    *cumulative_time.write().unwrap() = new_cumulative_time;
+                                }
+
                                 display_handler.unpark();
                             }
                             Event::Key(Key::Char('\t')) => {
+                                let paused = paused.load(Ordering::SeqCst);
+                                let elapsed_time = elapsed_time(
+                                    *last_start_time.read().unwrap(),
+                                    *cumulative_time.read().unwrap(),
+                                    paused,
+                                );
                                 let table_count = ui.get_table_count();
                                 let new = ui_offset.load(Ordering::SeqCst) + 1 % table_count;
                                 ui_offset.store(new, Ordering::SeqCst);
-                                ui.draw(paused.load(Ordering::SeqCst), dns_shown, new);
+                                ui.draw(paused, dns_shown, elapsed_time, new);
                             }
                             _ => (),
                         };

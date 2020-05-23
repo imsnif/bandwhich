@@ -2,9 +2,9 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Constraint, Direction, Rect};
 use ::tui::terminal::Frame;
 
+use super::HeaderDetails;
 use super::HelpText;
 use super::Table;
-use super::TotalBandwidth;
 
 const FIRST_HEIGHT_BREAKPOINT: u16 = 30;
 const FIRST_WIDTH_BREAKPOINT: u16 = 120;
@@ -26,7 +26,7 @@ fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
 }
 
 pub struct Layout<'a> {
-    pub header: TotalBandwidth<'a>,
+    pub header: HeaderDetails<'a>,
     pub children: Vec<Table<'a>>,
     pub footer: HelpText,
 }
@@ -99,6 +99,7 @@ impl<'a> Layout<'a> {
             self.build_three_children_layout(rect)
         }
     }
+
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect, ui_offset: usize) {
         let (top, app, bottom) = top_app_and_bottom_split(rect);
         let layout_slots = self.build_layout(app);

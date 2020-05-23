@@ -3,7 +3,7 @@ use ::std::collections::HashMap;
 use ::tui::backend::Backend;
 use ::tui::Terminal;
 
-use crate::display::components::{HelpText, Layout, Table, TotalBandwidth};
+use crate::display::components::{HeaderDetails, HelpText, Layout, Table};
 use crate::display::UIState;
 use crate::network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization};
 
@@ -11,6 +11,7 @@ use ::std::net::IpAddr;
 
 use crate::RenderOpts;
 use chrono::prelude::*;
+use std::time::Duration;
 
 pub struct Ui<B>
 where
@@ -79,14 +80,16 @@ where
             ));
         }
     }
-    pub fn draw(&mut self, paused: bool, show_dns: bool, ui_offset: usize) {
+
+    pub fn draw(&mut self, paused: bool, show_dns: bool, elapsed_time: Duration, ui_offset: usize) {
         let state = &self.state;
         let children = self.get_tables_to_display();
         self.terminal
             .draw(|mut frame| {
                 let size = frame.size();
-                let total_bandwidth = TotalBandwidth {
+                let total_bandwidth = HeaderDetails {
                     state: &state,
+                    elapsed_time,
                     paused,
                 };
                 let help_text = HelpText { paused, show_dns };
