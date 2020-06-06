@@ -37,7 +37,7 @@ xbps-install -S bandwhich
 sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
 ```
 
-#### macOS/Linux
+#### macOS/Linux (using Homebrew)
 
 ```
 brew install bandwhich
