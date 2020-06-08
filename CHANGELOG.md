@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+* Changed repository trunk branch to "main" instead of "master".
+
 ## [0.15.0] - 2020-05-23
 
 ### Added
