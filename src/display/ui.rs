@@ -45,39 +45,63 @@ where
         let ip_to_host = &self.ip_to_host;
         let local_time: DateTime<Local> = Local::now();
         let timestamp = local_time.timestamp();
-        for (process, process_network_data) in &state.processes {
-            write_to_stdout(format!(
-                "process: <{}> \"{}\" up/down Bps: {}/{} connections: {}",
-                timestamp,
-                process,
-                process_network_data.total_bytes_uploaded,
-                process_network_data.total_bytes_downloaded,
-                process_network_data.connection_count
-            ));
+
+        let output_process_data = |write_to_stdout: &mut (dyn FnMut(String) + Send)| {
+            for (process, process_network_data) in &state.processes {
+                write_to_stdout(format!(
+                    "process: <{}> \"{}\" up/down Bps: {}/{} connections: {}",
+                    timestamp,
+                    process,
+                    process_network_data.total_bytes_uploaded,
+                    process_network_data.total_bytes_downloaded,
+                    process_network_data.connection_count
+                ));
+            }
+        };
+
+        let output_connections_data = |write_to_stdout: &mut (dyn FnMut(String) + Send)| {
+            for (connection, connection_network_data) in &state.connections {
+                write_to_stdout(format!(
+                    "connection: <{}> {} up/down Bps: {}/{} process: \"{}\"",
+                    timestamp,
+                    display_connection_string(
+                        connection,
+                        ip_to_host,
+                        &connection_network_data.interface_name,
+                    ),
+                    connection_network_data.total_bytes_uploaded,
+                    connection_network_data.total_bytes_downloaded,
+                    connection_network_data.process_name
+                ));
+            }
+        };
+
+        let output_adressess_data = |write_to_stdout: &mut (dyn FnMut(String) + Send)| {
+            for (remote_address, remote_address_network_data) in &state.remote_addresses {
+                write_to_stdout(format!(
+                    "remote_address: <{}> {} up/down Bps: {}/{} connections: {}",
+                    timestamp,
+                    display_ip_or_host(*remote_address, ip_to_host),
+                    remote_address_network_data.total_bytes_uploaded,
+                    remote_address_network_data.total_bytes_downloaded,
+                    remote_address_network_data.connection_count
+                ));
+            }
+        };
+
+        if self.opts.processes {
+            output_process_data(write_to_stdout);
         }
-        for (connection, connection_network_data) in &state.connections {
-            write_to_stdout(format!(
-                "connection: <{}> {} up/down Bps: {}/{} process: \"{}\"",
-                timestamp,
-                display_connection_string(
-                    connection,
-                    ip_to_host,
-                    &connection_network_data.interface_name,
-                ),
-                connection_network_data.total_bytes_uploaded,
-                connection_network_data.total_bytes_downloaded,
-                connection_network_data.process_name
-            ));
+        if self.opts.connections {
+            output_connections_data(write_to_stdout);
         }
-        for (remote_address, remote_address_network_data) in &state.remote_addresses {
-            write_to_stdout(format!(
-                "remote_address: <{}> {} up/down Bps: {}/{} connections: {}",
-                timestamp,
-                display_ip_or_host(*remote_address, ip_to_host),
-                remote_address_network_data.total_bytes_uploaded,
-                remote_address_network_data.total_bytes_downloaded,
-                remote_address_network_data.connection_count
-            ));
+        if self.opts.addresses {
+            output_adressess_data(write_to_stdout);
+        }
+        if !(self.opts.processes || self.opts.connections || self.opts.addresses) {
+            output_process_data(write_to_stdout);
+            output_connections_data(write_to_stdout);
+            output_adressess_data(write_to_stdout);
         }
     }
 
