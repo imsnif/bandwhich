@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.16.0] - 2020-07-13
+
 ### Fixed
+* Allow filtering by processes/connections/remote-ips in raw-mode (https://github.com/imsnif/bandwhich/pull/174) - [@sigmaSd](https://github.com/sigmaSd)
 * Changed repository trunk branch to "main" instead of "master".
 
 ## [0.15.0] - 2020-05-23
