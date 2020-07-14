@@ -2,6 +2,10 @@
 source: src/tests/cases/raw_mode.rs
 expression: formatted
 ---
+Refreshing:
+<NO TRAFFIC>
+
+Refreshing:
 process: <TIMESTAMP_REMOVED> "5" up/down Bps: 0/28 connections: 1
 process: <TIMESTAMP_REMOVED> "4" up/down Bps: 0/26 connections: 1
 process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/22 connections: 1
@@ -14,4 +18,5 @@ remote_address: <TIMESTAMP_REMOVED> 3.3.3.3 up/down Bps: 0/28 connections: 1
 remote_address: <TIMESTAMP_REMOVED> 2.2.2.2 up/down Bps: 0/26 connections: 1
 remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 0/22 connections: 1
 remote_address: <TIMESTAMP_REMOVED> 4.4.4.4 up/down Bps: 0/21 connections: 1
+
 
