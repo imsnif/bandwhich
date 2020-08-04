@@ -53,8 +53,11 @@ pub struct Table<'a> {
 
 fn truncate_middle(row: &str, max_length: u16) -> String {
     if row.len() as u16 > max_length {
+        let row: Vec<char> = row.chars().collect();
         let first_slice = &row[0..(max_length as usize / 2) - 2];
+        let first_slice :String = first_slice.into_iter().collect();
         let second_slice = &row[(row.len() - (max_length / 2) as usize + 2)..row.len()];
+        let second_slice :String = second_slice.into_iter().collect();
         format!("{}[..]{}", first_slice, second_slice)
     } else {
         row.to_string()
