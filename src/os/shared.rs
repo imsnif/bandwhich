@@ -11,10 +11,13 @@ use ::std::time;
 use crate::os::errors::GetInterfaceErrorKind;
 use signal_hook::iterator::Signals;
 
-#[cfg(target_os = "linux")]
-use crate::os::linux::get_open_sockets;
-#[cfg(any(target_os = "macos", target_os = "freebsd"))]
-use crate::os::lsof::get_open_sockets;
+// #[cfg(target_os = "linux")]
+// use crate::os::linux::get_open_sockets;
+// #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+// use crate::os::lsof::get_open_sockets;
+// #[cfg(any(target_os = "windows"))]
+use crate::os::open_sockets::get_open_sockets;
+
 use crate::{network::dns, OsInputOutput};
 
 pub type OnSigWinch = dyn Fn(Box<dyn Fn()>) + Send;
