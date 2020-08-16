@@ -1,9 +1,9 @@
 use ::pnet::datalink::Channel::Ethernet;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::{self, Config, NetworkInterface};
-use ::std::io::{self, stdin, ErrorKind, Write};
-use ::termion::event::Event;
-use ::termion::input::TermRead;
+use ::std::io::{self, ErrorKind, Write};
+use ::crossterm::event::Event;
+use ::crossterm::event::read;
 use ::tokio::runtime::Runtime;
 
 use ::std::time;
@@ -25,9 +25,9 @@ pub struct KeyboardEvents;
 impl Iterator for KeyboardEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
-        match stdin().events().next() {
-            Some(Ok(ev)) => Some(ev),
-            _ => None,
+        match read() {
+            Ok(ev) => {Some(ev)},
+            Err(_) => {None},
         }
     }
 }
