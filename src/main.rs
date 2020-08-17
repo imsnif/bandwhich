@@ -29,7 +29,6 @@ use ::std::time::{Duration, Instant};
 use ::tui::backend::CrosstermBackend;
 use std::sync::RwLock;
 use structopt::StructOpt;
-use crossterm::ErrorKind;
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
@@ -76,9 +75,6 @@ fn main() {
 }
 
 fn try_main() -> Result<(), failure::Error> {
-    #[cfg(target_os = "windows")]
-    compile_error!("Sorry, no implementations for Windows yet :( - PRs welcome!");
-
     use os::get_input;
     let opts = Opt::from_args();
     let os_input = get_input(&opts.interface, !opts.no_resolve)?;

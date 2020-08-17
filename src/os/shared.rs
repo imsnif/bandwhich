@@ -260,3 +260,9 @@ fn eperm_message() -> &'static str {
         `cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep`
     "#
 }
+
+#[inline]
+#[cfg(any(target_os = "windows"))]
+fn eperm_message() -> &'static str {
+    "Insufficient permissions to listen on network interface(s). Try running with administrator rights."
+}
