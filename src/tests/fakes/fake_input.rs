@@ -5,7 +5,7 @@ use ::pnet::datalink::NetworkInterface;
 use ::std::collections::HashMap;
 use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use ::std::{thread, time};
-use ::termion::event::Event;
+use ::crossterm::event::{Event};
 use ::tokio::runtime::Runtime;
 
 use crate::{

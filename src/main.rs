@@ -29,7 +29,6 @@ use ::std::time::{Duration, Instant};
 use ::tui::backend::CrosstermBackend;
 use std::sync::RwLock;
 use structopt::StructOpt;
-use crossterm::ErrorKind;
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
