@@ -6,7 +6,7 @@ use std::iter;
 
 use crate::network::dns::Client;
 use crate::{Opt, OsInputOutput, RenderOpts};
-use ::termion::event::{Event, Key};
+use ::crossterm::event::{Event, KeyEvent, KeyModifiers, KeyCode};
 use packet_builder::*;
 use pnet::datalink::DataLinkReceiver;
 use std::collections::HashMap;
@@ -19,7 +19,7 @@ use pnet_base::MacAddr;
 
 pub fn sleep_and_quit_events(sleep_num: usize) -> Box<KeyboardEvents> {
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();
-    events.push(Some(Event::Key(Key::Ctrl('c'))));
+    events.push(Some(Event::Key(KeyEvent{modifiers: KeyModifiers::CONTROL, code: KeyCode::Char('c')})));
     Box::new(KeyboardEvents::new(events))
 }
 
