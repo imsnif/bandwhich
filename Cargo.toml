@@ -32,6 +32,7 @@ lazy_static = "1.4.0"
 tokio = { version = "0.2", features = ["rt-core", "sync"] }
 trust-dns-resolver = "0.18.1"
 async-trait = "0.1.21"
+unicode-width = "0.1.8"
 
 [target.'cfg(target_os="linux")'.dependencies]
 procfs = "0.7.4"
