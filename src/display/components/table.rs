@@ -70,7 +70,8 @@ fn truncate_middle(row: &str, max_length: u16) -> String {
     if max_length < 6 {
         truncate_iter_to_unicode_width(row.chars(), max_length as usize)
     } else if row.len() as u16 > max_length {
-        let split_point = (max_length as usize / 2) - 2;
+        let split_point = (max_length as usize / 2) - 3;
+        // why 3? 5 is the max size of the truncation text ([...] or [..]), 3 is ~5/2
         let first_slice = truncate_iter_to_unicode_width::<_, String>(row.chars(), split_point);
         let second_slice =
             truncate_iter_to_unicode_width::<_, Vec<_>>(row.chars().rev(), split_point)
@@ -78,7 +79,7 @@ fn truncate_middle(row: &str, max_length: u16) -> String {
                 .rev()
                 .collect::<String>();
         if max_length % 2 == 0 {
-            format!("{}[..]{}", first_slice, second_slice)
+            format!("{}[...]{}", first_slice, second_slice)
         } else {
             format!("{}[..]{}", first_slice, second_slice)
         }
