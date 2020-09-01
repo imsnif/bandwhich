@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Added
 * Add delimiters between refreshes in raw mode for easier parsing (https://github.com/imsnif/bandwhich/pull/175) - [@sigmaSd](https://github.com/sigmaSd)
 
+### Fixed
+* Truncate Chinese characters properly (https://github.com/imsnif/bandwhich/pull/177) - [@zxlzy](https://github.com/zxlzy)
+
 ## [0.16.0] - 2020-07-13
 
 ### Fixed
