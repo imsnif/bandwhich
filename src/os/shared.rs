@@ -9,6 +9,7 @@ use ::tokio::runtime::Runtime;
 use ::std::time;
 
 use crate::os::errors::GetInterfaceErrorKind;
+#[cfg(not(target_os = "windows"))]
 use signal_hook::iterator::Signals;
 
 // #[cfg(target_os = "linux")]
@@ -66,6 +67,7 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
         .find(|iface| iface.name == interface_name)
 }
 
+#[cfg(not(target_os = "windows"))]
 fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
     let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
     let on_winch = {
@@ -81,6 +83,18 @@ fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
     };
     let cleanup = move || {
         signals.close();
+    };
+    (Box::new(on_winch), Box::new(cleanup))
+}
+
+#[cfg(any(target_os = "windows"))]
+fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
+    let on_winch = {
+        move |cb: Box<dyn Fn()>| {
+        }
+    };
+    let cleanup = move || {
+        println!("Fake signal cleanup");
     };
     (Box::new(on_winch), Box::new(cleanup))
 }
@@ -185,7 +199,7 @@ pub fn get_input(
 
     let network_frames = network_interfaces
         .iter()
-        .filter(|iface| iface.is_up() && !iface.ips.is_empty())
+        .filter(|iface| !iface.ips.is_empty())
         .map(|iface| (iface, get_datalink_channel(iface)));
 
     let (available_network_frames, network_interfaces) = {
