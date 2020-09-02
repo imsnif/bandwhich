@@ -13,14 +13,14 @@ use network::{
 };
 use os::OnSigWinch;
 
+use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use ::crossterm::terminal;
 use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
 use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use ::std::sync::{Arc, Mutex};
 use ::std::thread;
 use ::std::thread::park_timeout;
-use ::crossterm::event::{Event, KeyEvent, KeyModifiers, KeyCode};
-use ::crossterm::terminal;
 use ::tui::backend::Backend;
 
 use std::process;
@@ -97,7 +97,7 @@ fn try_main() -> Result<(), failure::Error> {
 }
 
 pub struct OpenSockets {
-    sockets_to_procs: HashMap<LocalSocket, String>
+    sockets_to_procs: HashMap<LocalSocket, String>,
 }
 
 pub struct OsInputOutput {
@@ -186,13 +186,14 @@ where
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
                     let utilization = { network_utilization.lock().unwrap().clone_and_reset() };
-                    let OpenSockets {
-                        sockets_to_procs
-                    } = get_open_sockets();
+                    let OpenSockets { sockets_to_procs } = get_open_sockets();
                     let mut ip_to_host = IpTable::new();
                     if let Some(dns_client) = dns_client.as_mut() {
                         ip_to_host = dns_client.cache();
-                        let unresolved_ips =  utilization.connections.keys().into_iter()
+                        let unresolved_ips = utilization
+                            .connections
+                            .keys()
+                            .into_iter()
                             .filter(|conn| !ip_to_host.contains_key(&conn.remote_socket.ip))
                             .map(|conn| conn.remote_socket.ip)
                             .collect::<Vec<_>>();
@@ -242,17 +243,27 @@ where
                         let mut ui = ui.lock().unwrap();
 
                         match evt {
-                            Event::Key(KeyEvent{ modifiers: KeyModifiers::CONTROL, code: KeyCode::Char('c')}) | Event::Key(KeyEvent{modifiers: KeyModifiers::NONE, code: KeyCode::Char('q')}) => {
+                            Event::Key(KeyEvent {
+                                modifiers: KeyModifiers::CONTROL,
+                                code: KeyCode::Char('c'),
+                            })
+                            | Event::Key(KeyEvent {
+                                modifiers: KeyModifiers::NONE,
+                                code: KeyCode::Char('q'),
+                            }) => {
                                 running.store(false, Ordering::Release);
                                 cleanup();
                                 display_handler.unpark();
                                 match terminal::disable_raw_mode() {
-                                    Ok(_) => {},
-                                    Err(_) => { println!("Error could not disable raw input")},
+                                    Ok(_) => {}
+                                    Err(_) => println!("Error could not disable raw input"),
                                 }
                                 break;
                             }
-                            Event::Key(KeyEvent{modifiers: KeyModifiers::NONE, code: KeyCode::Char(' ')}) => {
+                            Event::Key(KeyEvent {
+                                modifiers: KeyModifiers::NONE,
+                                code: KeyCode::Char(' '),
+                            }) => {
                                 let restarting = paused.fetch_xor(true, Ordering::SeqCst);
                                 if restarting {
                                     *last_start_time.write().unwrap() = Instant::now();
@@ -267,7 +278,10 @@ where
 
                                 display_handler.unpark();
                             }
-                            Event::Key(KeyEvent{modifiers: KeyModifiers::NONE, code: KeyCode::Tab}) => {
+                            Event::Key(KeyEvent {
+                                modifiers: KeyModifiers::NONE,
+                                code: KeyCode::Tab,
+                            }) => {
                                 let paused = paused.load(Ordering::SeqCst);
                                 let elapsed_time = elapsed_time(
                                     *last_start_time.read().unwrap(),

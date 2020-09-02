@@ -1,9 +1,9 @@
+use ::crossterm::event::read;
+use ::crossterm::event::Event;
 use ::pnet::datalink::Channel::Ethernet;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::{self, Config, NetworkInterface};
 use ::std::io::{self, ErrorKind, Write};
-use ::crossterm::event::Event;
-use ::crossterm::event::read;
 use ::tokio::runtime::Runtime;
 
 use ::std::time;
@@ -12,11 +12,6 @@ use crate::os::errors::GetInterfaceErrorKind;
 #[cfg(not(target_os = "windows"))]
 use signal_hook::iterator::Signals;
 
-// #[cfg(target_os = "linux")]
-// use crate::os::linux::get_open_sockets;
-// #[cfg(any(target_os = "macos", target_os = "freebsd"))]
-// use crate::os::lsof::get_open_sockets;
-// #[cfg(any(target_os = "windows"))]
 use crate::os::open_sockets::get_open_sockets;
 
 use crate::{network::dns, OsInputOutput};
@@ -30,8 +25,8 @@ impl Iterator for KeyboardEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
         match read() {
-            Ok(ev) => {Some(ev)},
-            Err(_) => {None},
+            Ok(ev) => Some(ev),
+            Err(_) => None,
         }
     }
 }
@@ -89,10 +84,7 @@ fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
 
 #[cfg(any(target_os = "windows"))]
 fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
-    let on_winch = {
-        move |cb: Box<dyn Fn()>| {
-        }
-    };
+    let on_winch = { move |_cb: Box<dyn Fn()>| {} };
     let cleanup = move || {
         println!("Fake signal cleanup");
     };
