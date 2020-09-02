@@ -1,4 +1,6 @@
 use ::std::collections::{BTreeMap, HashMap};
+use ::std::iter::FromIterator;
+use ::unicode_width::UnicodeWidthChar;
 
 use ::tui::backend::Backend;
 use ::tui::layout::Rect;
@@ -51,11 +53,36 @@ pub struct Table<'a> {
     breakpoints: BTreeMap<u16, ColumnData>,
 }
 
+fn truncate_iter_to_unicode_width<Input, Collect>(iter: Input, width: usize) -> Collect
+where
+    Input: Iterator<Item = char>,
+    Collect: FromIterator<char>,
+{
+    let mut chunk_width = 0;
+    iter.take_while(|ch| {
+        chunk_width += ch.width().unwrap_or(0);
+        chunk_width <= width
+    })
+    .collect()
+}
+
 fn truncate_middle(row: &str, max_length: u16) -> String {
-    if row.len() as u16 > max_length {
-        let first_slice = &row[0..(max_length as usize / 2) - 2];
-        let second_slice = &row[(row.len() - (max_length / 2) as usize + 2)..row.len()];
-        format!("{}[..]{}", first_slice, second_slice)
+    if max_length < 6 {
+        truncate_iter_to_unicode_width(row.chars(), max_length as usize)
+    } else if row.len() as u16 > max_length {
+        let split_point = (max_length as usize / 2) - 3;
+        // why 3? 5 is the max size of the truncation text ([...] or [..]), 3 is ~5/2
+        let first_slice = truncate_iter_to_unicode_width::<_, String>(row.chars(), split_point);
+        let second_slice =
+            truncate_iter_to_unicode_width::<_, Vec<_>>(row.chars().rev(), split_point)
+                .into_iter()
+                .rev()
+                .collect::<String>();
+        if max_length % 2 == 0 {
+            format!("{}[...]{}", first_slice, second_slice)
+        } else {
+            format!("{}[..]{}", first_slice, second_slice)
+        }
     } else {
         row.to_string()
     }
