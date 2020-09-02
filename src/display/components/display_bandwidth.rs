@@ -10,7 +10,12 @@ impl fmt::Display for DisplayBandwidth {
         let suffix = if self.as_rate { "ps" } else { "" };
         if self.bandwidth > 999_999_999_999.0 {
             // 1024 * 1024 * 1024 * 1024
-            write!(f, "{:.2}TiB{}", self.bandwidth / 1_099_511_627_776.0, suffix)
+            write!(
+                f,
+                "{:.2}TiB{}",
+                self.bandwidth / 1_099_511_627_776.0,
+                suffix
+            )
         } else if self.bandwidth > 999_999_999.0 {
             write!(f, "{:.2}GiB{}", self.bandwidth / 1_073_741_824.0, suffix) // 1024 * 1024 * 1024
         } else if self.bandwidth > 999_999.0 {
