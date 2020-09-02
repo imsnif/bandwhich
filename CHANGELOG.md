@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.17.0] - 2020-09-02
+
 ### Added
 * Add delimiters between refreshes in raw mode for easier parsing (https://github.com/imsnif/bandwhich/pull/175) - [@sigmaSd](https://github.com/sigmaSd)
 
