@@ -12,7 +12,7 @@ use crate::tests::cases::test_utils::{
     build_tcp_packet, opts_ui, os_input_output, os_input_output_factory, sample_frames,
     sleep_and_quit_events, test_backend_factory,
 };
-use ::termion::event::{Event, Key};
+use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use pnet::datalink::DataLinkReceiver;
 use std::iter;
 
@@ -66,11 +66,20 @@ fn pause_by_space() {
 
     // sleep for 1s, then press space, sleep for 2s, then quit
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
-    events.push(Some(Event::Key(Key::Char(' '))));
+    events.push(Some(Event::Key(KeyEvent {
+        modifiers: KeyModifiers::NONE,
+        code: KeyCode::Char(' '),
+    })));
     events.push(None);
     events.push(None);
-    events.push(Some(Event::Key(Key::Char(' '))));
-    events.push(Some(Event::Key(Key::Ctrl('c'))));
+    events.push(Some(Event::Key(KeyEvent {
+        modifiers: KeyModifiers::NONE,
+        code: KeyCode::Char(' '),
+    })));
+    events.push(Some(Event::Key(KeyEvent {
+        modifiers: KeyModifiers::CONTROL,
+        code: KeyCode::Char('c'),
+    })));
 
     let events = Box::new(KeyboardEvents::new(events));
     let os_input = os_input_output_factory(network_frames, None, None, events);
@@ -116,10 +125,16 @@ fn rearranged_by_tab() {
     // sleep for 1s, then press tab, sleep for 2s, then quit
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
     events.push(None);
-    events.push(Some(Event::Key(Key::Char('\t'))));
+    events.push(Some(Event::Key(KeyEvent {
+        modifiers: KeyModifiers::NONE,
+        code: KeyCode::Tab,
+    })));
     events.push(None);
     events.push(None);
-    events.push(Some(Event::Key(Key::Ctrl('c'))));
+    events.push(Some(Event::Key(KeyEvent {
+        modifiers: KeyModifiers::CONTROL,
+        code: KeyCode::Char('c'),
+    })));
 
     let events = Box::new(KeyboardEvents::new(events));
     let os_input = os_input_output_factory(network_frames, None, None, events);

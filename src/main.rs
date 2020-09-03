@@ -13,21 +13,20 @@ use network::{
 };
 use os::OnSigWinch;
 
+use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use ::crossterm::terminal;
 use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
 use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use ::std::sync::{Arc, Mutex};
 use ::std::thread;
 use ::std::thread::park_timeout;
-use ::termion::event::{Event, Key};
 use ::tui::backend::Backend;
 
 use std::process;
 
-use ::std::io;
 use ::std::time::{Duration, Instant};
-use ::termion::raw::IntoRawMode;
-use ::tui::backend::TermionBackend;
+use ::tui::backend::CrosstermBackend;
 use std::sync::RwLock;
 use structopt::StructOpt;
 
@@ -87,9 +86,9 @@ fn try_main() -> Result<(), failure::Error> {
         let terminal_backend = RawTerminalBackend {};
         start(terminal_backend, os_input, opts);
     } else {
-        match io::stdout().into_raw_mode() {
-            Ok(stdout) => {
-                let terminal_backend = TermionBackend::new(stdout);
+        match terminal::enable_raw_mode() {
+            Ok(()) => {
+                let terminal_backend = CrosstermBackend::new();
                 start(terminal_backend, os_input, opts);
             }
             Err(_) => failure::bail!(
@@ -250,13 +249,27 @@ where
                         let mut ui = ui.lock().unwrap();
 
                         match evt {
-                            Event::Key(Key::Ctrl('c')) | Event::Key(Key::Char('q')) => {
+                            Event::Key(KeyEvent {
+                                modifiers: KeyModifiers::CONTROL,
+                                code: KeyCode::Char('c'),
+                            })
+                            | Event::Key(KeyEvent {
+                                modifiers: KeyModifiers::NONE,
+                                code: KeyCode::Char('q'),
+                            }) => {
                                 running.store(false, Ordering::Release);
                                 cleanup();
                                 display_handler.unpark();
+                                match terminal::disable_raw_mode() {
+                                    Ok(_) => {}
+                                    Err(_) => println!("Error could not disable raw input"),
+                                }
                                 break;
                             }
-                            Event::Key(Key::Char(' ')) => {
+                            Event::Key(KeyEvent {
+                                modifiers: KeyModifiers::NONE,
+                                code: KeyCode::Char(' '),
+                            }) => {
                                 let restarting = paused.fetch_xor(true, Ordering::SeqCst);
                                 if restarting {
                                     *last_start_time.write().unwrap() = Instant::now();
@@ -271,7 +284,10 @@ where
 
                                 display_handler.unpark();
                             }
-                            Event::Key(Key::Char('\t')) => {
+                            Event::Key(KeyEvent {
+                                modifiers: KeyModifiers::NONE,
+                                code: KeyCode::Tab,
+                            }) => {
                                 let paused = paused.load(Ordering::SeqCst);
                                 let elapsed_time = elapsed_time(
                                     *last_start_time.read().unwrap(),
