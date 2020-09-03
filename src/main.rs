@@ -193,7 +193,6 @@ where
                         let unresolved_ips = utilization
                             .connections
                             .keys()
-                            .into_iter()
                             .filter(|conn| !ip_to_host.contains_key(&conn.remote_socket.ip))
                             .map(|conn| conn.remote_socket.ip)
                             .collect::<Vec<_>>();

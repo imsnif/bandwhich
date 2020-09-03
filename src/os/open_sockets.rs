@@ -17,8 +17,8 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
     let proto_flags = ProtocolFlags::TCP | ProtocolFlags::UDP;
     let sockets_info = get_sockets_info(af_flags, proto_flags);
 
-    if sockets_info.is_ok() {
-        for si in sockets_info.unwrap() {
+    if let Ok(sockets_info) = sockets_info {
+        for si in sockets_info {
             let mut procname = "";
             for pid in si.associated_pids {
                 if let Some(process) = sysinfo.get_process(pid as Pid) {
