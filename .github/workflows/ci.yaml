@@ -62,10 +62,11 @@ jobs:
       # This is useful for debugging problems when the expected build artifacts
       # (like shell completions and man pages) aren't generated.
       - name: Show build.rs stderr
+        if: matrix.os == 'windows-2019'
         shell: bash
         run: |
           set +x
-          stderr="$(find "${{ env.TARGET_DIR }}/debug" -name stderr -print0 | xargs -0 ls -t | head -n1)"
+          stderr="$(find "./target/debug" -name stderr -print0 | xargs -0 ls -t | head -n1)"
           if [ -s "$stderr" ]; then
             echo "===== $stderr ===== "
             cat "$stderr"
