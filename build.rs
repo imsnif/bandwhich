@@ -1,5 +1,3 @@
-use std::io::Write;
-
 fn main() {
     #[cfg(target_os = "windows")]
     download_winpcap_sdk()
