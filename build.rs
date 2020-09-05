@@ -1,3 +1,5 @@
+use std::io::Write;
+
 fn main() {
     #[cfg(target_os = "windows")]
     download_winpcap_sdk()
@@ -23,7 +25,7 @@ fn download_winpcap_sdk() {
     println!("Reader len: {}", reader.len());
 
     let mut pcapzip = File::create(format!("{}{}", out_dir, "/npcap.zip")).unwrap();
-    pcapzip.write(reader.as_slice()).unwrap();
+    pcapzip.write_all(reader.as_slice()).unwrap();
     pcapzip.flush().unwrap();
 
     pcapzip = File::open(format!("{}{}", out_dir, "/npcap.zip")).unwrap();
@@ -45,7 +47,7 @@ fn download_winpcap_sdk() {
     pcaplib.read_to_end(&mut pcaplib_bytes).unwrap();
 
     let mut pcaplib_file = File::create(format!("{}{}", out_dir, "/Packet.lib")).unwrap();
-    pcaplib_file.write(pcaplib_bytes.as_slice()).unwrap();
+    pcaplib_file.write_all(pcaplib_bytes.as_slice()).unwrap();
     pcaplib_file.flush().unwrap();
 
     println!("cargo:rustc-link-search=native={}", out_dir);
