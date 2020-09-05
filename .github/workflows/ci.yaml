@@ -77,4 +77,9 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
 
+      - name: Upload binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.os}}-${{ matrix.rust }}
+          path: ./target/debug/bandwhich*
 
