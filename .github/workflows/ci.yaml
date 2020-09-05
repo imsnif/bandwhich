@@ -85,7 +85,7 @@ jobs:
           path: target/debug/bandwhich
 
       - name: Show target folder contents
-        if: matrix.os != 'windows-2019'
+        if: matrix.os == 'windows-2019'
         shell: bash
         run: |
           ls -la target/debug
