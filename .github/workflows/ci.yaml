@@ -92,7 +92,7 @@ jobs:
 
       - name: Upload windows binary
         if: matrix.os == 'windows-2019'
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: |
