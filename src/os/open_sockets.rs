@@ -19,10 +19,10 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
 
     if let Ok(sockets_info) = sockets_info {
         for si in sockets_info {
-            let mut procname = "";
+            let mut procname = String::new();
             for pid in si.associated_pids {
                 if let Some(process) = sysinfo.get_process(pid as Pid) {
-                    procname = process.name();
+                    procname = String::from(process.name());
                     break;
                 }
             }
@@ -35,7 +35,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
                             port: tcp_si.local_port,
                             protocol: Protocol::Tcp,
                         },
-                        String::from(procname),
+                        procname,
                     );
                 }
                 ProtocolSocketInfo::Udp(udp_si) => {
@@ -45,7 +45,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
                             port: udp_si.local_port,
                             protocol: Protocol::Udp,
                         },
-                        String::from(procname),
+                        procname,
                     );
                 }
             }
