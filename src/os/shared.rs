@@ -189,9 +189,15 @@ pub fn get_input(
         datalink::interfaces()
     };
 
+    #[cfg(any(target_os = "windows"))]
     let network_frames = network_interfaces
         .iter()
         .filter(|iface| !iface.ips.is_empty())
+        .map(|iface| (iface, get_datalink_channel(iface)));
+    #[cfg(not(target_os = "windows"))]
+    let network_frames = network_interfaces
+        .iter()
+        .filter(|iface| iface.is_up() && !iface.ips.is_empty())
         .map(|iface| (iface, get_datalink_channel(iface)));
 
     let (available_network_frames, network_interfaces) = {
