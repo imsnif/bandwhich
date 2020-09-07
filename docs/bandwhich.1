@@ -3,18 +3,43 @@
 bandwhich \- display current network utilization by process, connection and remote IP/hostname
 .SH SYNOPSIS
 .B bandwhich
-\fB\-i\fR \fIINTERFACE_NAME\fR
+[\fIFLAGS\fR]
+[\fIOPTIONS\fR]
 .SH DESCRIPTION
 .B bandwhich
 provides a responsive terminal dashboard for displaying bandwidth information. It sniffs a given network interface and cross references it with the /proc filesystem.
 Optionally, it has a raw mode that can be used to parse and log this data.
-.SH OPTIONS
+
+.SH FLAGS
+.TP
+.BR \-a ", " \-\-addresses
+Show remote addresses table only
+.TP
+.BR \-c ", " \-\-connections
+Show connections table only
+.TP
+.BR \-h ", " \-\-help
+Prints help information
 .TP
 .BR \-n ", " \-\-no\-resolve
 Do not attempt to resolve IPs to their hostnames
 .TP
+.BR \-p ", " \-\-processes
+Show processes table only
+.TP
 .BR \-r ", " \-\-raw
 Print output to STDOUT so it can be parsed or redirected.
 .TP
-.BR \-v ", " \-\-version
+.BR \-s ", " \-\-show-dns
+Show DNS queries
+.TP
+.BR \-t ", " \-\-total-utilization
+Show total (cumulative) usages
+.TP
+.BR \-V ", " \-\-version
 Print version and exit
+
+.SH OPTIONS
+.TP
+\fB \-i\fP, \fB\-\-interface\fP \fIinterface\fP
+The network interface to listen on, eg. eth0
