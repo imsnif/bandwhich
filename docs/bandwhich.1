@@ -3,18 +3,62 @@
 bandwhich \- display current network utilization by process, connection and remote IP/hostname
 .SH SYNOPSIS
 .B bandwhich
-\fB\-i\fR \fIINTERFACE_NAME\fR
+[\fIFLAGS\fR]
+[\fIOPTIONS\fR]
 .SH DESCRIPTION
 .B bandwhich
-provides a responsive terminal dashboard for displaying bandwidth information. It sniffs a given network interface and cross references it with the /proc filesystem.
-Optionally, it has a raw mode that can be used to parse and log this data.
-.SH OPTIONS
+provides a responsive terminal dashboard for displaying bandwidth information. It sniffs a given network interface and cross references it with the /proc filesystem. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
+
+It has a raw mode that can be used to parse and log this data.
+
+.SH FLAGS
+.TP
+.BR \-a ", " \-\-addresses
+Show remote addresses table only
+.TP
+.BR \-c ", " \-\-connections
+Show connections table only
+.TP
+.BR \-h ", " \-\-help
+Prints help information
 .TP
 .BR \-n ", " \-\-no\-resolve
 Do not attempt to resolve IPs to their hostnames
 .TP
+.BR \-p ", " \-\-processes
+Show processes table only
+.TP
 .BR \-r ", " \-\-raw
 Print output to STDOUT so it can be parsed or redirected.
 .TP
-.BR \-v ", " \-\-version
+.BR \-s ", " \-\-show-dns
+Show DNS queries
+.TP
+.BR \-t ", " \-\-total-utilization
+Show total (cumulative) usages
+.TP
+.BR \-V ", " \-\-version
 Print version and exit
+
+.SH OPTIONS
+.TP
+\fB \-i\fP, \fB\-\-interface\fP \fIinterface\fP
+The network interface to listen on, eg. eth0
+
+.SH COPYRIGHT
+Copyright \(co 2019 Aram Drevekenin
+License MIT: https://github.com/imsnif/bandwhich/blob/main/LICENSE.md
+.br
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+.SH SEE ALSO
+.BR iftop (1),
+.BR lsof (1),
+.BR nethogs (1),
+.BR netstat (1),
+.BR nload (1),
+.BR ss (1),
+
+.SH BUGS
+Please report bugs here: https://github.com/imsnif/bandwhich/issues
