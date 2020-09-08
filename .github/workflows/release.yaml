@@ -1,0 +1,105 @@
+# The way this works is the following:
+#
+# - create-release job runs purely to initialize the GitHub release itself
+# and to output upload_url for the following job.
+#
+# - build-release job runs only once create-release is finished. It gets
+# the release upload URL from create-release job outputs, then builds
+# the release executables for each supported platform and attaches them
+# as release assets to the previously created release.
+#
+# The key here is that we create the release only once.
+#
+# Reference:
+# - https://eugene-babichenko.github.io/blog/2020/05/09/github-actions-cross-platform-auto-releases/
+
+name: release
+on:
+  push:
+    # Enable when testing release infrastructure on a branch.
+    branches:
+      - actions
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+jobs:
+  create-release:
+    name: create-release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.release.outputs.upload_url }}
+    steps:
+      - name: Create GitHub release
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+
+  build-release:
+    name: build-release
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    env:
+      # Emit backtraces on panics.
+      RUST_BACKTRACE: 1
+    strategy:
+      matrix:
+        build:
+          - linux
+          - macos
+          - win-msvc
+        include:
+          - build: linux
+            os: ubuntu-18.04
+            rust: stable
+          - build: macos
+            os: macos-latest
+            rust: stable
+          - build: win-msvc
+            os: windows-2019
+            rust: stable
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --verbose --release
+
+      - name: Strip release binary (linux and macos)
+        if: matrix.build == 'linux' || matrix.build == 'macos'
+        run: strip "target/release/bandwhich"
+
+      - name: Upload release archive
+        if: matrix.os != 'windows-2019'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./target/release/bandwhich
+          asset_name: bandwhich-${{ github.ref }}-${{ matrix.os }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows release archive
+        if: matrix.os == 'windows-2019'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./target/release/bandwhich.exe
+          asset_name: bandwhich-${{ github.ref }}-${{ matrix.os }}
+          asset_content_type: application/octet-stream
