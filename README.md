@@ -43,6 +43,18 @@ sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
 brew install bandwhich
 ```
 
+#### FreeBSD
+
+```
+pkg install bandwhich
+```
+
+or
+
+```
+cd /usr/ports/net-mgmt/bandwhich && make install clean
+```
+
 #### Download a prebuilt binary
 If you're on linux, you could also get the generic binary from the releases.
 
