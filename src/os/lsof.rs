@@ -1,10 +1,9 @@
 use ::std::collections::HashMap;
 
-use crate::network::{Connection, LocalSocket};
+use crate::network::LocalSocket;
 use crate::OpenSockets;
 
 use super::lsof_utils;
-use std::net::SocketAddr;
 
 #[derive(Debug)]
 struct RawConnection {
