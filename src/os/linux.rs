@@ -56,8 +56,9 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
                 );
             };
         }
-        OpenSockets {
-            sockets_to_procs: open_sockets,
-        }
+    }
+
+    OpenSockets {
+        sockets_to_procs: open_sockets,
     }
 }
