@@ -12,7 +12,12 @@ use crate::os::errors::GetInterfaceErrorKind;
 #[cfg(not(target_os = "windows"))]
 use signal_hook::iterator::Signals;
 
-use crate::os::open_sockets::get_open_sockets;
+#[cfg(target_os = "linux")]
+use crate::os::linux::get_open_sockets;
+#[cfg(any(target_os = "macos", target_os = "freebsd"))]
+use crate::os::lsof::get_open_sockets;
+#[cfg(target_os = "windows")]
+use crate::os::windows::get_open_sockets;
 
 use crate::{network::dns, OsInputOutput};
 
