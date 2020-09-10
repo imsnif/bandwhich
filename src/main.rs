@@ -9,7 +9,7 @@ mod tests;
 use display::{elapsed_time, RawTerminalBackend, Ui};
 use network::{
     dns::{self, IpTable},
-    Connection, LocalSocket, Sniffer, Utilization,
+    LocalSocket, Sniffer, Utilization,
 };
 use os::OnSigWinch;
 
@@ -75,9 +75,6 @@ fn main() {
 }
 
 fn try_main() -> Result<(), failure::Error> {
-    #[cfg(target_os = "windows")]
-    compile_error!("Sorry, no implementations for Windows yet :( - PRs welcome!");
-
     use os::get_input;
     let opts = Opt::from_args();
     let os_input = get_input(&opts.interface, !opts.no_resolve)?;
@@ -101,7 +98,6 @@ fn try_main() -> Result<(), failure::Error> {
 
 pub struct OpenSockets {
     sockets_to_procs: HashMap<LocalSocket, String>,
-    connections: Vec<Connection>,
 }
 
 pub struct OsInputOutput {
@@ -190,19 +186,16 @@ where
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
                     let utilization = { network_utilization.lock().unwrap().clone_and_reset() };
-                    let OpenSockets {
-                        sockets_to_procs,
-                        connections,
-                    } = get_open_sockets();
+                    let OpenSockets { sockets_to_procs } = get_open_sockets();
                     let mut ip_to_host = IpTable::new();
                     if let Some(dns_client) = dns_client.as_mut() {
                         ip_to_host = dns_client.cache();
-                        let unresolved_ips = connections
-                            .iter()
+                        let unresolved_ips = utilization
+                            .connections
+                            .keys()
                             .filter(|conn| !ip_to_host.contains_key(&conn.remote_socket.ip))
                             .map(|conn| conn.remote_socket.ip)
                             .collect::<Vec<_>>();
-
                         dns_client.resolve(unresolved_ips);
                     }
                     {

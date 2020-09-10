@@ -106,14 +106,6 @@ impl RawConnection {
         Protocol::from_str(&self.protocol).unwrap()
     }
 
-    pub fn get_remote_ip(&self) -> IpAddr {
-        self.remote_ip.parse().unwrap()
-    }
-
-    pub fn get_remote_port(&self) -> u16 {
-        self.remote_port.parse::<u16>().unwrap()
-    }
-
     pub fn get_local_ip(&self) -> IpAddr {
         self.local_ip.parse().unwrap()
     }
@@ -204,19 +196,6 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     }
 
     #[test]
-    fn test_raw_connection_parse_remote_port_ipv4() {
-        test_raw_connection_parse_remote_port(LINE_RAW_OUTPUT);
-    }
-    #[test]
-    fn test_raw_connection_parse_remote_port_ipv6() {
-        test_raw_connection_parse_remote_port(IPV6_LINE_RAW_OUTPUT);
-    }
-    fn test_raw_connection_parse_remote_port(raw_output: &str) {
-        let connection = RawConnection::new(raw_output).unwrap();
-        assert_eq!(connection.get_remote_port(), 2222);
-    }
-
-    #[test]
     fn test_raw_connection_parse_local_port_ipv4() {
         test_raw_connection_parse_local_port(LINE_RAW_OUTPUT);
     }
@@ -227,19 +206,6 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     fn test_raw_connection_parse_local_port(raw_output: &str) {
         let connection = RawConnection::new(raw_output).unwrap();
         assert_eq!(connection.get_local_port(), 1111);
-    }
-
-    #[test]
-    fn test_raw_connection_parse_ip_address_ipv4() {
-        test_raw_connection_parse_ip_address(LINE_RAW_OUTPUT, "198.252.206.25");
-    }
-    #[test]
-    fn test_raw_connection_parse_ip_address_ipv6() {
-        test_raw_connection_parse_ip_address(IPV6_LINE_RAW_OUTPUT, "fe80:4::aede:48ff:fe33:4455");
-    }
-    fn test_raw_connection_parse_ip_address(raw_output: &str, ip: &str) {
-        let connection = RawConnection::new(raw_output).unwrap();
-        assert_eq!(connection.get_remote_ip().to_string(), String::from(ip));
     }
 
     #[test]

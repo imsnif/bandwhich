@@ -9,12 +9,16 @@ use ::tokio::runtime::Runtime;
 use ::std::time;
 
 use crate::os::errors::GetInterfaceErrorKind;
+#[cfg(not(target_os = "windows"))]
 use signal_hook::iterator::Signals;
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
 #[cfg(any(target_os = "macos", target_os = "freebsd"))]
 use crate::os::lsof::get_open_sockets;
+#[cfg(target_os = "windows")]
+use crate::os::windows::get_open_sockets;
+
 use crate::{network::dns, OsInputOutput};
 
 pub type OnSigWinch = dyn Fn(Box<dyn Fn()>) + Send;
@@ -63,6 +67,7 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
         .find(|iface| iface.name == interface_name)
 }
 
+#[cfg(not(target_os = "windows"))]
 fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
     let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
     let on_winch = {
@@ -78,6 +83,15 @@ fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
     };
     let cleanup = move || {
         signals.close();
+    };
+    (Box::new(on_winch), Box::new(cleanup))
+}
+
+#[cfg(any(target_os = "windows"))]
+fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
+    let on_winch = { move |_cb: Box<dyn Fn()>| {} };
+    let cleanup = move || {
+        println!("Fake signal cleanup");
     };
     (Box::new(on_winch), Box::new(cleanup))
 }
@@ -180,6 +194,12 @@ pub fn get_input(
         datalink::interfaces()
     };
 
+    #[cfg(any(target_os = "windows"))]
+    let network_frames = network_interfaces
+        .iter()
+        .filter(|iface| !iface.ips.is_empty())
+        .map(|iface| (iface, get_datalink_channel(iface)));
+    #[cfg(not(target_os = "windows"))]
     let network_frames = network_interfaces
         .iter()
         .filter(|iface| iface.is_up() && !iface.ips.is_empty())
@@ -256,4 +276,10 @@ fn eperm_message() -> &'static str {
     * Build a `setcap(8)` wrapper for `bandwhich` with the following rules:
         `cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep`
     "#
+}
+
+#[inline]
+#[cfg(any(target_os = "windows"))]
+fn eperm_message() -> &'static str {
+    "Insufficient permissions to listen on network interface(s). Try running with administrator rights."
 }

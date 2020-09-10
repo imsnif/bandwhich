@@ -6,8 +6,8 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                         31       2                                                                                           31       2                      
-                                                         22      27                                                                                           22      27                      
+                                                         31       2                             i am.not.too.long                                             31       2                      
+                                                         22      27                             i am.an.obno[...]really.i.ask                                 22      27                      
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -30,8 +30,8 @@ expression: "&terminal_draw_events_mirror[2]"
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                     31       2                               
-                                                                                                                                                     22      27                               
+                         i am.not.too.long:12345 (tcp)                                                                                               31       2                               
+                          i am.an.obnoxiosuly.lo[...]hy.would.anyone.do.this.really.i.ask:1337 (tcp)                                                 22      27                               
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

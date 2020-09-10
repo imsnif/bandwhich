@@ -141,7 +141,6 @@ pub fn get_open_sockets() -> OpenSockets {
 
     OpenSockets {
         sockets_to_procs: local_socket_to_procs,
-        connections,
     }
 }
 
