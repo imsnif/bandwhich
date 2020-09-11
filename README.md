@@ -58,9 +58,9 @@ cd /usr/ports/net-mgmt/bandwhich && make install clean
 #### Download a prebuilt binary
 If you're on linux, you could also get the generic binary from the releases.
 
-#### Other Linux flavours
+#### Windows / Other Linux flavours
 
-`bandwhich` can be installed using the Rust package manager, cargo. If it's not in your distro repositories or the available version is too old, you can install it via [rustup](https://rustup.rs/). You can find additional installation instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html).
+`bandwhich` can be installed using the Rust package manager, cargo. It might be in your distro repositories if you're on linux, or you can install it via [rustup](https://rustup.rs/). You can find additional installation instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html).
 
 The minimum supported Rust version is **1.39.0**.
 
@@ -68,13 +68,17 @@ The minimum supported Rust version is **1.39.0**.
 cargo install bandwhich
 ```
 
-This installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root priviliges to run `bandwhich`. To fix that, there are a few options:
+##### On Linux, after installing with cargo:
+Cargo installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root priviliges to run `bandwhich`. To fix that, there are a few options:
 - Give the executable elevated permissions: ``sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep $(which bandwhich)`` 
 - Run `sudo ~/.cargo/bin/bandwhich` instead of just `bandwhich`
 - Create a symlink: `sudo ln -s ~/.cargo/bin/bandwhich /usr/local/bin/` (or another path on root's PATH)
 - Set root's PATH to match your own: `sudo env "PATH=$PATH" bandwhich`
 - Tell sudo to use your user's environment variables: `sudo -E bandwhich`
 - Pass the desired target directory to cargo: `sudo cargo install bandwhich --root /usr/local/bin/`
+
+##### On Windows, after installing with cargo:
+You might need to first install [npcap](https://nmap.org/npcap/) for capturing packets on windows.
 
 #### OpenWRT
 
@@ -87,9 +91,6 @@ Here is an example of cross compiling in this situation:
 - build the `bandwhich` package using `cross build --target armv7-unknown-linux-musleabihf`
 - Copy the binary files from `target/armv7-unknown-linux-musleabihf/debug/bandwhich` to the router using `scp` by running `scp bandwhich root@192.168.1.1:~/` (here, 192.168.1.1 would be the IP address of your router).
 - Finally enter the router using ssh and run the binary directly with `./bandwhich`
-
-#### Windows
-Unfortunately, windows is not supported at the moment - if you'd like to contribute a windows port, it would be very much welcome.
 
 ### Usage
 ```
