@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+* Fixed resolv.conf parsing for rDNS in some cases (https://github.com/imsnif/bandwhich/pull/184) - [@Ma27](https://github.com/Ma27)
+
 ## [0.18.1] - 2020-09-11
 
 * HOTFIX: do not build windows build-dependencies on other platforms
