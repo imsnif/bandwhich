@@ -2,7 +2,7 @@
 edition = "2018"
 name = "bandwhich"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.18.0"
+version = "0.18.1"
 homepage = "https://github.com/imsnif/bandwhich"
 repository = "https://github.com/imsnif/bandwhich"
 readme = "README.md"
@@ -48,7 +48,6 @@ cargo-insta = "0.11.0"
 packet-builder = "0.5.0"
 regex = "1"
 
-[build-dependencies]
-#[target.'cfg(target_os="windows")'.build-dependencies]
+[target.'cfg(target_os="windows")'.build-dependencies]
 http_req = "0.7.0"
 zip = "0.5.6"
