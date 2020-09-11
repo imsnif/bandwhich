@@ -238,7 +238,10 @@ pub fn get_input(
         let mut runtime = Runtime::new()?;
         let resolver = match runtime.block_on(dns::Resolver::new(runtime.handle().clone())) {
             Ok(resolver) => resolver,
-            Err(_) => failure::bail!("Could not initialize the DNS resolver. Are you offline?"),
+            Err(err) => failure::bail!(
+                "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
+                err
+            ),
         };
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
