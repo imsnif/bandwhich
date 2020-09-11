@@ -12,7 +12,12 @@ use crate::os::errors::GetInterfaceErrorKind;
 #[cfg(not(target_os = "windows"))]
 use signal_hook::iterator::Signals;
 
-use crate::os::open_sockets::get_open_sockets;
+#[cfg(target_os = "linux")]
+use crate::os::linux::get_open_sockets;
+#[cfg(any(target_os = "macos", target_os = "freebsd"))]
+use crate::os::lsof::get_open_sockets;
+#[cfg(target_os = "windows")]
+use crate::os::windows::get_open_sockets;
 
 use crate::{network::dns, OsInputOutput};
 
@@ -189,9 +194,15 @@ pub fn get_input(
         datalink::interfaces()
     };
 
+    #[cfg(any(target_os = "windows"))]
     let network_frames = network_interfaces
         .iter()
         .filter(|iface| !iface.ips.is_empty())
+        .map(|iface| (iface, get_datalink_channel(iface)));
+    #[cfg(not(target_os = "windows"))]
+    let network_frames = network_interfaces
+        .iter()
+        .filter(|iface| iface.is_up() && !iface.ips.is_empty())
         .map(|iface| (iface, get_datalink_channel(iface)));
 
     let (available_network_frames, network_interfaces) = {
@@ -227,7 +238,10 @@ pub fn get_input(
         let mut runtime = Runtime::new()?;
         let resolver = match runtime.block_on(dns::Resolver::new(runtime.handle().clone())) {
             Ok(resolver) => resolver,
-            Err(_) => failure::bail!("Could not initialize the DNS resolver. Are you offline?"),
+            Err(err) => failure::bail!(
+                "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
+                err
+            ),
         };
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)

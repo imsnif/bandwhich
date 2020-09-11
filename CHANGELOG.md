@@ -6,8 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+* Fixed resolv.conf parsing for rDNS in some cases (https://github.com/imsnif/bandwhich/pull/184) - [@Ma27](https://github.com/Ma27)
+
+## [0.18.1] - 2020-09-11
+
+* HOTFIX: do not build windows build-dependencies on other platforms
+
+## [0.18.0] - 2020-09-11
+
 ### Added
 * Future windows infrastructure support (should not have any user facing effect) (https://github.com/imsnif/bandwhich/pull/179) - [@remgodow](https://github.com/remgodow)
+* Windows build and run support (https://github.com/imsnif/bandwhich/pull/180) - [@remgodow](https://github.com/remgodow)
+
+### Fixed
+* Update and improve MAN page (https://github.com/imsnif/bandwhich/pull/182) - [@Nudin](https://github.com/Nudin)
 
 ## [0.17.0] - 2020-09-02
 

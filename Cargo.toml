@@ -2,7 +2,7 @@
 edition = "2018"
 name = "bandwhich"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.17.0"
+version = "0.18.1"
 homepage = "https://github.com/imsnif/bandwhich"
 repository = "https://github.com/imsnif/bandwhich"
 readme = "README.md"
@@ -33,9 +33,14 @@ tokio = { version = "0.2", features = ["rt-core", "sync"] }
 trust-dns-resolver = "0.18.1"
 async-trait = "0.1.21"
 unicode-width = "0.1.8"
+resolv-conf = "0.6.3"
+
+[target.'cfg(target_os="windows")'.dependencies]
 netstat2 = "0.9.0"
 sysinfo = "0.15.1"
 
+[target.'cfg(target_os="linux")'.dependencies]
+procfs = "0.7.4"
 
 [dev-dependencies]
 insta = "0.12.0"
@@ -44,7 +49,9 @@ cargo-insta = "0.11.0"
 packet-builder = "0.5.0"
 regex = "1"
 
-[build-dependencies]
-#[target.'cfg(target_os="windows")'.build-dependencies]
+[target.'cfg(target_os="windows")'.build-dependencies]
 http_req = "0.7.0"
 zip = "0.5.6"
+
+[patch.crates-io]
+resolv-conf = { git = 'https://github.com/tailhook/resolv-conf', rev = '83c0f25ebcb0615550488692c5213ca1ae4acd8f' }
