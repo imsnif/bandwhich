@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.18.0] - 2020-09-11
+
 ### Added
 * Future windows infrastructure support (should not have any user facing effect) (https://github.com/imsnif/bandwhich/pull/179) - [@remgodow](https://github.com/remgodow)
 * Windows build and run support (https://github.com/imsnif/bandwhich/pull/180) - [@remgodow](https://github.com/remgodow)
