@@ -10,6 +10,20 @@ pub enum Protocol {
     Udp,
 }
 
+impl Protocol {
+    // Currently, linux implementation doesn't use this function.
+    // Without this #[cfg] clippy complains about dead code, and CI refuses
+    // to pass.
+    #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+    pub fn from_str(string: &str) -> Option<Self> {
+        match string {
+            "TCP" => Some(Protocol::Tcp),
+            "UDP" => Some(Protocol::Udp),
+            _ => None,
+        }
+    }
+}
+
 impl fmt::Display for Protocol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
