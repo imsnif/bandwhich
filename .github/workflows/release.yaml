@@ -48,7 +48,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       # Emit backtraces on panics.
-      RUST_BACKTRACE: 1
+      #RUST_BACKTRACE: 1
     strategy:
       matrix:
         build:
@@ -87,6 +87,10 @@ jobs:
           profile: minimal
           override: true
           target: ${{ matrix.target }}
+
+      - name: Install musl-tools
+        if: matrix.target == "x86_64-unknown-linux-musl"
+        run: sudo apt-get install -y --no-install-recommends musl-tools
 
       - name: Build release binary
         run: cargo build --verbose --release --target ${{ matrix.target }}
