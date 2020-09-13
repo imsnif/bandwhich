@@ -68,6 +68,7 @@ jobs:
           - build: macos x64
             os: macos-latest
             rust: stable
+            target: x86_64-apple-darwin
           - build: win-msvc x64
             os: windows-2019
             rust: stable
@@ -88,19 +89,19 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Build release binary
-        run: cargo build --verbose --release
+        run: cargo build --verbose --release --target ${{ matrix.target }}
 
       - name: Strip release binary (unix)
         if: matrix.os != 'windows-2019'
-        run: strip "target/release/bandwhich"
+        run: strip "target/${{ matrix.target }}/release/bandwhich"
         
       - name: Tar release (unix)
         if: matrix.os != 'windows-2019'
-        run: tar cvfz bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.tar.gz "target/release/bandwhich"
+        run: tar cvfz bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.tar.gz "target/${{ matrix.target }}/release/bandwhich"
         
       - name: Zip Windows release
         if: matrix.os == 'windows-2019'
-        run: tar.exe -a -c -f bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.zip "target/release/bandwhich.exe"
+        run: tar.exe -a -c -f bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.zip "target/${{ matrix.target }}/release/bandwhich.exe"
 
       - name: Upload release archive (linux)
         if: matrix.os != 'windows-2019'
