@@ -48,7 +48,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       # Emit backtraces on panics.
-      #RUST_BACKTRACE: 1
+      RUST_BACKTRACE: 1
     strategy:
       matrix:
         build:
