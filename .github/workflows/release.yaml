@@ -27,15 +27,24 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.release.outputs.upload_url }}
+      version: ${{ steps.release.outputs.id }}
     steps:
+      - name: Get the release version from the tag
+        if: env.RG_VERSION == ''
+        run: |
+          # Apparently, this is the right way to get a tag name. Really?
+          #
+          # See: https://github.community/t5/GitHub-Actions/How-to-get-just-the-tag-name/m-p/32167/highlight/true#M1027
+          echo "::set-env name=VERSION::${GITHUB_REF#refs/tags/}"
+          echo "version is: ${{ env.VERSION }}"
       - name: Create GitHub release
         id: release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
 
   build-release:
     name: build-release
@@ -91,11 +100,11 @@ jobs:
         
       - name: Tar release (unix)
         if: matrix.os != 'windows-2019'
-        run: tar cvfz bandwhich-v${{ github.ref }}-${{matrix.target}}.tar.gz "target/release/bandwhich"
+        run: tar cvfz bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.tar.gz "target/release/bandwhich"
         
       - name: Zip Windows release
         if: matrix.os == 'windows-2019'
-        run: tar.exe -a -c -f bandwhich-v${{ github.ref }}-${{matrix.target}}.tar.gz "target/release/bandwhich.exe"
+        run: tar.exe -a -c -f bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.zip "target/release/bandwhich.exe"
 
       - name: Upload release archive (linux)
         if: matrix.os != 'windows-2019'
@@ -104,8 +113,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./bandwhich-v${{ github.ref }}-${{matrix.target}}.tar.gz
-          asset_name: bandwhich-v${{ github.ref }}-${{matrix.target}}.tar.gz
+          asset_path: ./bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.tar.gz
+          asset_name: bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Upload Windows release archive
@@ -115,6 +124,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./bandwhich-v${{ github.ref }}-${{matrix.target}}.zip
-          asset_name: bandwhich-v${{ github.ref }}-${{matrix.target}}.zip
+          asset_path: ./bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.zip
+          asset_name: bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.zip
           asset_content_type: application/octet-stream
