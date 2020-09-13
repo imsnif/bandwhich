@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.release.outputs.upload_url }}
-      version: ${{ steps.release.outputs.id }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Get the release version from the tag
         id: version
