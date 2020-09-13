@@ -30,21 +30,17 @@ jobs:
       version: ${{ steps.release.outputs.id }}
     steps:
       - name: Get the release version from the tag
-        if: env.RG_VERSION == ''
-        run: |
-          # Apparently, this is the right way to get a tag name. Really?
-          #
-          # See: https://github.community/t5/GitHub-Actions/How-to-get-just-the-tag-name/m-p/32167/highlight/true#M1027
-          echo "::set-env name=VERSION::${GITHUB_REF#refs/tags/}"
-          echo "version is: ${{ env.VERSION }}"
+        id: version
+        uses: battila7/get-version-action@v2
+
       - name: Create GitHub release
         id: release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: ${{ steps.version.outputs.version }}
 
   build-release:
     name: build-release
