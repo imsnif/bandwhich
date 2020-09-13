@@ -68,22 +68,45 @@ jobs:
           fetch-depth: 1
 
       - name: Install Rust
+        if: matrix.build != 'linux'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
           override: true
           target: ${{ matrix.target }}
+  
+      - name: Install Rust (linux)
+        if: matrix.build == 'linux'
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+          target: x86_64-unknown-linux-musl
 
       - name: Build release binary
+        if: matrix.build != 'linux'
         run: cargo build --verbose --release
+        
+      - name: Build release binary (linux generic)
+        if: matrix.build == 'linux'
+        run: cargo build --verbose --release --target x86_64-unknown-linux-musl
 
-      - name: Strip release binary (linux and macos)
-        if: matrix.build == 'linux' || matrix.build == 'macos'
+      - name: Strip release binary (macos)
+        if: matrix.build == 'macos'
         run: strip "target/release/bandwhich"
-
-      - name: Upload release archive
-        if: matrix.os != 'windows-2019'
+        
+      - name: Strip release binary (linux)
+        if: matrix.build == 'linux'
+        run: strip "target/x86_64-unknown-linux-musl/release"
+        
+      - name: Tar linux generic release (linux)
+        if: matrix.build == 'linux'
+        run: tar cvfz linux-generic.tar.gz "target/x86_64-unknown-linux-musl/release"
+        
+      - name: Upload release archive (mac)
+        if: matrix.os == 'macos'
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -91,6 +114,17 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ./target/release/bandwhich
           asset_name: bandwhich-${{ github.ref }}-${{ matrix.os }}
+          asset_content_type: application/octet-stream
+      
+      - name: Upload release archive (linux)
+        if: matrix.os == 'linux'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./linux-generic.tar.gz
+          asset_name: bandwhich-v${{ github.ref }}-x86_64-unknown-linux-musl.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Upload Windows release archive
