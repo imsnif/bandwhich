@@ -17,8 +17,8 @@ name: release
 on:
   push:
     # Enable when testing release infrastructure on a branch.
-    branches:
-      - actions
+    # branches:
+    # - actions
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
 jobs:
@@ -47,19 +47,26 @@ jobs:
     strategy:
       matrix:
         build:
-          - linux
-          - macos
-          - win-msvc
+          - linux glib x64
+          - linux musl x64
+          - macos x64
+          - win-msvc x64
         include:
-          - build: linux
+          - build: linux glib x64
             os: ubuntu-18.04
             rust: stable
-          - build: macos
+            target: x86_64-unknown-linux-gnu
+          - build: linux musl x64
+            os: ubuntu-18.04
+            rust: stable
+            target: x86_64-unknown-linux-musl
+          - build: macos x64
             os: macos-latest
             rust: stable
-          - build: win-msvc
+          - build: win-msvc x64
             os: windows-2019
             rust: stable
+            target: x86_64-pc-windows-msvc
 
     steps:
       - name: Checkout repository
@@ -68,63 +75,37 @@ jobs:
           fetch-depth: 1
 
       - name: Install Rust
-        if: matrix.build != 'linux'
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
           override: true
           target: ${{ matrix.target }}
-  
-      - name: Install Rust (linux)
-        if: matrix.build == 'linux'
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          profile: minimal
-          override: true
-          target: x86_64-unknown-linux-musl
 
       - name: Build release binary
-        if: matrix.build != 'linux'
         run: cargo build --verbose --release
-        
-      - name: Build release binary (linux generic)
-        if: matrix.build == 'linux'
-        run: cargo build --verbose --release --target x86_64-unknown-linux-musl
 
-      - name: Strip release binary (macos)
-        if: matrix.build == 'macos'
+      - name: Strip release binary (unix)
+        if: matrix.os != 'windows-2019'
         run: strip "target/release/bandwhich"
         
-      - name: Strip release binary (linux)
-        if: matrix.build == 'linux'
-        run: strip "target/x86_64-unknown-linux-musl/release"
+      - name: Tar release (unix)
+        if: matrix.os != 'windows-2019'
+        run: tar cvfz bandwhich-v${{ github.ref }}-${{matrix.target}}.tar.gz "target/release/bandwhich"
         
-      - name: Tar linux generic release (linux)
-        if: matrix.build == 'linux'
-        run: tar cvfz linux-generic.tar.gz "target/x86_64-unknown-linux-musl/release"
-        
-      - name: Upload release archive (mac)
-        if: matrix.os == 'macos'
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/release/bandwhich
-          asset_name: bandwhich-${{ github.ref }}-${{ matrix.os }}
-          asset_content_type: application/octet-stream
-      
+      - name: Zip Windows release
+        if: matrix.os == 'windows-2019'
+        run: tar.exe -a -c -f bandwhich-v${{ github.ref }}-${{matrix.target}}.tar.gz "target/release/bandwhich.exe"
+
       - name: Upload release archive (linux)
-        if: matrix.os == 'linux'
+        if: matrix.os != 'windows-2019'
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./linux-generic.tar.gz
-          asset_name: bandwhich-v${{ github.ref }}-x86_64-unknown-linux-musl.tar.gz
+          asset_path: ./bandwhich-v${{ github.ref }}-${{matrix.target}}.tar.gz
+          asset_name: bandwhich-v${{ github.ref }}-${{matrix.target}}.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Upload Windows release archive
@@ -134,6 +115,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/release/bandwhich.exe
-          asset_name: bandwhich-${{ github.ref }}-${{ matrix.os }}
+          asset_path: ./bandwhich-v${{ github.ref }}-${{matrix.target}}.zip
+          asset_name: bandwhich-v${{ github.ref }}-${{matrix.target}}.zip
           asset_content_type: application/octet-stream
