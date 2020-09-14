@@ -15,36 +15,13 @@
 
 name: release
 on:
-  push:
-    # Enable when testing release infrastructure on a branch.
-    # branches:
-    # - actions
-    tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+  release:
+    types:
+      - created
+
 jobs:
-  create-release:
-    name: create-release
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.release.outputs.upload_url }}
-      version: ${{ steps.version.outputs.version }}
-    steps:
-      - name: Get the release version from the tag
-        id: version
-        uses: battila7/get-version-action@v2
-
-      - name: Create GitHub release
-        id: release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.version.outputs.version }}
-          release_name: ${{ steps.version.outputs.version }}
-
   build-release:
     name: build-release
-    needs: create-release
     runs-on: ${{ matrix.os }}
     env:
       # Emit backtraces on panics.
@@ -101,11 +78,13 @@ jobs:
         
       - name: Tar release (unix)
         if: matrix.os != 'windows-2019'
-        run: tar cvfz bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.tar.gz "target/${{ matrix.target }}/release/bandwhich"
+        working-directory: ./target/${{ matrix.target }}/release
+        run: tar cvfz bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.tar.gz "bandwhich"
         
       - name: Zip Windows release
         if: matrix.os == 'windows-2019'
-        run: tar.exe -a -c -f bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.zip "target/${{ matrix.target }}/release/bandwhich.exe"
+        working-directory: ./target/${{ matrix.target }}/release
+        run: tar.exe -a -c -f bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.zip "bandwhich.exe"
 
       - name: Upload release archive (linux)
         if: matrix.os != 'windows-2019'
@@ -113,9 +92,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.tar.gz
-          asset_name: bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.tar.gz
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./target/${{ matrix.target }}/release/bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.tar.gz
+          asset_name: bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Upload Windows release archive
@@ -124,7 +103,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.zip
-          asset_name: bandwhich-v${{ needs.create-release.outputs.version }}-${{matrix.target}}.zip
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./target/${{ matrix.target }}/release/bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.zip
+          asset_name: bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.zip
           asset_content_type: application/octet-stream
