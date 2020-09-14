@@ -24,7 +24,6 @@ ipnetwork = "0.16.0"
 tui = { version = "0.5", default-features = false, features = ["crossterm"]}
 crossterm = "0.17.7"
 structopt = "0.3"
-signal-hook = "0.1.10"
 failure = "0.1.6"
 chrono = "0.4"
 regex = "1.3.1"
