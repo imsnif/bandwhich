@@ -11,7 +11,6 @@ use network::{
     dns::{self, IpTable},
     LocalSocket, Sniffer, Utilization,
 };
-use os::OnSigWinch;
 
 use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ::crossterm::terminal;
@@ -104,10 +103,8 @@ pub struct OsInputOutput {
     pub network_interfaces: Vec<NetworkInterface>,
     pub network_frames: Vec<Box<dyn DataLinkReceiver>>,
     pub get_open_sockets: fn() -> OpenSockets,
-    pub keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
+    pub terminal_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
-    pub on_winch: Box<OnSigWinch>,
-    pub cleanup: Box<dyn Fn() + Send>,
     pub write_to_stdout: Box<dyn FnMut(String) + Send>,
 }
 
@@ -124,51 +121,15 @@ where
 
     let mut active_threads = vec![];
 
-    let keyboard_events = os_input.keyboard_events;
+    let terminal_events = os_input.terminal_events;
     let get_open_sockets = os_input.get_open_sockets;
     let mut write_to_stdout = os_input.write_to_stdout;
     let mut dns_client = os_input.dns_client;
-    let on_winch = os_input.on_winch;
-    let cleanup = os_input.cleanup;
 
     let raw_mode = opts.raw;
 
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, opts.render_opts)));
-
-    if !raw_mode {
-        active_threads.push(
-            thread::Builder::new()
-                .name("resize_handler".to_string())
-                .spawn({
-                    let ui = ui.clone();
-                    let paused = paused.clone();
-                    let cumulative_time = cumulative_time.clone();
-                    let last_start_time = last_start_time.clone();
-                    let ui_offset = ui_offset.clone();
-
-                    move || {
-                        on_winch({
-                            Box::new(move || {
-                                let mut ui = ui.lock().unwrap();
-                                let paused = paused.load(Ordering::SeqCst);
-                                ui.draw(
-                                    paused,
-                                    dns_shown,
-                                    elapsed_time(
-                                        *last_start_time.read().unwrap(),
-                                        *cumulative_time.read().unwrap(),
-                                        paused,
-                                    ),
-                                    ui_offset.load(Ordering::SeqCst),
-                                );
-                            })
-                        });
-                    }
-                })
-                .unwrap(),
-        );
-    }
 
     let display_handler = thread::Builder::new()
         .name("display_handler".to_string())
@@ -232,16 +193,31 @@ where
 
     active_threads.push(
         thread::Builder::new()
-            .name("stdin_handler".to_string())
+            .name("terminal_events_handler".to_string())
             .spawn({
                 let running = running.clone();
                 let display_handler = display_handler.thread().clone();
 
                 move || {
-                    for evt in keyboard_events {
+                    for evt in terminal_events {
                         let mut ui = ui.lock().unwrap();
 
                         match evt {
+                            Event::Resize(_x, _y) => {
+                                if !raw_mode {
+                                    let paused = paused.load(Ordering::SeqCst);
+                                    ui.draw(
+                                        paused,
+                                        dns_shown,
+                                        elapsed_time(
+                                            *last_start_time.read().unwrap(),
+                                            *cumulative_time.read().unwrap(),
+                                            paused,
+                                        ),
+                                        ui_offset.load(Ordering::SeqCst),
+                                    );
+                                };
+                            }
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::CONTROL,
                                 code: KeyCode::Char('c'),
@@ -251,7 +227,6 @@ where
                                 code: KeyCode::Char('q'),
                             }) => {
                                 running.store(false, Ordering::Release);
-                                cleanup();
                                 display_handler.unpark();
                                 match terminal::disable_raw_mode() {
                                     Ok(_) => {}

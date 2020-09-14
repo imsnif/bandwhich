@@ -1,6 +1,6 @@
 use crate::tests::fakes::{
-    create_fake_dns_client, create_fake_on_winch, get_interfaces, get_open_sockets, KeyboardEvents,
-    NetworkFrames, TerminalEvent, TestBackend,
+    create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvent,
+    TerminalEvents, TestBackend,
 };
 use std::iter;
 
@@ -17,13 +17,23 @@ use packet_builder::payload::PayloadData;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
-pub fn sleep_and_quit_events(sleep_num: usize) -> Box<KeyboardEvents> {
+pub fn sleep_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::CONTROL,
         code: KeyCode::Char('c'),
     })));
-    Box::new(KeyboardEvents::new(events))
+    Box::new(TerminalEvents::new(events))
+}
+
+pub fn sleep_resize_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
+    let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();
+    events.push(Some(Event::Resize(100, 100)));
+    events.push(Some(Event::Key(KeyEvent {
+        modifiers: KeyModifiers::CONTROL,
+        code: KeyCode::Char('c'),
+    })));
+    Box::new(TerminalEvents::new(events))
 }
 
 pub fn build_tcp_packet(
@@ -114,9 +124,6 @@ pub fn os_input_output_factory(
     dns_client: Option<Client>,
     keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
 ) -> OsInputOutput {
-    let on_winch = create_fake_on_winch(false);
-    let cleanup = Box::new(|| {});
-
     let write_to_stdout: Box<dyn FnMut(String) + Send> = match stdout {
         Some(stdout) => Box::new({
             move |output: String| {
@@ -131,10 +138,8 @@ pub fn os_input_output_factory(
         network_interfaces: get_interfaces(),
         network_frames,
         get_open_sockets,
-        keyboard_events,
+        terminal_events: keyboard_events,
         dns_client,
-        on_winch,
-        cleanup,
         write_to_stdout,
     }
 }

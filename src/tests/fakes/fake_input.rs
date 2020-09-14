@@ -13,21 +13,20 @@ use crate::{
         dns::{self, Lookup},
         Connection, Protocol,
     },
-    os::OnSigWinch,
     OpenSockets,
 };
 
-pub struct KeyboardEvents {
+pub struct TerminalEvents {
     pub events: Vec<Option<Event>>,
 }
 
-impl KeyboardEvents {
+impl TerminalEvents {
     pub fn new(mut events: Vec<Option<Event>>) -> Self {
         events.reverse(); // this is so that we do not have to shift the array
-        KeyboardEvents { events }
+        TerminalEvents { events }
     }
 }
-impl Iterator for KeyboardEvents {
+impl Iterator for TerminalEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
         match self.events.pop() {
@@ -155,15 +154,6 @@ pub fn get_interfaces() -> Vec<NetworkInterface> {
         // at offset 14
         flags: 0,
     }]
-}
-
-pub fn create_fake_on_winch(should_send_winch_event: bool) -> Box<OnSigWinch> {
-    Box::new(move |cb| {
-        if should_send_winch_event {
-            thread::sleep(time::Duration::from_millis(900));
-            cb()
-        }
-    })
 }
 
 pub fn create_fake_dns_client(ips_to_hosts: HashMap<IpAddr, String>) -> Option<dns::Client> {

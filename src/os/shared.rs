@@ -9,8 +9,6 @@ use ::tokio::runtime::Runtime;
 use ::std::time;
 
 use crate::os::errors::GetInterfaceErrorKind;
-#[cfg(not(target_os = "windows"))]
-use signal_hook::iterator::Signals;
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
@@ -21,12 +19,9 @@ use crate::os::windows::get_open_sockets;
 
 use crate::{network::dns, OsInputOutput};
 
-pub type OnSigWinch = dyn Fn(Box<dyn Fn()>) + Send;
-pub type SigCleanup = dyn Fn() + Send;
+pub struct TerminalEvents;
 
-pub struct KeyboardEvents;
-
-impl Iterator for KeyboardEvents {
+impl Iterator for TerminalEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
         match read() {
@@ -65,35 +60,6 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
     datalink::interfaces()
         .into_iter()
         .find(|iface| iface.name == interface_name)
-}
-
-#[cfg(not(target_os = "windows"))]
-fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
-    let signals = Signals::new(&[signal_hook::SIGWINCH]).unwrap();
-    let on_winch = {
-        let signals = signals.clone();
-        move |cb: Box<dyn Fn()>| {
-            for signal in signals.forever() {
-                match signal {
-                    signal_hook::SIGWINCH => cb(),
-                    _ => unreachable!(),
-                }
-            }
-        }
-    };
-    let cleanup = move || {
-        signals.close();
-    };
-    (Box::new(on_winch), Box::new(cleanup))
-}
-
-#[cfg(any(target_os = "windows"))]
-fn sigwinch() -> (Box<OnSigWinch>, Box<SigCleanup>) {
-    let on_winch = { move |_cb: Box<dyn Fn()>| {} };
-    let cleanup = move || {
-        println!("Fake signal cleanup");
-    };
-    (Box::new(on_winch), Box::new(cleanup))
 }
 
 fn create_write_to_stdout() -> Box<dyn FnMut(String) + Send> {
@@ -231,9 +197,8 @@ pub fn get_input(
         failure::bail!("Failed to find any network interface to listen on.");
     }
 
-    let keyboard_events = Box::new(KeyboardEvents);
+    let keyboard_events = Box::new(TerminalEvents);
     let write_to_stdout = create_write_to_stdout();
-    let (on_winch, cleanup) = sigwinch();
     let dns_client = if resolve {
         let mut runtime = Runtime::new()?;
         let resolver = match runtime.block_on(dns::Resolver::new(runtime.handle().clone())) {
@@ -253,10 +218,8 @@ pub fn get_input(
         network_interfaces,
         network_frames: available_network_frames,
         get_open_sockets,
-        keyboard_events,
+        terminal_events: keyboard_events,
         dns_client,
-        on_winch,
-        cleanup,
         write_to_stdout,
     })
 }
