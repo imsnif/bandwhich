@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Fixed resolv.conf parsing for rDNS in some cases (https://github.com/imsnif/bandwhich/pull/184) - [@Ma27](https://github.com/Ma27)
 * Cross platform window resizing (fixes momentary UI break when resizing window on Windows) (https://github.com/imsnif/bandwhich/pull/186) - [@remgodow](https://github.com/remgodow)
 * CI: build binaries using github actions (https://github.com/imsnif/bandwhich/pull/181) - [@remgodow](https://github.com/remgodow)
+* Fix build on FreeBSD (https://github.com/imsnif/bandwhich/pull/189) - [@imsnif](https://github.com/imsnif)
 
 ## [0.18.1] - 2020-09-11
 
