@@ -3,10 +3,10 @@ use ::std::iter::FromIterator;
 use ::unicode_width::UnicodeWidthChar;
 
 use ::tui::backend::Backend;
-use ::tui::layout::Rect;
+use ::tui::layout::{Constraint, Rect};
 use ::tui::style::{Color, Style};
 use ::tui::terminal::Frame;
-use ::tui::widgets::{Block, Borders, Row, Widget};
+use ::tui::widgets::{Block, Borders, Row};
 
 use crate::display::{Bandwidth, DisplayBandwidth, UIState};
 use crate::network::{display_connection_string, display_ip_or_host};
@@ -216,7 +216,7 @@ impl<'a> Table<'a> {
             0,
             ColumnData {
                 column_count: ColumnCount::Two,
-                column_widths: vec![12, 23],
+                column_widths: vec![15, 20],
             },
         );
         breakpoints.insert(
@@ -290,13 +290,14 @@ impl<'a> Table<'a> {
         });
 
         let table_rows = rows.map(|row| Row::StyledData(row.into_iter(), Style::default()));
-
-        ::tui::widgets::Table::new(column_names.into_iter(), table_rows)
+        let width_constraints: Vec<Constraint> =
+            widths.iter().map(|w| Constraint::Length(*w)).collect();
+        let table = ::tui::widgets::Table::new(column_names.into_iter(), table_rows)
             .block(Block::default().title(self.title).borders(Borders::ALL))
             .header_style(Style::default().fg(Color::Yellow))
-            .widths(&widths[..])
+            .widths(&width_constraints)
             .style(Style::default())
-            .column_spacing(column_spacing)
-            .render(frame, rect);
+            .column_spacing(column_spacing);
+        frame.render_widget(table, rect);
     }
 }

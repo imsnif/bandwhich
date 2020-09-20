@@ -2,7 +2,8 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Alignment, Rect};
 use ::tui::style::{Modifier, Style};
 use ::tui::terminal::Frame;
-use ::tui::widgets::{Paragraph, Text, Widget};
+use ::tui::text::Span;
+use ::tui::widgets::Paragraph;
 
 pub struct HelpText {
     pub paused: bool,
@@ -20,34 +21,31 @@ const TEXT_TAB_TIP: &str = " Use <TAB> to rearrange tables.";
 
 impl HelpText {
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
-        let text = {
-            let pause_content = if self.paused {
-                TEXT_WHEN_PAUSED
-            } else {
-                TEXT_WHEN_NOT_PAUSED
-            };
-
-            let dns_content = if rect.width <= FIRST_WIDTH_BREAKPOINT {
-                ""
-            } else if self.show_dns {
-                TEXT_WHEN_DNS_SHOWN
-            } else {
-                TEXT_WHEN_DNS_NOT_SHOWN
-            };
-
-            let tab_text = if rect.width <= SECOND_WIDTH_BREAKPOINT {
-                ""
-            } else {
-                TEXT_TAB_TIP
-            };
-
-            [Text::styled(
-                format!("{}{}{}", pause_content, tab_text, dns_content),
-                Style::default().modifier(Modifier::BOLD),
-            )]
+        let pause_content = if self.paused {
+            TEXT_WHEN_PAUSED
+        } else {
+            TEXT_WHEN_NOT_PAUSED
         };
-        Paragraph::new(text.iter())
-            .alignment(Alignment::Left)
-            .render(frame, rect);
+
+        let dns_content = if rect.width <= FIRST_WIDTH_BREAKPOINT {
+            ""
+        } else if self.show_dns {
+            TEXT_WHEN_DNS_SHOWN
+        } else {
+            TEXT_WHEN_DNS_NOT_SHOWN
+        };
+
+        let tab_text = if rect.width <= SECOND_WIDTH_BREAKPOINT {
+            ""
+        } else {
+            TEXT_TAB_TIP
+        };
+
+        let text = Span::styled(
+            format!("{}{}{}", pause_content, tab_text, dns_content),
+            Style::default().add_modifier(Modifier::BOLD),
+        );
+        let paragraph = Paragraph::new(text).alignment(Alignment::Left);
+        frame.render_widget(paragraph, rect);
     }
 }
