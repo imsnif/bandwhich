@@ -5,9 +5,12 @@
 This is a CLI utility for displaying current network utilization by process, connection and remote IP/hostname
 
 ### How does it work?
-`bandwhich` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem on linux or `lsof` on macOS. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
+`bandwhich` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem on linux, `lsof` on macOS, or using WinApi on windows. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
 
 ### Installation
+
+#### Download a prebuilt binary
+If you're on linux, you can download the generic binary from the releases.
 
 #### Arch Linux
 
@@ -54,9 +57,6 @@ or
 ```
 cd /usr/ports/net-mgmt/bandwhich && make install clean
 ```
-
-#### Download a prebuilt binary
-If you're on linux, you could also get the generic binary from the releases.
 
 #### Windows / Other Linux flavours
 
