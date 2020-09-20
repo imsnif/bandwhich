@@ -1,0 +1,109 @@
+# The way this works is the following:
+#
+# - create-release job runs purely to initialize the GitHub release itself
+# and to output upload_url for the following job.
+#
+# - build-release job runs only once create-release is finished. It gets
+# the release upload URL from create-release job outputs, then builds
+# the release executables for each supported platform and attaches them
+# as release assets to the previously created release.
+#
+# The key here is that we create the release only once.
+#
+# Reference:
+# - https://eugene-babichenko.github.io/blog/2020/05/09/github-actions-cross-platform-auto-releases/
+
+name: release
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build-release:
+    name: build-release
+    runs-on: ${{ matrix.os }}
+    env:
+      # Emit backtraces on panics.
+      RUST_BACKTRACE: 1
+    strategy:
+      matrix:
+        build:
+          - linux glib x64
+          - linux musl x64
+          - macos x64
+          - win-msvc x64
+        include:
+          - build: linux glib x64
+            os: ubuntu-18.04
+            rust: stable
+            target: x86_64-unknown-linux-gnu
+          - build: linux musl x64
+            os: ubuntu-18.04
+            rust: stable
+            target: x86_64-unknown-linux-musl
+          - build: macos x64
+            os: macos-latest
+            rust: stable
+            target: x86_64-apple-darwin
+          - build: win-msvc x64
+            os: windows-2019
+            rust: stable
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Install musl-tools
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: sudo apt-get install -y --no-install-recommends musl-tools
+
+      - name: Build release binary
+        run: cargo build --verbose --release --target ${{ matrix.target }}
+
+      - name: Strip release binary (unix)
+        if: matrix.os != 'windows-2019'
+        run: strip "target/${{ matrix.target }}/release/bandwhich"
+        
+      - name: Tar release (unix)
+        if: matrix.os != 'windows-2019'
+        working-directory: ./target/${{ matrix.target }}/release
+        run: tar cvfz bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.tar.gz "bandwhich"
+        
+      - name: Zip Windows release
+        if: matrix.os == 'windows-2019'
+        working-directory: ./target/${{ matrix.target }}/release
+        run: tar.exe -a -c -f bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.zip "bandwhich.exe"
+
+      - name: Upload release archive (linux)
+        if: matrix.os != 'windows-2019'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./target/${{ matrix.target }}/release/bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.tar.gz
+          asset_name: bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.tar.gz
+          asset_content_type: application/octet-stream
+
+      - name: Upload Windows release archive
+        if: matrix.os == 'windows-2019'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./target/${{ matrix.target }}/release/bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.zip
+          asset_name: bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.zip
+          asset_content_type: application/octet-stream
