@@ -31,7 +31,7 @@ impl Iterator for TerminalEvents {
     }
 }
 
-fn get_datalink_channel(
+pub(crate) fn get_datalink_channel(
     interface: &NetworkInterface,
 ) -> Result<Box<dyn DataLinkReceiver>, GetInterfaceErrorKind> {
     let mut config = Config::default();

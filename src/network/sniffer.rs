@@ -10,12 +10,11 @@ use ::pnet::packet::udp::UdpPacket;
 use ::pnet::packet::Packet;
 
 use ::ipnetwork::IpNetwork;
+use ::std::io::{self, Result};
 use ::std::net::{IpAddr, SocketAddr};
-use ::std::thread::park_timeout;
 
 use crate::network::{Connection, Protocol};
-
-const PACKET_WAIT_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(10);
+use crate::os::shared::get_datalink_channel;
 
 #[derive(Debug)]
 pub struct Segment {
@@ -98,17 +97,8 @@ impl Sniffer {
             dns_shown,
         }
     }
-    pub fn next(&mut self) -> Option<Segment> {
-        let bytes = match self.network_frames.next() {
-            Ok(bytes) => bytes,
-            Err(err) => match err.kind() {
-                std::io::ErrorKind::TimedOut => {
-                    park_timeout(PACKET_WAIT_TIMEOUT);
-                    return None;
-                }
-                _ => panic!("Error sniffing on {}: {}", self.network_interface.name, err),
-            },
-        };
+    pub fn next(&mut self) -> Result<Option<Segment>> {
+        let bytes = self.network_frames.next()?;
         // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
         // VPN interfaces (such as utun0, utun1, etc) have POINT_TO_POINT bit set to 1
         let payload_offset = if (self.network_interface.is_loopback()
@@ -120,32 +110,44 @@ impl Sniffer {
         } else {
             0
         };
-        let ip_packet = Ipv4Packet::new(&bytes[payload_offset..])?;
-        let version = ip_packet.get_version();
-
-        match version {
-            4 => Self::handle_v4(ip_packet, &self.network_interface, self.dns_shown),
-            6 => Self::handle_v6(
-                Ipv6Packet::new(&bytes[payload_offset..])?,
-                &self.network_interface,
-            ),
-            _ => {
-                let pkg = EthernetPacket::new(bytes)?;
-                match pkg.get_ethertype() {
-                    EtherTypes::Ipv4 => Self::handle_v4(
-                        Ipv4Packet::new(pkg.payload())?,
+        if let Some(ip) = Ipv4Packet::new(&bytes[payload_offset..]) {
+            let payload = &bytes[payload_offset..];
+            match ip.get_version() {
+                4 => {
+                    return Ok(Self::handle_v4(
+                        payload,
                         &self.network_interface,
                         self.dns_shown,
-                    ),
-                    EtherTypes::Ipv6 => {
-                        Self::handle_v6(Ipv6Packet::new(pkg.payload())?, &self.network_interface)
-                    }
-                    _ => None,
+                    ))
                 }
+                6 => return Ok(Self::handle_v6(payload, &self.network_interface)),
+                _ => (),
             }
         }
+        if let Some(pkt) = EthernetPacket::new(&bytes[payload_offset..]) {
+            match pkt.get_ethertype() {
+                EtherTypes::Ipv4 => {
+                    return Ok(Self::handle_v4(
+                        &pkt.payload(),
+                        &self.network_interface,
+                        self.dns_shown,
+                    ))
+                }
+                EtherTypes::Ipv6 => {
+                    return Ok(Self::handle_v6(&pkt.payload(), &self.network_interface))
+                }
+                _ => (),
+            }
+        }
+        Ok(None)
     }
-    fn handle_v6(ip_packet: Ipv6Packet, network_interface: &NetworkInterface) -> Option<Segment> {
+    pub fn reset_channel(&mut self) -> Result<()> {
+        self.network_frames = get_datalink_channel(&self.network_interface)
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "Interface not available"))?;
+        Ok(())
+    }
+    fn handle_v6(bytes: &[u8], network_interface: &NetworkInterface) -> Option<Segment> {
+        let ip_packet = Ipv6Packet::new(bytes)?;
         let (protocol, source_port, destination_port, data_length) =
             extract_transport_protocol!(ip_packet);
 
@@ -166,10 +168,11 @@ impl Sniffer {
         })
     }
     fn handle_v4(
-        ip_packet: Ipv4Packet,
+        bytes: &[u8],
         network_interface: &NetworkInterface,
         show_dns: bool,
     ) -> Option<Segment> {
+        let ip_packet = Ipv4Packet::new(bytes)?;
         let (protocol, source_port, destination_port, data_length) =
             extract_transport_protocol!(ip_packet);
 

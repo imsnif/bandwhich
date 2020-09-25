@@ -11,6 +11,6 @@ mod lsof_utils;
 pub(self) mod windows;
 
 mod errors;
-mod shared;
+pub(crate) mod shared;
 
 pub use shared::*;
