@@ -11,8 +11,11 @@ use ::pnet::packet::Packet;
 
 use ::ipnetwork::IpNetwork;
 use ::std::net::{IpAddr, SocketAddr};
+use ::std::thread::park_timeout;
 
 use crate::network::{Connection, Protocol};
+
+const PACKET_WAIT_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(10);
 
 #[derive(Debug)]
 pub struct Segment {
@@ -96,7 +99,16 @@ impl Sniffer {
         }
     }
     pub fn next(&mut self) -> Option<Segment> {
-        let bytes = self.network_frames.next().ok()?;
+        let bytes = match self.network_frames.next() {
+            Ok(bytes) => bytes,
+            Err(err) => match err.kind() {
+                std::io::ErrorKind::TimedOut => {
+                    park_timeout(PACKET_WAIT_TIMEOUT);
+                    return None;
+                }
+                _ => panic!("Error sniffing on {}: {}", self.network_interface.name, err),
+            },
+        };
         // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
         // VPN interfaces (such as utun0, utun1, etc) have POINT_TO_POINT bit set to 1
         let payload_offset = if (self.network_interface.is_loopback()
