@@ -30,7 +30,6 @@ use std::sync::RwLock;
 use structopt::StructOpt;
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
-const PACKET_WAIT_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(10);
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "bandwhich")]
@@ -293,20 +292,8 @@ where
                     let mut sniffer = Sniffer::new(iface, frames, show_dns);
 
                     while running.load(Ordering::Acquire) {
-                        match sniffer.next() {
-                            Ok(Some(segment)) => {
-                                network_utilization.lock().unwrap().update(segment)
-                            }
-                            Ok(None) => continue,
-                            Err(err) => match err.kind() {
-                                std::io::ErrorKind::TimedOut => {
-                                    park_timeout(PACKET_WAIT_TIMEOUT);
-                                }
-                                _ => {
-                                    park_timeout(DISPLAY_DELTA);
-                                    sniffer.reset_channel().ok();
-                                }
-                            },
+                        if let Some(segment) = sniffer.next() {
+                            network_utilization.lock().unwrap().update(segment);
                         }
                     }
                 })
