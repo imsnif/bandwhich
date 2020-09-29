@@ -104,7 +104,7 @@ dependencies = [
  "sysinfo 0.15.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "trust-dns-resolver 0.18.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "tui 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tui 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "unicode-width 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "zip 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1914,7 +1914,7 @@ dependencies = [
 
 [[package]]
 name = "tui"
-version = "0.10.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2335,7 +2335,7 @@ dependencies = [
 "checksum tokio 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "2e765bf9f550bd9b8a970633ca3b56b8120c4b6c5dcbe26a93744cb02fee4b17"
 "checksum trust-dns-proto 0.18.1 (registry+https://github.com/rust-lang/crates.io-index)" = "253a722ff22a1217b7af6199cb2ec5824a19c5110e0db21d3fcb28d5f6e1b0ee"
 "checksum trust-dns-resolver 0.18.1 (registry+https://github.com/rust-lang/crates.io-index)" = "72d7df08b45f4d6d124cdae3c303f9908159a17b39e633e524349e91bc798d32"
-"checksum tui 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a977b0bb2e2033a6fef950f218f13622c3c34e59754b704ce3492dedab1dfe95"
+"checksum tui 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c2eaeee894a1e9b90f80aa466fe59154fdb471980b5e104d8836fcea309ae17e"
 "checksum typenum 1.11.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6d2783fe2d6b8c1101136184eb41be8b1ad379e4657050b8aaff0c79ee7575f9"
 "checksum ucd-trie 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "8f00ed7be0c1ff1e24f46c3d2af4859f7e863672ba3a6e92e7cff702bf9f06c2"
 "checksum unicase 2.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "50f37be617794602aabbeee0be4f259dc1778fabe05e2d67ee8f79326d5cb4f6"

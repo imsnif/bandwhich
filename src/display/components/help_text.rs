@@ -42,7 +42,7 @@ impl HelpText {
         };
 
         let text = Span::styled(
-            format!("{}{}{}", pause_content, tab_text, dns_content),
+            [pause_content, tab_text, dns_content].concat(),
             Style::default().add_modifier(Modifier::BOLD),
         );
         let paragraph = Paragraph::new(text).alignment(Alignment::Left);
