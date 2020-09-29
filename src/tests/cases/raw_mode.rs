@@ -8,7 +8,7 @@ use ::std::net::IpAddr;
 
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
-use pnet::datalink::{DataLinkReceiver, MacAddr};
+use pnet::datalink::DataLinkReceiver;
 use pnet::packet::Packet;
 
 use crate::tests::cases::test_utils::{
@@ -27,7 +27,6 @@ fn build_ip_tcp_packet(
     let mut pkt_buf = [0u8; 1500];
     let pkt = packet_builder!(
          pkt_buf,
-         ether({set_source => MacAddr(0xa, 0xb, 0xc, 1, 1, 1), set_destination => MacAddr(0xa, 0xb, 0xc, 2, 2, 2)}) /
          ipv4({set_source => ipv4addr!(source_ip), set_destination => ipv4addr!(destination_ip) }) /
          tcp({set_source => source_port, set_destination => destination_port }) /
          payload(payload)
