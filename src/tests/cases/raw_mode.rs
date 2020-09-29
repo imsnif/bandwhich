@@ -584,6 +584,8 @@ fn no_resolve_mode() {
             processes: false,
             total_utilization: false,
         },
+        #[cfg(target_os = "macos")]
+        no_payload_offset: false,
     };
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
