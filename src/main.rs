@@ -84,7 +84,8 @@ fn try_main() -> Result<(), failure::Error> {
     } else {
         match terminal::enable_raw_mode() {
             Ok(()) => {
-                let terminal_backend = CrosstermBackend::new();
+                let stdout = std::io::stdout();
+                let terminal_backend = CrosstermBackend::new(stdout);
                 start(terminal_backend, os_input, opts);
             }
             Err(_) => failure::bail!(

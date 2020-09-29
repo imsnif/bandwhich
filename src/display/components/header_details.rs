@@ -4,7 +4,8 @@ use ::tui::backend::Backend;
 use ::tui::layout::{Alignment, Rect};
 use ::tui::style::{Color, Modifier, Style};
 use ::tui::terminal::Frame;
-use ::tui::widgets::{Paragraph, Text, Widget};
+use ::tui::text::Span;
+use ::tui::widgets::Paragraph;
 
 const SECONDS_IN_DAY: u64 = 86400;
 
@@ -53,16 +54,13 @@ impl<'a> HeaderDetails<'a> {
         bandwidth: &str,
         color: Color,
     ) {
-        let bandwidth_text = {
-            [Text::styled(
-                bandwidth,
-                Style::default().fg(color).modifier(Modifier::BOLD),
-            )]
-        };
+        let bandwidth_text = Span::styled(
+            bandwidth,
+            Style::default().fg(color).add_modifier(Modifier::BOLD),
+        );
 
-        Paragraph::new(bandwidth_text.iter())
-            .alignment(Alignment::Left)
-            .render(frame, rect);
+        let paragraph = Paragraph::new(bandwidth_text).alignment(Alignment::Left);
+        frame.render_widget(paragraph, rect);
     }
 
     fn bandwidth_string(&self) -> String {
@@ -88,13 +86,12 @@ impl<'a> HeaderDetails<'a> {
         elapsed_time: &str,
         color: Color,
     ) {
-        let elapsed_time_text = [Text::styled(
+        let elapsed_time_text = Span::styled(
             elapsed_time,
-            Style::default().fg(color).modifier(Modifier::BOLD),
-        )];
-        Paragraph::new(elapsed_time_text.iter())
-            .alignment(Alignment::Right)
-            .render(frame, rect);
+            Style::default().fg(color).add_modifier(Modifier::BOLD),
+        );
+        let paragraph = Paragraph::new(elapsed_time_text).alignment(Alignment::Right);
+        frame.render_widget(paragraph, rect);
     }
 
     fn days_string(&self) -> String {
