@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * CI: build binaries using github actions (https://github.com/imsnif/bandwhich/pull/181) - [@remgodow](https://github.com/remgodow)
 * Fix build on FreeBSD (https://github.com/imsnif/bandwhich/pull/189) - [@imsnif](https://github.com/imsnif)
 * Upgrade TUI to latest version (https://github.com/imsnif/bandwhich/pull/190) - [@imsnif](https://github.com/imsnif)
+* Try to reconnect to disconnected interfaces (https://github.com/imsnif/bandwhich/pull/191) - [@thepacketgeek](https://github.com/thepacketgeek)
 
 ## [0.18.1] - 2020-09-11
 
