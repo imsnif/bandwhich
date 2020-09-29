@@ -10,9 +10,15 @@ use ::pnet::packet::udp::UdpPacket;
 use ::pnet::packet::Packet;
 
 use ::ipnetwork::IpNetwork;
+use ::std::io::{self, Result};
 use ::std::net::{IpAddr, SocketAddr};
+use ::std::thread::park_timeout;
 
 use crate::network::{Connection, Protocol};
+use crate::os::shared::get_datalink_channel;
+
+const PACKET_WAIT_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(10);
+const CHANNEL_RESET_DELAY: std::time::Duration = std::time::Duration::from_millis(1000);
 
 #[derive(Debug)]
 pub struct Segment {
@@ -96,7 +102,20 @@ impl Sniffer {
         }
     }
     pub fn next(&mut self) -> Option<Segment> {
-        let bytes = self.network_frames.next().ok()?;
+        let bytes = match self.network_frames.next() {
+            Ok(bytes) => bytes,
+            Err(err) => match err.kind() {
+                std::io::ErrorKind::TimedOut => {
+                    park_timeout(PACKET_WAIT_TIMEOUT);
+                    return None;
+                }
+                _ => {
+                    park_timeout(CHANNEL_RESET_DELAY);
+                    self.reset_channel().ok();
+                    return None;
+                }
+            },
+        };
         // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
         // VPN interfaces (such as utun0, utun1, etc) have POINT_TO_POINT bit set to 1
         let payload_offset = if (self.network_interface.is_loopback()
@@ -132,6 +151,11 @@ impl Sniffer {
                 }
             }
         }
+    }
+    pub fn reset_channel(&mut self) -> Result<()> {
+        self.network_frames = get_datalink_channel(&self.network_interface)
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "Interface not available"))?;
+        Ok(())
     }
     fn handle_v6(ip_packet: Ipv6Packet, network_interface: &NetworkInterface) -> Option<Segment> {
         let (protocol, source_port, destination_port, data_length) =
