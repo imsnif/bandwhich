@@ -24,6 +24,7 @@ use ::tui::backend::Backend;
 
 use std::process;
 
+use ::std::net::Ipv4Addr;
 use ::std::time::{Duration, Instant};
 use ::tui::backend::CrosstermBackend;
 use std::sync::RwLock;
@@ -48,6 +49,9 @@ pub struct Opt {
     #[structopt(short, long)]
     /// Show DNS queries
     show_dns: bool,
+    #[structopt(short, long)]
+    /// A dns server ip to use instead of the system default
+    dns_server: Option<Ipv4Addr>,
 }
 
 #[derive(StructOpt, Debug, Copy, Clone)]
@@ -76,7 +80,7 @@ fn main() {
 fn try_main() -> Result<(), failure::Error> {
     use os::get_input;
     let opts = Opt::from_args();
-    let os_input = get_input(&opts.interface, !opts.no_resolve)?;
+    let os_input = get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
     let raw_mode = opts.raw;
     if raw_mode {
         let terminal_backend = RawTerminalBackend {};

@@ -174,6 +174,7 @@ fn basic_only_processes() {
         raw: false,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,
@@ -200,6 +201,7 @@ fn basic_processes_with_dns_queries() {
         raw: false,
         no_resolve: false,
         show_dns: true,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,
@@ -226,6 +228,7 @@ fn basic_only_connections() {
         raw: false,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: false,
             connections: true,
@@ -252,6 +255,7 @@ fn basic_only_addresses() {
         raw: false,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: true,
             connections: false,
@@ -276,6 +280,7 @@ fn two_packets_only_processes() {
         raw: false,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,
@@ -301,6 +306,7 @@ fn two_packets_only_connections() {
         raw: false,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: false,
             connections: true,
@@ -326,6 +332,7 @@ fn two_packets_only_addresses() {
         raw: false,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: true,
             connections: false,
@@ -353,6 +360,7 @@ fn two_windows_split_horizontally() {
         raw: false,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: true,
             connections: true,
@@ -379,6 +387,7 @@ fn two_windows_split_vertically() {
         raw: false,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: true,
             connections: true,
