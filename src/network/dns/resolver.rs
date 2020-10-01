@@ -22,7 +22,6 @@ impl Resolver {
             Some(dns_server_address) => {
                 let mut config = ResolverConfig::new();
                 let options = ResolverOpts::default();
-                // let socket = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(1, 1, 1, 1), 53));
                 let socket = SocketAddr::V4(SocketAddrV4::new(*dns_server_address, 53));
                 let nameserver_config = NameServerConfig {
                     socket_addr: socket,
