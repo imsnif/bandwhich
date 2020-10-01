@@ -577,6 +577,7 @@ fn no_resolve_mode() {
         raw: true,
         no_resolve: true,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,

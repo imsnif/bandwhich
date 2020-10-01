@@ -6,6 +6,7 @@ use ::pnet::datalink::{self, Config, NetworkInterface};
 use ::std::io::{self, ErrorKind, Write};
 use ::tokio::runtime::Runtime;
 
+use ::std::net::Ipv4Addr;
 use ::std::time;
 
 use crate::os::errors::GetInterfaceErrorKind;
@@ -147,6 +148,7 @@ where
 pub fn get_input(
     interface_name: &Option<String>,
     resolve: bool,
+    dns_server: &Option<Ipv4Addr>,
 ) -> Result<OsInputOutput, failure::Error> {
     let network_interfaces = if let Some(name) = interface_name {
         match get_interface(&name) {
@@ -201,13 +203,14 @@ pub fn get_input(
     let write_to_stdout = create_write_to_stdout();
     let dns_client = if resolve {
         let mut runtime = Runtime::new()?;
-        let resolver = match runtime.block_on(dns::Resolver::new(runtime.handle().clone())) {
-            Ok(resolver) => resolver,
-            Err(err) => failure::bail!(
-                "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
-                err
-            ),
-        };
+        let resolver =
+            match runtime.block_on(dns::Resolver::new(runtime.handle().clone(), dns_server)) {
+                Ok(resolver) => resolver,
+                Err(err) => failure::bail!(
+                    "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
+                    err
+                ),
+            };
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
     } else {

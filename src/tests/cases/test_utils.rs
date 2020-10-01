@@ -158,6 +158,7 @@ fn opts_factory(raw: bool) -> Opt {
         raw,
         no_resolve: false,
         show_dns: false,
+        dns_server: None,
         render_opts: RenderOpts {
             addresses: false,
             connections: false,
