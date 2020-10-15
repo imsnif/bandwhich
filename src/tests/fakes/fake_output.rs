@@ -91,11 +91,11 @@ impl Backend for TestBackend {
                         string.push_str(&cell.symbol);
                     }
                     None => {
-                        string.push_str(" ");
+                        string.push(' ');
                     }
                 }
             }
-            string.push_str("\n");
+            string.push('\n');
         }
         self.draw_events.lock().unwrap().push(string);
         Ok(())
