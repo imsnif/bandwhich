@@ -110,6 +110,7 @@ FLAGS:
 
 OPTIONS:
     -i, --interface <interface>    The network interface to listen on, eg. eth0
+    -d, --dns-server <dns-server>    A dns server ip to use instead of the system default
 ```
 
 **Note that since `bandwhich` sniffs network packets, it requires root privileges** - so you might want to use it with (for example) `sudo`.

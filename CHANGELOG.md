@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.20.0] - 2020-10-15
+
 ### Added
 * New command line argument to explicitly specify a DNS server to use (https://github.com/imsnif/bandwhich/pull/193) - [@imsnif](https://github.com/imsnif)
 
