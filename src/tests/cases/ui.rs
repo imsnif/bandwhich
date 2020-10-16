@@ -181,8 +181,7 @@ fn basic_only_processes() {
             processes: true,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);
@@ -210,8 +209,7 @@ fn basic_processes_with_dns_queries() {
             processes: true,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);
@@ -239,8 +237,7 @@ fn basic_only_connections() {
             processes: false,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);
@@ -268,8 +265,7 @@ fn basic_only_addresses() {
             processes: false,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);
@@ -295,8 +291,7 @@ fn two_packets_only_processes() {
             processes: true,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);
@@ -323,8 +318,7 @@ fn two_packets_only_connections() {
             processes: false,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);
@@ -351,8 +345,7 @@ fn two_packets_only_addresses() {
             processes: false,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);
@@ -381,8 +374,7 @@ fn two_windows_split_horizontally() {
             processes: false,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);
@@ -410,8 +402,7 @@ fn two_windows_split_vertically() {
             processes: false,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     };
 
     start(backend, os_input, opts);

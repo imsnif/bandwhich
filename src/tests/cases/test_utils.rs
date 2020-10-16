@@ -165,8 +165,7 @@ fn opts_factory(raw: bool) -> Opt {
             processes: false,
             total_utilization: false,
         },
-        #[cfg(target_os = "macos")]
-        no_payload_offset: false,
+        add_payload_offset: false,
     }
 }
 type BackendWithStreams = (

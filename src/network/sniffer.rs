@@ -99,12 +99,12 @@ impl Sniffer {
     ) -> Self {
         let payload_offset = {
             // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
-            // VPN interfaces (such as utun0, utun1, etc) have POINT_TO_POINT bit set to 1
-            if with_payload_offset
-                && (network_interface.is_loopback() || network_interface.is_point_to_point())
-                && cfg!(target_os = "macos")
+            // The pnet code for BPF loopback adds a zero'd out Ethernet header
+            if cfg!(target_os = "macos")
+                && (network_interface.is_loopback()
+                    // utun interfaces shouldn't need the offset, but user can add with a flag
+                    || (with_payload_offset && network_interface.is_point_to_point()))
             {
-                // The pnet code for BPF loopback adds a zero'd out Ethernet header
                 14
             } else {
                 0
