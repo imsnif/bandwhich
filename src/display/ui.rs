@@ -31,8 +31,7 @@ where
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
-        let mut state: UIState = Default::default();
-        state.cumulative_mode = opts.total_utilization;
+        let state = UIState::with_cumulative_mode(opts.total_utilization);
         Ui {
             terminal,
             state,

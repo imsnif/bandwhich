@@ -87,6 +87,7 @@ pub struct Sniffer {
     network_interface: NetworkInterface,
     network_frames: Box<dyn DataLinkReceiver>,
     dns_shown: bool,
+    payload_offset: usize,
 }
 
 impl Sniffer {
@@ -94,11 +95,26 @@ impl Sniffer {
         network_interface: NetworkInterface,
         network_frames: Box<dyn DataLinkReceiver>,
         dns_shown: bool,
+        with_payload_offset: bool,
     ) -> Self {
+        let payload_offset = {
+            // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
+            // The pnet code for BPF loopback adds a zero'd out Ethernet header
+            if cfg!(target_os = "macos")
+                && (network_interface.is_loopback()
+                    // utun interfaces shouldn't need the offset, but user can add with a flag
+                    || (with_payload_offset && network_interface.is_point_to_point()))
+            {
+                14
+            } else {
+                0
+            }
+        };
         Sniffer {
             network_interface,
             network_frames,
             dns_shown,
+            payload_offset,
         }
     }
     pub fn next(&mut self) -> Option<Segment> {
@@ -116,24 +132,14 @@ impl Sniffer {
                 }
             },
         };
-        // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
-        // VPN interfaces (such as utun0, utun1, etc) have POINT_TO_POINT bit set to 1
-        let payload_offset = if (self.network_interface.is_loopback()
-            || self.network_interface.is_point_to_point())
-            && cfg!(target_os = "macos")
-        {
-            // The pnet code for BPF loopback adds a zero'd out Ethernet header
-            14
-        } else {
-            0
-        };
-        let ip_packet = Ipv4Packet::new(&bytes[payload_offset..])?;
+
+        let ip_packet = Ipv4Packet::new(&bytes[self.payload_offset..])?;
         let version = ip_packet.get_version();
 
         match version {
             4 => Self::handle_v4(ip_packet, &self.network_interface, self.dns_shown),
             6 => Self::handle_v6(
-                Ipv6Packet::new(&bytes[payload_offset..])?,
+                Ipv6Packet::new(&bytes[self.payload_offset..])?,
                 &self.network_interface,
             ),
             _ => {

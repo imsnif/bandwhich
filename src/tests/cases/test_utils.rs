@@ -165,6 +165,7 @@ fn opts_factory(raw: bool) -> Opt {
             processes: false,
             total_utilization: false,
         },
+        add_payload_offset: false,
     }
 }
 type BackendWithStreams = (

@@ -86,6 +86,13 @@ pub struct UIState {
 }
 
 impl UIState {
+    pub fn with_cumulative_mode(cumulative_mode: bool) -> Self {
+        UIState {
+            cumulative_mode,
+            ..Default::default()
+        }
+    }
+
     fn get_proc_name<'a>(
         connections_to_procs: &'a HashMap<LocalSocket, String>,
         local_socket: &LocalSocket,
@@ -168,7 +175,7 @@ impl UIState {
             }
         }
         let divide_by = if self.utilization_data.is_empty() {
-            1 as u128
+            1u128
         } else {
             self.utilization_data.len() as u128
         };
