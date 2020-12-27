@@ -79,10 +79,10 @@ pub struct UIState {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub cumulative_mode: bool,
-    utilization_data: VecDeque<UtilizationData>,
-    processes_map: HashMap<String, NetworkData>,
-    remote_addresses_map: HashMap<IpAddr, NetworkData>,
-    connections_map: HashMap<Connection, ConnectionData>,
+    pub utilization_data: VecDeque<UtilizationData>,
+    pub processes_map: HashMap<String, NetworkData>,
+    pub remote_addresses_map: HashMap<IpAddr, NetworkData>,
+    pub connections_map: HashMap<Connection, ConnectionData>,
 }
 
 impl UIState {
@@ -168,7 +168,7 @@ impl UIState {
             }
         }
         let divide_by = if self.utilization_data.is_empty() {
-            1 as u128
+            1_u128
         } else {
             self.utilization_data.len() as u128
         };
