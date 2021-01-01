@@ -46,6 +46,13 @@ sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
 brew install bandwhich
 ```
 
+#### macOS (using MacPorts)
+
+```
+sudo port selfupdate
+sudo port install bandwhich
+```
+
 #### FreeBSD
 
 ```
