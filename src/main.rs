@@ -243,8 +243,8 @@ where
                                     Err(_) => println!("Error could not disable raw input"),
                                 }
                                 let mut stdout = std::io::stdout();
-                                if let Err(_) =
-                                    crossterm::execute!(&mut stdout, terminal::LeaveAlternateScreen)
+                                if crossterm::execute!(&mut stdout, terminal::LeaveAlternateScreen)
+                                    .is_err()
                                 {
                                     println!("Error could not leave alternte screen");
                                 };
