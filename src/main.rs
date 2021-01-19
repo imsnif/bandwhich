@@ -24,6 +24,7 @@ use ::ratatui::backend::Backend;
 
 use std::process;
 
+use ::std::io::Write;
 use ::std::net::Ipv4Addr;
 use ::std::time::{Duration, Instant};
 use ::ratatui::backend::CrosstermBackend;
@@ -88,7 +89,9 @@ fn try_main() -> Result<(), failure::Error> {
     } else {
         match terminal::enable_raw_mode() {
             Ok(()) => {
-                let stdout = std::io::stdout();
+                let mut stdout = std::io::stdout();
+                // Ignore enteralternatescreen error
+                let _ = crossterm::execute!(&mut stdout, terminal::EnterAlternateScreen);
                 let terminal_backend = CrosstermBackend::new(stdout);
                 start(terminal_backend, os_input, opts);
             }
@@ -239,6 +242,12 @@ where
                                     Ok(_) => {}
                                     Err(_) => println!("Error could not disable raw input"),
                                 }
+                                let mut stdout = std::io::stdout();
+                                if let Err(_) =
+                                    crossterm::execute!(&mut stdout, terminal::LeaveAlternateScreen)
+                                {
+                                    println!("Error could not leave alternte screen");
+                                };
                                 break;
                             }
                             Event::Key(KeyEvent {
