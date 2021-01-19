@@ -190,7 +190,6 @@ where
         self.ip_to_host.extend(ip_to_host);
     }
     pub fn end(&mut self) {
-        self.terminal.clear().unwrap();
         self.terminal.show_cursor().unwrap();
     }
 }
