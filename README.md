@@ -118,7 +118,7 @@ OPTIONS:
 On Linux, you can give the `bandwhich` binary a permanent capability to use the required privileges, so that you don't need to use `sudo bandwhich` anymore:
 
 ```bash
-sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep `which bandwhich`
+sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep $(command -v bandwhich)
 ```
 `cap_sys_ptrace,cap_dac_read_search` gives `bandwhich` capability to list `/proc/<pid>/fd/` and resolve symlinks in that directory. It needs this capability to determine which opened port belongs to which process. `cap_net_raw,cap_net_admin` gives `bandwhich` capability to capture packets on your system.
 
