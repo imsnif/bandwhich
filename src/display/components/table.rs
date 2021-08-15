@@ -96,7 +96,7 @@ impl<'a> Table<'a> {
             .map(|(connection, connection_data)| {
                 vec![
                     display_connection_string(
-                        &connection,
+                        connection,
                         &ip_to_host,
                         &connection_data.interface_name,
                     ),
