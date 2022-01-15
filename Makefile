@@ -17,9 +17,10 @@ BIN=target/$(TARGET)/$(APP)
 BIN_DST=$(DESTDIR)$(prefix)/bin/$(APP)
 DOC_DST=$(DESTDIR)$(prefix)/share/man/man1/bandwhich.1
 LIC_DST=$(DESTDIR)$(prefix)/share/licenses/$(APP)
+AUTOCOMPLETE_DST=/usr/share/bash-completion/completions
 SRC = Makefile Cargo.lock Cargo.toml $(shell find src -type f -wholename 'src/*.rs')
 
-.PHONY: all clean distclean install uninstall vendor
+.PHONY: all clean distclean install uninstall vendor install_autocomplete
 
 all: $(BIN)
 
@@ -35,12 +36,19 @@ ifeq ($(VENDOR),1)
 endif
 	cargo build $(ARGS)
 
-install:
+install_autocomplete:
+	mkdir -p $(AUTOCOMPLETE_DST)
+	cp src/bandwhich $(AUTOCOMPLETE_DST)/bandwhich
+
+uninstall_autocomplete:
+	rm -f $(AUTOCOMPLETE_DST)/bandwhich
+
+install: install_autocomplete
 	install -Dm755 $(BIN) $(BIN_DST)
 	install -Dm644 docs/bandwhich.1 $(DOC_DST)
 	install -Dm644 LICENSE.md $(LIC_DST)/LICENSE
 
-uninstall:
+uninstall: uninstall_autocomplete
 	rm -rf $(BIN_DST) $(DOC_DST) $(LIC_DST)
 
 vendor:
