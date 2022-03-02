@@ -52,6 +52,10 @@ pub struct Opt {
     #[structopt(short, long)]
     /// A dns server ip to use instead of the system default
     dns_server: Option<Ipv4Addr>,
+    #[cfg_attr(not(target_os = "macos"), structopt(skip = false))]
+    #[cfg_attr(target_os = "macos", structopt(short = "o", long))]
+    /// Add a 14-byte payload offset needed for some utun (Point-to-Point) interfaces
+    add_payload_offset: bool,
 }
 
 #[derive(StructOpt, Debug, Copy, Clone)]
@@ -289,12 +293,13 @@ where
             let name = format!("sniffing_handler_{}", iface.name);
             let running = running.clone();
             let show_dns = opts.show_dns;
+            let with_payload_offset = opts.add_payload_offset;
             let network_utilization = network_utilization.clone();
 
             thread::Builder::new()
                 .name(name)
                 .spawn(move || {
-                    let mut sniffer = Sniffer::new(iface, frames, show_dns);
+                    let mut sniffer = Sniffer::new(iface, frames, show_dns, with_payload_offset);
 
                     while running.load(Ordering::Acquire) {
                         if let Some(segment) = sniffer.next() {

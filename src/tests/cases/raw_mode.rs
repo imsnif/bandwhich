@@ -584,6 +584,7 @@ fn no_resolve_mode() {
             processes: false,
             total_utilization: false,
         },
+        add_payload_offset: false,
     };
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
