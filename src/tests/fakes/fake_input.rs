@@ -6,7 +6,6 @@ use ::pnet::datalink::NetworkInterface;
 use ::std::collections::HashMap;
 use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use ::std::{thread, time};
-use ::tokio::runtime::Runtime;
 
 use crate::{
     network::{
@@ -157,8 +156,7 @@ pub fn get_interfaces() -> Vec<NetworkInterface> {
 }
 
 pub fn create_fake_dns_client(ips_to_hosts: HashMap<IpAddr, String>) -> Option<dns::Client> {
-    let runtime = Runtime::new().unwrap();
-    let dns_client = dns::Client::new(FakeResolver(ips_to_hosts), runtime).unwrap();
+    let dns_client = dns::Client::new(FakeResolver(ips_to_hosts)).unwrap();
     Some(dns_client)
 }
 

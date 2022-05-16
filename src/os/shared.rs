@@ -4,7 +4,6 @@ use ::pnet::datalink::Channel::Ethernet;
 use ::pnet::datalink::DataLinkReceiver;
 use ::pnet::datalink::{self, Config, NetworkInterface};
 use ::std::io::{self, ErrorKind, Write};
-use ::tokio::runtime::Runtime;
 
 use ::std::net::Ipv4Addr;
 use ::std::time;
@@ -204,16 +203,14 @@ pub fn get_input(
     let keyboard_events = Box::new(TerminalEvents);
     let write_to_stdout = create_write_to_stdout();
     let dns_client = if resolve {
-        let mut runtime = Runtime::new()?;
-        let resolver =
-            match runtime.block_on(dns::Resolver::new(runtime.handle().clone(), dns_server)) {
-                Ok(resolver) => resolver,
-                Err(err) => failure::bail!(
-                    "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
-                    err
-                ),
-            };
-        let dns_client = dns::Client::new(resolver, runtime)?;
+        let resolver = match dns::Resolver::new(dns_server) {
+            Ok(resolver) => resolver,
+            Err(err) => failure::bail!(
+                "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
+                err
+            ),
+        };
+        let dns_client = dns::Client::new(resolver)?;
         Some(dns_client)
     } else {
         None

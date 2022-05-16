@@ -22,7 +22,7 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new<R>(resolver: R, mut runtime: Runtime) -> Result<Self, failure::Error>
+    pub fn new<R>(resolver: R) -> Result<Self, failure::Error>
     where
         R: Lookup + Send + Sync + 'static,
     {
@@ -33,6 +33,7 @@ impl Client {
         let handle = Builder::new().name("resolver".into()).spawn({
             let cache = cache.clone();
             let pending = pending.clone();
+            let runtime = Runtime::new()?;
             move || {
                 runtime.block_on(async {
                     let resolver = Arc::new(resolver);
