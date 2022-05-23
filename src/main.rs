@@ -12,61 +12,66 @@ use network::{
     LocalSocket, Sniffer, Utilization,
 };
 
-use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use ::crossterm::terminal;
-use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
-use ::std::collections::HashMap;
-use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use ::std::sync::{Arc, Mutex};
-use ::std::thread;
-use ::std::thread::park_timeout;
-use ::tui::backend::Backend;
+use clap::{Args, Parser};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::terminal;
+use pnet::datalink::{DataLinkReceiver, NetworkInterface};
+use tui::backend::{Backend, CrosstermBackend};
 
+use std::collections::HashMap;
+use std::net::Ipv4Addr;
 use std::process;
-
-use ::std::net::Ipv4Addr;
-use ::std::time::{Duration, Instant};
-use ::tui::backend::CrosstermBackend;
-use std::sync::RwLock;
-use structopt::StructOpt;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex, RwLock};
+use std::thread;
+use std::thread::park_timeout;
+use std::time::{Duration, Instant};
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "bandwhich")]
+#[derive(Parser, Debug)]
+#[clap(version)]
 pub struct Opt {
-    #[structopt(short, long)]
     /// The network interface to listen on, eg. eth0
+    #[clap(short, long)]
     interface: Option<String>,
-    #[structopt(short, long)]
+
     /// Machine friendlier output
+    #[clap(short, long)]
     raw: bool,
-    #[structopt(short, long)]
+
     /// Do not attempt to resolve IPs to their hostnames
+    #[clap(short, long)]
     no_resolve: bool,
-    #[structopt(flatten)]
+
+    #[clap(flatten)]
     render_opts: RenderOpts,
-    #[structopt(short, long)]
+
     /// Show DNS queries
+    #[clap(short, long)]
     show_dns: bool,
-    #[structopt(short, long)]
+
     /// A dns server ip to use instead of the system default
+    #[clap(short, long)]
     dns_server: Option<Ipv4Addr>,
 }
 
-#[derive(StructOpt, Debug, Copy, Clone)]
+#[derive(Args, Debug, Copy, Clone)]
 pub struct RenderOpts {
-    #[structopt(short, long)]
     /// Show processes table only
+    #[clap(short, long)]
     processes: bool,
-    #[structopt(short, long)]
+
     /// Show connections table only
+    #[clap(short, long)]
     connections: bool,
-    #[structopt(short, long)]
+
     /// Show remote addresses table only
+    #[clap(short, long)]
     addresses: bool,
-    #[structopt(short, long)]
+
     /// Show total (cumulative) usages
+    #[clap(short, long)]
     total_utilization: bool,
 }
 
@@ -79,7 +84,7 @@ fn main() {
 
 fn try_main() -> Result<(), failure::Error> {
     use os::get_input;
-    let opts = Opt::from_args();
+    let opts = Opt::parse();
     let os_input = get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
     let raw_mode = opts.raw;
     if raw_mode {
