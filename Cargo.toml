@@ -19,7 +19,7 @@ license = "MIT"
 exclude = ["src/tests/*", "demo.gif"]
 
 [dependencies]
-pnet = "0.26.0"
+pnet = "0.27.2"
 ipnetwork = "0.16.0"
 tui = { version = "0.12", default-features = false, features = ["crossterm"]}
 crossterm = "0.17.7"
