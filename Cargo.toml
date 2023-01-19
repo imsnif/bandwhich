@@ -21,6 +21,7 @@ exclude = ["src/tests/*", "demo.gif"]
 [dependencies]
 pnet = "0.31.0"
 pnet_datalink = "0.31.0"
+# pnet_datalink depends on ipnetwork https://crates.io/crates/pnet_datalink/0.31.0/dependencies
 ipnetwork = "0.19.0"
 tui = { version = "0.19", default-features = false, features = ["crossterm"]}
 crossterm = "0.25.0"
