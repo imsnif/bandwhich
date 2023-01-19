@@ -8,10 +8,11 @@ use crate::network::dns::Client;
 use crate::{Opt, OsInputOutput, RenderOpts};
 use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use packet_builder::*;
-use pnet::datalink::DataLinkReceiver;
+use pnet_datalink::DataLinkReceiver;
 use std::collections::HashMap;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
+use crossterm::event::{KeyEventKind, KeyEventState};
 
 use packet_builder::payload::PayloadData;
 use pnet::packet::Packet;
@@ -22,6 +23,8 @@ pub fn sleep_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::CONTROL,
         code: KeyCode::Char('c'),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::empty(),
     })));
     Box::new(TerminalEvents::new(events))
 }
@@ -32,6 +35,8 @@ pub fn sleep_resize_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::CONTROL,
         code: KeyCode::Char('c'),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::empty(),
     })));
     Box::new(TerminalEvents::new(events))
 }

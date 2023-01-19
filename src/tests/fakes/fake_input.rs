@@ -146,6 +146,7 @@ pub fn get_open_sockets() -> OpenSockets {
 pub fn get_interfaces() -> Vec<NetworkInterface> {
     vec![NetworkInterface {
         name: String::from("interface_name"),
+        description: "".to_string(),
         index: 42,
         mac: None,
         ips: vec![IpNetwork::V4("10.0.0.2".parse().unwrap())],

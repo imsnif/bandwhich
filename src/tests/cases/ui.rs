@@ -13,8 +13,9 @@ use crate::tests::cases::test_utils::{
     sleep_and_quit_events, sleep_resize_and_quit_events, test_backend_factory,
 };
 use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use pnet::datalink::DataLinkReceiver;
+use pnet_datalink::DataLinkReceiver;
 use std::iter;
+use crossterm::event::{KeyEventKind, KeyEventState};
 
 use crate::tests::fakes::TerminalEvents;
 
@@ -71,16 +72,22 @@ fn pause_by_space() {
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::NONE,
         code: KeyCode::Char(' '),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::empty(),
     })));
     events.push(None);
     events.push(None);
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::NONE,
         code: KeyCode::Char(' '),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::empty(),
     })));
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::CONTROL,
         code: KeyCode::Char('c'),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::empty(),
     })));
 
     let events = Box::new(TerminalEvents::new(events));
@@ -131,12 +138,16 @@ fn rearranged_by_tab() {
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::NONE,
         code: KeyCode::Tab,
+        kind: KeyEventKind::Press,
+        state: KeyEventState::empty(),
     })));
     events.push(None);
     events.push(None);
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::CONTROL,
         code: KeyCode::Char('c'),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::empty(),
     })));
 
     let events = Box::new(TerminalEvents::new(events));
