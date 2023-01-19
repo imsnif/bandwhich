@@ -153,7 +153,7 @@ pub fn get_input(
     dns_server: &Option<Ipv4Addr>,
 ) -> Result<OsInputOutput, failure::Error> {
     let network_interfaces = if let Some(name) = interface_name {
-        match get_interface(&name) {
+        match get_interface(name) {
             Some(interface) => vec![interface],
             None => {
                 failure::bail!("Cannot find interface {}", name);
@@ -204,9 +204,9 @@ pub fn get_input(
     let keyboard_events = Box::new(TerminalEvents);
     let write_to_stdout = create_write_to_stdout();
     let dns_client = if resolve {
-        let mut runtime = Runtime::new()?;
+        let runtime = Runtime::new()?;
         let resolver =
-            match runtime.block_on(dns::Resolver::new(runtime.handle().clone(), dns_server)) {
+            match runtime.block_on(dns::Resolver::new(dns_server)) {
                 Ok(resolver) => resolver,
                 Err(err) => failure::bail!(
                     "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
