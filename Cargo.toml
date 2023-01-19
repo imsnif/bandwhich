@@ -52,6 +52,3 @@ regex = "1"
 [target.'cfg(target_os="windows")'.build-dependencies]
 http_req = "0.9.0"
 zip = "0.6.3"
-
-[patch.crates-io]
-resolv-conf = { git = 'https://github.com/tailhook/resolv-conf', rev = '83c0f25ebcb0615550488692c5213ca1ae4acd8f' }

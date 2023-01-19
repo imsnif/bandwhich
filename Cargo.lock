@@ -2494,8 +2494,3 @@ dependencies = [
  "libc",
  "pkg-config",
 ]
-
-[[patch.unused]]
-name = "resolv-conf"
-version = "0.6.3"
-source = "git+https://github.com/tailhook/resolv-conf?rev=83c0f25ebcb0615550488692c5213ca1ae4acd8f#83c0f25ebcb0615550488692c5213ca1ae4acd8f"
