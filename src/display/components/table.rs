@@ -289,12 +289,11 @@ impl<'a> Table<'a> {
             ],
         });
 
-        let table_rows = rows.map(|row| Row::StyledData(row.into_iter(), Style::default()));
+        let table_rows = rows.map(|row| Row::new(row).style(Style::default()));
         let width_constraints: Vec<Constraint> =
             widths.iter().map(|w| Constraint::Length(*w)).collect();
-        let table = ::tui::widgets::Table::new(column_names.into_iter(), table_rows)
+        let table = ::tui::widgets::Table::new(table_rows).header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
             .block(Block::default().title(self.title).borders(Borders::ALL))
-            .header_style(Style::default().fg(Color::Yellow))
             .widths(&width_constraints)
             .style(Style::default())
             .column_spacing(column_spacing);

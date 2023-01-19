@@ -1,8 +1,8 @@
 use ::crossterm::event::read;
 use ::crossterm::event::Event;
-use ::pnet::datalink::Channel::Ethernet;
-use ::pnet::datalink::DataLinkReceiver;
-use ::pnet::datalink::{self, Config, NetworkInterface};
+use pnet_datalink::Channel::Ethernet;
+use pnet_datalink::DataLinkReceiver;
+use pnet_datalink::{self, Config, NetworkInterface};
 use ::std::io::{self, ErrorKind, Write};
 use ::tokio::runtime::Runtime;
 
@@ -41,7 +41,7 @@ pub(crate) fn get_datalink_channel(
         ..Default::default()
     };
 
-    match datalink::channel(interface, config) {
+    match pnet_datalink::channel(interface, config) {
         Ok(Ethernet(_tx, rx)) => Ok(rx),
         Ok(_) => Err(GetInterfaceErrorKind::OtherError(format!(
             "{}: Unsupported interface type",
@@ -60,7 +60,7 @@ pub(crate) fn get_datalink_channel(
 }
 
 fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
-    datalink::interfaces()
+    pnet_datalink::interfaces()
         .into_iter()
         .find(|iface| iface.name == interface_name)
 }
@@ -161,7 +161,7 @@ pub fn get_input(
             }
         }
     } else {
-        datalink::interfaces()
+        pnet_datalink::interfaces()
     };
 
     #[cfg(any(target_os = "windows"))]

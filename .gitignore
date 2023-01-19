@@ -3,6 +3,7 @@ target/
 vendor/
 vendor.tar
 **/*.rs.bk
+/.idea
 
 # Debian support
 

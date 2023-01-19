@@ -1,8 +1,8 @@
 use ::async_trait::async_trait;
 use ::crossterm::event::Event;
 use ::ipnetwork::IpNetwork;
-use ::pnet::datalink::DataLinkReceiver;
-use ::pnet::datalink::NetworkInterface;
+use pnet_datalink::DataLinkReceiver;
+use pnet_datalink::NetworkInterface;
 use ::std::collections::HashMap;
 use ::std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use ::std::{thread, time};

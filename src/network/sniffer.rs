@@ -1,6 +1,6 @@
 use ::std::boxed::Box;
 
-use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
+use pnet_datalink::{DataLinkReceiver, NetworkInterface};
 use ::pnet::packet::ethernet::{EtherTypes, EthernetPacket};
 use ::pnet::packet::ip::{IpNextHeaderProtocol, IpNextHeaderProtocols};
 use ::pnet::packet::ipv4::Ipv4Packet;
@@ -35,7 +35,7 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn new(network_interface_ips: &[IpNetwork], source: IpAddr) -> Self {
+    pub fn new(network_interface_ips: &Vec<IpNetwork>, source: IpAddr) -> Self {
         if network_interface_ips
             .iter()
             .any(|ip_network| ip_network.ip() == source)

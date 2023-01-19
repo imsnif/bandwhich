@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 use std::net::{Ipv4Addr, SocketAddrV4};
 use tokio::runtime::Handle;
 use trust_dns_resolver::config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts};
-use trust_dns_resolver::{error::ResolveErrorKind, TokioAsyncResolver};
+use trust_dns_resolver::{error::ResolveErrorKind, TokioAsyncResolver, TokioHandle};
 
 #[async_trait]
 pub trait Lookup {
@@ -27,11 +27,13 @@ impl Resolver {
                     socket_addr: socket,
                     protocol: Protocol::Udp,
                     tls_dns_name: None,
+                    trust_nx_responses: false,
+                    bind_addr: None,
                 };
                 config.add_name_server(nameserver_config);
-                TokioAsyncResolver::new(config, options, runtime).await?
+                TokioAsyncResolver::tokio(config, options)?
             }
-            None => TokioAsyncResolver::from_system_conf(runtime).await?,
+            None => TokioAsyncResolver::tokio_from_system_conf()?,
         };
         Ok(Self(resolver))
     }

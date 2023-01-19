@@ -11,10 +11,10 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
 
     if let Ok(all_procs) = procfs::process::all_processes() {
         for process in all_procs {
-            if let Ok(fds) = process.fd() {
-                let procname = process.stat.comm;
-                for fd in fds {
-                    if let FDTarget::Socket(inode) = fd.target {
+            if let Ok(fds) = process {
+                let procname = fds.stat().unwrap().comm;
+                for fd in fds.fd().unwrap() {
+                    if let FDTarget::Socket(inode) = fd.unwrap().target {
                         inode_to_procname.insert(inode, procname.clone());
                     }
                 }
