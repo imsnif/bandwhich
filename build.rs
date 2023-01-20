@@ -16,7 +16,7 @@ fn download_winpcap_sdk() {
 
     let mut reader = Vec::new();
     let _res = request::get(
-        "https://nmap.org/npcap/dist/npcap-sdk-1.05.zip",
+        "https://nmap.org/npcap/dist/npcap-sdk-1.13.zip",
         &mut reader,
     )
     .unwrap();
