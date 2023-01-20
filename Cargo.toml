@@ -54,5 +54,11 @@ regex = "1"
 http_req = "0.9.0"
 zip = "0.6.3"
 
+[profile.release]
+# https://github.com/johnthagen/min-sized-rust
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+lto = true
+
 [patch.crates-io]
 packet-builder = { git = 'https://github.com/ttys3/packet_builder.git', rev = 'af5b9b23ba0074a3b80810c725d8ed0eac32551c' }
