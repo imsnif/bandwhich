@@ -1,15 +1,17 @@
-fn main() {
-    #[cfg(target_os = "windows")]
-    download_winpcap_sdk();
+use std::env;
 
-    #[cfg(target_os = "windows")]
+fn main() {
+    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+    if target_os.as_str() == "windows" {
+        download_winpcap_sdk();
+    }
+
+    #[cfg(windows)]
     download_winpcap_dll();
 }
 
-#[cfg(target_os = "windows")]
 fn download_winpcap_sdk() {
     use http_req::request;
-    use std::env;
     use std::fs::File;
     use std::io::prelude::*;
 
@@ -30,10 +32,16 @@ fn download_winpcap_sdk() {
     pcapzip = File::open(format!("{}{}", out_dir, "/npcap.zip")).unwrap();
 
     let lib_name = "Packet.lib";
-    #[cfg(target_arch = "x86_64")]
-    let lib_dir = "Lib/x64";
-    #[cfg(target_arch = "x86")]
-    let lib_dir = "Lib";
+
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+    let lib_dir = match target_arch.as_str() {
+        "x86_64" => {
+            "Lib/x64"
+        }
+        _ => {
+             "Lib"
+        }
+    };
 
     let lib_path = format!("{}/{}", lib_dir, lib_name);
     let mut zip_archive = zip::ZipArchive::new(pcapzip).unwrap();
@@ -55,7 +63,7 @@ fn download_winpcap_sdk() {
     println!("cargo:rustc-link-search=native={}/{}", out_dir, lib_dir);
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 fn download_winpcap_dll() {
     use http_req::request;
     use std::fs::File;
