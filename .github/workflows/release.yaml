@@ -35,30 +35,30 @@ jobs:
           - win-msvc x64
         include:
           - build: linux glib x64
-            os: ubuntu-18.04
+            os: ubuntu-22.04
             rust: stable
             target: x86_64-unknown-linux-gnu
           - build: linux musl x64
-            os: ubuntu-18.04
+            os: ubuntu-22.04
             rust: stable
             target: x86_64-unknown-linux-musl
           - build: macos x64
-            os: macos-latest
+            os: macos-12
             rust: stable
             target: x86_64-apple-darwin
           - build: win-msvc x64
-            os: windows-2019
+            os: windows-2022
             rust: stable
             target: x86_64-pc-windows-msvc
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
@@ -73,21 +73,21 @@ jobs:
         run: cargo build --verbose --release --target ${{ matrix.target }}
 
       - name: Strip release binary (unix)
-        if: matrix.os != 'windows-2019'
+        if: matrix.os != 'windows-2022'
         run: strip "target/${{ matrix.target }}/release/bandwhich"
         
       - name: Tar release (unix)
-        if: matrix.os != 'windows-2019'
+        if: matrix.os != 'windows-2022'
         working-directory: ./target/${{ matrix.target }}/release
         run: tar cvfz bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.tar.gz "bandwhich"
         
       - name: Zip Windows release
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-2022'
         working-directory: ./target/${{ matrix.target }}/release
         run: tar.exe -a -c -f bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.zip "bandwhich.exe"
 
       - name: Upload release archive (linux)
-        if: matrix.os != 'windows-2019'
+        if: matrix.os != 'windows-2022'
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,7 +98,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload Windows release archive
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-2022'
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

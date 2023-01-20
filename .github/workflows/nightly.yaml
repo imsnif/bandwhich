@@ -1,4 +1,8 @@
 name: nightly
+
+env:
+  CARGO_TERM_COLOR: always
+
 on:
   pull_request:
   push:
@@ -20,20 +24,20 @@ jobs:
           - win-msvc
         include:
           - build: ubuntu
-            os: ubuntu-18.04
+            os: ubuntu-22.04
             rust: nightly
           - build: macos
-            os: macos-latest
+            os: macos-12
             rust: nightly
           - build: win-msvc
-            os: windows-2019
+            os: windows-2022
             rust: nightly
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
@@ -45,7 +49,7 @@ jobs:
       # This is useful for debugging problems when the expected build artifacts
       # (like shell completions and man pages) aren't generated.
       - name: Show build.rs stderr
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-2022'
         shell: bash
         run: |
           set +x

@@ -1,4 +1,8 @@
 name: ci
+
+env:
+  CARGO_TERM_COLOR: always
+
 on:
   pull_request:
   push:
@@ -19,20 +23,21 @@ jobs:
           - win-msvc
         include:
           - build: stable
-            os: ubuntu-18.04
+            # see https://github.com/actions/runner-images#available-images
+            os: ubuntu-22.04
             rust: stable
           - build: macos
-            os: macos-latest
+            os: macos-12
             rust: stable
           - build: win-msvc
-            os: windows-2019
+            os: windows-2022
             rust: stable
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ matrix.rust }}
           profile: minimal
@@ -51,7 +56,7 @@ jobs:
       # This is useful for debugging problems when the expected build artifacts
       # (like shell completions and man pages) aren't generated.
       - name: Show build.rs stderr
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-2022'
         shell: bash
         run: |
           set +x
@@ -67,15 +72,15 @@ jobs:
         run: cargo test --verbose
 
       - name: Upload unix binary
-        if: matrix.os != 'windows-2019'
-        uses: actions/upload-artifact@v1
+        if: matrix.os != 'windows-2022'
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: target/debug/bandwhich
 
       - name: Upload windows binary
-        if: matrix.os == 'windows-2019'
-        uses: actions/upload-artifact@v2
+        if: matrix.os == 'windows-2022'
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: |
