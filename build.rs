@@ -38,7 +38,7 @@ fn download_winpcap_sdk() {
     let mut pcaplib = match zip_archive.by_name(lib_path.as_str()) {
         Ok(pcaplib) => pcaplib,
         Err(err) => {
-            panic!("{}", err);
+            panic!("lib {} not found, err: {}", lib_path, err);
         }
     };
 
