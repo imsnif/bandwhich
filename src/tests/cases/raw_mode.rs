@@ -8,8 +8,8 @@ use ::std::net::IpAddr;
 
 use packet_builder::payload::PayloadData;
 use packet_builder::*;
-use pnet_datalink::DataLinkReceiver;
 use pnet::packet::Packet;
+use pnet_datalink::DataLinkReceiver;
 
 use crate::tests::cases::test_utils::{
     build_tcp_packet, opts_raw, os_input_output_dns, os_input_output_stdout, test_backend_factory,

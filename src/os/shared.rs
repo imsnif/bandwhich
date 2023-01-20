@@ -1,10 +1,10 @@
 use ::crossterm::event::read;
 use ::crossterm::event::Event;
+use ::std::io::{self, ErrorKind, Write};
+use ::tokio::runtime::Runtime;
 use pnet_datalink::Channel::Ethernet;
 use pnet_datalink::DataLinkReceiver;
 use pnet_datalink::{self, Config, NetworkInterface};
-use ::std::io::{self, ErrorKind, Write};
-use ::tokio::runtime::Runtime;
 
 use ::std::net::Ipv4Addr;
 use ::std::time;
@@ -205,14 +205,13 @@ pub fn get_input(
     let write_to_stdout = create_write_to_stdout();
     let dns_client = if resolve {
         let runtime = Runtime::new()?;
-        let resolver =
-            match runtime.block_on(dns::Resolver::new(dns_server)) {
-                Ok(resolver) => resolver,
-                Err(err) => failure::bail!(
-                    "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
-                    err
-                ),
-            };
+        let resolver = match runtime.block_on(dns::Resolver::new(dns_server)) {
+            Ok(resolver) => resolver,
+            Err(err) => failure::bail!(
+                "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
+                err
+            ),
+        };
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
     } else {

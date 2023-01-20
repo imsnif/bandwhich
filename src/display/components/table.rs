@@ -292,7 +292,12 @@ impl<'a> Table<'a> {
         let table_rows = rows.map(|row| Row::new(row).style(Style::default()));
         let width_constraints: Vec<Constraint> =
             widths.iter().map(|w| Constraint::Length(*w)).collect();
-        let table = ::tui::widgets::Table::new(table_rows).header(Row::new(column_names).style(Style::default().fg(Color::Yellow)).bottom_margin(1))
+        let table = ::tui::widgets::Table::new(table_rows)
+            .header(
+                Row::new(column_names)
+                    .style(Style::default().fg(Color::Yellow))
+                    .bottom_margin(1),
+            )
             .block(Block::default().title(self.title).borders(Borders::ALL))
             .widths(&width_constraints)
             .style(Style::default())

@@ -14,13 +14,13 @@ use network::{
 
 use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ::crossterm::terminal;
-use pnet_datalink::{DataLinkReceiver, NetworkInterface};
 use ::std::collections::HashMap;
 use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use ::std::sync::{Arc, Mutex};
 use ::std::thread;
 use ::std::thread::park_timeout;
 use ::tui::backend::Backend;
+use pnet_datalink::{DataLinkReceiver, NetworkInterface};
 
 use std::process;
 
@@ -225,12 +225,14 @@ where
                             }
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::CONTROL,
-                                code: KeyCode::Char('c'), ..
-                                       })
+                                code: KeyCode::Char('c'),
+                                ..
+                            })
                             | Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
-                                code: KeyCode::Char('q'), ..
-                                         }) => {
+                                code: KeyCode::Char('q'),
+                                ..
+                            }) => {
                                 running.store(false, Ordering::Release);
                                 display_handler.unpark();
                                 match terminal::disable_raw_mode() {
@@ -241,8 +243,9 @@ where
                             }
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
-                                code: KeyCode::Char(' '), ..
-                                       }) => {
+                                code: KeyCode::Char(' '),
+                                ..
+                            }) => {
                                 let restarting = paused.fetch_xor(true, Ordering::SeqCst);
                                 if restarting {
                                     *last_start_time.write().unwrap() = Instant::now();
@@ -259,8 +262,9 @@ where
                             }
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
-                                code: KeyCode::Tab, ..
-                                       }) => {
+                                code: KeyCode::Tab,
+                                ..
+                            }) => {
                                 let paused = paused.load(Ordering::SeqCst);
                                 let elapsed_time = elapsed_time(
                                     *last_start_time.read().unwrap(),

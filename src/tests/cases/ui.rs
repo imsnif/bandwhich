@@ -13,9 +13,9 @@ use crate::tests::cases::test_utils::{
     sleep_and_quit_events, sleep_resize_and_quit_events, test_backend_factory,
 };
 use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{KeyEventKind, KeyEventState};
 use pnet_datalink::DataLinkReceiver;
 use std::iter;
-use crossterm::event::{KeyEventKind, KeyEventState};
 
 use crate::tests::fakes::TerminalEvents;
 

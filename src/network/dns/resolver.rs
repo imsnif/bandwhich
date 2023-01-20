@@ -13,9 +13,7 @@ pub trait Lookup {
 pub struct Resolver(TokioAsyncResolver);
 
 impl Resolver {
-    pub async fn new(
-        dns_server: &Option<Ipv4Addr>,
-    ) -> Result<Self, failure::Error> {
+    pub async fn new(dns_server: &Option<Ipv4Addr>) -> Result<Self, failure::Error> {
         let resolver = match dns_server {
             Some(dns_server_address) => {
                 let mut config = ResolverConfig::new();

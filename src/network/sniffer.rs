@@ -1,6 +1,5 @@
 use ::std::boxed::Box;
 
-use pnet_datalink::{DataLinkReceiver, NetworkInterface};
 use ::pnet::packet::ethernet::{EtherTypes, EthernetPacket};
 use ::pnet::packet::ip::{IpNextHeaderProtocol, IpNextHeaderProtocols};
 use ::pnet::packet::ipv4::Ipv4Packet;
@@ -8,6 +7,7 @@ use ::pnet::packet::ipv6::Ipv6Packet;
 use ::pnet::packet::tcp::TcpPacket;
 use ::pnet::packet::udp::UdpPacket;
 use ::pnet::packet::Packet;
+use pnet_datalink::{DataLinkReceiver, NetworkInterface};
 
 use ::ipnetwork::IpNetwork;
 use ::std::io::{self, Result};
