@@ -7,7 +7,7 @@ fn main() {
     }
 
     #[cfg(windows)]
-    download_winpcap_dll();
+    install_winpcap();
 }
 
 fn download_winpcap_sdk() {
@@ -35,12 +35,8 @@ fn download_winpcap_sdk() {
 
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
     let lib_dir = match target_arch.as_str() {
-        "x86_64" => {
-            "Lib/x64"
-        }
-        _ => {
-             "Lib"
-        }
+        "x86_64" => "Lib/x64",
+        _ => "Lib",
     };
 
     let lib_path = format!("{}/{}", lib_dir, lib_name);
@@ -63,8 +59,9 @@ fn download_winpcap_sdk() {
     println!("cargo:rustc-link-search=native={}/{}", out_dir, lib_dir);
 }
 
+#[allow(dead_code)]
 #[cfg(windows)]
-fn download_winpcap_dll() {
+fn install_winpcap() {
     use http_req::request;
     use std::fs::File;
     use std::io::prelude::*;
@@ -72,7 +69,7 @@ fn download_winpcap_dll() {
 
     let mut reader = Vec::new();
     let res = request::get(
-        "https://github.com/ttys3/bandwhich/releases/download/0.20.1/npcap.zip",
+        "https://github.com/ttys3/bandwhich/releases/download/0.20.1/winpcap-4.1.3.zip",
         &mut reader,
     )
     .unwrap();
@@ -83,7 +80,7 @@ fn download_winpcap_dll() {
         let _res = request::get(url, &mut reader).unwrap();
     }
 
-    let zip_path = format!("{}{}", "c:\\", "npcap.zip");
+    let zip_path = format!("{}{}", "c:\\", "winpcap-4.1.3.zip");
     let mut pcapzip = File::create(&zip_path).unwrap();
     pcapzip.write_all(reader.as_slice()).unwrap();
     pcapzip.flush().unwrap();
@@ -94,14 +91,13 @@ fn download_winpcap_dll() {
     archive.extract("c:\\").unwrap();
 
     let output = Command::new("cmd")
-        .env("NPCAP_DIR", "c:\\npcap")
-        .current_dir("c:\\npcap")
+        .current_dir("c:\\winpcap-4.1.3")
         .arg("/C")
-        .arg("FixInstall.bat")
+        .arg("winpcap-install.bat")
         .output()
         .expect("failed to execute process");
 
     if !output.status.success() {
-        panic!("CFixInstall.bat failing with error: {:?}", output);
+        panic!("winpcap-install.bat failed with error: {:?}", output);
     }
 }
