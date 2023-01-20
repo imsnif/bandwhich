@@ -2,7 +2,7 @@
 edition = "2021"
 name = "bandwhich"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.20.1"
+version = "0.20.2"
 homepage = "https://github.com/imsnif/bandwhich"
 repository = "https://github.com/imsnif/bandwhich"
 readme = "README.md"
@@ -32,7 +32,7 @@ regex = "1.7.1"
 lazy_static = "1.4.0"
 tokio = { version = "1.24", features = ["full"] }
 trust-dns-resolver = "0.22.0"
-async-trait = "0.1.61"
+async-trait = "0.1.62"
 unicode-width = "0.1.10"
 resolv-conf = "0.7.0"
 
