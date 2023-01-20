@@ -171,8 +171,7 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     #[test]
     fn test_iterator_multiline() {
         let iterator = RawConnections::new(String::from(FULL_RAW_OUTPUT));
-        let connections: Vec<RawConnection> = iterator.collect();
-        assert_eq!(connections.len(), 4);
+        assert_eq!(iterator.count(), 4);
     }
 
     #[test]
