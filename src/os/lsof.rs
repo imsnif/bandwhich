@@ -5,6 +5,7 @@ use crate::OpenSockets;
 
 use super::lsof_utils;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct RawConnection {
     ip: String,

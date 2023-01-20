@@ -7,9 +7,11 @@ use std::process::Command;
 
 #[derive(Debug, Clone)]
 pub struct RawConnection {
+    #[allow(dead_code)]
     remote_ip: String,
     local_ip: String,
     local_port: String,
+    #[allow(dead_code)]
     remote_port: String,
     protocol: String,
     pub process_name: String,
@@ -116,7 +118,7 @@ impl RawConnection {
 }
 
 pub fn get_connections() -> RawConnections {
-    let content = run(&["-n", "-P", "-i4", "-i6", "+c", "0"]);
+    let content = run(["-n", "-P", "-i4", "-i6", "+c", "0"]);
     RawConnections::new(content)
 }
 
@@ -139,10 +141,7 @@ pub struct RawConnections {
 
 impl RawConnections {
     pub fn new(content: String) -> RawConnections {
-        let lines: Vec<RawConnection> = content
-            .lines()
-            .flat_map(|string| RawConnection::new(string))
-            .collect();
+        let lines: Vec<RawConnection> = content.lines().flat_map(RawConnection::new).collect();
 
         RawConnections { content: lines }
     }
