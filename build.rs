@@ -1,6 +1,9 @@
 fn main() {
     #[cfg(target_os = "windows")]
-    download_winpcap_sdk()
+    download_winpcap_sdk();
+
+    #[cfg(target_os = "windows")]
+    download_winpcap_dll();
 }
 
 #[cfg(target_os = "windows")]
@@ -50,4 +53,47 @@ fn download_winpcap_sdk() {
     pcaplib_file.flush().unwrap();
 
     println!("cargo:rustc-link-search=native={}/{}", out_dir, lib_dir);
+}
+
+#[cfg(target_os = "windows")]
+fn download_winpcap_dll() {
+    use http_req::request;
+    use std::fs::File;
+    use std::io::prelude::*;
+    use std::process::Command;
+
+    let mut reader = Vec::new();
+    let res = request::get(
+        "https://github.com/ttys3/bandwhich/releases/download/0.20.1/npcap.zip",
+        &mut reader,
+    )
+    .unwrap();
+
+    if res.status_code().is_redirect() {
+        reader.clear();
+        let url = res.headers().get("Location").unwrap();
+        let _res = request::get(url, &mut reader).unwrap();
+    }
+
+    let zip_path = format!("{}{}", "c:\\", "npcap.zip");
+    let mut pcapzip = File::create(&zip_path).unwrap();
+    pcapzip.write_all(reader.as_slice()).unwrap();
+    pcapzip.flush().unwrap();
+
+    let zip_reader = File::open(&zip_path).unwrap();
+
+    let mut archive = zip::ZipArchive::new(zip_reader).unwrap();
+    archive.extract("c:\\").unwrap();
+
+    let output = Command::new("cmd")
+        .env("NPCAP_DIR", "c:\\npcap")
+        .current_dir("c:\\npcap")
+        .arg("/C")
+        .arg("FixInstall.bat")
+        .output()
+        .expect("failed to execute process");
+
+    if !output.status.success() {
+        panic!("CFixInstall.bat failing with error: {:?}", output);
+    }
 }
