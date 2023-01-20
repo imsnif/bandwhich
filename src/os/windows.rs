@@ -4,12 +4,13 @@ use netstat2::*;
 
 use crate::network::{LocalSocket, Protocol};
 use crate::OpenSockets;
-use sysinfo::{Pid, System, SystemExt, ProcessExt, PidExt};
+use sysinfo::{Pid, PidExt, ProcessExt, ProcessRefreshKind, RefreshKind, System, SystemExt};
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
 
-    let mut sysinfo = System::new_all();
+    let mut sysinfo =
+        System::new_with_specifics(RefreshKind::new().with_processes(ProcessRefreshKind::new()));
     sysinfo.refresh_processes();
 
     let af_flags = AddressFamilyFlags::IPV4 | AddressFamilyFlags::IPV6;
