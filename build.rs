@@ -15,11 +15,10 @@ fn download_winpcap_sdk() {
     let out_dir = env::var("OUT_DIR").unwrap();
 
     let mut reader = Vec::new();
-    let _res = request::get(
-        "https://nmap.org/npcap/dist/npcap-sdk-1.13.zip",
-        &mut reader,
-    )
-    .unwrap();
+    // curl -Ssf -I https://nmap.org/npcap/dist/npcap-sdk-1.13.zip | grep Location
+    // Location: https://npcap.com/dist/npcap-sdk-1.13.zip
+    // jayjamesjay/http_req does not support following redirect feature
+    let _res = request::get("https://npcap.com/dist/npcap-sdk-1.13.zip", &mut reader).unwrap();
 
     let mut pcapzip = File::create(format!("{}{}", out_dir, "/npcap.zip")).unwrap();
     pcapzip.write_all(reader.as_slice()).unwrap();
