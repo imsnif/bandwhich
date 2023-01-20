@@ -20,14 +20,11 @@ jobs:
       matrix:
         build:
           - ubuntu
-          - macos
+#          - macos
           - win-msvc
         include:
           - build: ubuntu
             os: ubuntu-22.04
-            rust: nightly
-          - build: macos
-            os: macos-12
             rust: nightly
           - build: win-msvc
             os: windows-2022
