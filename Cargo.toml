@@ -46,7 +46,7 @@ procfs = "0.14.2"
 [dev-dependencies]
 insta = "1.26.0"
 pnet_base = "0.31.0"
-packet-builder = "0.6.0"
+packet-builder = "0.7.0"
 regex = "1"
 
 [build-dependencies]
@@ -58,6 +58,3 @@ zip = "0.6.3"
 strip = true  # Automatically strip symbols from the binary.
 opt-level = "z"  # Optimize for size.
 lto = true
-
-[patch.crates-io]
-packet-builder = { git = 'https://github.com/ttys3/packet_builder.git', rev = 'af5b9b23ba0074a3b80810c725d8ed0eac32551c' }

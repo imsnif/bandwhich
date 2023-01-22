@@ -909,9 +909,9 @@ checksum = "ffbee8634e0d45d258acb448e7eaab3fce7a0a467395d4d9f228e3c1f01fb2e4"
 
 [[package]]
 name = "matches"
-version = "0.1.9"
+version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3e378b66a060d48947b590737b30a1be76706c8dd7b8ba0f2fe3989c68a853f"
+checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 
 [[package]]
 name = "memchr"
@@ -1104,8 +1104,9 @@ dependencies = [
 
 [[package]]
 name = "packet-builder"
-version = "0.6.0"
-source = "git+https://github.com/ttys3/packet_builder.git?rev=af5b9b23ba0074a3b80810c725d8ed0eac32551c#af5b9b23ba0074a3b80810c725d8ed0eac32551c"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b22c5a507d9d091cf1763cb8026e124368e7a9c6b6ce0737cf93bb83f30cd90"
 dependencies = [
  "derive-new",
  "ipnetwork",
@@ -1908,9 +1909,9 @@ dependencies = [
 
 [[package]]
 name = "unicode-bidi"
-version = "0.3.9"
+version = "0.3.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0046be40136ef78dc325e0edefccf84ccddacd0afcc1ca54103fa3c61bbdab1d"
+checksum = "d54675592c1dbefd78cbd98db9bacd89886e1ca50692a0692baefffdeb92dd58"
 
 [[package]]
 name = "unicode-ident"
