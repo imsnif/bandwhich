@@ -25,22 +25,22 @@ tui = { version = "0.12", default-features = false, features = ["crossterm"]}
 crossterm = "0.17.7"
 structopt = "0.3"
 chrono = "0.4"
-regex = "1.3.1"
+regex = "1.7.3"
 lazy_static = "1.4.0"
-tokio = { version = "1.0", features = ["rt-multi-thread", "sync"] }
+tokio = { version = "1.27", features = ["rt-multi-thread", "sync"] }
 trust-dns-resolver = "0.22.0"
-async-trait = "0.1.21"
-unicode-width = "0.1.8"
+async-trait = "0.1.68"
+unicode-width = "0.1.10"
 resolv-conf = "0.7.0"
 anyhow = "1.0.70"
 thiserror = "1.0.40"
 
 [target.'cfg(target_os="windows")'.dependencies]
-netstat2 = "0.9.0"
-sysinfo = "0.15.1"
+netstat2 = "0.9.1"
+sysinfo = "0.28.4"
 
 [target.'cfg(target_os="linux")'.dependencies]
-procfs = "0.7.4"
+procfs = "0.7.9"
 
 [dev-dependencies]
 insta = "0.12.0"
@@ -50,5 +50,5 @@ packet-builder = "0.5.0"
 regex = "1"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
-http_req = "0.7.0"
-zip = "0.5.6"
+http_req = "0.9.1"
+zip = "0.6.4"
