@@ -3,6 +3,7 @@ use crate::tests::fakes::{
     create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames,
 };
 
+use crossterm::event::{KeyEventKind, KeyEventState};
 use ::insta::assert_snapshot;
 
 use ::std::collections::HashMap;
@@ -71,16 +72,22 @@ fn pause_by_space() {
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::NONE,
         code: KeyCode::Char(' '),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::NONE,
     })));
     events.push(None);
     events.push(None);
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::NONE,
         code: KeyCode::Char(' '),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::NONE,
     })));
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::CONTROL,
         code: KeyCode::Char('c'),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::NONE,
     })));
 
     let events = Box::new(TerminalEvents::new(events));
@@ -131,12 +138,16 @@ fn rearranged_by_tab() {
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::NONE,
         code: KeyCode::Tab,
+        kind: KeyEventKind::Press,
+        state: KeyEventState::NONE,
     })));
     events.push(None);
     events.push(None);
     events.push(Some(Event::Key(KeyEvent {
         modifiers: KeyModifiers::CONTROL,
         code: KeyCode::Char('c'),
+        kind: KeyEventKind::Press,
+        state: KeyEventState::NONE,
     })));
 
     let events = Box::new(TerminalEvents::new(events));

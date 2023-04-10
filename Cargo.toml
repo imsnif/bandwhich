@@ -21,8 +21,8 @@ exclude = ["src/tests/*", "demo.gif"]
 [dependencies]
 pnet = "0.26.0"
 ipnetwork = "0.16.0"
-tui = { version = "0.12", default-features = false, features = ["crossterm"]}
-crossterm = "0.17.7"
+tui = "0.19"
+crossterm = "0.26.1"
 structopt = "0.3"
 chrono = "0.4"
 regex = "1.7.3"
