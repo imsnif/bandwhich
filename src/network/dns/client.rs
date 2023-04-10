@@ -22,7 +22,7 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new<R>(resolver: R, mut runtime: Runtime) -> Result<Self, failure::Error>
+    pub fn new<R>(resolver: R, runtime: Runtime) -> Result<Self, anyhow::Error>
     where
         R: Lookup + Send + Sync + 'static,
     {

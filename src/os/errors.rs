@@ -1,44 +1,9 @@
-use std::fmt;
+use thiserror::Error;
 
-use failure::{Backtrace, Context, Fail};
-
-#[derive(Debug)]
-pub struct GetInterfaceError {
-    inner: Context<GetInterfaceErrorKind>,
-}
-
-impl From<GetInterfaceErrorKind> for GetInterfaceError {
-    fn from(kind: GetInterfaceErrorKind) -> GetInterfaceError {
-        GetInterfaceError {
-            inner: Context::new(kind),
-        }
-    }
-}
-
-impl From<Context<GetInterfaceErrorKind>> for GetInterfaceError {
-    fn from(inner: Context<GetInterfaceErrorKind>) -> GetInterfaceError {
-        GetInterfaceError { inner }
-    }
-}
-#[derive(Clone, Eq, PartialEq, Debug, Fail)]
-pub enum GetInterfaceErrorKind {
-    #[fail(display = "{}", _0)]
+#[derive(Clone, Eq, PartialEq, Debug, Error)]
+pub enum GetInterfaceError {
+    #[error("{0}")]
     PermissionError(String),
-    #[fail(display = "{}", _0)]
+    #[error("{0}")]
     OtherError(String),
-}
-impl Fail for GetInterfaceError {
-    fn cause(&self) -> Option<&dyn Fail> {
-        self.inner.cause()
-    }
-
-    fn backtrace(&self) -> Option<&Backtrace> {
-        self.inner.backtrace()
-    }
-}
-
-impl fmt::Display for GetInterfaceError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(&self.inner, f)
-    }
 }

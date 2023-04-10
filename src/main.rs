@@ -6,6 +6,7 @@ mod os;
 #[cfg(test)]
 mod tests;
 
+use anyhow::Context;
 use display::{elapsed_time, RawTerminalBackend, Ui};
 use network::{
     dns::{self, IpTable},
@@ -77,7 +78,7 @@ fn main() {
     }
 }
 
-fn try_main() -> Result<(), failure::Error> {
+fn try_main() -> Result<(), anyhow::Error> {
     use os::get_input;
     let opts = Opt::from_args();
     let os_input = get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
@@ -86,16 +87,10 @@ fn try_main() -> Result<(), failure::Error> {
         let terminal_backend = RawTerminalBackend {};
         start(terminal_backend, os_input, opts);
     } else {
-        match terminal::enable_raw_mode() {
-            Ok(()) => {
-                let stdout = std::io::stdout();
-                let terminal_backend = CrosstermBackend::new(stdout);
-                start(terminal_backend, os_input, opts);
-            }
-            Err(_) => failure::bail!(
-                "Failed to get stdout: if you are trying to pipe 'bandwhich' you should use the --raw flag"
-            ),
-        }
+        terminal::enable_raw_mode().context("Failed to get stdout: if you are trying to pipe 'bandwhich' you should use the --raw flag")?;
+        let stdout = std::io::stdout();
+        let terminal_backend = CrosstermBackend::new(stdout);
+        start(terminal_backend, os_input, opts);
     }
     Ok(())
 }
