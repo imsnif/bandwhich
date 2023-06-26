@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use std::net::IpAddr;
 use std::net::SocketAddr;
 use std::net::{Ipv4Addr, SocketAddrV4};
-use tokio::runtime::Handle;
 use trust_dns_resolver::config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts};
+use trust_dns_resolver::TokioHandle;
 use trust_dns_resolver::{error::ResolveErrorKind, TokioAsyncResolver};
 
 #[async_trait]
@@ -15,7 +15,7 @@ pub struct Resolver(TokioAsyncResolver);
 
 impl Resolver {
     pub async fn new(
-        runtime: Handle,
+        runtime: TokioHandle,
         dns_server: &Option<Ipv4Addr>,
     ) -> Result<Self, failure::Error> {
         let resolver = match dns_server {
@@ -23,15 +23,11 @@ impl Resolver {
                 let mut config = ResolverConfig::new();
                 let options = ResolverOpts::default();
                 let socket = SocketAddr::V4(SocketAddrV4::new(*dns_server_address, 53));
-                let nameserver_config = NameServerConfig {
-                    socket_addr: socket,
-                    protocol: Protocol::Udp,
-                    tls_dns_name: None,
-                };
+                let nameserver_config = NameServerConfig::new(socket, Protocol::Udp);
                 config.add_name_server(nameserver_config);
-                TokioAsyncResolver::new(config, options, runtime).await?
+                TokioAsyncResolver::new(config, options, runtime)?
             }
-            None => TokioAsyncResolver::from_system_conf(runtime).await?,
+            None => TokioAsyncResolver::from_system_conf(runtime)?,
         };
         Ok(Self(resolver))
     }

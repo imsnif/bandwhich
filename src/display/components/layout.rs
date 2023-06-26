@@ -37,12 +37,12 @@ impl<'a> Layout<'a> {
             .into_iter()
             .fold(vec![rect], |mut layout, direction| {
                 let last_rect = layout.pop().unwrap();
-                let mut halves = ::tui::layout::Layout::default()
+                let halves = ::tui::layout::Layout::default()
                     .direction(direction)
                     .margin(0)
                     .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
                     .split(last_rect);
-                layout.append(&mut halves);
+                layout.append(&mut halves.to_vec());
                 layout
             })
     }

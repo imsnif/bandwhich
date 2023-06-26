@@ -226,10 +226,12 @@ where
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::CONTROL,
                                 code: KeyCode::Char('c'),
+                                ..
                             })
                             | Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
                                 code: KeyCode::Char('q'),
+                                ..
                             }) => {
                                 running.store(false, Ordering::Release);
                                 display_handler.unpark();
@@ -242,6 +244,7 @@ where
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
                                 code: KeyCode::Char(' '),
+                                ..
                             }) => {
                                 let restarting = paused.fetch_xor(true, Ordering::SeqCst);
                                 if restarting {
@@ -260,6 +263,7 @@ where
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
                                 code: KeyCode::Tab,
+                                ..
                             }) => {
                                 let paused = paused.load(Ordering::SeqCst);
                                 let elapsed_time = elapsed_time(
