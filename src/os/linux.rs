@@ -10,13 +10,13 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut inode_to_procname = HashMap::new();
 
     if let Ok(all_procs) = procfs::process::all_processes() {
-        for process in all_procs {
-            if let Ok(fds) = process.fd() {
-                let procname = process.stat.comm;
-                for fd in fds {
-                    if let FDTarget::Socket(inode) = fd.target {
-                        inode_to_procname.insert(inode, procname.clone());
-                    }
+        for process in all_procs.filter_map(|res| res.ok()) {
+            let Ok(fds) = process.fd() else { continue };
+            let Ok(stat) = process.stat() else { continue };
+            let procname = stat.comm;
+            for fd in fds.filter_map(|res| res.ok()) {
+                if let FDTarget::Socket(inode) = fd.target {
+                    inode_to_procname.insert(inode, procname.clone());
                 }
             }
         }

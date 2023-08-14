@@ -19,38 +19,36 @@ license = "MIT"
 exclude = ["src/tests/*", "demo.gif"]
 
 [dependencies]
-pnet = "0.26.0"
-ipnetwork = "0.16.0"
-tui = { version = "0.12", default-features = false, features = ["crossterm"]}
-crossterm = "0.17.7"
+pnet = "0.34.0"
+ipnetwork = "0.20.0"
+tui = { version = "0.19", default-features = false, features = ["crossterm"]}
+crossterm = "0.27.0"
 structopt = "0.3"
 failure = "0.1.8"
 chrono = "0.4"
 regex = "1.9.3"
 lazy_static = "1.4.0"
-tokio = { version = "0.2", features = ["rt-core", "sync"] }
-trust-dns-resolver = "0.18.1"
+tokio = { version = "1.31", features = ["rt", "sync"] }
+trust-dns-resolver = "0.22.0"
 async-trait = "0.1.73"
 unicode-width = "0.1.10"
 resolv-conf = "0.7.0"
+pnet_macros_support = "0.34.0"
 
 [target.'cfg(target_os="windows")'.dependencies]
 netstat2 = "0.9.1"
-sysinfo = "0.15.9"
+sysinfo = "0.29.8"
 
 [target.'cfg(target_os="linux")'.dependencies]
-procfs = "0.7.9"
+procfs = "0.15.1"
 
 [dev-dependencies]
-insta = "0.12.0"
-pnet_base = "0.26.0"
-cargo-insta = "0.11.0"
-packet-builder = "0.5.0"
+insta = "1.31.0"
+pnet_base = "0.34.0"
+cargo-insta = "1.31.0"
+packet-builder = "0.7.0"
 regex = "1"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
-http_req = "0.7.2"
-zip = "0.5.13"
-
-[patch.crates-io]
-resolv-conf = { git = 'https://github.com/tailhook/resolv-conf', rev = '83c0f25ebcb0615550488692c5213ca1ae4acd8f' }
+http_req = "0.9.2"
+zip = "0.6.6"

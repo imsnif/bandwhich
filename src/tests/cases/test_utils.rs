@@ -19,20 +19,20 @@ use pnet_base::MacAddr;
 
 pub fn sleep_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();
-    events.push(Some(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::CONTROL,
-        code: KeyCode::Char('c'),
-    })));
+    events.push(Some(Event::Key(KeyEvent::new(
+        KeyCode::Char('c'),
+        KeyModifiers::CONTROL,
+    ))));
     Box::new(TerminalEvents::new(events))
 }
 
 pub fn sleep_resize_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();
     events.push(Some(Event::Resize(100, 100)));
-    events.push(Some(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::CONTROL,
-        code: KeyCode::Char('c'),
-    })));
+    events.push(Some(Event::Key(KeyEvent::new(
+        KeyCode::Char('c'),
+        KeyModifiers::CONTROL,
+    ))));
     Box::new(TerminalEvents::new(events))
 }
 

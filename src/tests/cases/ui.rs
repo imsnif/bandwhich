@@ -68,20 +68,20 @@ fn pause_by_space() {
 
     // sleep for 1s, then press space, sleep for 2s, then quit
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
-    events.push(Some(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::NONE,
-        code: KeyCode::Char(' '),
-    })));
+    events.push(Some(Event::Key(KeyEvent::new(
+        KeyCode::Char(' '),
+        KeyModifiers::NONE,
+    ))));
     events.push(None);
     events.push(None);
-    events.push(Some(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::NONE,
-        code: KeyCode::Char(' '),
-    })));
-    events.push(Some(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::CONTROL,
-        code: KeyCode::Char('c'),
-    })));
+    events.push(Some(Event::Key(KeyEvent::new(
+        KeyCode::Char(' '),
+        KeyModifiers::NONE,
+    ))));
+    events.push(Some(Event::Key(KeyEvent::new(
+        KeyCode::Char('c'),
+        KeyModifiers::CONTROL,
+    ))));
 
     let events = Box::new(TerminalEvents::new(events));
     let os_input = os_input_output_factory(network_frames, None, None, events);
@@ -128,16 +128,16 @@ fn rearranged_by_tab() {
     // sleep for 1s, then press tab, sleep for 2s, then quit
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
     events.push(None);
-    events.push(Some(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::NONE,
-        code: KeyCode::Tab,
-    })));
+    events.push(Some(Event::Key(KeyEvent::new(
+        KeyCode::Tab,
+        KeyModifiers::NONE,
+    ))));
     events.push(None);
     events.push(None);
-    events.push(Some(Event::Key(KeyEvent {
-        modifiers: KeyModifiers::CONTROL,
-        code: KeyCode::Char('c'),
-    })));
+    events.push(Some(Event::Key(KeyEvent::new(
+        KeyCode::Char('c'),
+        KeyModifiers::CONTROL,
+    ))));
 
     let events = Box::new(TerminalEvents::new(events));
     let os_input = os_input_output_factory(network_frames, None, None, events);
