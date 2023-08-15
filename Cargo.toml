@@ -11,7 +11,7 @@ authors = [
   "Eduardo Toledo <etoledom@icloud.com>",
   "Eduardo Broto <ebroto@tutanota.com>",
   "Kelvin Zhang <zhangxp1998@gmail.com>",
-  "Brooks Rady <b.j.rady@gmail.com>"
+  "Brooks Rady <b.j.rady@gmail.com>",
 ]
 keywords = ["networking", "utilization", "cli"]
 categories = ["network-programming", "command-line-utilities"]
@@ -21,7 +21,7 @@ exclude = ["src/tests/*", "demo.gif"]
 [dependencies]
 pnet = "0.34.0"
 ipnetwork = "0.20.0"
-tui = { version = "0.19", default-features = false, features = ["crossterm"]}
+tui = { version = "0.19", default-features = false, features = ["crossterm"] }
 crossterm = "0.27.0"
 structopt = "0.3"
 failure = "0.1.8"
@@ -46,7 +46,7 @@ procfs = "0.15.1"
 insta = "1.31.0"
 pnet_base = "0.34.0"
 cargo-insta = "1.31.0"
-packet-builder = "0.7.0"
+packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-update" }
 regex = "1"
 
 [target.'cfg(target_os="windows")'.build-dependencies]

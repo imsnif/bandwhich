@@ -13,7 +13,6 @@ use std::collections::HashMap;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 
-use packet_builder::payload::PayloadData;
 use pnet::packet::Packet;
 use pnet_base::MacAddr;
 
