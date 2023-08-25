@@ -124,7 +124,6 @@ dependencies = [
  "http_req",
  "insta",
  "ipnetwork",
- "lazy_static",
  "netstat2",
  "packet-builder",
  "pnet",
