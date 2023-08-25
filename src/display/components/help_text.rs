@@ -1,9 +1,11 @@
-use ::ratatui::backend::Backend;
-use ::ratatui::layout::{Alignment, Rect};
-use ::ratatui::style::{Modifier, Style};
-use ::ratatui::terminal::Frame;
-use ::ratatui::text::Span;
-use ::ratatui::widgets::Paragraph;
+use ratatui::{
+    backend::Backend,
+    layout::{Alignment, Rect},
+    style::{Modifier, Style},
+    terminal::Frame,
+    text::Span,
+    widgets::Paragraph,
+};
 
 pub struct HelpText {
     pub paused: bool,

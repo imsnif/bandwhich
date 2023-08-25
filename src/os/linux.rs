@@ -1,9 +1,11 @@
-use ::std::collections::HashMap;
+use std::collections::HashMap;
 
-use ::procfs::process::FDTarget;
+use procfs::process::FDTarget;
 
-use crate::network::{LocalSocket, Protocol};
-use crate::OpenSockets;
+use crate::{
+    network::{LocalSocket, Protocol},
+    OpenSockets,
+};
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
@@ -22,8 +24,8 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
         }
     }
 
-    if let Ok(mut tcp) = ::procfs::net::tcp() {
-        if let Ok(mut tcp6) = ::procfs::net::tcp6() {
+    if let Ok(mut tcp) = procfs::net::tcp() {
+        if let Ok(mut tcp6) = procfs::net::tcp6() {
             tcp.append(&mut tcp6);
         }
         for entry in tcp.into_iter() {
@@ -40,8 +42,8 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
         }
     }
 
-    if let Ok(mut udp) = ::procfs::net::udp() {
-        if let Ok(mut udp6) = ::procfs::net::udp6() {
+    if let Ok(mut udp) = procfs::net::udp() {
+        if let Ok(mut udp6) = procfs::net::udp6() {
             udp.append(&mut udp6);
         }
         for entry in udp.into_iter() {

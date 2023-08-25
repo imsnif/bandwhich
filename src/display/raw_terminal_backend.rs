@@ -7,10 +7,10 @@
 // that implements the Backend TUI trait, but does nothing
 // this way, we don't need to create the TermionBackend
 // and thus skew our stdout when we don't need it
-use ::ratatui::backend::Backend;
-use ::ratatui::buffer::Cell;
-use ::ratatui::layout::Rect;
-use ::std::io;
+
+use std::io;
+
+use ratatui::{backend::Backend, buffer::Cell, layout::Rect};
 
 pub struct RawTerminalBackend {}
 

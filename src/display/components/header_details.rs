@@ -1,11 +1,15 @@
+use std::time::{Duration, Instant};
+
+use ratatui::{
+    backend::Backend,
+    layout::{Alignment, Rect},
+    style::{Color, Modifier, Style},
+    terminal::Frame,
+    text::Span,
+    widgets::Paragraph,
+};
+
 use crate::display::{DisplayBandwidth, UIState};
-use ::ratatui::backend::Backend;
-use ::ratatui::layout::{Alignment, Rect};
-use ::ratatui::style::{Color, Modifier, Style};
-use ::ratatui::terminal::Frame;
-use ::ratatui::text::Span;
-use ::ratatui::widgets::Paragraph;
-use ::std::time::{Duration, Instant};
 
 const SECONDS_IN_DAY: u64 = 86400;
 

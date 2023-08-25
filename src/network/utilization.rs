@@ -1,6 +1,6 @@
-use crate::network::{Connection, Direction, Segment};
+use std::collections::HashMap;
 
-use ::std::collections::HashMap;
+use crate::network::{Connection, Direction, Segment};
 
 #[derive(Clone)]
 pub struct ConnectionInfo {

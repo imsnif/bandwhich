@@ -1,24 +1,23 @@
-use crate::tests::fakes::TerminalEvent::*;
-use crate::tests::fakes::{
-    create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames,
-};
+use std::{collections::HashMap, iter, net::IpAddr};
 
-use ::insta::assert_snapshot;
-
-use ::std::collections::HashMap;
-use ::std::net::IpAddr;
-
-use crate::tests::cases::test_utils::{
-    build_tcp_packet, opts_ui, os_input_output, os_input_output_factory, sample_frames,
-    sleep_and_quit_events, sleep_resize_and_quit_events, test_backend_factory,
-};
-use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use insta::assert_snapshot;
 use pnet::datalink::DataLinkReceiver;
-use std::iter;
 
-use crate::tests::fakes::TerminalEvents;
-
-use crate::{start, Opt, OsInputOutput, RenderOpts};
+use crate::{
+    start,
+    tests::{
+        cases::test_utils::{
+            build_tcp_packet, opts_ui, os_input_output, os_input_output_factory, sample_frames,
+            sleep_and_quit_events, sleep_resize_and_quit_events, test_backend_factory,
+        },
+        fakes::{
+            create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames,
+            TerminalEvent::*, TerminalEvents,
+        },
+    },
+    Opt, OsInputOutput, RenderOpts,
+};
 
 #[test]
 fn basic_startup() {

@@ -1,19 +1,24 @@
-use crate::tests::fakes::{create_fake_dns_client, NetworkFrames};
+use std::{
+    collections::HashMap,
+    net::IpAddr,
+    sync::{Arc, Mutex},
+};
 
-use ::insta::assert_snapshot;
-use ::std::sync::{Arc, Mutex};
-
-use ::std::collections::HashMap;
-use ::std::net::IpAddr;
-
+use insta::assert_snapshot;
 use packet_builder::*;
 use pnet::{datalink::DataLinkReceiver, packet::Packet};
 
-use crate::tests::cases::test_utils::{
-    build_tcp_packet, opts_raw, os_input_output_dns, os_input_output_stdout, test_backend_factory,
+use crate::{
+    start,
+    tests::{
+        cases::test_utils::{
+            build_tcp_packet, opts_raw, os_input_output_dns, os_input_output_stdout,
+            test_backend_factory,
+        },
+        fakes::{create_fake_dns_client, NetworkFrames},
+    },
+    Opt, RenderOpts,
 };
-
-use crate::{start, Opt, RenderOpts};
 
 fn build_ip_tcp_packet(
     source_ip: &str,

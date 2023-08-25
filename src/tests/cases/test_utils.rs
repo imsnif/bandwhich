@@ -1,20 +1,23 @@
-use crate::tests::fakes::{
-    create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvent,
-    TerminalEvents, TestBackend,
+use std::{
+    collections::HashMap,
+    io::Write,
+    iter,
+    sync::{Arc, Mutex},
 };
-use std::iter;
 
-use crate::network::dns::Client;
-use crate::{Opt, OsInputOutput, RenderOpts};
-use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use packet_builder::*;
-use pnet::datalink::DataLinkReceiver;
-use std::collections::HashMap;
-use std::io::Write;
-use std::sync::{Arc, Mutex};
-
-use pnet::packet::Packet;
+use pnet::{datalink::DataLinkReceiver, packet::Packet};
 use pnet_base::MacAddr;
+
+use crate::{
+    network::dns::Client,
+    tests::fakes::{
+        create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvent,
+        TerminalEvents, TestBackend,
+    },
+    Opt, OsInputOutput, RenderOpts,
+};
 
 pub fn sleep_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
     let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();

@@ -1,8 +1,8 @@
-use ::std::collections::HashMap;
-use ::std::fmt;
-use ::std::net::IpAddr;
-
-use ::std::net::SocketAddr;
+use std::{
+    collections::HashMap,
+    fmt,
+    net::{IpAddr, SocketAddr},
+};
 
 #[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Debug, Copy)]
 pub enum Protocol {
@@ -11,10 +11,7 @@ pub enum Protocol {
 }
 
 impl Protocol {
-    // Currently, linux implementation doesn't use this function.
-    // Without this #[cfg] clippy complains about dead code, and CI refuses
-    // to pass.
-    #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+    #[allow(dead_code)]
     pub fn from_str(string: &str) -> Option<Self> {
         match string {
             "TCP" => Some(Protocol::Tcp),

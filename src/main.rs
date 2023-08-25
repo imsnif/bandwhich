@@ -6,28 +6,29 @@ mod os;
 #[cfg(test)]
 mod tests;
 
+use std::{
+    collections::HashMap,
+    net::Ipv4Addr,
+    process,
+    sync::{
+        atomic::{AtomicBool, AtomicUsize, Ordering},
+        Arc, Mutex, RwLock,
+    },
+    thread::{self, park_timeout},
+    time::{Duration, Instant},
+};
+
+use crossterm::{
+    event::{Event, KeyCode, KeyEvent, KeyModifiers},
+    terminal,
+};
 use display::{elapsed_time, RawTerminalBackend, Ui};
 use network::{
     dns::{self, IpTable},
     LocalSocket, Sniffer, Utilization,
 };
-
-use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use ::crossterm::terminal;
-use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
-use ::ratatui::backend::Backend;
-use ::std::collections::HashMap;
-use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use ::std::sync::{Arc, Mutex};
-use ::std::thread;
-use ::std::thread::park_timeout;
-
-use std::process;
-
-use ::ratatui::backend::CrosstermBackend;
-use ::std::net::Ipv4Addr;
-use ::std::time::{Duration, Instant};
-use std::sync::RwLock;
+use pnet::datalink::{DataLinkReceiver, NetworkInterface};
+use ratatui::backend::{Backend, CrosstermBackend};
 use structopt::StructOpt;
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);

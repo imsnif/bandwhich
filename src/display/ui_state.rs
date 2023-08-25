@@ -1,8 +1,10 @@
-use ::std::cmp;
-use ::std::collections::{HashMap, HashSet, VecDeque};
-use ::std::hash::Hash;
-use ::std::iter::FromIterator;
-use ::std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::{
+    cmp,
+    collections::{HashMap, HashSet, VecDeque},
+    hash::Hash,
+    iter::FromIterator,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+};
 
 use crate::network::{Connection, LocalSocket, Utilization};
 

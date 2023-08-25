@@ -1,14 +1,16 @@
-use crate::network::dns::{resolver::Lookup, IpTable};
 use std::{
     collections::HashSet,
     net::IpAddr,
     sync::{Arc, Mutex},
     thread::{Builder, JoinHandle},
 };
+
 use tokio::{
     runtime::Runtime,
     sync::mpsc::{self, Sender},
 };
+
+use crate::network::dns::{resolver::Lookup, IpTable};
 
 type PendingAddrs = HashSet<IpAddr>;
 

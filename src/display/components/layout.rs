@@ -1,16 +1,16 @@
-use ::ratatui::backend::Backend;
-use ::ratatui::layout::{Constraint, Direction, Rect};
-use ::ratatui::terminal::Frame;
+use ratatui::{
+    backend::Backend,
+    layout::{Constraint, Direction, Rect},
+    terminal::Frame,
+};
 
-use super::HeaderDetails;
-use super::HelpText;
-use super::Table;
+use crate::display::{HeaderDetails, HelpText, Table};
 
 const FIRST_HEIGHT_BREAKPOINT: u16 = 30;
 const FIRST_WIDTH_BREAKPOINT: u16 = 120;
 
 fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
-    let parts = ::ratatui::layout::Layout::default()
+    let parts = ratatui::layout::Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
         .constraints(
@@ -37,7 +37,7 @@ impl<'a> Layout<'a> {
             .into_iter()
             .fold(vec![rect], |mut layout, direction| {
                 let last_rect = layout.pop().unwrap();
-                let halves = ::ratatui::layout::Layout::default()
+                let halves = ratatui::layout::Layout::default()
                     .direction(direction)
                     .margin(0)
                     .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
@@ -74,12 +74,12 @@ impl<'a> Layout<'a> {
             self.progressive_split(rect, vec![Direction::Vertical])
         } else {
             // default layout
-            let halves = ::ratatui::layout::Layout::default()
+            let halves = ratatui::layout::Layout::default()
                 .direction(Direction::Vertical)
                 .margin(0)
                 .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
                 .split(rect);
-            let top_quarters = ::ratatui::layout::Layout::default()
+            let top_quarters = ratatui::layout::Layout::default()
                 .direction(Direction::Horizontal)
                 .margin(0)
                 .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())

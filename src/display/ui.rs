@@ -1,17 +1,16 @@
-use ::std::collections::HashMap;
+use std::{collections::HashMap, net::IpAddr, time::Duration};
 
-use ::ratatui::backend::Backend;
-use ::ratatui::Terminal;
-
-use crate::display::components::{HeaderDetails, HelpText, Layout, Table};
-use crate::display::UIState;
-use crate::network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization};
-
-use ::std::net::IpAddr;
-
-use crate::RenderOpts;
 use chrono::prelude::*;
-use std::time::Duration;
+use ratatui::{backend::Backend, Terminal};
+
+use crate::{
+    display::{
+        components::{HeaderDetails, HelpText, Layout, Table},
+        UIState,
+    },
+    network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization},
+    RenderOpts,
+};
 
 pub struct Ui<B>
 where

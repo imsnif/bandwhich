@@ -1,15 +1,14 @@
-use ::crossterm::event::read;
-use ::crossterm::event::Event;
-use ::pnet::datalink::Channel::Ethernet;
-use ::pnet::datalink::DataLinkReceiver;
-use ::pnet::datalink::{self, Config, NetworkInterface};
-use ::std::io::{self, ErrorKind, Write};
-use ::tokio::runtime::Runtime;
+use std::{
+    io::{self, ErrorKind, Write},
+    net::Ipv4Addr,
+    time,
+};
 
-use ::std::net::Ipv4Addr;
-use ::std::time;
+use crossterm::event::{read, Event};
+use pnet::datalink::{self, Channel::Ethernet, Config, DataLinkReceiver, NetworkInterface};
+use tokio::runtime::Runtime;
 
-use crate::os::errors::GetInterfaceError;
+use crate::{network::dns, os::errors::GetInterfaceError, OsInputOutput};
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
@@ -17,8 +16,6 @@ use crate::os::linux::get_open_sockets;
 use crate::os::lsof::get_open_sockets;
 #[cfg(target_os = "windows")]
 use crate::os::windows::get_open_sockets;
-
-use crate::{network::dns, OsInputOutput};
 
 pub struct TerminalEvents;
 

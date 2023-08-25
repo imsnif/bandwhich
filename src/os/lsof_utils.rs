@@ -1,9 +1,9 @@
-use crate::network::Protocol;
+use std::{ffi::OsStr, net::IpAddr, process::Command};
+
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::ffi::OsStr;
-use std::net::IpAddr;
-use std::process::Command;
+
+use crate::network::Protocol;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone)]

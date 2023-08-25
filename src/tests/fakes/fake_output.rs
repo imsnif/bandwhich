@@ -1,9 +1,10 @@
-use ::ratatui::backend::Backend;
-use ::ratatui::buffer::Cell;
-use ::ratatui::layout::Rect;
-use ::std::collections::HashMap;
-use ::std::io;
-use ::std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    io,
+    sync::{Arc, Mutex},
+};
+
+use ratatui::{backend::Backend, buffer::Cell, layout::Rect};
 
 #[derive(Hash, Debug, PartialEq)]
 pub enum TerminalEvent {

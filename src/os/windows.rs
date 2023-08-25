@@ -3,8 +3,10 @@ use std::collections::HashMap;
 use netstat2::*;
 use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
 
-use crate::network::{LocalSocket, Protocol};
-use crate::OpenSockets;
+use crate::{
+    network::{LocalSocket, Protocol},
+    OpenSockets,
+};
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();

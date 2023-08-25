@@ -1,9 +1,11 @@
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
+
 use async_trait::async_trait;
-use std::net::IpAddr;
-use std::net::SocketAddr;
-use std::net::{Ipv4Addr, SocketAddrV4};
-use trust_dns_resolver::config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts};
-use trust_dns_resolver::{error::ResolveErrorKind, TokioAsyncResolver};
+use trust_dns_resolver::{
+    config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts},
+    error::ResolveErrorKind,
+    TokioAsyncResolver,
+};
 
 #[async_trait]
 pub trait Lookup {

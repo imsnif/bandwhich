@@ -1,17 +1,22 @@
-use ::std::collections::{BTreeMap, HashMap};
-use ::std::iter::FromIterator;
-use ::unicode_width::UnicodeWidthChar;
+use std::{
+    collections::{BTreeMap, HashMap},
+    iter::FromIterator,
+    net::IpAddr,
+};
 
-use ::ratatui::backend::Backend;
-use ::ratatui::layout::{Constraint, Rect};
-use ::ratatui::style::{Color, Style};
-use ::ratatui::terminal::Frame;
-use ::ratatui::widgets::{Block, Borders, Row};
+use ratatui::{
+    backend::Backend,
+    layout::{Constraint, Rect},
+    style::{Color, Style},
+    terminal::Frame,
+    widgets::{Block, Borders, Row},
+};
+use unicode_width::UnicodeWidthChar;
 
-use crate::display::{Bandwidth, DisplayBandwidth, UIState};
-use crate::network::{display_connection_string, display_ip_or_host};
-
-use ::std::net::IpAddr;
+use crate::{
+    display::{Bandwidth, DisplayBandwidth, UIState},
+    network::{display_connection_string, display_ip_or_host},
+};
 
 fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> String {
     format!(
@@ -292,7 +297,7 @@ impl<'a> Table<'a> {
         let table_rows = rows.map(|row| Row::new(row).style(Style::default()));
         let width_constraints: Vec<Constraint> =
             widths.iter().map(|w| Constraint::Length(*w)).collect();
-        let table = ::ratatui::widgets::Table::new(table_rows)
+        let table = ratatui::widgets::Table::new(table_rows)
             .block(Block::default().title(self.title).borders(Borders::ALL))
             .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
             .widths(&width_constraints)
