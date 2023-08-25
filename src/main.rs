@@ -73,7 +73,7 @@ pub struct RenderOpts {
 
 fn main() {
     if let Err(err) = try_main() {
-        eprintln!("Error: {}", err);
+        eprintln!("Error: {err}");
         process::exit(2);
     }
 }

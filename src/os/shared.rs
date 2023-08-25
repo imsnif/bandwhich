@@ -49,8 +49,8 @@ pub(crate) fn get_datalink_channel(
                 interface.name.to_owned(),
             )),
             _ => Err(GetInterfaceError::OtherError(format!(
-                "{}: {}",
-                &interface.name, e
+                "{}: {e}",
+                &interface.name
             ))),
         },
     }
@@ -97,7 +97,7 @@ where
                     GetInterfaceError::PermissionError(interface_name) => {
                         if let Some(prev_interface) = acc.permission {
                             return UserErrors {
-                                permission: Some(format!("{}, {}", prev_interface, interface_name)),
+                                permission: Some(format!("{prev_interface}, {interface_name}")),
                                 ..acc
                             };
                         } else {
@@ -110,12 +110,12 @@ where
                     error => {
                         if let Some(prev_errors) = acc.other {
                             return UserErrors {
-                                other: Some(format!("{} \n {}", prev_errors, error)),
+                                other: Some(format!("{prev_errors} \n {error}")),
                                 ..acc
                             };
                         } else {
                             return UserErrors {
-                                other: Some(format!("{}", error)),
+                                other: Some(format!("{error}")),
                                 ..acc
                             };
                         }
@@ -128,19 +128,17 @@ where
     if let Some(interface_name) = errors.permission {
         if let Some(other_errors) = errors.other {
             format!(
-                "\n\n{}: {} \nAdditional Errors: \n {}",
-                interface_name,
+                "\n\n{interface_name}: {} \nAdditional Errors: \n {other_errors}",
                 eperm_message(),
-                other_errors
             )
         } else {
-            format!("\n\n{}: {}", interface_name, eperm_message())
+            format!("\n\n{interface_name}: {}", eperm_message())
         }
     } else {
         let other_errors = errors
             .other
             .expect("asked to collect errors but found no errors");
-        format!("\n\n {}", other_errors)
+        format!("\n\n {other_errors}")
     }
 }
 
@@ -153,7 +151,7 @@ pub fn get_input(
         match get_interface(name) {
             Some(interface) => vec![interface],
             None => {
-                anyhow::bail!("Cannot find interface {}", name);
+                anyhow::bail!("Cannot find interface {name}");
                 // the homebrew formula relies on this wording, please be careful when changing
             }
         }
@@ -205,8 +203,7 @@ pub fn get_input(
         let resolver = match runtime.block_on(dns::Resolver::new(dns_server)) {
             Ok(resolver) => resolver,
             Err(err) => anyhow::bail!(
-                "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
-                err
+                "Could not initialize the DNS resolver. Are you offline?\n\nReason: {err:?}"
             ),
         };
         let dns_client = dns::Client::new(resolver, runtime)?;

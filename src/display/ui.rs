@@ -52,9 +52,7 @@ where
                                    no_traffic: &mut bool| {
             for (process, process_network_data) in &state.processes {
                 write_to_stdout(format!(
-                    "process: <{}> \"{}\" up/down Bps: {}/{} connections: {}",
-                    timestamp,
-                    process,
+                    "process: <{timestamp}> \"{process}\" up/down Bps: {}/{} connections: {}",
                     process_network_data.total_bytes_uploaded,
                     process_network_data.total_bytes_downloaded,
                     process_network_data.connection_count
@@ -67,8 +65,7 @@ where
             |write_to_stdout: &mut (dyn FnMut(String) + Send), no_traffic: &mut bool| {
                 for (connection, connection_network_data) in &state.connections {
                     write_to_stdout(format!(
-                        "connection: <{}> {} up/down Bps: {}/{} process: \"{}\"",
-                        timestamp,
+                        "connection: <{timestamp}> {} up/down Bps: {}/{} process: \"{}\"",
                         display_connection_string(
                             connection,
                             ip_to_host,
@@ -86,8 +83,7 @@ where
                                      no_traffic: &mut bool| {
             for (remote_address, remote_address_network_data) in &state.remote_addresses {
                 write_to_stdout(format!(
-                    "remote_address: <{}> {} up/down Bps: {}/{} connections: {}",
-                    timestamp,
+                    "remote_address: <{timestamp}> {} up/down Bps: {}/{} connections: {}",
                     display_ip_or_host(*remote_address, ip_to_host),
                     remote_address_network_data.total_bytes_uploaded,
                     remote_address_network_data.total_bytes_downloaded,

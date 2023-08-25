@@ -62,8 +62,7 @@ pub fn display_connection_string(
     interface_name: &str,
 ) -> String {
     format!(
-        "<{}>:{} => {}:{} ({})",
-        interface_name,
+        "<{interface_name}>:{} => {}:{} ({})",
         connection.local_socket.port,
         display_ip_or_host(connection.remote_socket.ip, ip_to_host),
         connection.remote_socket.port,

@@ -19,7 +19,7 @@ fn download_windows_pcap_sdk() {
 
     let mut pcap_zip = Vec::new();
     let res = request::get("https://npcap.com/dist/npcap-sdk-1.13.zip", &mut pcap_zip).unwrap();
-    eprintln!("{:?}", res);
+    eprintln!("{res:?}");
 
     let lib_dir = if cfg!(target_arch = "aarch64") {
         "Lib/ARM64"
@@ -31,20 +31,20 @@ fn download_windows_pcap_sdk() {
         panic!("Unsupported target!")
     };
     let lib_name = "Packet.lib";
-    let lib_path = format!("{}/{}", lib_dir, lib_name);
+    let lib_path = format!("{lib_dir}/{lib_name}");
 
     let mut archive = ZipArchive::new(io::Cursor::new(pcap_zip)).unwrap();
     let mut pcap_lib = match archive.by_name(&lib_path) {
         Ok(lib) => lib,
         Err(err) => {
-            panic!("{}", err);
+            panic!("{err}");
         }
     };
 
-    fs::create_dir_all(format!("{}/{}", out_dir, lib_dir)).unwrap();
-    let mut pcap_lib_file = fs::File::create(format!("{}/{}", out_dir, lib_path)).unwrap();
+    fs::create_dir_all(format!("{out_dir}/{lib_dir}")).unwrap();
+    let mut pcap_lib_file = fs::File::create(format!("{out_dir}/{lib_path}")).unwrap();
     io::copy(&mut pcap_lib, &mut pcap_lib_file).unwrap();
     pcap_lib_file.flush().unwrap();
 
-    println!("cargo:rustc-link-search=native={}/{}", out_dir, lib_dir);
+    println!("cargo:rustc-link-search=native={out_dir}/{lib_dir}");
 }

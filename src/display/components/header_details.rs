@@ -102,7 +102,7 @@ impl<'a> HeaderDetails<'a> {
         match self.elapsed_time.as_secs() / SECONDS_IN_DAY {
             0 => "".to_string(),
             1 => "1 day, ".to_string(),
-            n => format!("{} days, ", n),
+            n => format!("{n} days, "),
         }
     }
 

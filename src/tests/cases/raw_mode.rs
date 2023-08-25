@@ -42,7 +42,7 @@ fn format_raw_output(output: Vec<u8>) -> String {
     use regex::Regex;
     let timestamp = Regex::new(r"<\d+>").unwrap();
     let replaced = timestamp.replace_all(&stdout_utf8, "<TIMESTAMP_REMOVED>");
-    format!("{}", replaced)
+    format!("{replaced}")
 }
 
 #[test]
