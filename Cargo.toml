@@ -1,5 +1,5 @@
 [package]
-edition = "2018"
+edition = "2021"
 name = "bandwhich"
 description = "Display current network utilization by process, connection and remote IP/hostname"
 version = "0.20.0"
