@@ -1,11 +1,11 @@
 use crate::display::{DisplayBandwidth, UIState};
+use ::ratatui::backend::Backend;
+use ::ratatui::layout::{Alignment, Rect};
+use ::ratatui::style::{Color, Modifier, Style};
+use ::ratatui::terminal::Frame;
+use ::ratatui::text::Span;
+use ::ratatui::widgets::Paragraph;
 use ::std::time::{Duration, Instant};
-use ::tui::backend::Backend;
-use ::tui::layout::{Alignment, Rect};
-use ::tui::style::{Color, Modifier, Style};
-use ::tui::terminal::Frame;
-use ::tui::text::Span;
-use ::tui::widgets::Paragraph;
 
 const SECONDS_IN_DAY: u64 = 86400;
 

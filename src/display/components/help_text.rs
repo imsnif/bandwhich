@@ -1,9 +1,9 @@
-use ::tui::backend::Backend;
-use ::tui::layout::{Alignment, Rect};
-use ::tui::style::{Modifier, Style};
-use ::tui::terminal::Frame;
-use ::tui::text::Span;
-use ::tui::widgets::Paragraph;
+use ::ratatui::backend::Backend;
+use ::ratatui::layout::{Alignment, Rect};
+use ::ratatui::style::{Modifier, Style};
+use ::ratatui::terminal::Frame;
+use ::ratatui::text::Span;
+use ::ratatui::widgets::Paragraph;
 
 pub struct HelpText {
     pub paused: bool,
