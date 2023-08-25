@@ -42,6 +42,9 @@ sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
 
 #### macOS/Linux (using Homebrew)
 
+On Linux, make sure the install directory is added to `$PATH`. See [documentation](https://docs.brew.sh/Homebrew-on-Linux#install).
+You may also want to [make `sudo` preserve your `$PATH` environment variable](https://unix.stackexchange.com/q/83191/375550).
+
 ```
 brew install bandwhich
 ```
