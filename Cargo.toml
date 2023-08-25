@@ -26,7 +26,6 @@ ipnetwork = "0.20.0"
 ratatui = "0.22.0"
 crossterm = "0.27.0"
 structopt = "0.3"
-failure = "0.1.8"
 chrono = "0.4"
 regex = "1.9.3"
 lazy_static = "1.4.0"
@@ -36,6 +35,8 @@ async-trait = "0.1.73"
 unicode-width = "0.1.10"
 resolv-conf = "0.7.0"
 pnet_macros_support = "0.34.0"
+anyhow = { version = "1.0.75", features = ["backtrace"] }
+thiserror = "1.0.47"
 
 [target.'cfg(target_os="windows")'.dependencies]
 netstat2 = "0.9.1"

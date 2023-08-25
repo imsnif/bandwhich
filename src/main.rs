@@ -77,7 +77,7 @@ fn main() {
     }
 }
 
-fn try_main() -> Result<(), failure::Error> {
+fn try_main() -> anyhow::Result<()> {
     use os::get_input;
     let opts = Opt::from_args();
     let os_input = get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
@@ -94,7 +94,7 @@ fn try_main() -> Result<(), failure::Error> {
                 let terminal_backend = CrosstermBackend::new(stdout);
                 start(terminal_backend, os_input, opts);
             }
-            Err(_) => failure::bail!(
+            Err(_) => anyhow::bail!(
                 "Failed to get stdout: if you are trying to pipe 'bandwhich' you should use the --raw flag"
             ),
         }
