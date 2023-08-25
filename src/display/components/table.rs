@@ -96,8 +96,8 @@ impl<'a> Table<'a> {
             .map(|(connection, connection_data)| {
                 vec![
                     display_connection_string(
-                        &connection,
-                        &ip_to_host,
+                        connection,
+                        ip_to_host,
                         &connection_data.interface_name,
                     ),
                     connection_data.process_name.to_string(),
@@ -201,7 +201,7 @@ impl<'a> Table<'a> {
             .remote_addresses
             .iter()
             .map(|(remote_address, data_for_remote_address)| {
-                let remote_address = display_ip_or_host(*remote_address, &ip_to_host);
+                let remote_address = display_ip_or_host(*remote_address, ip_to_host);
                 vec![
                     remote_address,
                     data_for_remote_address.connection_count.to_string(),
@@ -289,12 +289,12 @@ impl<'a> Table<'a> {
             ],
         });
 
-        let table_rows = rows.map(|row| Row::StyledData(row.into_iter(), Style::default()));
+        let table_rows = rows.map(|row| Row::new(row).style(Style::default()));
         let width_constraints: Vec<Constraint> =
             widths.iter().map(|w| Constraint::Length(*w)).collect();
-        let table = ::tui::widgets::Table::new(column_names.into_iter(), table_rows)
+        let table = ::tui::widgets::Table::new(table_rows)
             .block(Block::default().title(self.title).borders(Borders::ALL))
-            .header_style(Style::default().fg(Color::Yellow))
+            .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
             .widths(&width_constraints)
             .style(Style::default())
             .column_spacing(column_spacing);

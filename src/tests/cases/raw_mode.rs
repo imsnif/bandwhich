@@ -6,10 +6,8 @@ use ::std::sync::{Arc, Mutex};
 use ::std::collections::HashMap;
 use ::std::net::IpAddr;
 
-use packet_builder::payload::PayloadData;
 use packet_builder::*;
-use pnet::datalink::DataLinkReceiver;
-use pnet::packet::Packet;
+use pnet::{datalink::DataLinkReceiver, packet::Packet};
 
 use crate::tests::cases::test_utils::{
     build_tcp_packet, opts_raw, os_input_output_dns, os_input_output_stdout, test_backend_factory,

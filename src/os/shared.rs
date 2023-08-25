@@ -153,7 +153,7 @@ pub fn get_input(
     dns_server: &Option<Ipv4Addr>,
 ) -> Result<OsInputOutput, failure::Error> {
     let network_interfaces = if let Some(name) = interface_name {
-        match get_interface(&name) {
+        match get_interface(name) {
             Some(interface) => vec![interface],
             None => {
                 failure::bail!("Cannot find interface {}", name);
@@ -164,7 +164,7 @@ pub fn get_input(
         datalink::interfaces()
     };
 
-    #[cfg(any(target_os = "windows"))]
+    #[cfg(target_os = "windows")]
     let network_frames = network_interfaces
         .iter()
         .filter(|iface| !iface.ips.is_empty())
@@ -204,15 +204,14 @@ pub fn get_input(
     let keyboard_events = Box::new(TerminalEvents);
     let write_to_stdout = create_write_to_stdout();
     let dns_client = if resolve {
-        let mut runtime = Runtime::new()?;
-        let resolver =
-            match runtime.block_on(dns::Resolver::new(runtime.handle().clone(), dns_server)) {
-                Ok(resolver) => resolver,
-                Err(err) => failure::bail!(
-                    "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
-                    err
-                ),
-            };
+        let runtime = Runtime::new()?;
+        let resolver = match runtime.block_on(dns::Resolver::new(dns_server)) {
+            Ok(resolver) => resolver,
+            Err(err) => failure::bail!(
+                "Could not initialize the DNS resolver. Are you offline?\n\nReason: {:?}",
+                err
+            ),
+        };
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
     } else {
@@ -250,7 +249,7 @@ fn eperm_message() -> &'static str {
 }
 
 #[inline]
-#[cfg(any(target_os = "windows"))]
+#[cfg(target_os = "windows")]
 fn eperm_message() -> &'static str {
     "Insufficient permissions to listen on network interface(s). Try running with administrator rights."
 }

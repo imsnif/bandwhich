@@ -1,11 +1,10 @@
-use ::std::collections::HashMap;
+use std::collections::HashMap;
 
-use ::sysinfo::ProcessExt;
 use netstat2::*;
+use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
 
 use crate::network::{LocalSocket, Protocol};
 use crate::OpenSockets;
-use sysinfo::{Pid, System, SystemExt};
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
@@ -21,7 +20,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
         for si in sockets_info {
             let mut procname = String::new();
             for pid in si.associated_pids {
-                if let Some(process) = sysinfo.get_process(pid as Pid) {
+                if let Some(process) = sysinfo.process(Pid::from_u32(pid)) {
                     procname = String::from(process.name());
                     break;
                 }

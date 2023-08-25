@@ -12,38 +12,22 @@ jobs:
       RUST_BACKTRACE: 1
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        build:
-          - stable
-          - macos
-          - win-msvc
-        include:
-          - build: stable
-            os: ubuntu-18.04
-            rust: stable
-          - build: macos
-            os: macos-latest
-            rust: stable
-          - build: win-msvc
-            os: windows-2019
-            rust: stable
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, nightly]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
-          profile: minimal
-          override: true
           components: rustfmt, clippy
 
       - name: Check formatting
         run: cargo fmt --all -- --check
-
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Build
         run: cargo build --verbose
@@ -51,31 +35,34 @@ jobs:
       # This is useful for debugging problems when the expected build artifacts
       # (like shell completions and man pages) aren't generated.
       - name: Show build.rs stderr
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           set +x
-          stderr="$(find "./target/debug" -name stderr -print0 | xargs -0 ls -t | head -n1)"
-          if [ -s "$stderr" ]; then
-            echo "===== $stderr ===== "
-            cat "$stderr"
+          mapfile -d '' -t STDERR_FILES < <(find "./target/debug" -name stderr -print0 | grep -z bandwhich)
+          for FILE in "${STDERR_FILES[@]}"; do
+            echo "===== $FILE ===== "
+            cat "$FILE"
             echo "====="
-          fi
+          done
           set -x
+
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Run tests
         run: cargo test --verbose
 
       - name: Upload unix binary
-        if: matrix.os != 'windows-2019'
-        uses: actions/upload-artifact@v1
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: target/debug/bandwhich
 
       - name: Upload windows binary
-        if: matrix.os == 'windows-2019'
-        uses: actions/upload-artifact@v2
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: |

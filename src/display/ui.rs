@@ -130,10 +130,10 @@ where
         let state = &self.state;
         let children = self.get_tables_to_display();
         self.terminal
-            .draw(|mut frame| {
+            .draw(|frame| {
                 let size = frame.size();
                 let total_bandwidth = HeaderDetails {
-                    state: &state,
+                    state,
                     elapsed_time,
                     paused,
                 };
@@ -143,7 +143,7 @@ where
                     children,
                     footer: help_text,
                 };
-                layout.render(&mut frame, size, ui_offset);
+                layout.render(frame, size, ui_offset);
             })
             .unwrap();
     }
