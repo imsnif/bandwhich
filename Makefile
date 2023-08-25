@@ -17,7 +17,7 @@ BIN=target/$(TARGET)/$(APP)
 BIN_DST=$(DESTDIR)$(prefix)/bin/$(APP)
 DOC_DST=$(DESTDIR)$(prefix)/share/man/man1/bandwhich.1
 LIC_DST=$(DESTDIR)$(prefix)/share/licenses/$(APP)
-AUTOCOMPLETE_DST=/usr/share/bash-completion/completions
+AUTOCOMPLETE_DST=$(DESTDIR)$(prefix)/share/bash-completion/completions
 SRC = Makefile Cargo.lock Cargo.toml $(shell find src -type f -wholename 'src/*.rs')
 
 .PHONY: all clean distclean install uninstall vendor install_autocomplete
@@ -38,7 +38,7 @@ endif
 
 install_autocomplete:
 	mkdir -p $(AUTOCOMPLETE_DST)
-	cp src/bandwhich $(AUTOCOMPLETE_DST)/bandwhich
+	cp completion/bandwhich $(AUTOCOMPLETE_DST)/bandwhich
 
 uninstall_autocomplete:
 	rm -f $(AUTOCOMPLETE_DST)/bandwhich
