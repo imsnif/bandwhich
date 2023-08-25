@@ -5,6 +5,7 @@ use std::ffi::OsStr;
 use std::net::IpAddr;
 use std::process::Command;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct RawConnection {
     remote_ip: String,
@@ -116,7 +117,7 @@ impl RawConnection {
 }
 
 pub fn get_connections() -> RawConnections {
-    let content = run(&["-n", "-P", "-i4", "-i6", "+c", "0"]);
+    let content = run(["-n", "-P", "-i4", "-i6", "+c", "0"]);
     RawConnections::new(content)
 }
 
@@ -139,10 +140,7 @@ pub struct RawConnections {
 
 impl RawConnections {
     pub fn new(content: String) -> RawConnections {
-        let lines: Vec<RawConnection> = content
-            .lines()
-            .flat_map(|string| RawConnection::new(string))
-            .collect();
+        let lines: Vec<RawConnection> = content.lines().flat_map(RawConnection::new).collect();
 
         RawConnections { content: lines }
     }

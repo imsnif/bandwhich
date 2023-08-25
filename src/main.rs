@@ -288,7 +288,7 @@ where
     let sniffer_threads = os_input
         .network_interfaces
         .into_iter()
-        .zip(os_input.network_frames.into_iter())
+        .zip(os_input.network_frames)
         .map(|(iface, frames)| {
             let name = format!("sniffing_handler_{}", iface.name);
             let running = running.clone();
