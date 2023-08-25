@@ -1,6 +1,5 @@
-use std::{ffi::OsStr, net::IpAddr, process::Command};
+use std::{ffi::OsStr, net::IpAddr, process::Command, sync::OnceLock};
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 use crate::network::Protocol;
@@ -16,11 +15,8 @@ pub struct RawConnection {
     pub process_name: String,
 }
 
-lazy_static! {
-    static ref CONNECTION_REGEX: Regex =
-        Regex::new(r"\[?([^\s\]]*)\]?:(\d+)->\[?([^\s\]]*)\]?:(\d+)").unwrap();
-    static ref LISTEN_REGEX: Regex = Regex::new(r"\[?([^\s\[\]]*)\]?:(.*)").unwrap();
-}
+static CONNECTION_REGEX_ONCE: OnceLock<Regex> = OnceLock::new();
+static LISTEN_REGEX: OnceLock<Regex> = OnceLock::new();
 
 fn get_null_addr(ip_type: &str) -> &str {
     if ip_type.contains('4') {
@@ -32,6 +28,10 @@ fn get_null_addr(ip_type: &str) -> &str {
 
 impl RawConnection {
     pub fn new(raw_line: &str) -> Option<RawConnection> {
+        let connection_regex = CONNECTION_REGEX_ONCE
+            .get_or_init(|| Regex::new(r"\[?([^\s\]]*)\]?:(\d+)->\[?([^\s\]]*)\]?:(\d+)").unwrap());
+        let listen_regex =
+            LISTEN_REGEX.get_or_init(|| Regex::new(r"\[?([^\s\[\]]*)\]?:(.*)").unwrap());
         // Example row
         // com.apple   664     user  198u  IPv4 0xeb179a6650592b8d      0t0    TCP 192.168.1.187:58535->1.2.3.4:443 (ESTABLISHED)
         let columns: Vec<&str> = raw_line.split_ascii_whitespace().collect();
@@ -57,7 +57,7 @@ impl RawConnection {
         // "(LISTEN)" or "(ESTABLISHED)",  this column may or may not be present
         // let connection_state = columns[9];
         // If this socket is in a "connected" state
-        if let Some(caps) = CONNECTION_REGEX.captures(connection_str) {
+        if let Some(caps) = connection_regex.captures(connection_str) {
             // Example
             // 192.168.1.187:64230->0.1.2.3:5228
             // *:*
@@ -75,7 +75,7 @@ impl RawConnection {
                 process_name,
             };
             Some(connection)
-        } else if let Some(caps) = LISTEN_REGEX.captures(connection_str) {
+        } else if let Some(caps) = listen_regex.captures(connection_str) {
             let local_ip = if caps.get(1).unwrap().as_str() == "*" {
                 get_null_addr(ip_type)
             } else {
