@@ -12,6 +12,7 @@ authors = [
   "Eduardo Broto <ebroto@tutanota.com>",
   "Kelvin Zhang <zhangxp1998@gmail.com>",
   "Brooks Rady <b.j.rady@gmail.com>",
+  "cyqsimon <28627918+cyqsimon@users.noreply.github.com>",
 ]
 keywords = ["networking", "utilization", "cli"]
 categories = ["network-programming", "command-line-utilities"]
