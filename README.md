@@ -4,30 +4,31 @@
 
 This is a CLI utility for displaying current network utilization by process, connection and remote IP/hostname
 
-# Table of contents
+## Table of contents
 
 - [bandwhich](#bandwhich)
-  * [How does it work?](#how-does-it-work-)
-  * [Installation](#installation)
-    + [Download a prebuilt binary](#download-a-prebuilt-binary)
-    + [Arch Linux](#arch-linux)
-    + [Nix/NixOS](#nix-nixos)
-    + [Void Linux](#void-linux)
-    + [Fedora](#fedora)
-    + [macOS/Linux (using Homebrew)](#macos-linux--using-homebrew-)
-    + [macOS (using MacPorts)](#macos--using-macports-)
-    + [FreeBSD](#freebsd)
-    + [Building from source using `cargo`](#building-from-source-using--cargo-)
-    + [OpenWRT](#openwrt)
-  * [Post install (Linux)](#post-install--linux-)
-    + [1. `setcap`](#1--setcap-)
+  - [Table of contents](#table-of-contents)
+  - [How does it work?](#how-does-it-work)
+  - [Installation](#installation)
+    - [Download a prebuilt binary](#download-a-prebuilt-binary)
+    - [Arch Linux](#arch-linux)
+    - [Nix/NixOS](#nixnixos)
+    - [Void Linux](#void-linux)
+    - [Fedora](#fedora)
+    - [macOS/Linux (using Homebrew)](#macoslinux-using-homebrew)
+    - [macOS (using MacPorts)](#macos-using-macports)
+    - [FreeBSD](#freebsd)
+    - [Building from source using `cargo`](#building-from-source-using-cargo)
+    - [OpenWRT](#openwrt)
+  - [Post install (Linux)](#post-install-linux)
+    - [1. `setcap`](#1-setcap)
       - [Capabilities explained](#capabilities-explained)
-    + [2. `sudo` (or alternative)](#2--sudo---or-alternative-)
-  * [Post install (Windows)](#post-install--windows-)
-  * [Usage](#usage)
-  * [raw_mode](#raw-mode)
-  * [Contributing](#contributing)
-  * [License](#license)
+    - [2. `sudo` (or alternative)](#2-sudo-or-alternative)
+  - [Post install (Windows)](#post-install-windows)
+  - [Usage](#usage)
+  - [raw\_mode](#raw_mode)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## How does it work?
 
