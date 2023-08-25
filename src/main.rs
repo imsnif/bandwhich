@@ -15,19 +15,18 @@ use network::{
 use ::crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use ::crossterm::terminal;
 use ::pnet::datalink::{DataLinkReceiver, NetworkInterface};
+use ::ratatui::backend::Backend;
 use ::std::collections::HashMap;
 use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use ::std::sync::{Arc, Mutex};
 use ::std::thread;
 use ::std::thread::park_timeout;
-use ::ratatui::backend::Backend;
 
 use std::process;
 
-use ::std::io::Write;
+use ::ratatui::backend::CrosstermBackend;
 use ::std::net::Ipv4Addr;
 use ::std::time::{Duration, Instant};
-use ::ratatui::backend::CrosstermBackend;
 use std::sync::RwLock;
 use structopt::StructOpt;
 
