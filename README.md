@@ -1,24 +1,51 @@
-## bandwhich
+# bandwhich
 
 ![demo](demo.gif)
 
 This is a CLI utility for displaying current network utilization by process, connection and remote IP/hostname
 
-### How does it work?
+# Table of contents
+
+- [bandwhich](#bandwhich)
+  * [How does it work?](#how-does-it-work-)
+  * [Installation](#installation)
+    + [Download a prebuilt binary](#download-a-prebuilt-binary)
+    + [Arch Linux](#arch-linux)
+    + [Nix/NixOS](#nix-nixos)
+    + [Void Linux](#void-linux)
+    + [Fedora](#fedora)
+    + [macOS/Linux (using Homebrew)](#macos-linux--using-homebrew-)
+    + [macOS (using MacPorts)](#macos--using-macports-)
+    + [FreeBSD](#freebsd)
+    + [Building from source using `cargo`](#building-from-source-using--cargo-)
+    + [OpenWRT](#openwrt)
+  * [Post install (Linux)](#post-install--linux-)
+    + [1. `setcap`](#1--setcap-)
+      - [Capabilities explained](#capabilities-explained)
+    + [2. `sudo` (or alternative)](#2--sudo---or-alternative-)
+  * [Post install (Windows)](#post-install--windows-)
+  * [Usage](#usage)
+  * [raw_mode](#raw-mode)
+  * [Contributing](#contributing)
+  * [License](#license)
+
+## How does it work?
+
 `bandwhich` sniffs a given network interface and records IP packet size, cross referencing it with the `/proc` filesystem on linux, `lsof` on macOS, or using WinApi on windows. It is responsive to the terminal window size, displaying less info if there is no room for it. It will also attempt to resolve ips to their host name in the background using reverse DNS on a best effort basis.
 
-### Installation
+## Installation
 
-#### Download a prebuilt binary
+### Download a prebuilt binary
+
 If you're on linux, you can download the generic binary from the releases.
 
-#### Arch Linux
+### Arch Linux
 
 ```
 pacman -S bandwhich
 ```
 
-#### Nix/NixOS
+### Nix/NixOS
 
 `bandwhich` is available in [`nixpkgs`](https://github.com/nixos/nixpkgs/blob/master/pkgs/tools/networking/bandwhich/default.nix), and can be installed, for example, with `nix-env`:
 
@@ -26,13 +53,13 @@ pacman -S bandwhich
 nix-env -iA nixpkgs.bandwhich
 ```
 
-#### Void Linux
+### Void Linux
 
 ```
 xbps-install -S bandwhich
 ```
 
-#### Fedora
+### Fedora
 
 `bandwhich` is available in [COPR](https://copr.fedorainfracloud.org/coprs/atim/bandwhich/), and can be installed via DNF:
 
@@ -40,23 +67,20 @@ xbps-install -S bandwhich
 sudo dnf copr enable atim/bandwhich -y && sudo dnf install bandwhich
 ```
 
-#### macOS/Linux (using Homebrew)
-
-On Linux, make sure the install directory is added to `$PATH`. See [documentation](https://docs.brew.sh/Homebrew-on-Linux#install).
-You may also want to [make `sudo` preserve your `$PATH` environment variable](https://unix.stackexchange.com/q/83191/375550).
+### macOS/Linux (using Homebrew)
 
 ```
 brew install bandwhich
 ```
 
-#### macOS (using MacPorts)
+### macOS (using MacPorts)
 
 ```
 sudo port selfupdate
 sudo port install bandwhich
 ```
 
-#### FreeBSD
+### FreeBSD
 
 ```
 pkg install bandwhich
@@ -68,9 +92,11 @@ or
 cd /usr/ports/net-mgmt/bandwhich && make install clean
 ```
 
-#### Windows / Other Linux flavours
+### Building from source using `cargo`
 
-`bandwhich` can be installed using the Rust package manager, cargo. It might be in your distro repositories if you're on linux, or you can install it via [rustup](https://rustup.rs/). You can find additional installation instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html).
+`bandwhich` can be installed using the Rust package manager, `cargo`.
+It might be in your distro repositories if you're on linux, or you can install it via [rustup](https://rustup.rs/).
+You can find additional installation instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html).
 
 The minimum supported Rust version is **1.65.0**.
 
@@ -78,19 +104,7 @@ The minimum supported Rust version is **1.65.0**.
 cargo install bandwhich
 ```
 
-##### On Linux, after installing with cargo:
-Cargo installs `bandwhich` to `~/.cargo/bin/bandwhich` but you need root privileges to run `bandwhich`. To fix that, there are a few options:
-- Give the executable elevated permissions: ``sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep $(which bandwhich)`` 
-- Run `sudo ~/.cargo/bin/bandwhich` instead of just `bandwhich`
-- Create a symlink: `sudo ln -s ~/.cargo/bin/bandwhich /usr/local/bin/` (or another path on root's PATH)
-- Set root's PATH to match your own: `sudo env "PATH=$PATH" bandwhich`
-- Tell sudo to use your user's environment variables: `sudo -E bandwhich`
-- Pass the desired target directory to cargo: `sudo cargo install bandwhich --root /usr/local/bin/`
-
-##### On Windows, after installing with cargo:
-You might need to first install [npcap](https://nmap.org/npcap/) for capturing packets on windows.
-
-#### OpenWRT
+### OpenWRT
 
 To install `bandwhich` on OpenWRT, you'll need to compile a binary that would fit its processor architecture. This might mean you would have to cross compile if, for example, you're working on an `x86_64` and the OpenWRT is installed on an `arm7`.
 Here is an example of cross compiling in this situation:
@@ -102,7 +116,51 @@ Here is an example of cross compiling in this situation:
 - Copy the binary files from `target/armv7-unknown-linux-musleabihf/debug/bandwhich` to the router using `scp` by running `scp bandwhich root@192.168.1.1:~/` (here, 192.168.1.1 would be the IP address of your router).
 - Finally enter the router using ssh and run the binary directly with `./bandwhich`
 
-### Usage
+## Post install (Linux)
+
+Since `bandwhich` sniffs network packets, it requires elevated privileges.
+On Linux, there are two main ways to accomplish this:
+
+### 1. `setcap`
+
+- Permanently allow the `bandwhich` binary its required privileges (called "capabilities" in Linux).
+- **This is the recommended method**, because the privilege control is more fine-grained.
+
+```bash
+# assign capabilities
+sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep $(command -v bandwhich)
+# run as unprivileged user
+bandwhich
+```
+
+#### Capabilities explained
+- `cap_sys_ptrace,cap_dac_read_search`: allow access to `/proc/<pid>/fd/`, so that `bandwhich` can determine which open port belongs to which process.
+- `cap_net_raw,cap_net_admin`: allow capturing packets on your system.
+
+### 2. `sudo` (or alternative)
+
+- If you are feeling lazy, there's this way as well.
+
+```bash
+sudo bandwhich
+```
+
+Note that if your installation method installed `bandwhich` to somewhere in
+your home directory (you can check with `command -v bandwhich`), you may get a
+`command not found` error. This is because in many distributions, `sudo` by
+default does not keep your user's `$PATH` for safety concerns.
+
+To overcome this, you can do any one of the following:
+1. [make `sudo` preserve your `$PATH` environment variable](https://unix.stackexchange.com/q/83191/375550);
+2. explicitly set `$PATH` while running `bandwhich`: `sudo env "PATH=$PATH" bandwhich`;
+3. pass the full path to `sudo`: `sudo $(command -v bandwhich)`.
+
+## Post install (Windows)
+
+You might need to first install [npcap](https://npcap.com/#download) for capturing packets on Windows.
+
+## Usage
+
 ```
 USAGE:
     bandwhich [FLAGS] [OPTIONS]
@@ -123,22 +181,16 @@ OPTIONS:
     -d, --dns-server <dns-server>    A dns server ip to use instead of the system default
 ```
 
-**Note that since `bandwhich` sniffs network packets, it requires root privileges** - so you might want to use it with (for example) `sudo`.
+## raw_mode
 
-On Linux, you can give the `bandwhich` binary a permanent capability to use the required privileges, so that you don't need to use `sudo bandwhich` anymore:
-
-```bash
-sudo setcap cap_sys_ptrace,cap_dac_read_search,cap_net_raw,cap_net_admin+ep $(command -v bandwhich)
-```
-`cap_sys_ptrace,cap_dac_read_search` gives `bandwhich` capability to list `/proc/<pid>/fd/` and resolve symlinks in that directory. It needs this capability to determine which opened port belongs to which process. `cap_net_raw,cap_net_admin` gives `bandwhich` capability to capture packets on your system.
-
-
-### raw_mode
 `bandwhich` also supports an easier-to-parse mode that can be piped or redirected to a file. For example, try:
+
 ```
 bandwhich --raw | grep firefox
 ```
-### Contributing
+
+## Contributing
+
 Contributions of any kind are very welcome. If you'd like a new feature (or found a bug), please open an issue or a PR.
 
 To set up your development environment:
@@ -151,5 +203,6 @@ Note that at the moment the tests do not test the os layer (anything in the `os`
 
 If you are stuck, unsure about how to approach an issue or would like some guidance, you are welcome to contact: aram@poor.dev
 
-### License
+## License
+
 MIT
