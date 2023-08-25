@@ -153,7 +153,7 @@ pub fn get_input(
     dns_server: &Option<Ipv4Addr>,
 ) -> Result<OsInputOutput, failure::Error> {
     let network_interfaces = if let Some(name) = interface_name {
-        match get_interface(&name) {
+        match get_interface(name) {
             Some(interface) => vec![interface],
             None => {
                 failure::bail!("Cannot find interface {}", name);
@@ -164,7 +164,7 @@ pub fn get_input(
         datalink::interfaces()
     };
 
-    #[cfg(any(target_os = "windows"))]
+    #[cfg(target_os = "windows")]
     let network_frames = network_interfaces
         .iter()
         .filter(|iface| !iface.ips.is_empty())
@@ -249,7 +249,7 @@ fn eperm_message() -> &'static str {
 }
 
 #[inline]
-#[cfg(any(target_os = "windows"))]
+#[cfg(target_os = "windows")]
 fn eperm_message() -> &'static str {
     "Insufficient permissions to listen on network interface(s). Try running with administrator rights."
 }
