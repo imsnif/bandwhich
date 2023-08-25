@@ -1,0 +1,24 @@
+---
+source: src/tests/cases/raw_mode.rs
+expression: formatted
+---
+Refreshing:
+<NO TRAFFIC>
+
+Refreshing:
+process: <TIMESTAMP_REMOVED> "1" up/down Bps: 28/30 connections: 1
+process: <TIMESTAMP_REMOVED> "5" up/down Bps: 17/18 connections: 1
+connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12345 (tcp) up/down Bps: 28/30 process: "1"
+connection: <TIMESTAMP_REMOVED> <interface_name>:4435 => 3.3.3.3:1337 (tcp) up/down Bps: 17/18 process: "5"
+remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 28/30 connections: 1
+remote_address: <TIMESTAMP_REMOVED> 3.3.3.3 up/down Bps: 17/18 connections: 1
+
+Refreshing:
+process: <TIMESTAMP_REMOVED> "1" up/down Bps: 31/32 connections: 1
+process: <TIMESTAMP_REMOVED> "5" up/down Bps: 22/27 connections: 1
+connection: <TIMESTAMP_REMOVED> <interface_name>:443 => one.one.one.one:12345 (tcp) up/down Bps: 31/32 process: "1"
+connection: <TIMESTAMP_REMOVED> <interface_name>:4435 => three.three.three.three:1337 (tcp) up/down Bps: 22/27 process: "5"
+remote_address: <TIMESTAMP_REMOVED> one.one.one.one up/down Bps: 31/32 connections: 1
+remote_address: <TIMESTAMP_REMOVED> three.three.three.three up/down Bps: 22/27 connections: 1
+
+

@@ -1,0 +1,14 @@
+---
+source: src/tests/cases/raw_mode.rs
+expression: formatted
+---
+Refreshing:
+<NO TRAFFIC>
+
+Refreshing:
+process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/47 connections: 2
+connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12346 (tcp) up/down Bps: 0/25 process: "1"
+connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12345 (tcp) up/down Bps: 0/22 process: "1"
+remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 0/47 connections: 2
+
+

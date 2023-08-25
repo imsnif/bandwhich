@@ -1,0 +1,24 @@
+---
+source: src/tests/cases/raw_mode.rs
+expression: formatted
+---
+Refreshing:
+<NO TRAFFIC>
+
+Refreshing:
+process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/22 connections: 1
+process: <TIMESTAMP_REMOVED> "5" up/down Bps: 0/19 connections: 1
+connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12345 (tcp) up/down Bps: 0/22 process: "1"
+connection: <TIMESTAMP_REMOVED> <interface_name>:4435 => 3.3.3.3:1337 (tcp) up/down Bps: 0/19 process: "5"
+remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 0/22 connections: 1
+remote_address: <TIMESTAMP_REMOVED> 3.3.3.3 up/down Bps: 0/19 connections: 1
+
+Refreshing:
+process: <TIMESTAMP_REMOVED> "1" up/down Bps: 0/35 connections: 1
+process: <TIMESTAMP_REMOVED> "5" up/down Bps: 0/30 connections: 1
+connection: <TIMESTAMP_REMOVED> <interface_name>:443 => 1.1.1.1:12345 (tcp) up/down Bps: 0/35 process: "1"
+connection: <TIMESTAMP_REMOVED> <interface_name>:4435 => 3.3.3.3:1337 (tcp) up/down Bps: 0/30 process: "5"
+remote_address: <TIMESTAMP_REMOVED> 1.1.1.1 up/down Bps: 0/35 connections: 1
+remote_address: <TIMESTAMP_REMOVED> 3.3.3.3 up/down Bps: 0/30 connections: 1
+
+
