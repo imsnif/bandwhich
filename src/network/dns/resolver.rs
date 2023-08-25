@@ -23,11 +23,11 @@ impl Resolver {
                     socket_addr: socket,
                     protocol: Protocol::Udp,
                     tls_dns_name: None,
-                    trust_nx_responses: false,
+                    trust_negative_responses: false,
                     bind_addr: None,
                 };
                 config.add_name_server(nameserver_config);
-                TokioAsyncResolver::tokio(config, options)?
+                TokioAsyncResolver::tokio(config, options)
             }
             None => TokioAsyncResolver::tokio_from_system_conf()?,
         };

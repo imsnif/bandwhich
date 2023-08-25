@@ -28,8 +28,8 @@ failure = "0.1.8"
 chrono = "0.4"
 regex = "1.9.3"
 lazy_static = "1.4.0"
-tokio = { version = "1.31", features = ["rt", "sync"] }
-trust-dns-resolver = "0.22.0"
+tokio = { version = "1.32", features = ["rt", "sync"] }
+trust-dns-resolver = "0.23.0"
 async-trait = "0.1.73"
 unicode-width = "0.1.10"
 resolv-conf = "0.7.0"
