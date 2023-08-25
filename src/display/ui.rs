@@ -1,7 +1,7 @@
 use ::std::collections::HashMap;
 
-use ::tui::backend::Backend;
-use ::tui::Terminal;
+use ::ratatui::backend::Backend;
+use ::ratatui::Terminal;
 
 use crate::display::components::{HeaderDetails, HelpText, Layout, Table};
 use crate::display::UIState;

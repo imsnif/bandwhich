@@ -1,9 +1,9 @@
+use ::ratatui::backend::Backend;
+use ::ratatui::buffer::Cell;
+use ::ratatui::layout::Rect;
 use ::std::collections::HashMap;
 use ::std::io;
 use ::std::sync::{Arc, Mutex};
-use ::tui::backend::Backend;
-use ::tui::buffer::Cell;
-use ::tui::layout::Rect;
 
 #[derive(Hash, Debug, PartialEq)]
 pub enum TerminalEvent {

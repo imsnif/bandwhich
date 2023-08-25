@@ -2,11 +2,11 @@ use ::std::collections::{BTreeMap, HashMap};
 use ::std::iter::FromIterator;
 use ::unicode_width::UnicodeWidthChar;
 
-use ::tui::backend::Backend;
-use ::tui::layout::{Constraint, Rect};
-use ::tui::style::{Color, Style};
-use ::tui::terminal::Frame;
-use ::tui::widgets::{Block, Borders, Row};
+use ::ratatui::backend::Backend;
+use ::ratatui::layout::{Constraint, Rect};
+use ::ratatui::style::{Color, Style};
+use ::ratatui::terminal::Frame;
+use ::ratatui::widgets::{Block, Borders, Row};
 
 use crate::display::{Bandwidth, DisplayBandwidth, UIState};
 use crate::network::{display_connection_string, display_ip_or_host};
@@ -292,7 +292,7 @@ impl<'a> Table<'a> {
         let table_rows = rows.map(|row| Row::new(row).style(Style::default()));
         let width_constraints: Vec<Constraint> =
             widths.iter().map(|w| Constraint::Length(*w)).collect();
-        let table = ::tui::widgets::Table::new(table_rows)
+        let table = ::ratatui::widgets::Table::new(table_rows)
             .block(Block::default().title(self.title).borders(Borders::ALL))
             .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
             .widths(&width_constraints)

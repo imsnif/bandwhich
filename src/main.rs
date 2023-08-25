@@ -20,13 +20,13 @@ use ::std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use ::std::sync::{Arc, Mutex};
 use ::std::thread;
 use ::std::thread::park_timeout;
-use ::tui::backend::Backend;
+use ::ratatui::backend::Backend;
 
 use std::process;
 
 use ::std::net::Ipv4Addr;
 use ::std::time::{Duration, Instant};
-use ::tui::backend::CrosstermBackend;
+use ::ratatui::backend::CrosstermBackend;
 use std::sync::RwLock;
 use structopt::StructOpt;
 
