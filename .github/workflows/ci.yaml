@@ -48,6 +48,15 @@ jobs:
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
+      - name: Install npcap on Windows
+        if: matrix.os == 'windows-latest'
+        env:
+          NPCAP_OEM_URL: ${{ secrets.NPCAP_OEM_URL }}
+        shell: bash
+        run: |
+          curl -Lf "$NPCAP_OEM_URL" -o "$TEMP/npcap-oem.exe"
+          "$TEMP/npcap-oem.exe" /S
+
       - name: Run tests
         run: cargo test --verbose
 
