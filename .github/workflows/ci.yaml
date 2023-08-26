@@ -37,14 +37,12 @@ jobs:
       - name: Show build.rs stderr
         shell: bash
         run: |
-          set +x
           mapfile -d '' -t STDERR_FILES < <(find "./target/debug" -name stderr -print0 | grep -z bandwhich)
           for FILE in "${STDERR_FILES[@]}"; do
-            echo "===== $FILE ===== "
+            echo "::group::$FILE"
             cat "$FILE"
-            echo "====="
+            echo "::endgroup::"
           done
-          set -x
 
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
