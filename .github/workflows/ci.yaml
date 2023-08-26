@@ -35,7 +35,6 @@ jobs:
       # This is useful for debugging problems when the expected build artifacts
       # (like shell completions and man pages) aren't generated.
       - name: Show build.rs stderr
-        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           set +x
