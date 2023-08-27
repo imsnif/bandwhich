@@ -99,7 +99,7 @@ cd /usr/ports/net-mgmt/bandwhich && make install clean
 It might be in your distro repositories if you're on linux, or you can install it via [rustup](https://rustup.rs/).
 You can find additional installation instructions [here](https://doc.rust-lang.org/book/ch01-01-installation.html).
 
-The minimum supported Rust version is **1.65.0**.
+The minimum supported Rust version is **1.70.0**.
 
 ```
 cargo install bandwhich
