@@ -15,7 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable, nightly]
+        rust:
+          - 1.65.0 # MSRV
+          - stable
+          - nightly
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
