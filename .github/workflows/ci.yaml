@@ -55,10 +55,11 @@ jobs:
         if: matrix.os == 'windows-latest'
         env:
           NPCAP_OEM_URL: ${{ secrets.NPCAP_OEM_URL }}
-        shell: bash
         run: |
-          curl -Lf "$NPCAP_OEM_URL" -o "$TEMP/npcap-oem.exe"
-          "$TEMP/npcap-oem.exe" /S
+          Invoke-WebRequest -Uri "$env:NPCAP_OEM_URL" -OutFile "$env:TEMP/npcap-oem.exe"
+          # for this ridiculous `&` syntax alone, I'd rather use COBOL than Powershell
+          # see https://stackoverflow.com/a/1674950/5637701
+          & "$env:TEMP/npcap-oem.exe" /S
 
       - name: Run tests
         run: cargo test --verbose
