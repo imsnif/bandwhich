@@ -125,7 +125,9 @@ On Linux, there are two main ways to accomplish this:
 ### 1. `setcap`
 
 - Permanently allow the `bandwhich` binary its required privileges (called "capabilities" in Linux).
-- **This is the recommended method**, because the privilege control is more fine-grained.
+- Do this if you want to give all unprivileged users full access to bandwhich's monitoring capabilities.
+    - This is the **recommended** setup **for single user machines**, or **if all users are trusted**.
+    - This is **not recommended** if you want to **ensure users cannot see others' traffic**.
 
 ```bash
 # assign capabilities
@@ -140,7 +142,8 @@ bandwhich
 
 ### 2. `sudo` (or alternative)
 
-- If you are feeling lazy, there's this way as well.
+- Require privilege escalation every time.
+- Do this if you are an administrator of a multi-user environment.
 
 ```bash
 sudo bandwhich
