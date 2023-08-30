@@ -8,6 +8,7 @@ This is a CLI utility for displaying current network utilization by process, con
 
 - [bandwhich](#bandwhich)
   - [Table of contents](#table-of-contents)
+  - [Project status](#project-status)
   - [How does it work?](#how-does-it-work)
   - [Installation](#installation)
     - [Download a prebuilt binary](#download-a-prebuilt-binary)
@@ -29,6 +30,14 @@ This is a CLI utility for displaying current network utilization by process, con
   - [raw\_mode](#raw_mode)
   - [Contributing](#contributing)
   - [License](#license)
+
+## Project status
+
+This project is in passive maintenance. Critical issues will be addressed, but
+no new features are being worked on. However, this is due to a lack of funding
+and/or manpower more than anything else, so pull requests are more than welcome.
+
+For more details, see [The Future of Bandwhich #275](https://github.com/imsnif/bandwhich/issues/275).
 
 ## How does it work?
 
