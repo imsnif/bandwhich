@@ -52,7 +52,8 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Install npcap on Windows
-        if: matrix.os == 'windows-latest'
+        # PRs cannot not be trusted with repository secrets
+        if: (matrix.os == 'windows-latest') && (github.event_name != 'pull_request')
         env:
           NPCAP_OEM_URL: ${{ secrets.NPCAP_OEM_URL }}
         run: |
@@ -62,6 +63,9 @@ jobs:
           & "$env:TEMP/npcap-oem.exe" /S
 
       - name: Run tests
+        # npcap is needed to run tests on Windows, so this is an unfortunate
+        # sacrifice we have to make in the name of security
+        if: (matrix.os != 'windows-latest') || (github.event_name != 'pull_request')
         run: cargo test --verbose
 
       - name: Upload unix binary
