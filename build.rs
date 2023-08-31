@@ -18,7 +18,7 @@ fn download_windows_npcap_sdk() -> anyhow::Result<()> {
     println!("cargo:rerun-if-changed=build.rs");
 
     // get npcap SDK
-    const NPCAP_SDK: &'static str = "npcap-sdk-1.13.zip";
+    const NPCAP_SDK: &str = "npcap-sdk-1.13.zip";
 
     let npcap_sdk_download_url = format!("https://npcap.com/dist/{NPCAP_SDK}");
     let cache_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("target");
@@ -58,7 +58,7 @@ fn download_windows_npcap_sdk() -> anyhow::Result<()> {
         panic!("Unsupported target!")
     };
     let mut archive = ZipArchive::new(io::Cursor::new(npcap_zip))?;
-    let mut npcap_lib = archive.by_name(&lib_path)?;
+    let mut npcap_lib = archive.by_name(lib_path)?;
 
     // write DLL
     let lib_dir = PathBuf::from(env::var("OUT_DIR")?).join("npcap_sdk");
