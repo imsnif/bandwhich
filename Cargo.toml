@@ -50,5 +50,6 @@ pnet_base = "0.34.0"
 packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-update" }
 
 [target.'cfg(target_os="windows")'.build-dependencies]
+anyhow = "1.0.75"
 http_req = "0.9.2"
 zip = "0.6.6"
