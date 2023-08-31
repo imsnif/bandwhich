@@ -1,6 +1,6 @@
 fn main() {
     #[cfg(target_os = "windows")]
-    download_windows_npcap_sdk()
+    download_windows_npcap_sdk().unwrap();
 }
 
 #[cfg(target_os = "windows")]
