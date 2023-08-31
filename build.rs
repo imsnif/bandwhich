@@ -26,7 +26,10 @@ fn download_windows_npcap_sdk() -> anyhow::Result<()> {
 
     let npcap_zip = match fs::read(&npcap_sdk_cache_path) {
         // use cached
-        Ok(zip_data) => zip_data,
+        Ok(zip_data) => {
+            println!("Found cached npcap SDK");
+            zip_data
+        }
         // download SDK
         Err(_) => {
             println!("Downloading npcap SDK");
