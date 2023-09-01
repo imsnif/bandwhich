@@ -19,7 +19,7 @@ use std::{
 };
 
 use crossterm::{
-    event::{Event, KeyCode, KeyEvent, KeyModifiers},
+    event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     terminal,
 };
 use display::{elapsed_time, RawTerminalBackend, Ui};
@@ -229,11 +229,13 @@ where
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::CONTROL,
                                 code: KeyCode::Char('c'),
+                                kind: KeyEventKind::Press,
                                 ..
                             })
                             | Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
                                 code: KeyCode::Char('q'),
+                                kind: KeyEventKind::Press,
                                 ..
                             }) => {
                                 running.store(false, Ordering::Release);
@@ -253,6 +255,7 @@ where
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
                                 code: KeyCode::Char(' '),
+                                kind: KeyEventKind::Press,
                                 ..
                             }) => {
                                 let restarting = paused.fetch_xor(true, Ordering::SeqCst);
@@ -272,6 +275,7 @@ where
                             Event::Key(KeyEvent {
                                 modifiers: KeyModifiers::NONE,
                                 code: KeyCode::Tab,
+                                kind: KeyEventKind::Press,
                                 ..
                             }) => {
                                 let paused = paused.load(Ordering::SeqCst);
