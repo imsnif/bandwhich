@@ -15,13 +15,32 @@
 
 name: release
 on:
-  release:
-    types:
-      - created
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0.9]+"
+  workflow_dispatch:
 
 jobs:
+  create-release:
+    name: create-release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: create_release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && '' || github.ref }}
+          release_name: Release ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
+          draft: ${{ github.event_name == 'workflow_dispatch' }}
+          prerelease: false
+
   build-release:
     name: build-release
+    needs: create-release
     runs-on: ${{ matrix.os }}
     env:
       # Emit backtraces on panics.
@@ -29,41 +48,33 @@ jobs:
     strategy:
       matrix:
         build:
-          - linux glib x64
-          - linux musl x64
-          - macos x64
-          - win-msvc x64
+          - linux-x64-gnu
+          - linux-x64-musl
+          - macos-x64
+          - windows-x64-msvc
         include:
-          - build: linux glib x64
-            os: ubuntu-18.04
-            rust: stable
+          - build: linux-x64-gnu
+            os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-          - build: linux musl x64
-            os: ubuntu-18.04
-            rust: stable
+          - build: linux-x64-musl
+            os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-          - build: macos x64
+          - build: macos-x64
             os: macos-latest
-            rust: stable
             target: x86_64-apple-darwin
-          - build: win-msvc x64
-            os: windows-2019
-            rust: stable
+          - build: win-x64-msvc
+            os: windows-latest
             target: x86_64-pc-windows-msvc
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v3
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ matrix.rust }}
-          profile: minimal
-          override: true
-          target: ${{ matrix.target }}
+          toolchain: stable
+          targets: ${{ matrix.target }}
 
       - name: Install musl-tools
         if: matrix.target == 'x86_64-unknown-linux-musl'
@@ -73,22 +84,22 @@ jobs:
         run: cargo build --verbose --release --target ${{ matrix.target }}
 
       - name: Strip release binary (unix)
-        if: matrix.os != 'windows-2019'
+        if: matrix.os != 'windows-latest'
         run: strip "target/${{ matrix.target }}/release/bandwhich"
-        
+
       - name: Tar release (unix)
-        if: matrix.os != 'windows-2019'
+        if: matrix.os != 'windows-latest'
         working-directory: ./target/${{ matrix.target }}/release
         run: tar cvfz bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.tar.gz "bandwhich"
-        
+
       - name: Zip Windows release
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-latest'
         working-directory: ./target/${{ matrix.target }}/release
         run: tar.exe -a -c -f bandwhich-v${{ github.event.release.tag_name }}-${{matrix.target}}.zip "bandwhich.exe"
 
-      - name: Upload release archive (linux)
-        if: matrix.os != 'windows-2019'
-        uses: actions/upload-release-asset@v1.0.1
+      - name: Upload release archive (unix)
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -98,8 +109,8 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload Windows release archive
-        if: matrix.os == 'windows-2019'
-        uses: actions/upload-release-asset@v1.0.1
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
