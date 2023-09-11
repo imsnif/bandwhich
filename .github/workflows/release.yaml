@@ -62,7 +62,7 @@ jobs:
           - build: macos-x64
             os: macos-latest
             target: x86_64-apple-darwin
-          - build: win-x64-msvc
+          - build: windows-x64-msvc
             os: windows-latest
             target: x86_64-pc-windows-msvc
 
