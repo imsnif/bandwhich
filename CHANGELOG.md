@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+* migrate out-of-date dependency `structopt` to `clap` (https://github.com/imsnif/bandwhich/pull/285) - [@Liyixin95](https://github.com/Liyixin95)
+
 ### Fixed
 * Fixed resolv.conf errors on systems with trust-ad (https://github.com/imsnif/bandwhich/pull/201) - [@JoshLambda](https://github.com/JoshLambda)
 * Fixed build issues by updating various dependencies
