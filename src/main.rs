@@ -18,6 +18,7 @@ use std::{
     time::{Duration, Instant},
 };
 
+use clap::{arg, Args, Parser};
 use crossterm::{
     event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     terminal,
@@ -29,44 +30,43 @@ use network::{
 };
 use pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ratatui::backend::{Backend, CrosstermBackend};
-use structopt::StructOpt;
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "bandwhich")]
+#[derive(Parser, Debug)]
+#[command(name = "bandwhich")]
 pub struct Opt {
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// The network interface to listen on, eg. eth0
     interface: Option<String>,
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// Machine friendlier output
     raw: bool,
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// Do not attempt to resolve IPs to their hostnames
     no_resolve: bool,
-    #[structopt(flatten)]
+    #[command(flatten)]
     render_opts: RenderOpts,
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// Show DNS queries
     show_dns: bool,
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// A dns server ip to use instead of the system default
     dns_server: Option<Ipv4Addr>,
 }
 
-#[derive(StructOpt, Debug, Copy, Clone)]
+#[derive(Args, Debug, Copy, Clone)]
 pub struct RenderOpts {
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// Show processes table only
     processes: bool,
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// Show connections table only
     connections: bool,
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// Show remote addresses table only
     addresses: bool,
-    #[structopt(short, long)]
+    #[arg(short, long)]
     /// Show total (cumulative) usages
     total_utilization: bool,
 }
@@ -80,7 +80,7 @@ fn main() {
 
 fn try_main() -> anyhow::Result<()> {
     use os::get_input;
-    let opts = Opt::from_args();
+    let opts = Opt::parse();
     let os_input = get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
     let raw_mode = opts.raw;
     if raw_mode {

@@ -25,7 +25,7 @@ pnet = "0.34.0"
 ipnetwork = "0.20.0"
 ratatui = "0.22.0"
 crossterm = "0.27.0"
-structopt = "0.3"
+clap = { version = "4.4.2", features = ["derive"] }
 chrono = "0.4"
 regex = "1.9.3"
 tokio = { version = "1.32", features = ["rt", "sync"] }
