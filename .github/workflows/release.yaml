@@ -108,8 +108,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/${{ matrix.target }}/release/bandwhich-v${{ steps.release-version.outputs.v }}-${{matrix.target}}.tar.gz
-          asset_name: bandwhich-v${{ steps.release-version.outputs.v }}-${{matrix.target}}.tar.gz
+          asset_path: ./target/${{ matrix.target }}/release/bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.tar.gz
+          asset_name: bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Upload Windows release archive
@@ -119,6 +119,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/${{ matrix.target }}/release/bandwhich-v${{ steps.release-version.outputs.v }}-${{matrix.target}}.zip
-          asset_name: bandwhich-v${{ steps.release-version.outputs.v }}-${{matrix.target}}.zip
+          asset_path: ./target/${{ matrix.target }}/release/bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.zip
+          asset_name: bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.zip
           asset_content_type: application/octet-stream
