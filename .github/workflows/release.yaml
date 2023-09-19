@@ -8,10 +8,11 @@
 # the release executables for each supported platform and attaches them
 # as release assets to the previously created release.
 #
-# The key here is that we create the release only once.
-#
 # Reference:
 # - https://eugene-babichenko.github.io/blog/2020/05/09/github-actions-cross-platform-auto-releases/
+#
+# Currently this workflow only ever creates drafts; the draft should be checked
+# and then released manually.
 
 name: release
 on:

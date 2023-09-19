@@ -1,3 +1,9 @@
+# This workflow triggers when a stable release is published on GitHub.
+#
+# The crates.io token used for publishing was created under the account of
+# cyqsimon <28627918+cyqsimon@users.noreply.github.com> and was added to this
+# repository's secrets by Aram Drevekenin <aram@poor.dev>.
+
 name: publish-crate
 on:
   release:
