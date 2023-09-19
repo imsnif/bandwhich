@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
-### Added
+## [0.21.0] - 2023-09-19
 
 ### Fixed
 * Fixed resolv.conf errors on systems with trust-ad (https://github.com/imsnif/bandwhich/pull/201) - [@JoshLambda](https://github.com/JoshLambda)
