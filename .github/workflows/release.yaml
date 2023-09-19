@@ -34,8 +34,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && '' || github.ref }}
-          release_name: Release ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           # draft: ${{ github.event_name == 'workflow_dispatch' }}
           draft: true
           prerelease: false
@@ -72,10 +72,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - id: release-version
-        name: Compute version
-        run: echo v=${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }} >> "$GITHUB_OUTPUT"
-
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
@@ -96,12 +92,12 @@ jobs:
       - name: Tar release (unix)
         if: matrix.os != 'windows-latest'
         working-directory: ./target/${{ matrix.target }}/release
-        run: tar cvfz bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.tar.gz "bandwhich"
+        run: tar cvfz bandwhich-${{ github.ref_name }}-${{matrix.target}}.tar.gz "bandwhich"
 
       - name: Zip Windows release
         if: matrix.os == 'windows-latest'
         working-directory: ./target/${{ matrix.target }}/release
-        run: tar.exe -a -c -f bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.zip "bandwhich.exe"
+        run: tar.exe -a -c -f bandwhich-${{ github.ref_name }}-${{matrix.target}}.zip "bandwhich.exe"
 
       - name: Upload release archive (unix)
         if: matrix.os != 'windows-latest'
@@ -110,8 +106,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/${{ matrix.target }}/release/bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.tar.gz
-          asset_name: bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.tar.gz
+          asset_path: ./target/${{ matrix.target }}/release/bandwhich-${{ github.ref_name }}-${{matrix.target}}.tar.gz
+          asset_name: bandwhich-${{ github.ref_name }}-${{matrix.target}}.tar.gz
           asset_content_type: application/octet-stream
 
       - name: Upload Windows release archive
@@ -121,6 +117,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/${{ matrix.target }}/release/bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.zip
-          asset_name: bandwhich-${{ steps.release-version.outputs.v }}-${{matrix.target}}.zip
+          asset_path: ./target/${{ matrix.target }}/release/bandwhich-${{ github.ref_name }}-${{matrix.target}}.zip
+          asset_name: bandwhich-${{ github.ref_name }}-${{matrix.target}}.zip
           asset_content_type: application/octet-stream
