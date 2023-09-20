@@ -45,6 +45,12 @@ For more details, see [The Future of Bandwhich #275](https://github.com/imsnif/b
 
 ## Installation
 
+### Downstream packaging status
+
+<a href="https://repology.org/project/bandwhich/versions">
+  <img src="https://repology.org/badge/vertical-allrepos/bandwhich.svg?columns=3" alt="Packaging status">
+</a>
+
 ### Download a prebuilt binary
 
 If you're on linux, you can download the generic binary from the releases.
