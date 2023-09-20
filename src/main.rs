@@ -34,7 +34,7 @@ use ratatui::backend::{Backend, CrosstermBackend};
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
 #[derive(Parser, Debug)]
-#[command(name = "bandwhich")]
+#[command(name = "bandwhich", version)]
 pub struct Opt {
     #[arg(short, long)]
     /// The network interface to listen on, eg. eth0
