@@ -1,5 +1,6 @@
 ---
 source: src/tests/cases/ui.rs
+assertion_line: 1579
 expression: "&terminal_draw_events_mirror[0]"
 ---
  Total Up / Down: 0Bps / 0Bps                    
@@ -25,10 +26,10 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                               │
 │                                               │
 │                                               │
+│                                               │
 └───────────────────────────────────────────────┘
 ┌Utilization by remote address──────────────────┐
 │Remote Address        Up / Down                │
-│                                               │
 │                                               │
 │                                               │
 │                                               │
