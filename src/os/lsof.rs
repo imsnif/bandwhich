@@ -8,12 +8,17 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
     let connections = get_connections();
 
     for raw_connection in connections {
+        let Some(ip) = raw_connection.get_local_ip() else {
+            continue;
+        };
+        let Some(port) = raw_connection.get_local_port() else {
+            continue;
+        };
+        let Some(protocol) = raw_connection.get_protocol() else {
+            continue;
+        };
         open_sockets.insert(
-            LocalSocket {
-                ip: raw_connection.get_local_ip(),
-                port: raw_connection.get_local_port(),
-                protocol: raw_connection.get_protocol(),
-            },
+            LocalSocket { ip, port, protocol },
             raw_connection.process_name.clone(),
         );
     }

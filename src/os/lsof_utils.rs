@@ -103,16 +103,16 @@ impl RawConnection {
         }
     }
 
-    pub fn get_protocol(&self) -> Protocol {
-        Protocol::from_str(&self.protocol).unwrap()
+    pub fn get_protocol(&self) -> Option<Protocol> {
+        Protocol::from_str(&self.protocol)
     }
 
-    pub fn get_local_ip(&self) -> IpAddr {
-        self.local_ip.parse().unwrap()
+    pub fn get_local_ip(&self) -> Option<IpAddr> {
+        self.local_ip.parse().ok()
     }
 
-    pub fn get_local_port(&self) -> u16 {
-        self.local_port.parse::<u16>().unwrap()
+    pub fn get_local_port(&self) -> Option<u16> {
+        self.local_port.parse::<u16>().ok()
     }
 }
 
@@ -203,7 +203,7 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     }
     fn test_raw_connection_parse_local_port(raw_output: &str) {
         let connection = RawConnection::new(raw_output).unwrap();
-        assert_eq!(connection.get_local_port(), 1111);
+        assert_eq!(connection.get_local_port(), Some(1111));
     }
 
     #[test]
@@ -216,7 +216,7 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     }
     fn test_raw_connection_parse_protocol(raw_line: &str) {
         let connection = RawConnection::new(raw_line).unwrap();
-        assert_eq!(connection.get_protocol(), Protocol::Udp);
+        assert_eq!(connection.get_protocol(), Some(Protocol::Udp));
     }
 
     #[test]
