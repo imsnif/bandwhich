@@ -31,7 +31,7 @@ regex = "1.9.5"
 tokio = { version = "1.32", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.0"
 async-trait = "0.1.73"
-unicode-width = "0.1.10"
+unicode-width = "0.1.11"
 resolv-conf = "0.7.0"
 pnet_macros_support = "0.34.0"
 anyhow = { version = "1.0.75", features = ["backtrace"] }
