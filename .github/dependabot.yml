@@ -1,0 +1,7 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 30
