@@ -45,7 +45,7 @@ sysinfo = "0.29.10"
 procfs = "0.15.1"
 
 [dev-dependencies]
-insta = "1.32.0"
+insta = "1.33.0"
 pnet_base = "0.34.0"
 packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-update" }
 
