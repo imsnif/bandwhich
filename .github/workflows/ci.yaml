@@ -80,10 +80,18 @@ jobs:
           & "$env:TEMP/npcap-oem.exe" /S
 
       - name: Run tests
+        id: run_tests
         # npcap is needed to run tests on Windows, so this is an unfortunate
         # sacrifice we have to make in the name of security
         if: (matrix.os != 'windows-latest') || (github.event_name != 'pull_request')
         run: cargo test --verbose
+
+      - name: Upload snapshots of failed tests
+        if: ${{ steps.run_tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}-${{ matrix.rust }}-failed_snapshots
+          path: src/tests/cases/snapshots/*.snap.new
 
       - name: Upload unix binary
         if: matrix.os != 'windows-latest'
