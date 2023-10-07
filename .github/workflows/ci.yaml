@@ -87,7 +87,7 @@ jobs:
         run: cargo test --verbose
 
       - name: Upload snapshots of failed tests
-        if: ${{ steps.run_tests.outcome == 'failure' }}
+        if: ${{ failure() && steps.run_tests.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}-failed_snapshots
