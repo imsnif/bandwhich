@@ -1,5 +1,0 @@
----
-source: src/tests/cases/raw_mode.rs
-expression: "String::from_utf8(clone_stdout).unwrap()"
----
-
