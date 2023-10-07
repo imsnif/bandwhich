@@ -9,6 +9,7 @@ use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use packet_builder::*;
 use pnet::{datalink::DataLinkReceiver, packet::Packet};
 use pnet_base::MacAddr;
+use rstest::fixture;
 
 use crate::{
     network::dns::Client,
@@ -56,7 +57,8 @@ pub fn build_tcp_packet(
     pkt.packet().to_vec()
 }
 
-pub fn sample_frames() -> Vec<Box<dyn DataLinkReceiver>> {
+#[fixture]
+pub fn sample_frames_short() -> Vec<Box<dyn DataLinkReceiver>> {
     vec![NetworkFrames::new(vec![
         Some(build_tcp_packet(
             "10.0.0.2",
@@ -78,6 +80,125 @@ pub fn sample_frames() -> Vec<Box<dyn DataLinkReceiver>> {
             54321,
             53,
             b"I am a fake DNS query packet",
+        )),
+    ]) as Box<dyn DataLinkReceiver>]
+}
+
+#[fixture]
+pub fn sample_frames_sustained_one_process() -> Vec<Box<dyn DataLinkReceiver>> {
+    vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        None, // sleep
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"Same here, but one second later",
+        )),
+    ]) as Box<dyn DataLinkReceiver>]
+}
+
+#[fixture]
+pub fn sample_frames_sustained_multiple_processes() -> Vec<Box<dyn DataLinkReceiver>> {
+    vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            4435,
+            b"I come from 3.3.3.3",
+        )),
+        None, // sleep
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"I have come from 1.1.1.1 one second later",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            4435,
+            b"I come 3.3.3.3 one second later",
+        )),
+    ]) as Box<dyn DataLinkReceiver>]
+}
+
+#[fixture]
+pub fn sample_frames_sustained_long() -> Vec<Box<dyn DataLinkReceiver>> {
+    vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "3.3.3.3",
+            4435,
+            1337,
+            b"omw to 3.3.3.3",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            4435,
+            b"I was just there!",
+        )),
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"Is it nice there? I think 1.1.1.1 is dull",
+        )),
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "1.1.1.1",
+            443,
+            12345,
+            b"Well, I heard 1.1.1.1 is all the rage",
+        )),
+        None, // sleep
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "3.3.3.3",
+            4435,
+            1337,
+            b"Wait for me!",
+        )),
+        Some(build_tcp_packet(
+            "3.3.3.3",
+            "10.0.0.2",
+            1337,
+            4435,
+            b"They're waiting for you...",
+        )),
+        Some(build_tcp_packet(
+            "1.1.1.1",
+            "10.0.0.2",
+            12345,
+            443,
+            b"1.1.1.1 forever!",
+        )),
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "1.1.1.1",
+            443,
+            12345,
+            b"10.0.0.2 forever!",
         )),
     ]) as Box<dyn DataLinkReceiver>]
 }

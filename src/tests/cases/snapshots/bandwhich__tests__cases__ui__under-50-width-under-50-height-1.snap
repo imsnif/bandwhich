@@ -1,0 +1,55 @@
+---
+source: src/tests/cases/ui.rs
+expression: "&terminal_draw_events_mirror[1]"
+---
+                         98Bps                    
+                                                  
+                                                  
+ 5                  0Bps / 28Bps                  
+ 4                  0Bps / 26Bps                  
+ 1                  0Bps / 22Bps                  
+ 2                  0Bps / 21Bps                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+ 3.3.3.3               0Bps / 28Bps               
+ 2.2.2.2               0Bps / 26Bps               
+ 1.1.1.1               0Bps / 22Bps               
+ 4.4.4.4               0Bps / 21Bps               
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+
