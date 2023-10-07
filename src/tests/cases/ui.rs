@@ -892,17 +892,17 @@ fn layout(#[case] name: &str, #[case] width: u16, #[case] height: u16) {
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
     assert_debug_snapshot!(
-        format!("{name}-events"),
+        format!("layout-{name}-events"),
         terminal_events.lock().unwrap().as_slice()
     );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(
-        format!("{name}-draw_events-0"),
+        format!("layout-{name}-draw_events-0"),
         &terminal_draw_events_mirror[0]
     );
     assert_snapshot!(
-        format!("{name}-draw_events-1"),
+        format!("layout-{name}-draw_events-1"),
         &terminal_draw_events_mirror[1]
     );
 }
