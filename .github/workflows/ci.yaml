@@ -15,7 +15,7 @@ jobs:
         run: sudo apt-get install -y ripgrep
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get MSRV
         id: get_msrv
@@ -38,7 +38,7 @@ jobs:
           - nightly
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
