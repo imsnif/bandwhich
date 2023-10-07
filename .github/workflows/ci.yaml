@@ -5,8 +5,22 @@ on:
     branches:
       - main
 jobs:
+  get-msrv:
+    name: Get declared MSRV from Cargo.toml
+    runs-on: ubuntu-latest
+    outputs:
+      msrv: ${{ steps.get_msrv.outputs.msrv }}
+    steps:
+      - name: Install ripgrep
+        run: sudo apt-get install -y ripgrep
+
+      - name: Get MSRV
+        id: get_msrv
+        run: rg '^\s*rust-version\s*=\s*"(\d+(\.\d+){0,2})"' --replace 'msrv=$1' Cargo.toml >> "$GITHUB_OUTPUT"
+
   test:
     name: test
+    needs: get-msrv
     env:
       # Emit backtraces on panics.
       RUST_BACKTRACE: 1
@@ -16,7 +30,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         rust:
-          - 1.70.0 # MSRV
+          - ${{ needs.get-msrv.outputs.msrv }}
           - stable
           - nightly
     steps:
