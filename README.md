@@ -11,6 +11,7 @@ This is a CLI utility for displaying current network utilization by process, con
   - [Project status](#project-status)
   - [How does it work?](#how-does-it-work)
   - [Installation](#installation)
+    - [Downstream packaging status](#downstream-packaging-status)
     - [Download a prebuilt binary](#download-a-prebuilt-binary)
     - [Arch Linux](#arch-linux)
     - [Nix/NixOS](#nixnixos)
