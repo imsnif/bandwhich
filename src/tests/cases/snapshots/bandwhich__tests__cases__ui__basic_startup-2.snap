@@ -1,0 +1,12 @@
+---
+source: src/tests/cases/ui.rs
+expression: terminal_events.lock().unwrap().as_slice()
+---
+[
+    Clear,
+    HideCursor,
+    Draw,
+    HideCursor,
+    Flush,
+    ShowCursor,
+]

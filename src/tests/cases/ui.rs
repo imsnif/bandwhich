@@ -1,7 +1,7 @@
 use std::{collections::HashMap, iter, net::IpAddr};
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use insta::assert_snapshot;
+use insta::{assert_debug_snapshot, assert_snapshot};
 use pnet::datalink::DataLinkReceiver;
 use rstest::rstest;
 
@@ -15,8 +15,7 @@ use crate::{
             sleep_and_quit_events, sleep_resize_and_quit_events, test_backend_factory,
         },
         fakes::{
-            create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames,
-            TerminalEvent::*, TerminalEvents,
+            create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvents,
         },
     },
     Opt, OsInputOutput, RenderOpts,
@@ -34,14 +33,10 @@ fn basic_startup() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![Clear, HideCursor, Draw, HideCursor, Flush, ShowCursor];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 1);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -89,18 +84,13 @@ fn pause_by_space() {
     let opts = opts_ui();
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
+
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -145,20 +135,15 @@ fn rearranged_by_tab() {
     let opts = opts_ui();
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
+
     assert_eq!(terminal_draw_events_mirror.len(), 5);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
     assert_snapshot!(&terminal_draw_events_mirror[3]);
     assert_snapshot!(&terminal_draw_events_mirror[4]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -410,17 +395,11 @@ fn one_packet_of_traffic() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_short as frames)]
@@ -431,17 +410,11 @@ fn bi_directional_traffic(frames: Vec<Box<dyn DataLinkReceiver>>) {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -469,17 +442,11 @@ fn multiple_packets_of_traffic_from_different_connections() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -507,17 +474,11 @@ fn multiple_packets_of_traffic_from_single_connection() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -545,17 +506,11 @@ fn one_process_with_multiple_connections() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -597,17 +552,11 @@ fn multiple_processes_with_multiple_connections() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -635,17 +584,11 @@ fn multiple_connections_from_remote_address() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 2);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_one_process as frames)]
@@ -657,18 +600,11 @@ fn sustained_traffic_from_one_process(frames: Vec<Box<dyn DataLinkReceiver>>) {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_one_process as frames)]
@@ -681,18 +617,11 @@ fn sustained_traffic_from_one_process_total(frames: Vec<Box<dyn DataLinkReceiver
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_multiple_processes as frames)]
@@ -704,18 +633,11 @@ fn sustained_traffic_from_multiple_processes(frames: Vec<Box<dyn DataLinkReceive
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_multiple_processes as frames)]
@@ -728,18 +650,11 @@ fn sustained_traffic_from_multiple_processes_total(frames: Vec<Box<dyn DataLinkR
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_long as frames)]
@@ -753,18 +668,11 @@ fn sustained_traffic_from_multiple_processes_bi_directional(
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_long as frames)]
@@ -779,18 +687,11 @@ fn sustained_traffic_from_multiple_processes_bi_directional_total(
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_long as network_frames)]
@@ -825,18 +726,11 @@ fn traffic_with_host_names(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_long as network_frames)]
@@ -871,18 +765,11 @@ fn truncate_long_hostnames(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest(sample_frames_sustained_long as network_frames)]
@@ -917,18 +804,11 @@ fn no_resolve_mode(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[test]
@@ -958,19 +838,12 @@ fn traffic_with_winch_event() {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, Draw, HideCursor,
-        Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
-    );
-
     assert_eq!(terminal_draw_events_mirror.len(), 3);
     assert_snapshot!(&terminal_draw_events_mirror[0]);
     assert_snapshot!(&terminal_draw_events_mirror[1]);
     assert_snapshot!(&terminal_draw_events_mirror[2]);
+
+    assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
 #[rstest]
@@ -1018,15 +891,18 @@ fn layout(#[case] name: &str, #[case] width: u16, #[case] height: u16) {
     start(backend, os_input, opts);
     let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    let expected_terminal_events = vec![
-        Clear, HideCursor, Draw, HideCursor, Flush, Draw, HideCursor, Flush, ShowCursor,
-    ];
-    assert_eq!(
-        &terminal_events.lock().unwrap()[..],
-        &expected_terminal_events[..]
+    assert_debug_snapshot!(
+        format!("{name}-events"),
+        terminal_events.lock().unwrap().as_slice()
     );
 
     assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(format!("{name}-0"), &terminal_draw_events_mirror[0]);
-    assert_snapshot!(format!("{name}-1"), &terminal_draw_events_mirror[1]);
+    assert_snapshot!(
+        format!("{name}-draw_events-0"),
+        &terminal_draw_events_mirror[0]
+    );
+    assert_snapshot!(
+        format!("{name}-draw_events-1"),
+        &terminal_draw_events_mirror[1]
+    );
 }
