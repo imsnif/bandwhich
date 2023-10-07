@@ -14,6 +14,9 @@ jobs:
       - name: Install ripgrep
         run: sudo apt-get install -y ripgrep
 
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Get MSRV
         id: get_msrv
         run: rg '^\s*rust-version\s*=\s*"(\d+(\.\d+){0,2})"' --replace 'msrv=$1' Cargo.toml >> "$GITHUB_OUTPUT"
