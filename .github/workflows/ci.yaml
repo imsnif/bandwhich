@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 jobs:
   get-msrv:
     name: Get declared MSRV from Cargo.toml
