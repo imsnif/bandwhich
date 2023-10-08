@@ -89,6 +89,9 @@ jobs:
         # npcap is needed to run tests on Windows, so this is an unfortunate
         # sacrifice we have to make in the name of security
         if: (matrix.os != 'windows-latest') || (github.event_name != 'pull_request')
+        env:
+          # make insta generate new snapshots in CI
+          INSTA_UPDATE: new
         run: cargo insta test --color=never
 
       - name: Upload snapshots of failed tests
