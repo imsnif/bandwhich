@@ -51,6 +51,7 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Build
+        id: build
         run: cargo build --verbose
 
       # This is useful for debugging problems when the expected build artifacts
@@ -103,14 +104,14 @@ jobs:
           path: src/tests/cases/snapshots/*.snap.new
 
       - name: Upload unix binary
-        if: matrix.os != 'windows-latest'
+        if: ${{ matrix.os != 'windows-latest' && ( success() || steps.build.outcome == 'success' ) }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
           path: target/debug/bandwhich
 
       - name: Upload windows binary
-        if: matrix.os == 'windows-latest'
+        if: ${{ matrix.os == 'windows-latest' && ( success() || steps.build.outcome == 'success' ) }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}
