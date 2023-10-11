@@ -4,12 +4,12 @@ use chrono::prelude::*;
 use ratatui::{backend::Backend, Terminal};
 
 use crate::{
+    cli::RenderOpts,
     display::{
         components::{HeaderDetails, HelpText, Layout, Table},
         UIState,
     },
     network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization},
-    RenderOpts,
 };
 
 pub struct Ui<B>

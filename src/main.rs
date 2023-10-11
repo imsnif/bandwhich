@@ -1,5 +1,6 @@
 #![deny(clippy::all)]
 
+mod cli;
 mod display;
 mod network;
 mod os;
@@ -8,8 +9,6 @@ mod tests;
 
 use std::{
     collections::HashMap,
-    net::Ipv4Addr,
-    process,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc, Mutex, RwLock,
@@ -18,7 +17,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use clap::{arg, Args, Parser};
+use clap::Parser;
 use crossterm::{
     event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     terminal,
@@ -31,74 +30,29 @@ use network::{
 use pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ratatui::backend::{Backend, CrosstermBackend};
 
+use crate::cli::Opt;
+
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
-#[derive(Parser, Debug)]
-#[command(name = "bandwhich", version)]
-pub struct Opt {
-    #[arg(short, long)]
-    /// The network interface to listen on, eg. eth0
-    interface: Option<String>,
-    #[arg(short, long)]
-    /// Machine friendlier output
-    raw: bool,
-    #[arg(short, long)]
-    /// Do not attempt to resolve IPs to their hostnames
-    no_resolve: bool,
-    #[command(flatten)]
-    render_opts: RenderOpts,
-    #[arg(short, long)]
-    /// Show DNS queries
-    show_dns: bool,
-    #[arg(short, long)]
-    /// A dns server ip to use instead of the system default
-    dns_server: Option<Ipv4Addr>,
-}
-
-#[derive(Args, Debug, Copy, Clone)]
-pub struct RenderOpts {
-    #[arg(short, long)]
-    /// Show processes table only
-    processes: bool,
-    #[arg(short, long)]
-    /// Show connections table only
-    connections: bool,
-    #[arg(short, long)]
-    /// Show remote addresses table only
-    addresses: bool,
-    #[arg(short, long)]
-    /// Show total (cumulative) usages
-    total_utilization: bool,
-}
-
-fn main() {
-    if let Err(err) = try_main() {
-        eprintln!("Error: {err}");
-        process::exit(2);
-    }
-}
-
-fn try_main() -> anyhow::Result<()> {
-    use os::get_input;
+fn main() -> anyhow::Result<()> {
     let opts = Opt::parse();
-    let os_input = get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
-    let raw_mode = opts.raw;
-    if raw_mode {
+    let os_input = os::get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
+
+    if opts.raw {
         let terminal_backend = RawTerminalBackend {};
         start(terminal_backend, os_input, opts);
     } else {
-        match terminal::enable_raw_mode() {
-            Ok(()) => {
-                let mut stdout = std::io::stdout();
-                // Ignore enteralternatescreen error
-                let _ = crossterm::execute!(&mut stdout, terminal::EnterAlternateScreen);
-                let terminal_backend = CrosstermBackend::new(stdout);
-                start(terminal_backend, os_input, opts);
-            }
-            Err(_) => anyhow::bail!(
+        let Ok(()) = terminal::enable_raw_mode() else {
+            anyhow::bail!(
                 "Failed to get stdout: if you are trying to pipe 'bandwhich' you should use the --raw flag"
-            ),
-        }
+            )
+        };
+
+        let mut stdout = std::io::stdout();
+        // Ignore enteralternatescreen error
+        let _ = crossterm::execute!(&mut stdout, terminal::EnterAlternateScreen);
+        let terminal_backend = CrosstermBackend::new(stdout);
+        start(terminal_backend, os_input, opts);
     }
     Ok(())
 }
@@ -199,104 +153,101 @@ where
         })
         .unwrap();
 
-    active_threads.push(
-        thread::Builder::new()
-            .name("terminal_events_handler".to_string())
-            .spawn({
-                let running = running.clone();
-                let display_handler = display_handler.thread().clone();
+    let terminal_event_handler = thread::Builder::new()
+        .name("terminal_events_handler".to_string())
+        .spawn({
+            let running = running.clone();
+            let display_handler = display_handler.thread().clone();
 
-                move || {
-                    for evt in terminal_events {
-                        let mut ui = ui.lock().unwrap();
+            move || {
+                for evt in terminal_events {
+                    let mut ui = ui.lock().unwrap();
 
-                        match evt {
-                            Event::Resize(_x, _y) => {
-                                if !raw_mode {
-                                    let paused = paused.load(Ordering::SeqCst);
-                                    ui.draw(
-                                        paused,
-                                        dns_shown,
-                                        elapsed_time(
-                                            *last_start_time.read().unwrap(),
-                                            *cumulative_time.read().unwrap(),
-                                            paused,
-                                        ),
-                                        ui_offset.load(Ordering::SeqCst),
-                                    );
-                                };
-                            }
-                            Event::Key(KeyEvent {
-                                modifiers: KeyModifiers::CONTROL,
-                                code: KeyCode::Char('c'),
-                                kind: KeyEventKind::Press,
-                                ..
-                            })
-                            | Event::Key(KeyEvent {
-                                modifiers: KeyModifiers::NONE,
-                                code: KeyCode::Char('q'),
-                                kind: KeyEventKind::Press,
-                                ..
-                            }) => {
-                                running.store(false, Ordering::Release);
-                                display_handler.unpark();
-                                match terminal::disable_raw_mode() {
-                                    Ok(_) => {}
-                                    Err(_) => println!("Error could not disable raw input"),
-                                }
-                                let mut stdout = std::io::stdout();
-                                if crossterm::execute!(&mut stdout, terminal::LeaveAlternateScreen)
-                                    .is_err()
-                                {
-                                    println!("Error could not leave alternte screen");
-                                };
-                                break;
-                            }
-                            Event::Key(KeyEvent {
-                                modifiers: KeyModifiers::NONE,
-                                code: KeyCode::Char(' '),
-                                kind: KeyEventKind::Press,
-                                ..
-                            }) => {
-                                let restarting = paused.fetch_xor(true, Ordering::SeqCst);
-                                if restarting {
-                                    *last_start_time.write().unwrap() = Instant::now();
-                                } else {
-                                    let last_start_time_copy = *last_start_time.read().unwrap();
-                                    let current_cumulative_time_copy =
-                                        *cumulative_time.read().unwrap();
-                                    let new_cumulative_time = current_cumulative_time_copy
-                                        + last_start_time_copy.elapsed();
-                                    *cumulative_time.write().unwrap() = new_cumulative_time;
-                                }
-
-                                display_handler.unpark();
-                            }
-                            Event::Key(KeyEvent {
-                                modifiers: KeyModifiers::NONE,
-                                code: KeyCode::Tab,
-                                kind: KeyEventKind::Press,
-                                ..
-                            }) => {
-                                let paused = paused.load(Ordering::SeqCst);
-                                let elapsed_time = elapsed_time(
+                    match evt {
+                        Event::Resize(_x, _y) if !raw_mode => {
+                            let paused = paused.load(Ordering::SeqCst);
+                            ui.draw(
+                                paused,
+                                dns_shown,
+                                elapsed_time(
                                     *last_start_time.read().unwrap(),
                                     *cumulative_time.read().unwrap(),
                                     paused,
-                                );
-                                let table_count = ui.get_table_count();
-                                let new = ui_offset.load(Ordering::SeqCst) + 1 % table_count;
-                                ui_offset.store(new, Ordering::SeqCst);
-                                ui.draw(paused, dns_shown, elapsed_time, new);
+                                ),
+                                ui_offset.load(Ordering::SeqCst),
+                            );
+                        }
+                        Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::CONTROL,
+                            code: KeyCode::Char('c'),
+                            kind: KeyEventKind::Press,
+                            ..
+                        })
+                        | Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::NONE,
+                            code: KeyCode::Char('q'),
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) => {
+                            running.store(false, Ordering::Release);
+                            display_handler.unpark();
+                            match terminal::disable_raw_mode() {
+                                Ok(_) => {}
+                                Err(_) => println!("Error could not disable raw input"),
                             }
-                            _ => (),
-                        };
-                    }
+                            let mut stdout = std::io::stdout();
+                            if crossterm::execute!(&mut stdout, terminal::LeaveAlternateScreen)
+                                .is_err()
+                            {
+                                println!("Error could not leave alternte screen");
+                            };
+                            break;
+                        }
+                        Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::NONE,
+                            code: KeyCode::Char(' '),
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) => {
+                            let restarting = paused.fetch_xor(true, Ordering::SeqCst);
+                            if restarting {
+                                *last_start_time.write().unwrap() = Instant::now();
+                            } else {
+                                let last_start_time_copy = *last_start_time.read().unwrap();
+                                let current_cumulative_time_copy = *cumulative_time.read().unwrap();
+                                let new_cumulative_time =
+                                    current_cumulative_time_copy + last_start_time_copy.elapsed();
+                                *cumulative_time.write().unwrap() = new_cumulative_time;
+                            }
+
+                            display_handler.unpark();
+                        }
+                        Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::NONE,
+                            code: KeyCode::Tab,
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) => {
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            let table_count = ui.get_table_count();
+                            let new = ui_offset.load(Ordering::SeqCst) + 1 % table_count;
+                            ui_offset.store(new, Ordering::SeqCst);
+                            ui.draw(paused, dns_shown, elapsed_time, new);
+                        }
+                        _ => (),
+                    };
                 }
-            })
-            .unwrap(),
-    );
+            }
+        })
+        .unwrap();
+
     active_threads.push(display_handler);
+    active_threads.push(terminal_event_handler);
 
     let sniffer_threads = os_input
         .network_interfaces

@@ -6,6 +6,7 @@ use pnet::datalink::DataLinkReceiver;
 use rstest::rstest;
 
 use crate::{
+    cli::RenderOpts,
     start,
     tests::{
         cases::test_utils::{
@@ -18,7 +19,7 @@ use crate::{
             create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvents,
         },
     },
-    Opt, OsInputOutput, RenderOpts,
+    Opt, OsInputOutput,
 };
 
 #[test]

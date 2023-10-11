@@ -12,12 +12,13 @@ use pnet_base::MacAddr;
 use rstest::fixture;
 
 use crate::{
+    cli::RenderOpts,
     network::dns::Client,
     tests::fakes::{
         create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvent,
         TerminalEvents, TestBackend,
     },
-    Opt, OsInputOutput, RenderOpts,
+    Opt, OsInputOutput,
 };
 
 pub fn sleep_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
