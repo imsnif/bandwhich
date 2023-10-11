@@ -2,7 +2,6 @@ use crate::{os::lsof_utils::get_connections, OpenSockets};
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
     let sockets_to_procs = get_connections()
-        .into_iter()
         .filter_map(|raw| raw.as_local_socket().map(|s| (s, raw.process_name)))
         .collect();
 
