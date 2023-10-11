@@ -1,5 +1,6 @@
 #![deny(clippy::all)]
 
+mod cli;
 mod display;
 mod network;
 mod os;
@@ -8,7 +9,6 @@ mod tests;
 
 use std::{
     collections::HashMap,
-    net::Ipv4Addr,
     process,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
@@ -18,7 +18,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use clap::{arg, Args, Parser};
+use clap::Parser;
 use crossterm::{
     event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     terminal,
@@ -31,45 +31,9 @@ use network::{
 use pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ratatui::backend::{Backend, CrosstermBackend};
 
+use crate::cli::Opt;
+
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
-
-#[derive(Parser, Debug)]
-#[command(name = "bandwhich", version)]
-pub struct Opt {
-    #[arg(short, long)]
-    /// The network interface to listen on, eg. eth0
-    interface: Option<String>,
-    #[arg(short, long)]
-    /// Machine friendlier output
-    raw: bool,
-    #[arg(short, long)]
-    /// Do not attempt to resolve IPs to their hostnames
-    no_resolve: bool,
-    #[command(flatten)]
-    render_opts: RenderOpts,
-    #[arg(short, long)]
-    /// Show DNS queries
-    show_dns: bool,
-    #[arg(short, long)]
-    /// A dns server ip to use instead of the system default
-    dns_server: Option<Ipv4Addr>,
-}
-
-#[derive(Args, Debug, Copy, Clone)]
-pub struct RenderOpts {
-    #[arg(short, long)]
-    /// Show processes table only
-    processes: bool,
-    #[arg(short, long)]
-    /// Show connections table only
-    connections: bool,
-    #[arg(short, long)]
-    /// Show remote addresses table only
-    addresses: bool,
-    #[arg(short, long)]
-    /// Show total (cumulative) usages
-    total_utilization: bool,
-}
 
 fn main() {
     if let Err(err) = try_main() {

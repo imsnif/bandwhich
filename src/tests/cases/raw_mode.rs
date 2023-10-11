@@ -9,6 +9,7 @@ use packet_builder::*;
 use pnet::{datalink::DataLinkReceiver, packet::Packet};
 
 use crate::{
+    cli::RenderOpts,
     start,
     tests::{
         cases::test_utils::{
@@ -17,7 +18,7 @@ use crate::{
         },
         fakes::{create_fake_dns_client, NetworkFrames},
     },
-    Opt, RenderOpts,
+    Opt,
 };
 
 fn build_ip_tcp_packet(
