@@ -1,8 +1,9 @@
 use std::{ffi::OsStr, net::IpAddr, process::Command, sync::OnceLock};
 
+use log::warn;
 use regex::Regex;
 
-use crate::network::Protocol;
+use crate::network::{LocalSocket, Protocol};
 
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
@@ -113,6 +114,25 @@ impl RawConnection {
 
     pub fn get_local_port(&self) -> Option<u16> {
         self.local_port.parse::<u16>().ok()
+    }
+
+    pub fn as_local_socket(&self) -> Option<LocalSocket> {
+        let process = &self.process_name;
+
+        let Some(ip) = self.get_local_ip() else {
+            warn!(r#"Failed to get the local IP of a connection belonging to "{process}"."#);
+            return None;
+        };
+        let Some(port) = self.get_local_port() else {
+            warn!(r#"Failed to get the local port of a connection belonging to "{process}"."#);
+            return None;
+        };
+        let Some(protocol) = self.get_protocol() else {
+            warn!(r#"Failed to get the protocol of a connection belonging to "{process}"."#);
+            return None;
+        };
+
+        Some(LocalSocket { ip, port, protocol })
     }
 }
 
