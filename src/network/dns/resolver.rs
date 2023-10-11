@@ -15,12 +15,12 @@ pub trait Lookup {
 pub struct Resolver(TokioAsyncResolver);
 
 impl Resolver {
-    pub async fn new(dns_server: &Option<Ipv4Addr>) -> anyhow::Result<Self> {
+    pub async fn new(dns_server: Option<Ipv4Addr>) -> anyhow::Result<Self> {
         let resolver = match dns_server {
             Some(dns_server_address) => {
                 let mut config = ResolverConfig::new();
                 let options = ResolverOpts::default();
-                let socket = SocketAddr::V4(SocketAddrV4::new(*dns_server_address, 53));
+                let socket = SocketAddr::V4(SocketAddrV4::new(dns_server_address, 53));
                 let nameserver_config = NameServerConfig {
                     socket_addr: socket,
                     protocol: Protocol::Udp,

@@ -143,9 +143,9 @@ where
 }
 
 pub fn get_input(
-    interface_name: &Option<String>,
+    interface_name: Option<&str>,
     resolve: bool,
-    dns_server: &Option<Ipv4Addr>,
+    dns_server: Option<Ipv4Addr>,
 ) -> anyhow::Result<OsInputOutput> {
     let network_interfaces = if let Some(name) = interface_name {
         match get_interface(name) {

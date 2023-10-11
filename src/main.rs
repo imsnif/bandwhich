@@ -36,7 +36,7 @@ const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
 fn main() -> anyhow::Result<()> {
     let opts = Opt::parse();
-    let os_input = os::get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
+    let os_input = os::get_input(opts.interface.as_deref(), !opts.no_resolve, opts.dns_server)?;
 
     if opts.raw {
         let terminal_backend = RawTerminalBackend {};
