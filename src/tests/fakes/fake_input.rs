@@ -72,15 +72,15 @@ impl DataLinkReceiver for NetworkFrames {
         if self.current_index < self.packets.len() {
             let action = self.next_packet();
             match action {
-                Some(packet) => Ok(&packet[..]),
+                Some(packet) => Ok(packet),
                 None => {
                     thread::sleep(time::Duration::from_secs(1));
-                    Ok(&[][..])
+                    Ok(&[])
                 }
             }
         } else {
             thread::sleep(time::Duration::from_secs(1));
-            Ok(&[][..])
+            Ok(&[])
         }
     }
 }
