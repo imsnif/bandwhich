@@ -9,7 +9,6 @@ use packet_builder::*;
 use pnet::{datalink::DataLinkReceiver, packet::Packet};
 
 use crate::{
-    cli::RenderOpts,
     start,
     tests::{
         cases::test_utils::{
@@ -580,14 +579,7 @@ fn no_resolve_mode() {
         interface: Some(String::from("interface_name")),
         raw: true,
         no_resolve: true,
-        show_dns: false,
-        dns_server: None,
-        render_opts: RenderOpts {
-            addresses: false,
-            connections: false,
-            processes: false,
-            total_utilization: false,
-        },
+        ..Default::default()
     };
     start(backend, os_input, opts);
     let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();

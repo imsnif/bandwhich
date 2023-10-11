@@ -2,7 +2,7 @@ use std::net::Ipv4Addr;
 
 use clap::{Args, Parser};
 
-#[derive(Parser, Debug)]
+#[derive(Clone, Debug, Default, Parser)]
 #[command(name = "bandwhich", version)]
 pub struct Opt {
     #[arg(short, long)]
@@ -29,7 +29,7 @@ pub struct Opt {
     pub render_opts: RenderOpts,
 }
 
-#[derive(Args, Debug, Copy, Clone)]
+#[derive(Copy, Clone, Debug, Default, Args)]
 pub struct RenderOpts {
     #[arg(short, long)]
     /// Show processes table only

@@ -156,17 +156,11 @@ fn basic_only_processes() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
         render_opts: RenderOpts {
-            addresses: false,
-            connections: false,
             processes: true,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);
@@ -183,17 +177,12 @@ fn basic_processes_with_dns_queries() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
         show_dns: true,
-        dns_server: None,
         render_opts: RenderOpts {
-            addresses: false,
-            connections: false,
             processes: true,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);
@@ -210,17 +199,11 @@ fn basic_only_connections() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
         render_opts: RenderOpts {
-            addresses: false,
             connections: true,
-            processes: false,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);
@@ -237,17 +220,11 @@ fn basic_only_addresses() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
         render_opts: RenderOpts {
             addresses: true,
-            connections: false,
-            processes: false,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);
@@ -260,17 +237,11 @@ fn two_packets_only_processes(frames: Vec<Box<dyn DataLinkReceiver>>) {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(frames, 2);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
         render_opts: RenderOpts {
-            addresses: false,
-            connections: false,
             processes: true,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);
@@ -284,17 +255,11 @@ fn two_packets_only_connections(frames: Vec<Box<dyn DataLinkReceiver>>) {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(frames, 2);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
         render_opts: RenderOpts {
-            addresses: false,
             connections: true,
-            processes: false,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);
@@ -308,17 +273,11 @@ fn two_packets_only_addresses(frames: Vec<Box<dyn DataLinkReceiver>>) {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(frames, 2);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
         render_opts: RenderOpts {
             addresses: true,
-            connections: false,
-            processes: false,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);
@@ -336,17 +295,12 @@ fn two_windows_split_horizontally() {
     let (_, terminal_draw_events, backend) = test_backend_factory(60, 50);
     let os_input = os_input_output(network_frames, 2);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
         render_opts: RenderOpts {
             addresses: true,
             connections: true,
-            processes: false,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);
@@ -363,17 +317,12 @@ fn two_windows_split_vertically() {
     let (_, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let os_input = os_input_output(network_frames, 1);
     let opts = Opt {
-        interface: Some(String::from("interface_name")),
-        raw: false,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
         render_opts: RenderOpts {
             addresses: true,
             connections: true,
-            processes: false,
-            total_utilization: false,
+            ..Default::default()
         },
+        ..opts_ui()
     };
 
     start(backend, os_input, opts);

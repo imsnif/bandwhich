@@ -12,7 +12,6 @@ use pnet_base::MacAddr;
 use rstest::fixture;
 
 use crate::{
-    cli::RenderOpts,
     network::dns::Client,
     tests::fakes::{
         create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvent,
@@ -269,28 +268,19 @@ pub fn os_input_output_factory(
 }
 
 pub fn opts_raw() -> Opt {
-    opts_factory(true)
-}
-
-pub fn opts_ui() -> Opt {
-    opts_factory(false)
-}
-
-fn opts_factory(raw: bool) -> Opt {
     Opt {
         interface: Some(String::from("interface_name")),
-        raw,
-        no_resolve: false,
-        show_dns: false,
-        dns_server: None,
-        render_opts: RenderOpts {
-            addresses: false,
-            connections: false,
-            processes: false,
-            total_utilization: false,
-        },
+        raw: true,
+        ..Default::default()
     }
 }
+pub fn opts_ui() -> Opt {
+    Opt {
+        interface: Some(String::from("interface_name")),
+        ..Default::default()
+    }
+}
+
 type BackendWithStreams = (
     Arc<Mutex<Vec<TerminalEvent>>>,
     Arc<Mutex<Vec<String>>>,
