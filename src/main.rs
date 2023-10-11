@@ -9,7 +9,6 @@ mod tests;
 
 use std::{
     collections::HashMap,
-    process,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc, Mutex, RwLock,
@@ -35,14 +34,7 @@ use crate::cli::Opt;
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
-fn main() {
-    if let Err(err) = try_main() {
-        eprintln!("Error: {err}");
-        process::exit(2);
-    }
-}
-
-fn try_main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()> {
     use os::get_input;
     let opts = Opt::parse();
     let os_input = get_input(&opts.interface, !opts.no_resolve, &opts.dns_server)?;
