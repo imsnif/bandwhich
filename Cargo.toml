@@ -36,6 +36,9 @@ resolv-conf = "0.7.0"
 pnet_macros_support = "0.34.0"
 anyhow = { version = "1.0.75", features = ["backtrace"] }
 thiserror = "1.0.49"
+log = "0.4.20"
+simplelog = "0.12.1"
+clap-verbosity-flag = "2.0.1"
 
 [target.'cfg(target_os="windows")'.dependencies]
 netstat2 = "0.9.1"
