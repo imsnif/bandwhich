@@ -9,6 +9,7 @@ mod tests;
 
 use std::{
     collections::HashMap,
+    fs::File,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc, Mutex, RwLock,
@@ -29,6 +30,7 @@ use network::{
 };
 use pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use ratatui::backend::{Backend, CrosstermBackend};
+use simplelog::WriteLogger;
 
 use crate::cli::Opt;
 
@@ -36,8 +38,18 @@ const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
 fn main() -> anyhow::Result<()> {
     let opts = Opt::parse();
-    let os_input = os::get_input(opts.interface.as_deref(), !opts.no_resolve, opts.dns_server)?;
 
+    // init logging
+    if let Some(ref log_path) = opts.log_to {
+        let log_file = File::options().create_new(true).open(log_path)?;
+        WriteLogger::init(
+            opts.verbosity.log_level_filter(),
+            Default::default(),
+            log_file,
+        )?;
+    }
+
+    let os_input = os::get_input(opts.interface.as_deref(), !opts.no_resolve, opts.dns_server)?;
     if opts.raw {
         let terminal_backend = RawTerminalBackend {};
         start(terminal_backend, os_input, opts);

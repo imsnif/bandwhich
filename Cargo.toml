@@ -39,9 +39,10 @@ thiserror = "1.0.49"
 log = "0.4.20"
 simplelog = "0.12.1"
 clap-verbosity-flag = "2.0.1"
+derivative = "2.2.0"
 
 [target.'cfg(target_os="windows")'.dependencies]
-netstat2 = "0.9.1"
+netstat2 = "0.9.1" 
 sysinfo = "0.29.10"
 
 [target.'cfg(target_os="linux")'.dependencies]

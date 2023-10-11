@@ -1,8 +1,11 @@
-use std::net::Ipv4Addr;
+use std::{net::Ipv4Addr, path::PathBuf};
 
 use clap::{Args, Parser};
+use clap_verbosity_flag::{InfoLevel, Verbosity};
+use derivative::Derivative;
 
-#[derive(Clone, Debug, Default, Parser)]
+#[derive(Clone, Debug, Derivative, Parser)]
+#[derivative(Default)]
 #[command(name = "bandwhich", version)]
 pub struct Opt {
     #[arg(short, long)]
@@ -24,6 +27,14 @@ pub struct Opt {
     #[arg(short, long)]
     /// A dns server ip to use instead of the system default
     pub dns_server: Option<Ipv4Addr>,
+
+    #[arg(long)]
+    /// Enable logging to a file
+    pub log_to: Option<PathBuf>,
+
+    #[command(flatten)]
+    #[derivative(Default(value = "Verbosity::new(0, 0)"))]
+    pub verbosity: Verbosity<InfoLevel>,
 
     #[command(flatten)]
     pub render_opts: RenderOpts,
