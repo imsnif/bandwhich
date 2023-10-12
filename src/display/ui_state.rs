@@ -98,22 +98,31 @@ impl UIState {
         connections_to_procs: &'a HashMap<LocalSocket, String>,
         local_socket: &LocalSocket,
     ) -> Option<&'a String> {
-        let &LocalSocket { port, protocol, .. } = local_socket;
-
         let name = connections_to_procs
+            // direct match
             .get(local_socket)
+            // IPv4-mapped IPv6 addresses
+            .or_else(|| {
+                let swapped: IpAddr = match local_socket.ip {
+                    IpAddr::V4(v4) => v4.to_ipv6_mapped().into(),
+                    IpAddr::V6(v6) => v6.to_ipv4_mapped()?.into(),
+                };
+                connections_to_procs.get(&LocalSocket {
+                    ip: swapped,
+                    ..*local_socket
+                })
+            })
+            // address unspecified
             .or_else(|| {
                 connections_to_procs.get(&LocalSocket {
                     ip: Ipv4Addr::UNSPECIFIED.into(),
-                    port,
-                    protocol,
+                    ..*local_socket
                 })
             })
             .or_else(|| {
                 connections_to_procs.get(&LocalSocket {
                     ip: Ipv6Addr::UNSPECIFIED.into(),
-                    port,
-                    protocol,
+                    ..*local_socket
                 })
             });
 
@@ -121,8 +130,9 @@ impl UIState {
         if name.is_none() && self.known_orphan_sockets.borrow_mut().insert(*local_socket) {
             match connections_to_procs
                 .iter()
-                .find(|(socket, _)| socket.port == port && socket.protocol == protocol)
-            {
+                .find(|(&LocalSocket { port, protocol, .. }, _)| {
+                    port == local_socket.port && protocol == local_socket.protocol
+                }) {
                 Some((lookalike, name)) => {
                     warn!(
                         r#""{name}" owns a similar looking connection, but its local ip doesn't match."#
