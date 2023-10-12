@@ -6,6 +6,8 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 
+use log::warn;
+
 use crate::network::{Connection, LocalSocket, Utilization};
 
 static RECALL_LENGTH: usize = 5;
@@ -92,21 +94,41 @@ impl UIState {
         connections_to_procs: &'a HashMap<LocalSocket, String>,
         local_socket: &LocalSocket,
     ) -> Option<&'a String> {
-        if let Some(process_name) = connections_to_procs.get(local_socket) {
-            Some(process_name)
-        } else if let Some(process_name) = connections_to_procs.get(&LocalSocket {
-            ip: IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
-            port: local_socket.port,
-            protocol: local_socket.protocol,
-        }) {
-            Some(process_name)
-        } else {
-            connections_to_procs.get(&LocalSocket {
-                ip: IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)),
-                port: local_socket.port,
-                protocol: local_socket.protocol,
+        let &LocalSocket { port, protocol, .. } = local_socket;
+
+        let name = connections_to_procs
+            .get(local_socket)
+            .or_else(|| {
+                connections_to_procs.get(&LocalSocket {
+                    ip: Ipv4Addr::UNSPECIFIED.into(),
+                    port,
+                    protocol,
+                })
             })
+            .or_else(|| {
+                connections_to_procs.get(&LocalSocket {
+                    ip: Ipv6Addr::UNSPECIFIED.into(),
+                    port,
+                    protocol,
+                })
+            });
+
+        if name.is_none() {
+            match connections_to_procs
+                .iter()
+                .find(|(socket, _)| socket.port == port && socket.protocol == protocol)
+            {
+                Some((lookalike, name)) => {
+                    warn!(
+                        r#""{name}" owns a similar looking connection, but its local ip doesn't match."#
+                    );
+                    warn!("Looking for: {local_socket}; found: {lookalike}");
+                }
+                None => warn!("Cannot determine which process owns {local_socket}."),
+            };
         }
+
+        name
     }
     pub fn update(
         &mut self,
@@ -154,7 +176,9 @@ impl UIState {
                     UIState::get_proc_name(connections_to_procs, &connection.local_socket)
                 {
                     connection_data.process_name = process_name.clone();
-                    processes.entry(process_name.clone()).or_default()
+                    processes
+                        .entry(connection_data.process_name.clone())
+                        .or_default()
                 } else {
                     connection_data.process_name = String::from("<UNKNOWN>");
                     processes

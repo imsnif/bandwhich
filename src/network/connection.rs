@@ -43,6 +43,16 @@ pub struct LocalSocket {
     pub protocol: Protocol,
 }
 
+impl fmt::Display for LocalSocket {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let LocalSocket { ip, port, protocol } = self;
+        match ip {
+            IpAddr::V4(v4) => write!(f, "{protocol}://{v4}:{port}"),
+            IpAddr::V6(v6) => write!(f, "{protocol}://[{v6}]:{port}"),
+        }
+    }
+}
+
 #[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Debug, Copy)]
 pub struct Connection {
     pub remote_socket: Socket,
