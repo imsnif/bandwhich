@@ -89,7 +89,7 @@ pub struct UIState {
     pub remote_addresses_map: HashMap<IpAddr, NetworkData>,
     pub connections_map: HashMap<Connection, ConnectionData>,
     /// Used for reducing logging noise.
-    known_orphan_sockets: RefCell<HashSet<LocalSocket>>,
+    known_orphan_sockets: RefCell<VecDeque<LocalSocket>>,
 }
 
 impl UIState {
@@ -126,21 +126,29 @@ impl UIState {
                 })
             });
 
-        // only log each orphan connection once
-        if name.is_none() && self.known_orphan_sockets.borrow_mut().insert(*local_socket) {
-            match connections_to_procs
-                .iter()
-                .find(|(&LocalSocket { port, protocol, .. }, _)| {
-                    port == local_socket.port && protocol == local_socket.protocol
-                }) {
-                Some((lookalike, name)) => {
-                    warn!(
-                        r#""{name}" owns a similar looking connection, but its local ip doesn't match."#
-                    );
-                    warn!("Looking for: {local_socket}; found: {lookalike}");
-                }
-                None => warn!("Cannot determine which process owns {local_socket}."),
-            };
+        if name.is_none() {
+            let mut orphans = self.known_orphan_sockets.borrow_mut();
+            // only log each orphan connection once
+            if !orphans.contains(local_socket) {
+                // newer connections go in the front so that searches are faster
+                // basically recency bias
+                orphans.push_front(*local_socket);
+                orphans.truncate(10_000); // arbitrary maximum backlog
+
+                match connections_to_procs.iter().find(
+                    |(&LocalSocket { port, protocol, .. }, _)| {
+                        port == local_socket.port && protocol == local_socket.protocol
+                    },
+                ) {
+                    Some((lookalike, name)) => {
+                        warn!(
+                            r#""{name}" owns a similar looking connection, but its local ip doesn't match."#
+                        );
+                        warn!("Looking for: {local_socket}; found: {lookalike}");
+                    }
+                    None => warn!("Cannot determine which process owns {local_socket}."),
+                };
+            }
         }
 
         name
