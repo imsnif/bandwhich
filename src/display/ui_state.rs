@@ -1,4 +1,5 @@
 use std::{
+    cell::RefCell,
     cmp,
     collections::{HashMap, HashSet, VecDeque},
     hash::Hash,
@@ -87,10 +88,13 @@ pub struct UIState {
     pub processes_map: HashMap<String, NetworkData>,
     pub remote_addresses_map: HashMap<IpAddr, NetworkData>,
     pub connections_map: HashMap<Connection, ConnectionData>,
+    /// Used for reducing logging noise.
+    known_orphan_sockets: RefCell<HashSet<LocalSocket>>,
 }
 
 impl UIState {
     fn get_proc_name<'a>(
+        &self,
         connections_to_procs: &'a HashMap<LocalSocket, String>,
         local_socket: &LocalSocket,
     ) -> Option<&'a String> {
@@ -113,7 +117,8 @@ impl UIState {
                 })
             });
 
-        if name.is_none() {
+        // only log each orphan connection once
+        if name.is_none() && self.known_orphan_sockets.borrow_mut().insert(*local_socket) {
             match connections_to_procs
                 .iter()
                 .find(|(socket, _)| socket.port == port && socket.protocol == protocol)
@@ -173,7 +178,7 @@ impl UIState {
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
                 let data_for_process = if let Some(process_name) =
-                    UIState::get_proc_name(connections_to_procs, &connection.local_socket)
+                    self.get_proc_name(connections_to_procs, &connection.local_socket)
                 {
                     connection_data.process_name = process_name.clone();
                     processes

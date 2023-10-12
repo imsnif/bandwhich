@@ -30,9 +30,10 @@ where
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
-        let state = UIState {
-            cumulative_mode: opts.total_utilization,
-            ..Default::default()
+        let state = {
+            let mut state = UIState::default();
+            state.cumulative_mode = opts.total_utilization;
+            state
         };
         Ui {
             terminal,
