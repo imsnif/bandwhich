@@ -41,7 +41,10 @@ fn main() -> anyhow::Result<()> {
 
     // init logging
     if let Some(ref log_path) = opts.log_to {
-        let log_file = File::options().create_new(true).open(log_path)?;
+        let log_file = File::options()
+            .write(true)
+            .create_new(true)
+            .open(log_path)?;
         WriteLogger::init(
             opts.verbosity.log_level_filter(),
             Default::default(),
