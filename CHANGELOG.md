@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+* Ignore connections that fail parsing instead of panicking on BSD (https://github.com/imsnif/bandwhich/pull/288) - [@cyqsimon](https://github.com/cyqsimon)
+* Add missing version flag to CLI (https://github.com/imsnif/bandwhich/pull/290) - [@tranzystorek-io](https://github.com/tranzystorek-io)
+* Various minor codestyle changes - [@cyqsimon](https://github.com/cyqsimon)
+* Handle IPv4-mapped IPv6 addresses when resolving connection owner (https://github.com/imsnif/bandwhich/commit/76956cf) - [@cyqsimon](https://github.com/cyqsimon)
+* Bump `rustix` dependencies to fix a memory leak (https://github.com/imsnif/bandwhich/commit/bc10c07) - [@cyqsimon](https://github.com/cyqsimon)
+
+### Added
+* Logging infrastrure (https://github.com/imsnif/bandwhich/pull/302) - [@cyqsimon](https://github.com/cyqsimon)
+
 ## [0.21.0] - 2023-09-19
 
 ### Fixed
