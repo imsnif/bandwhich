@@ -17,7 +17,7 @@ use crate::{
     network::{display_connection_string, display_ip_or_host},
 };
 
-/// The layout choice of a table.
+/// The displayed layout choice of a table.
 /// Each value in the array is the width of each column.
 ///
 /// Note that this only determines how a table is displayed, not what data it contains.
@@ -25,13 +25,13 @@ use crate::{
 /// If we intend to display different number of columns in the future,
 /// then new variants should be added.
 #[derive(Copy, Clone, Debug)]
-pub enum TableLayout {
+pub enum DisplayLayout {
     /// Show 2 columns.
     C2([u16; 2]),
     /// Show 3 columns.
     C3([u16; 3]),
 }
-impl Index<usize> for TableLayout {
+impl Index<usize> for DisplayLayout {
     type Output = u16;
 
     fn index(&self, i: usize) -> &Self::Output {
@@ -41,7 +41,7 @@ impl Index<usize> for TableLayout {
         }
     }
 }
-impl TableLayout {
+impl DisplayLayout {
     #[inline]
     fn columns_count(&self) -> usize {
         match self {
@@ -123,7 +123,7 @@ impl TableData {
             Self::C3(inner) => inner.rows.iter().map(|r| r.as_slice()).collect(),
         }
     }
-    fn column_selector(&self) -> &dyn Fn(&TableLayout) -> Vec<usize> {
+    fn column_selector(&self) -> &dyn Fn(&DisplayLayout) -> Vec<usize> {
         match self {
             Self::C3(inner) => inner.column_selector.as_ref(),
         }
@@ -146,11 +146,11 @@ struct NColsTableData<const C: usize> {
     /// This function should return a vector of column indices.
     /// The indices should be less than `C`; otherwise this will cause a runtime panic.
     #[derivative(Debug(format_with = "debug_fn::<C>"))]
-    column_selector: Rc<dyn Fn(&TableLayout) -> Vec<usize>>,
+    column_selector: Rc<dyn Fn(&DisplayLayout) -> Vec<usize>>,
 }
 
 fn debug_fn<const C: usize>(
-    _func: &Rc<dyn Fn(&TableLayout) -> Vec<usize>>,
+    _func: &Rc<dyn Fn(&DisplayLayout) -> Vec<usize>>,
     f: &mut fmt::Formatter,
 ) -> Result<(), fmt::Error> {
     write!(f, "Rc<dyn Fn(&TableLayout) -> Vec<usize>>")
@@ -170,19 +170,19 @@ pub struct Table {
     /// - If `Wt >= Wd`, spacers with a maximum width of `2` will be inserted
     ///   between columns; and then the columns will proportionally expand.
     /// - If `Wt < Wd`, columns will proportionally shrink.
-    width_cutoffs: Vec<(u16, TableLayout)>,
+    width_cutoffs: Vec<(u16, DisplayLayout)>,
     data: TableData,
 }
 impl Table {
     pub fn create_connections_table(state: &UIState, ip_to_host: &HashMap<IpAddr, String>) -> Self {
-        use TableLayout as L;
+        use DisplayLayout as D;
 
         let title = "Utilization by connection";
         let width_cutoffs = vec![
-            (0, L::C2([20, 30])),
-            (70, L::C3([30, 12, 23])),
-            (100, L::C3([60, 12, 23])),
-            (140, L::C3([100, 12, 23])),
+            (0, D::C2([20, 30])),
+            (70, D::C3([30, 12, 23])),
+            (100, D::C3([60, 12, 23])),
+            (140, D::C3([100, 12, 23])),
         ];
 
         let column_names = ["Connection", "Process", "Up / Down"];
@@ -201,9 +201,9 @@ impl Table {
                 ]
             })
             .collect();
-        let column_selector = Rc::new(|layout: &L| match layout {
-            L::C2(_) => vec![0, 2],
-            L::C3(_) => vec![0, 1, 2],
+        let column_selector = Rc::new(|layout: &D| match layout {
+            D::C2(_) => vec![0, 2],
+            D::C3(_) => vec![0, 1, 2],
         });
 
         Table {
@@ -219,14 +219,14 @@ impl Table {
     }
 
     pub fn create_processes_table(state: &UIState) -> Self {
-        use TableLayout as L;
+        use DisplayLayout as D;
 
         let title = "Utilization by process name";
         let width_cutoffs = vec![
-            (0, L::C2([12, 23])),
-            (50, L::C3([12, 12, 23])),
-            (100, L::C3([40, 12, 23])),
-            (140, L::C3([40, 12, 23])),
+            (0, D::C2([12, 23])),
+            (50, D::C3([12, 12, 23])),
+            (100, D::C3([40, 12, 23])),
+            (140, D::C3([40, 12, 23])),
         ];
 
         let column_names = ["Process", "Connections", "Up / Down"];
@@ -241,9 +241,9 @@ impl Table {
                 ]
             })
             .collect();
-        let column_selector = Rc::new(|layout: &L| match layout {
-            L::C2(_) => vec![0, 2],
-            L::C3(_) => vec![0, 1, 2],
+        let column_selector = Rc::new(|layout: &D| match layout {
+            D::C2(_) => vec![0, 2],
+            D::C3(_) => vec![0, 1, 2],
         });
 
         Table {
@@ -262,14 +262,14 @@ impl Table {
         state: &UIState,
         ip_to_host: &HashMap<IpAddr, String>,
     ) -> Self {
-        use TableLayout as L;
+        use DisplayLayout as D;
 
         let title = "Utilization by remote address";
         let width_cutoffs = vec![
-            (0, L::C2([15, 20])),
-            (70, L::C3([30, 12, 23])),
-            (100, L::C3([60, 12, 23])),
-            (140, L::C3([100, 12, 23])),
+            (0, D::C2([15, 20])),
+            (70, D::C3([30, 12, 23])),
+            (100, D::C3([60, 12, 23])),
+            (140, D::C3([100, 12, 23])),
         ];
 
         let column_names = ["Remote Address", "Connections", "Up / Down"];
@@ -285,9 +285,9 @@ impl Table {
                 ]
             })
             .collect();
-        let column_selector = Rc::new(|layout: &L| match layout {
-            L::C2(_) => vec![0, 2],
-            L::C3(_) => vec![0, 1, 2],
+        let column_selector = Rc::new(|layout: &D| match layout {
+            D::C2(_) => vec![0, 2],
+            D::C3(_) => vec![0, 1, 2],
         });
 
         Table {
