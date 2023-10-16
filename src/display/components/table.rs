@@ -146,11 +146,14 @@ struct NColsTableData<const C: usize> {
     /// This function should return a vector of column indices.
     /// The indices should be less than `C`; otherwise this will cause a runtime panic.
     #[derivative(Debug(format_with = "debug_fn::<C>"))]
-    column_selector: Rc<dyn Fn(&DisplayLayout) -> Vec<usize>>,
+    column_selector: Rc<ColumnSelectorFn>,
 }
 
+/// Clippy wanted me to write this. 💢
+type ColumnSelectorFn = dyn Fn(&DisplayLayout) -> Vec<usize>;
+
 fn debug_fn<const C: usize>(
-    _func: &Rc<dyn Fn(&DisplayLayout) -> Vec<usize>>,
+    _func: &Rc<ColumnSelectorFn>,
     f: &mut fmt::Formatter,
 ) -> Result<(), fmt::Error> {
     write!(f, "Rc<dyn Fn(&TableLayout) -> Vec<usize>>")
@@ -312,8 +315,7 @@ impl Table {
                 .rev()
                 .find(|(cutoff, _)| rect.width > *cutoff)
                 .unwrap(); // all cutoff tables have a 0-width entry
-            let computed = layout.compute_actual_widths(rect.width);
-            computed
+            layout.compute_actual_widths(rect.width)
         };
 
         let columns_to_show = self.data.column_selector()(&computed_layout);
