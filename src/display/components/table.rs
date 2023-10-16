@@ -182,10 +182,10 @@ impl Table {
 
         let title = "Utilization by connection";
         let width_cutoffs = vec![
-            (0, D::C2([20, 30])),
-            (70, D::C3([30, 12, 23])),
-            (100, D::C3([60, 12, 23])),
-            (140, D::C3([100, 12, 23])),
+            (0, D::C2([32, 18])),
+            (80, D::C3([36, 12, 18])),
+            (100, D::C3([54, 18, 22])),
+            (120, D::C3([72, 24, 22])),
         ];
 
         let column_names = ["Connection", "Process", "Up / Down"];
@@ -226,10 +226,10 @@ impl Table {
 
         let title = "Utilization by process name";
         let width_cutoffs = vec![
-            (0, D::C2([12, 23])),
-            (50, D::C3([12, 12, 23])),
-            (100, D::C3([40, 12, 23])),
-            (140, D::C3([40, 12, 23])),
+            (0, D::C2([16, 18])),
+            (50, D::C3([16, 12, 20])),
+            (60, D::C3([24, 12, 20])),
+            (80, D::C3([36, 16, 24])),
         ];
 
         let column_names = ["Process", "Connections", "Up / Down"];
@@ -269,10 +269,10 @@ impl Table {
 
         let title = "Utilization by remote address";
         let width_cutoffs = vec![
-            (0, D::C2([15, 20])),
-            (70, D::C3([30, 12, 23])),
-            (100, D::C3([60, 12, 23])),
-            (140, D::C3([100, 12, 23])),
+            (0, D::C2([16, 16])),
+            (40, D::C2([20, 16])),
+            (60, D::C3([24, 10, 18])),
+            (100, D::C3([54, 16, 24])),
         ];
 
         let column_names = ["Remote Address", "Connections", "Up / Down"];
