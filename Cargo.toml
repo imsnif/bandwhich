@@ -27,10 +27,10 @@ ratatui = "0.23.0"
 crossterm = "0.27.0"
 clap = { version = "4.4.6", features = ["derive"] }
 chrono = "0.4"
-regex = "1.9.6"
-tokio = { version = "1.32", features = ["rt", "sync"] }
-trust-dns-resolver = "0.23.0"
-async-trait = "0.1.73"
+regex = "1.10.1"
+tokio = { version = "1.33", features = ["rt", "sync"] }
+trust-dns-resolver = "0.23.1"
+async-trait = "0.1.74"
 unicode-width = "0.1.11"
 resolv-conf = "0.7.0"
 pnet_macros_support = "0.34.0"
@@ -49,12 +49,12 @@ sysinfo = "0.29.10"
 procfs = "0.15.1"
 
 [dev-dependencies]
-insta = "1.33.0"
+insta = "1.34.0"
 pnet_base = "0.34.0"
 packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-update" }
 rstest = "0.18.2"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
 anyhow = "1.0.75"
-http_req = "0.9.3"
+http_req = "0.10.0"
 zip = "0.6.6"
