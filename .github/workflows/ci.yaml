@@ -88,9 +88,9 @@ jobs:
 
       - name: Run tests using cargo-insta
         id: run_tests
-        # npcap is needed to run tests on Windows, so this is an unfortunate
-        # sacrifice we have to make in the name of security
-        if: (matrix.os != 'windows-latest') || (github.event_name != 'pull_request')
+        # npcap is needed to run tests on Windows, so unfortunately we cannot run tests
+        # on PRs from other repositories
+        if: matrix.os != 'windows-latest' || github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         env:
           # make insta generate new snapshots in CI
           INSTA_UPDATE: new
