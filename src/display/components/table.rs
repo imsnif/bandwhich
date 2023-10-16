@@ -152,7 +152,7 @@ fn debug_fn<const C: usize>(
     _func: &Rc<ColumnSelectorFn>,
     f: &mut fmt::Formatter,
 ) -> Result<(), fmt::Error> {
-    write!(f, "Rc<dyn Fn(&TableLayout) -> Vec<usize>>")
+    write!(f, "Rc</* function pointer */>")
 }
 
 /// A table displayed by bandwhich.
