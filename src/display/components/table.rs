@@ -2,7 +2,6 @@ use std::{collections::HashMap, fmt, iter::FromIterator, net::IpAddr, ops::Index
 
 use derivative::Derivative;
 use itertools::Itertools;
-use log::info;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Rect},
@@ -90,9 +89,6 @@ impl DisplayLayout {
                 Self::C3([available_without_spacers - w1_new - w2_new, w1_new, w2_new])
             }
         };
-
-        info!("available: {available}, spacer: {spacer}, multiplier: {m}");
-        info!("layout: {self:?}, computed: {computed:?}");
 
         (computed, spacer)
     }
