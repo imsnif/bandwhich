@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
  Total Up / Down: 0Bps / 0Bps                                                                                                                                                                 
 ┌Utilization by process name──────────────────────────────────────────────────────────────────┐┌Utilization by remote address────────────────────────────────────────────────────────────────┐
-│Process                   Connections              Up / Down                                 ││Remote Address                               Connections       Up / Down                     │
+│Process                                       Connections          Up / Down                 ││Remote Address                               Connections        Up / Down                    │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -28,7 +28,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 │                                                                                             ││                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────┘└─────────────────────────────────────────────────────────────────────────────────────────────┘
 ┌Utilization by connection───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│Connection                                                                                                                                   Process           Up / Down                    │
+│Connection                                                                                                           Process                                Up / Down                       │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
@@ -57,7 +57,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                          22Bps                                                                                                                                                                
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                         1                        0Bps / 22Bps                                1.1.1.1                                      1                 0Bps / 22Bps                   
+ 1                                             1                    0Bps / 22Bps                1.1.1.1                                      1                  0Bps / 22Bps                  
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -81,7 +81,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                                                  1                 0Bps / 22Bps                  
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                          1                                      0Bps / 22Bps                     
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -108,8 +108,8 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 --- SECTION SEPARATOR ---
                                                                                                                                                                                               
                 remote addr ss                                                                                 connection────                                                                 
- Remote Address                               Connections       Up / Down                       Connection                                   Proc ss                                          
-  .1.1.1                                      1                 0Bps / 22Bps                    <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                   
+ Remote Address                               Con ections        Up / Down                      Connection                                           Process           Up / Down              
+  .1.1.1                                      1                  0Bps / 22Bps                   <interface_name>:443 => 1.1.1.1:12345 (tcp)          1                 0Bps / 22Bps           
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -132,8 +132,8 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                 proc ss name                                                                                                                                                                  
- Proc ss                                                                                               Connections                    Up / Down                                               
- 1                                                                                                     1                              0Bps / 22Bps                                            
+ Proc ss                                                                                    Connections                              Up / Down                                                
+ 1                                                                                          1                                        0Bps / 22Bps                                             
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -161,7 +161,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                          14                                                                                                                                                                   
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                       14                                                                                             14                      
+                                                                        14                                                                                                    14              
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -185,7 +185,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                             14                                               
+                                                                                                                                            14                                                
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -213,7 +213,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                           1                                                                                                                                                                   
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                        1                                                                                              1                      
+                                                                         1                                                                                                     1              
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -237,7 +237,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                              1                                               
+                                                                                                                                             1                                                
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

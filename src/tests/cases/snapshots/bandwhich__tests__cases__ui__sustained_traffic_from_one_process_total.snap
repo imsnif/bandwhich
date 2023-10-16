@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
  Total Up / Down: 0B / 0B                                                                                                                                                                     
 ┌Utilization by process name──────────────────────────────────────────────────────────────────┐┌Utilization by remote address────────────────────────────────────────────────────────────────┐
-│Process                   Connections              Up / Down                                 ││Remote Address                               Connections       Up / Down                     │
+│Process                                       Connections          Up / Down                 ││Remote Address                               Connections        Up / Down                    │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -28,7 +28,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 │                                                                                             ││                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────┘└─────────────────────────────────────────────────────────────────────────────────────────────┘
 ┌Utilization by connection───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│Connection                                                                                                                                   Process           Up / Down                    │
+│Connection                                                                                                           Process                                Up / Down                       │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
@@ -57,7 +57,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                        22B                                                                                                                                                                    
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                         1                        0B / 22B                                    1.1.1.1                                      1                 0B / 22B                       
+ 1                                             1                    0B / 22B                    1.1.1.1                                      1                  0B / 22B                      
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -81,7 +81,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                                                  1                 0B / 22B                      
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                          1                                      0B / 22B                         
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -109,7 +109,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                        53                                                                                                                                                                     
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                         53                                                                                                         53                        
+                                                                         53                                                                                          53                       
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -133,7 +133,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                     53                       
+                                                                                                                                                                  53                          
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
