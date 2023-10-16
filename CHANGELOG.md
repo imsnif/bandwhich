@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.21.1] - 2023-10-16
+
 ### Fixed
 * Ignore connections that fail parsing instead of panicking on BSD (https://github.com/imsnif/bandwhich/pull/288) - [@cyqsimon](https://github.com/cyqsimon)
 * Add missing version flag to CLI (https://github.com/imsnif/bandwhich/pull/290) - [@tranzystorek-io](https://github.com/tranzystorek-io)

@@ -2,7 +2,7 @@
 edition = "2021"
 name = "bandwhich"
 description = "Display current network utilization by process, connection and remote IP/hostname"
-version = "0.21.0"
+version = "0.21.1"
 rust-version = "1.70.0"
 homepage = "https://github.com/imsnif/bandwhich"
 repository = "https://github.com/imsnif/bandwhich"
@@ -42,7 +42,7 @@ clap-verbosity-flag = "2.0.1"
 derivative = "2.2.0"
 
 [target.'cfg(target_os="windows")'.dependencies]
-netstat2 = "0.9.1" 
+netstat2 = "0.9.1"
 sysinfo = "0.29.10"
 
 [target.'cfg(target_os="linux")'.dependencies]
