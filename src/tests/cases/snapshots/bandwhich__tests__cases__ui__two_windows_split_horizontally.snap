@@ -28,7 +28,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 │                                                          │
 └──────────────────────────────────────────────────────────┘
 ┌Utilization by connection─────────────────────────────────┐
-│Connection                  Up / Down                     │
+│Connection                Up / Down                       │
 │                                                          │
 │                                                          │
 │                                                          │

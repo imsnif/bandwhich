@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
  Total Up / Down: 0Bps / 0Bps                                                                                          
 ┌Utilization by process name──────────────────────────────────────────────────────────────────────────────────────────┐
-│Process                                               Connections               Up / Down                            │
+│Process                                                         Connections         Up / Down                        │
 │                                                                                                                     │
 │                                                                                                                     │
 │                                                                                                                     │
@@ -36,10 +36,10 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                          98Bps                                                                                         
                                                                                                                        
                                                                                                                        
- 5                                                     1                         0Bps / 28Bps                          
- 4                                                     1                         0Bps / 26Bps                          
- 1                                                     1                         0Bps / 22Bps                          
- 2                                                     1                         0Bps / 21Bps                          
+ 5                                                               1                   0Bps / 28Bps                      
+ 4                                                               1                   0Bps / 26Bps                      
+ 1                                                               1                   0Bps / 22Bps                      
+ 2                                                               1                   0Bps / 21Bps                      
                                                                                                                        
                                                                                                                        
                                                                                                                        

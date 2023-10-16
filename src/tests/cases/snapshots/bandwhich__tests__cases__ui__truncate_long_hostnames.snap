@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
  Total Up / Down: 0Bps / 0Bps                                                                                                                                                                 
 ┌Utilization by process name──────────────────────────────────────────────────────────────────┐┌Utilization by remote address────────────────────────────────────────────────────────────────┐
-│Process                     Connections                 Up / Down                            ││Remote Address                          Connections           Up / Down                      │
+│Process                   Connections              Up / Down                                 ││Remote Address                               Connections       Up / Down                     │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -28,7 +28,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 │                                                                                             ││                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────┘└─────────────────────────────────────────────────────────────────────────────────────────────┘
 ┌Utilization by connection───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│Connection                                                                                                            Process                       Up / Down                               │
+│Connection                                                                                                                                   Process           Up / Down                    │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
@@ -57,8 +57,8 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                   45Bps / 49Bps                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                           1                           28Bps / 30Bps                          1.1.1.1                                 1                     28Bps / 30Bps                   
- 5                           1                           17Bps / 18Bps                          3.3.3.3                                 1                     17Bps / 18Bps                   
+ 1                         1                        28Bps / 30Bps                               1.1.1.1                                      1                 28Bps / 30Bps                  
+ 5                         1                        17Bps / 18Bps                               3.3.3.3                                      1                 17Bps / 18Bps                  
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -81,8 +81,8 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                           1                             28Bps / 30Bps                            
- <interface_name>:4435 => 3.3.3.3:1337 (tcp)                                                                           5                             17Bps / 18Bps                            
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                                                  1                 28Bps / 30Bps                 
+ <interface_name>:4435 => 3.3.3.3:1337 (tcp)                                                                                                  5                 17Bps / 18Bps                 
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -109,8 +109,8 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                   53      60                                                                                                                                                                  
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                         31       2                             i am.not.too.long                                             31       2                      
-                                                         22      27                             i am.an.obno[...]really.i.ask                                 22      27                      
+                                                    31       2                                  i am.not.too.long                                              31       2                     
+                                                    22      27                                  i am.an.obnoxiosuly.l..do.this.really.i.ask                    22      27                     
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -133,8 +133,8 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                         i am.not.too.long:12345 (tcp)                                                                                               31       2                               
-                          i am.an.obnoxiosuly.lo[...]hy.would.anyone.do.this.really.i.ask:1337 (tcp)                                                 22      27                               
+                         i am.not.too.long:12345 (tcp)                                                                                                          31       2                    
+                          i am.an.obnoxiosuly.long.hostname.why.would.anyone.do.this.really.i.ask:1337 (tcp)                                                    22      27                    
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

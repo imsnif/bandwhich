@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
  Total Up / Down: 0Bps / 0Bps                                                                                                                                                                 
 ┌Utilization by process name─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│Process                                                                       Connections                                       Up / Down                                                   │
+│Process                                                                                               Connections                    Up / Down                                              │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
@@ -57,7 +57,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                   24Bps / 25Bps                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                                                                             1                                                 24Bps / 25Bps                                                
+ 1                                                                                                     1                              24Bps / 25Bps                                           
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
