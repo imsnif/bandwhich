@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
  Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                                        
 ┌Utilization by process name──────────────────────────────────────────────────────────────────┐┌Utilization by remote address────────────────────────────────────────────────────────────────┐
-│Process                                       Connections          Rate (Up / Down)          ││Remote Address                               Connections        Rate (Up / Down)             │
+│Process                                       Connections          Rate (Up / Down)          ││Remote Address                              Connections       Rate (Up / Down)               │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -57,8 +57,8 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                          45. 0B / 49.00B                                                                                                                                                      
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                                             1                    28.00B / 30.00B             1.1.1.1                                      1                  28.00B / 30.00B               
- 5                                             1                    17.00B / 18.00B             3.3.3.3                                      1                  17.00B / 18.00B               
+ 1                                             1                    28.00B / 30.00B             1.1.1.1                                     1                 28.00B / 30.00B                 
+ 5                                             1                    17.00B / 18.00B             3.3.3.3                                     1                 17.00B / 18.00B                 
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -109,8 +109,8 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                          53       60                                                                                                                                                          
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                    31        2                                                                                 31        2                   
-                                                                    22       27                                                                                 22       27                   
+                                                                    31        2                                                                               31        2                     
+                                                                    22       27                                                                               22       27                     
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
