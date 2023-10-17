@@ -50,7 +50,9 @@ impl<'a> HeaderDetails<'a> {
             Color::Green
         };
 
-        if self.state.cumulative_mode {
+        // do not render time in tests, otherwise the output becomes non-deterministic
+        // see: https://github.com/imsnif/bandwhich/issues/303
+        if cfg!(not(test)) && self.state.cumulative_mode {
             let elapsed_time = format_duration(self.elapsed_time);
             // only render if there is enough width
             if bandwidth.width() + 1 + elapsed_time.width() <= rect.width as usize {
