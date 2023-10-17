@@ -2,7 +2,7 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[2].replace(\"1 \\n\", \"2 \\n\")"
 ---
-                       53                                                                                                                                                                   2 
+                       53                                                                                                                                                                     
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                               53                                                                                                   53                         

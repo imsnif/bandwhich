@@ -2,7 +2,7 @@
 source: src/tests/cases/ui.rs
 expression: "&terminal_draw_events_mirror[1]"
 ---
-                  45B / 49B                                                                                                                                                                 1 
+                  45B / 49B                                                                                                                                                                   
                                                                                                                                                                                               
                                                                                                                                                                                               
  1                           1                           28B / 30B                              1.1.1.1                                 1                     28B / 30B                       
