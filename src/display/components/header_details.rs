@@ -8,16 +8,9 @@ use ratatui::{
     text::Span,
     widgets::Paragraph,
 };
+use unicode_width::UnicodeWidthStr;
 
 use crate::display::{DisplayBandwidth, UIState};
-
-const SECONDS_IN_DAY: u64 = 86400;
-
-pub struct HeaderDetails<'a> {
-    pub state: &'a UIState,
-    pub elapsed_time: std::time::Duration,
-    pub paused: bool,
-}
 
 pub fn elapsed_time(last_start_time: Instant, cumulative_time: Duration, paused: bool) -> Duration {
     if paused {
@@ -27,27 +20,44 @@ pub fn elapsed_time(last_start_time: Instant, cumulative_time: Duration, paused:
     }
 }
 
+fn format_duration(d: Duration) -> String {
+    let s = d.as_secs();
+    let days = match s / 86400 {
+        0 => "".to_string(),
+        1 => "1 day, ".to_string(),
+        n => format!("{n} days, "),
+    };
+    format!(
+        "{days}{:02}:{:02}:{:02}",
+        (s / 3600) % 24,
+        (s / 60) % 60,
+        s % 60,
+    )
+}
+
+pub struct HeaderDetails<'a> {
+    pub state: &'a UIState,
+    pub elapsed_time: Duration,
+    pub paused: bool,
+}
+
 impl<'a> HeaderDetails<'a> {
-    #[allow(clippy::int_plus_one)]
     pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
         let bandwidth = self.bandwidth_string();
-        let mut elapsed_time = None;
-        let print_elapsed_time = if self.state.cumulative_mode {
-            elapsed_time = Some(self.elapsed_time_string());
-            bandwidth.len() + elapsed_time.as_ref().unwrap().len() + 1 <= rect.width as usize
-        } else {
-            false
-        };
-
         let color = if self.paused {
             Color::Yellow
         } else {
             Color::Green
         };
 
-        if print_elapsed_time {
-            self.render_elapsed_time(frame, rect, elapsed_time.as_ref().unwrap(), color);
+        if self.state.cumulative_mode {
+            let elapsed_time = format_duration(self.elapsed_time);
+            // only render if there is enough width
+            if bandwidth.width() + 1 + elapsed_time.width() <= rect.width as usize {
+                self.render_elapsed_time(frame, rect, &elapsed_time, color);
+            }
         }
+
         self.render_bandwidth(frame, rect, &bandwidth, color);
     }
 
@@ -96,23 +106,5 @@ impl<'a> HeaderDetails<'a> {
         );
         let paragraph = Paragraph::new(elapsed_time_text).alignment(Alignment::Right);
         frame.render_widget(paragraph, rect);
-    }
-
-    fn days_string(&self) -> String {
-        match self.elapsed_time.as_secs() / SECONDS_IN_DAY {
-            0 => "".to_string(),
-            1 => "1 day, ".to_string(),
-            n => format!("{n} days, "),
-        }
-    }
-
-    fn elapsed_time_string(&self) -> String {
-        format!(
-            "{}{:02}:{:02}:{:02} ",
-            self.days_string(),
-            (self.elapsed_time.as_secs() % SECONDS_IN_DAY) / 3600,
-            (self.elapsed_time.as_secs() % 3600) / 60,
-            self.elapsed_time.as_secs() % 60
-        )
     }
 }
