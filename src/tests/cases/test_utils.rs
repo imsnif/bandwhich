@@ -21,21 +21,27 @@ use crate::{
 };
 
 pub fn sleep_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
-    let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char('c'),
-        KeyModifiers::CONTROL,
-    ))));
+    let events = iter::repeat(None)
+        .take(sleep_num)
+        .chain([Some(Event::Key(KeyEvent::new(
+            KeyCode::Char('c'),
+            KeyModifiers::CONTROL,
+        )))])
+        .collect();
     Box::new(TerminalEvents::new(events))
 }
 
 pub fn sleep_resize_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
-    let mut events: Vec<Option<Event>> = iter::repeat(None).take(sleep_num).collect();
-    events.push(Some(Event::Resize(100, 100)));
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char('c'),
-        KeyModifiers::CONTROL,
-    ))));
+    let events = iter::repeat(None)
+        .take(sleep_num)
+        .chain([
+            Some(Event::Resize(100, 100)),
+            Some(Event::Key(KeyEvent::new(
+                KeyCode::Char('c'),
+                KeyModifiers::CONTROL,
+            ))),
+        ])
+        .collect();
     Box::new(TerminalEvents::new(events))
 }
 
