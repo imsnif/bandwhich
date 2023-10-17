@@ -184,7 +184,15 @@ impl Table {
             (120, D::C3([72, 24, 22])),
         ];
 
-        let column_names = ["Connection", "Process", "Up / Down"];
+        let column_names = [
+            "Connection",
+            "Process",
+            if state.cumulative_mode {
+                "Data (Up / Down)"
+            } else {
+                "Rate (Up / Down)"
+            },
+        ];
         let rows = state
             .connections
             .iter()
@@ -228,7 +236,15 @@ impl Table {
             (80, D::C3([36, 16, 24])),
         ];
 
-        let column_names = ["Process", "Connections", "Up / Down"];
+        let column_names = [
+            "Process",
+            "Connections",
+            if state.cumulative_mode {
+                "Data (Up / Down)"
+            } else {
+                "Rate (Up / Down)"
+            },
+        ];
         let rows = state
             .processes
             .iter()
@@ -271,7 +287,15 @@ impl Table {
             (100, D::C3([54, 16, 24])),
         ];
 
-        let column_names = ["Remote Address", "Connections", "Up / Down"];
+        let column_names = [
+            "Remote Address",
+            "Connections",
+            if state.cumulative_mode {
+                "Data (Up / Down)"
+            } else {
+                "Rate (Up / Down)"
+            },
+        ];
         let rows = state
             .remote_addresses
             .iter()
@@ -351,18 +375,14 @@ impl Table {
     }
 }
 
-fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> String {
-    format!(
-        "{} / {}",
-        DisplayBandwidth {
-            bandwidth: bandwidth.get_total_bytes_uploaded() as f64,
-            as_rate: !total,
-        },
-        DisplayBandwidth {
-            bandwidth: bandwidth.get_total_bytes_downloaded() as f64,
-            as_rate: !total,
-        },
-    )
+fn display_upload_and_download(bandwidth: &impl Bandwidth, _cumulative: bool) -> String {
+    let up = DisplayBandwidth {
+        bandwidth: bandwidth.get_total_bytes_uploaded() as f64,
+    };
+    let down = DisplayBandwidth {
+        bandwidth: bandwidth.get_total_bytes_downloaded() as f64,
+    };
+    format!("{up} / {down}")
 }
 
 fn collect_to_unicode_width<T>(iter: impl Iterator<Item = char>, width: usize) -> T
