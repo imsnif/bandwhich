@@ -1,8 +1,65 @@
 ---
 source: src/tests/cases/ui.rs
-expression: terminal_draw_events.lock().unwrap().deref()
+expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR)
 ---
-[
-    " Total Up / Down: 0Bps / 0Bps                                        \n┌Utilization by process name────────────────────────────────────────┐\n│Process            Connections        Up / Down                    │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n│                                                                   │\n└───────────────────────────────────────────────────────────────────┘\n Press <SPACE> to pause. Use <TAB> to rearrange tables.              \n",
-    "                         98Bps                                       \n                                                                     \n                                                                     \n 5                  1                  0Bps / 28Bps                  \n 4                  1                  0Bps / 26Bps                  \n 1                  1                  0Bps / 22Bps                  \n 2                  1                  0Bps / 21Bps                  \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n                                                                     \n",
-]
+ Total Up / Down: 0Bps / 0Bps                                        
+┌Utilization by process name────────────────────────────────────────┐
+│Process            Connections        Up / Down                    │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+│                                                                   │
+└───────────────────────────────────────────────────────────────────┘
+ Press <SPACE> to pause. Use <TAB> to rearrange tables.              
+
+--- SECTION SEPARATOR ---
+                         98Bps                                       
+                                                                     
+                                                                     
+ 5                  1                  0Bps / 28Bps                  
+ 4                  1                  0Bps / 26Bps                  
+ 1                  1                  0Bps / 22Bps                  
+ 2                  1                  0Bps / 21Bps                  
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+
