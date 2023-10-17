@@ -2,9 +2,9 @@
 source: src/tests/cases/ui.rs
 expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR)
 ---
- Total Up / Down: 0Bps / 0Bps                                                                                          
+ Total Rate (Up / Down): 0.00B / 0.00B                                                                                 
 ┌Utilization by process name──────────────────────────────────────────────────────────────────────────────────────────┐
-│Process                                                  Connections               Up / Down                         │
+│Process                                                  Connections               Rate (Up / Down)                  │
 │                                                                                                                     │
 │                                                                                                                     │
 │                                                                                                                     │
@@ -33,13 +33,13 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
  Press <SPACE> to pause. Use <TAB> to rearrange tables. (DNS queries hidden).                                          
 
 --- SECTION SEPARATOR ---
-                         98Bps                                                                                         
+                                 98. 0B                                                                                
                                                                                                                        
                                                                                                                        
- 5                                                        1                         0Bps / 28Bps                       
- 4                                                        1                         0Bps / 26Bps                       
- 1                                                        1                         0Bps / 22Bps                       
- 2                                                        1                         0Bps / 21Bps                       
+ 5                                                        1                         0.00B / 28.00B                     
+ 4                                                        1                         0.00B / 26.00B                     
+ 1                                                        1                         0.00B / 22.00B                     
+ 2                                                        1                         0.00B / 21.00B                     
                                                                                                                        
                                                                                                                        
                                                                                                                        

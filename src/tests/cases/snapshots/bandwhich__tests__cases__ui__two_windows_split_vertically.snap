@@ -2,9 +2,9 @@
 source: src/tests/cases/ui.rs
 expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR)
 ---
- Total Up / Down: 0Bps / 0Bps                                                                                                                                                                 
+ Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                                        
 ┌Utilization by remote address────────────────────────────────────────────────────────────────┐┌Utilization by connection────────────────────────────────────────────────────────────────────┐
-│Remote Address                               Connections        Up / Down                    ││Connection                                           Process           Up / Down             │
+│Remote Address                               Connections        Rate (Up / Down)             ││Connection                                           Process           Rate (Up / Down)      │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
