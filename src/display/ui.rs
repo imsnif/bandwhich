@@ -45,17 +45,17 @@ where
             opts: opts.render_opts,
         }
     }
-    pub fn output_text(&mut self, write_to_stdout: &mut (dyn FnMut(String) + Send)) {
+    pub fn output_text(&mut self, write_to_stdout: &mut (dyn FnMut(&str) + Send)) {
         let state = &self.state;
         let ip_to_host = &self.ip_to_host;
         let local_time: DateTime<Local> = Local::now();
         let timestamp = local_time.timestamp();
         let mut no_traffic = true;
 
-        let output_process_data = |write_to_stdout: &mut (dyn FnMut(String) + Send),
+        let output_process_data = |write_to_stdout: &mut (dyn FnMut(&str) + Send),
                                    no_traffic: &mut bool| {
             for (proc_info, process_network_data) in &state.processes {
-                write_to_stdout(format!(
+                write_to_stdout(&format!(
                     "process: <{timestamp}> \"{}\" up/down Bps: {}/{} connections: {}",
                     proc_info.name,
                     process_network_data.total_bytes_uploaded,
@@ -67,9 +67,9 @@ where
         };
 
         let output_connections_data =
-            |write_to_stdout: &mut (dyn FnMut(String) + Send), no_traffic: &mut bool| {
+            |write_to_stdout: &mut (dyn FnMut(&str) + Send), no_traffic: &mut bool| {
                 for (connection, connection_network_data) in &state.connections {
-                    write_to_stdout(format!(
+                    write_to_stdout(&format!(
                         "connection: <{timestamp}> {} up/down Bps: {}/{} process: \"{}\"",
                         display_connection_string(
                             connection,
@@ -84,10 +84,10 @@ where
                 }
             };
 
-        let output_adressess_data = |write_to_stdout: &mut (dyn FnMut(String) + Send),
+        let output_adressess_data = |write_to_stdout: &mut (dyn FnMut(&str) + Send),
                                      no_traffic: &mut bool| {
             for (remote_address, remote_address_network_data) in &state.remote_addresses {
-                write_to_stdout(format!(
+                write_to_stdout(&format!(
                     "remote_address: <{timestamp}> {} up/down Bps: {}/{} connections: {}",
                     display_ip_or_host(*remote_address, ip_to_host),
                     remote_address_network_data.total_bytes_uploaded,
@@ -99,7 +99,7 @@ where
         };
 
         // header
-        write_to_stdout("Refreshing:".into());
+        write_to_stdout("Refreshing:");
 
         // body1
         if self.opts.processes {
@@ -119,11 +119,11 @@ where
 
         // body2: In case no traffic is detected
         if no_traffic {
-            write_to_stdout("<NO TRAFFIC>".into());
+            write_to_stdout("<NO TRAFFIC>");
         }
 
         // footer
-        write_to_stdout("".into());
+        write_to_stdout("");
     }
 
     pub fn draw(&mut self, paused: bool, show_dns: bool, elapsed_time: Duration, ui_offset: usize) {

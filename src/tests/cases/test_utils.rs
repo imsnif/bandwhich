@@ -257,14 +257,14 @@ pub fn os_input_output_factory(
 ) -> OsInputOutput {
     let interfaces_with_frames = get_interfaces_with_frames(network_frames);
 
-    let write_to_stdout: Box<dyn FnMut(String) + Send> = match stdout {
+    let write_to_stdout: Box<dyn FnMut(&str) + Send> = match stdout {
         Some(stdout) => Box::new({
-            move |output: String| {
+            move |output| {
                 let mut stdout = stdout.lock().unwrap();
                 writeln!(&mut stdout, "{}", output).unwrap();
             }
         }),
-        None => Box::new(move |_output: String| {}),
+        None => Box::new(|_output| {}),
     };
 
     OsInputOutput {

@@ -82,7 +82,7 @@ pub struct OsInputOutput {
     pub get_open_sockets: fn() -> OpenSockets,
     pub terminal_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
-    pub write_to_stdout: Box<dyn FnMut(String) + Send>,
+    pub write_to_stdout: Box<dyn FnMut(&str) + Send>,
 }
 
 pub fn start<B>(terminal_backend: B, os_input: OsInputOutput, opts: Opt)
@@ -123,7 +123,7 @@ where
             move || {
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
-                    let utilization = { network_utilization.lock().unwrap().clone_and_reset() };
+                    let utilization = network_utilization.lock().unwrap().clone_and_reset();
                     let OpenSockets { sockets_to_procs } = get_open_sockets();
                     let mut ip_to_host = IpTable::new();
                     if let Some(dns_client) = dns_client.as_mut() {

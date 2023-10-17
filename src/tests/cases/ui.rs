@@ -657,7 +657,7 @@ fn traffic_with_host_names(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
         String::from("i-like-cheese.com"),
     );
     let dns_client = create_fake_dns_client(ips_to_hostnames);
-    let write_to_stdout = Box::new(move |_output: String| {});
+    let write_to_stdout = Box::new(|_output: &_| {});
 
     let os_input = OsInputOutput {
         interfaces_with_frames,
@@ -696,7 +696,7 @@ fn truncate_long_hostnames(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
         String::from("i-like-cheese.com"),
     );
     let dns_client = create_fake_dns_client(ips_to_hostnames);
-    let write_to_stdout = Box::new(move |_output: String| {});
+    let write_to_stdout = Box::new(|_output: &_| {});
 
     let os_input = OsInputOutput {
         interfaces_with_frames,
@@ -735,7 +735,7 @@ fn no_resolve_mode(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
         String::from("i-like-cheese.com"),
     );
     let dns_client = None;
-    let write_to_stdout = Box::new(move |_output: String| {});
+    let write_to_stdout = Box::new(|_output: &_| {});
 
     let os_input = OsInputOutput {
         interfaces_with_frames,
@@ -768,7 +768,7 @@ fn traffic_with_winch_event() {
     let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
     let dns_client = create_fake_dns_client(HashMap::new());
-    let write_to_stdout = Box::new(move |_output: String| {});
+    let write_to_stdout = Box::new(|_output: &_| {});
 
     let os_input = OsInputOutput {
         interfaces_with_frames,
