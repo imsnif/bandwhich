@@ -123,24 +123,17 @@ where
     }
 
     pub fn draw(&mut self, paused: bool, show_dns: bool, elapsed_time: Duration, ui_offset: usize) {
-        let state = &self.state;
-        let children = self.get_tables_to_display();
+        let layout = Layout {
+            header: HeaderDetails {
+                state: &self.state,
+                elapsed_time,
+                paused,
+            },
+            children: self.get_tables_to_display(),
+            footer: HelpText { paused, show_dns },
+        };
         self.terminal
-            .draw(|frame| {
-                let size = frame.size();
-                let total_bandwidth = HeaderDetails {
-                    state,
-                    elapsed_time,
-                    paused,
-                };
-                let help_text = HelpText { paused, show_dns };
-                let layout = Layout {
-                    header: total_bandwidth,
-                    children,
-                    footer: help_text,
-                };
-                layout.render(frame, size, ui_offset);
-            })
+            .draw(|frame| layout.render(frame, frame.size(), ui_offset))
             .unwrap();
     }
 

@@ -1,7 +1,8 @@
-use std::{collections::HashMap, iter, net::IpAddr};
+use std::{collections::HashMap, net::IpAddr};
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use insta::{assert_debug_snapshot, assert_snapshot};
+use itertools::Itertools;
 use pnet::datalink::DataLinkReceiver;
 use rstest::rstest;
 
@@ -22,6 +23,8 @@ use crate::{
     Opt, OsInputOutput,
 };
 
+const SNAPSHOT_SECTION_SEPARATOR: &str = "\n--- SECTION SEPARATOR ---\n";
+
 #[test]
 fn basic_startup() {
     let network_frames = vec![NetworkFrames::new(vec![
@@ -32,11 +35,11 @@ fn basic_startup() {
     let os_input = os_input_output(network_frames, 1);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 1);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -62,35 +65,28 @@ fn pause_by_space() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    // sleep for 1s, then press space, sleep for 2s, then quit
-    let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char(' '),
-        KeyModifiers::NONE,
-    ))));
-    events.push(None);
-    events.push(None);
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char(' '),
-        KeyModifiers::NONE,
-    ))));
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char('c'),
-        KeyModifiers::CONTROL,
-    ))));
+    let events = [
+        None,
+        Some(KeyEvent::new(KeyCode::Char(' '), KeyModifiers::NONE)),
+        None,
+        None,
+        Some(KeyEvent::new(KeyCode::Char(' '), KeyModifiers::NONE)),
+        Some(KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL)),
+    ]
+    .into_iter()
+    .map(|ke| ke.map(Event::Key))
+    .collect_vec();
 
     let events = Box::new(TerminalEvents::new(events));
     let os_input = os_input_output_factory(network_frames, None, None, events);
     let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -116,34 +112,28 @@ fn rearranged_by_tab() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    // sleep for 1s, then press tab, sleep for 2s, then quit
-    let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
-    events.push(None);
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Tab,
-        KeyModifiers::NONE,
-    ))));
-    events.push(None);
-    events.push(None);
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char('c'),
-        KeyModifiers::CONTROL,
-    ))));
+    let events = [
+        None,
+        None,
+        Some(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)),
+        None,
+        None,
+        Some(KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL)),
+    ]
+    .into_iter()
+    .map(|ke| ke.map(Event::Key))
+    .collect_vec();
 
     let events = Box::new(TerminalEvents::new(events));
     let os_input = os_input_output_factory(network_frames, None, None, events);
     let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 5);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-    assert_snapshot!(&terminal_draw_events_mirror[3]);
-    assert_snapshot!(&terminal_draw_events_mirror[4]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -162,10 +152,12 @@ fn basic_only_processes() {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[test]
@@ -184,10 +176,12 @@ fn basic_processes_with_dns_queries() {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[test]
@@ -205,10 +199,12 @@ fn basic_only_connections() {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[test]
@@ -226,10 +222,12 @@ fn basic_only_addresses() {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[rstest(sample_frames_short as frames)]
@@ -243,11 +241,12 @@ fn two_packets_only_processes(frames: Vec<Box<dyn DataLinkReceiver>>) {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[rstest(sample_frames_short as frames)]
@@ -261,11 +260,12 @@ fn two_packets_only_connections(frames: Vec<Box<dyn DataLinkReceiver>>) {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[rstest(sample_frames_short as frames)]
@@ -279,11 +279,12 @@ fn two_packets_only_addresses(frames: Vec<Box<dyn DataLinkReceiver>>) {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[test]
@@ -302,10 +303,12 @@ fn two_windows_split_horizontally() {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[test]
@@ -324,10 +327,12 @@ fn two_windows_split_vertically() {
         },
         ..opts_ui()
     };
-
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
+
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
 }
 
 #[test]
@@ -343,12 +348,11 @@ fn one_packet_of_traffic() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -358,12 +362,11 @@ fn bi_directional_traffic(frames: Vec<Box<dyn DataLinkReceiver>>) {
     let os_input = os_input_output(frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -390,12 +393,11 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -422,12 +424,11 @@ fn multiple_packets_of_traffic_from_single_connection() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -454,12 +455,11 @@ fn one_process_with_multiple_connections() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -500,12 +500,11 @@ fn multiple_processes_with_multiple_connections() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -532,12 +531,11 @@ fn multiple_connections_from_remote_address() {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -548,12 +546,11 @@ fn sustained_traffic_from_one_process(frames: Vec<Box<dyn DataLinkReceiver>>) {
     let os_input = os_input_output(frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -565,12 +562,11 @@ fn sustained_traffic_from_one_process_total(frames: Vec<Box<dyn DataLinkReceiver
     let mut opts = opts_ui();
     opts.render_opts.total_utilization = true;
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -581,12 +577,11 @@ fn sustained_traffic_from_multiple_processes(frames: Vec<Box<dyn DataLinkReceive
     let os_input = os_input_output(frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -598,12 +593,11 @@ fn sustained_traffic_from_multiple_processes_total(frames: Vec<Box<dyn DataLinkR
     let mut opts = opts_ui();
     opts.render_opts.total_utilization = true;
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -616,12 +610,11 @@ fn sustained_traffic_from_multiple_processes_bi_directional(
     let os_input = os_input_output(frames, 3);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -635,12 +628,11 @@ fn sustained_traffic_from_multiple_processes_bi_directional_total(
     let mut opts = opts_ui();
     opts.render_opts.total_utilization = true;
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2].replace("1 \n", "2 \n"));
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -674,12 +666,11 @@ fn traffic_with_host_names(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     };
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -713,12 +704,11 @@ fn truncate_long_hostnames(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     };
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -752,12 +742,11 @@ fn no_resolve_mode(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     };
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -786,13 +775,11 @@ fn traffic_with_winch_event() {
     };
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
-    assert_eq!(terminal_draw_events_mirror.len(), 3);
-    assert_snapshot!(&terminal_draw_events_mirror[0]);
-    assert_snapshot!(&terminal_draw_events_mirror[1]);
-    assert_snapshot!(&terminal_draw_events_mirror[2]);
-
+    assert_snapshot!(terminal_draw_events
+        .lock()
+        .unwrap()
+        .join(SNAPSHOT_SECTION_SEPARATOR));
     assert_debug_snapshot!(terminal_events.lock().unwrap().as_slice());
 }
 
@@ -839,20 +826,16 @@ fn layout(#[case] name: &str, #[case] width: u16, #[case] height: u16) {
     let os_input = os_input_output(network_frames, 2);
     let opts = opts_ui();
     start(backend, os_input, opts);
-    let terminal_draw_events_mirror = terminal_draw_events.lock().unwrap();
 
+    assert_snapshot!(
+        format!("layout-{name}-draw_events"),
+        terminal_draw_events
+            .lock()
+            .unwrap()
+            .join(SNAPSHOT_SECTION_SEPARATOR)
+    );
     assert_debug_snapshot!(
         format!("layout-{name}-events"),
         terminal_events.lock().unwrap().as_slice()
-    );
-
-    assert_eq!(terminal_draw_events_mirror.len(), 2);
-    assert_snapshot!(
-        format!("layout-{name}-draw_events-0"),
-        &terminal_draw_events_mirror[0]
-    );
-    assert_snapshot!(
-        format!("layout-{name}-draw_events-1"),
-        &terminal_draw_events_mirror[1]
     );
 }

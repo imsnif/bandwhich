@@ -1,55 +1,18 @@
 ---
 source: src/tests/cases/ui.rs
-expression: "&terminal_draw_events_mirror[2]"
+expression: terminal_events.lock().unwrap().as_slice()
 ---
-                  53      60                                                                                                                                                                  
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                         31       2                             i am.not.too.long                                             31       2                      
-                                                         22      27                             i am.an.obno[...]really.i.ask                                 22      27                      
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                         i am.not.too.long:12345 (tcp)                                                                                               31       2                               
-                          i am.an.obnoxiosuly.lo[...]hy.would.anyone.do.this.really.i.ask:1337 (tcp)                                                 22      27                               
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-
+[
+    Clear,
+    HideCursor,
+    Draw,
+    HideCursor,
+    Flush,
+    Draw,
+    HideCursor,
+    Flush,
+    Draw,
+    HideCursor,
+    Flush,
+    ShowCursor,
+]

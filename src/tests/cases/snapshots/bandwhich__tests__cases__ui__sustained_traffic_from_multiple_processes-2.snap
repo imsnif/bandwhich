@@ -1,55 +1,18 @@
 ---
 source: src/tests/cases/ui.rs
-expression: "&terminal_draw_events_mirror[2]"
+expression: terminal_events.lock().unwrap().as_slice()
 ---
-                         65                                                                                                                                                                   
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                35                                                                                                   35                       
-                                                                30                                                                                                   30                       
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                            35                                
-                                                                                                                                                            30                                
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-
+[
+    Clear,
+    HideCursor,
+    Draw,
+    HideCursor,
+    Flush,
+    Draw,
+    HideCursor,
+    Flush,
+    Draw,
+    HideCursor,
+    Flush,
+    ShowCursor,
+]

@@ -155,6 +155,7 @@ dependencies = [
  "http_req",
  "insta",
  "ipnetwork",
+ "itertools",
  "log",
  "netstat2",
  "packet-builder",

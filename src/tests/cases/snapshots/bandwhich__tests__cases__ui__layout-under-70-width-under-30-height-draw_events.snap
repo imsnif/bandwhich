@@ -1,6 +1,6 @@
 ---
 source: src/tests/cases/ui.rs
-expression: "&terminal_draw_events_mirror[0]"
+expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR)
 ---
  Total Up / Down: 0Bps / 0Bps                                        
 ┌Utilization by process name────────────────────────────────────────┐
@@ -31,4 +31,35 @@ expression: "&terminal_draw_events_mirror[0]"
 │                                                                   │
 └───────────────────────────────────────────────────────────────────┘
  Press <SPACE> to pause. Use <TAB> to rearrange tables.              
+
+--- SECTION SEPARATOR ---
+                         98Bps                                       
+                                                                     
+                                                                     
+ 5                  1                  0Bps / 28Bps                  
+ 4                  1                  0Bps / 26Bps                  
+ 1                  1                  0Bps / 22Bps                  
+ 2                  1                  0Bps / 21Bps                  
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
 
