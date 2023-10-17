@@ -1,7 +1,8 @@
-use std::{collections::HashMap, iter, net::IpAddr};
+use std::{collections::HashMap, net::IpAddr};
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
 use insta::{assert_debug_snapshot, assert_snapshot};
+use itertools::Itertools;
 use pnet::datalink::DataLinkReceiver;
 use rstest::rstest;
 
@@ -64,22 +65,17 @@ fn pause_by_space() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    // sleep for 1s, then press space, sleep for 2s, then quit
-    let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char(' '),
-        KeyModifiers::NONE,
-    ))));
-    events.push(None);
-    events.push(None);
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char(' '),
-        KeyModifiers::NONE,
-    ))));
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char('c'),
-        KeyModifiers::CONTROL,
-    ))));
+    let events = [
+        None,
+        Some(KeyEvent::new(KeyCode::Char(' '), KeyModifiers::NONE)),
+        None,
+        None,
+        Some(KeyEvent::new(KeyCode::Char(' '), KeyModifiers::NONE)),
+        Some(KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL)),
+    ]
+    .into_iter()
+    .map(|ke| ke.map(Event::Key))
+    .collect_vec();
 
     let events = Box::new(TerminalEvents::new(events));
     let os_input = os_input_output_factory(network_frames, None, None, events);
@@ -116,19 +112,17 @@ fn rearranged_by_tab() {
         )),
     ]) as Box<dyn DataLinkReceiver>];
 
-    // sleep for 1s, then press tab, sleep for 2s, then quit
-    let mut events: Vec<Option<Event>> = iter::repeat(None).take(1).collect();
-    events.push(None);
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Tab,
-        KeyModifiers::NONE,
-    ))));
-    events.push(None);
-    events.push(None);
-    events.push(Some(Event::Key(KeyEvent::new(
-        KeyCode::Char('c'),
-        KeyModifiers::CONTROL,
-    ))));
+    let events = [
+        None,
+        None,
+        Some(KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE)),
+        None,
+        None,
+        Some(KeyEvent::new(KeyCode::Char('c'), KeyModifiers::CONTROL)),
+    ]
+    .into_iter()
+    .map(|ke| ke.map(Event::Key))
+    .collect_vec();
 
     let events = Box::new(TerminalEvents::new(events));
     let os_input = os_input_output_factory(network_frames, None, None, events);

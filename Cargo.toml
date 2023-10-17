@@ -53,6 +53,7 @@ insta = "1.34.0"
 pnet_base = "0.34.0"
 packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-update" }
 rstest = "0.18.2"
+itertools = "0.11.0"
 
 [target.'cfg(target_os="windows")'.build-dependencies]
 anyhow = "1.0.75"
