@@ -1,9 +1,7 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    iter::FromIterator,
-    net::IpAddr,
-};
+use std::{collections::HashMap, fmt, iter::FromIterator, net::IpAddr, ops::Index, rc::Rc};
 
+use derivative::Derivative;
+use itertools::Itertools;
 use ratatui::{
     backend::Backend,
     layout::{Constraint, Rect},
@@ -11,95 +9,195 @@ use ratatui::{
     terminal::Frame,
     widgets::{Block, Borders, Row},
 };
-use unicode_width::UnicodeWidthChar;
+use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 use crate::{
     display::{Bandwidth, DisplayBandwidth, UIState},
     network::{display_connection_string, display_ip_or_host},
 };
 
-fn display_upload_and_download(bandwidth: &impl Bandwidth, total: bool) -> String {
-    format!(
-        "{} / {}",
-        DisplayBandwidth {
-            bandwidth: bandwidth.get_total_bytes_uploaded() as f64,
-            as_rate: !total,
-        },
-        DisplayBandwidth {
-            bandwidth: bandwidth.get_total_bytes_downloaded() as f64,
-            as_rate: !total,
-        },
-    )
+/// The displayed layout choice of a table.
+/// Each value in the array is the width of each column.
+///
+/// Note that this only determines how a table is displayed, not what data it contains.
+///
+/// If we intend to display different number of columns in the future,
+/// then new variants should be added.
+#[derive(Copy, Clone, Debug)]
+pub enum DisplayLayout {
+    /// Show 2 columns.
+    C2([u16; 2]),
+    /// Show 3 columns.
+    C3([u16; 3]),
 }
+impl Index<usize> for DisplayLayout {
+    type Output = u16;
 
-pub enum ColumnCount {
-    Two,
-    Three,
-}
-
-impl ColumnCount {
-    pub fn as_u16(&self) -> u16 {
-        match &self {
-            ColumnCount::Two => 2,
-            ColumnCount::Three => 3,
+    fn index(&self, i: usize) -> &Self::Output {
+        match self {
+            Self::C2(arr) => &arr[i],
+            Self::C3(arr) => &arr[i],
         }
     }
 }
+impl DisplayLayout {
+    #[inline]
+    fn columns_count(&self) -> usize {
+        match self {
+            Self::C2(_) => 2,
+            Self::C3(_) => 3,
+        }
+    }
+    #[inline]
+    fn iter(&self) -> impl Iterator<Item = &u16> {
+        match self {
+            Self::C2(ws) => ws.iter(),
+            Self::C3(ws) => ws.iter(),
+        }
+    }
+    #[inline]
+    fn widths_sum(&self) -> u16 {
+        self.iter().sum()
+    }
+    /// Returns the computed actual width and the spacer width.
+    ///
+    /// See [`Table`] for layout rules.
+    fn compute_actual_widths(&self, available: u16) -> (Self, u16) {
+        let columns_count = self.columns_count() as u16;
+        let desired_min = self.widths_sum();
 
-pub struct ColumnData {
-    column_count: ColumnCount,
-    column_widths: Vec<u16>,
-}
-
-pub struct Table<'a> {
-    title: &'a str,
-    column_names: &'a [&'a str],
-    rows: Vec<Vec<String>>,
-    breakpoints: BTreeMap<u16, ColumnData>,
-}
-
-fn truncate_iter_to_unicode_width<Input, Collect>(iter: Input, width: usize) -> Collect
-where
-    Input: Iterator<Item = char>,
-    Collect: FromIterator<char>,
-{
-    let mut chunk_width = 0;
-    iter.take_while(|ch| {
-        chunk_width += ch.width().unwrap_or(0);
-        chunk_width <= width
-    })
-    .collect()
-}
-
-fn truncate_middle(row: &str, max_length: u16) -> String {
-    if max_length < 6 {
-        truncate_iter_to_unicode_width(row.chars(), max_length as usize)
-    } else if row.len() as u16 > max_length {
-        let split_point = (max_length as usize / 2) - 3;
-        // why 3? 5 is the max size of the truncation text ([...] or [..]), 3 is ~5/2
-        let first_slice = truncate_iter_to_unicode_width::<_, String>(row.chars(), split_point);
-        let second_slice =
-            truncate_iter_to_unicode_width::<_, Vec<_>>(row.chars().rev(), split_point)
-                .into_iter()
-                .rev()
-                .collect::<String>();
-        if max_length % 2 == 0 {
-            format!("{first_slice}[...]{second_slice}")
+        // spacer max width is 2
+        let spacer = if available > desired_min {
+            ((available - desired_min) / (columns_count - 1)).min(2)
         } else {
-            format!("{first_slice}[..]{second_slice}")
-        }
-    } else {
-        row.to_string()
+            0
+        };
+        let available_without_spacers = available - spacer * (columns_count - 1);
+
+        // multiplier
+        let m = available_without_spacers as f64 / desired_min as f64;
+
+        // remainder width is arbitrarily given to column 0
+        let computed = match *self {
+            Self::C2([_w0, w1]) => {
+                let w1_new = (w1 as f64 * m).trunc() as u16;
+                Self::C2([available_without_spacers - w1_new, w1_new])
+            }
+            Self::C3([_w0, w1, w2]) => {
+                let w1_new = (w1 as f64 * m).trunc() as u16;
+                let w2_new = (w2 as f64 * m).trunc() as u16;
+                Self::C3([available_without_spacers - w1_new - w2_new, w1_new, w2_new])
+            }
+        };
+
+        (computed, spacer)
     }
 }
 
-impl<'a> Table<'a> {
+/// All data of a table.
+///
+/// If tables with different number of columns are added in the future,
+/// then new variants should be added.
+#[derive(Clone, Debug)]
+enum TableData {
+    /// A table with 3 columns.
+    C3(NColsTableData<3>),
+}
+impl From<NColsTableData<3>> for TableData {
+    fn from(data: NColsTableData<3>) -> Self {
+        Self::C3(data)
+    }
+}
+impl TableData {
+    fn column_names(&self) -> &[&str] {
+        match self {
+            Self::C3(inner) => &inner.column_names,
+        }
+    }
+    fn rows(&self) -> Vec<&[String]> {
+        match self {
+            Self::C3(inner) => inner.rows.iter().map(|r| r.as_slice()).collect(),
+        }
+    }
+    fn column_selector(&self) -> &dyn Fn(&DisplayLayout) -> Vec<usize> {
+        match self {
+            Self::C3(inner) => inner.column_selector.as_ref(),
+        }
+    }
+}
+
+/// All data of a table with `C` columns.
+///
+/// Note that the number of columns here is independent of the number of columns
+/// being actually shown. If width-constrained, we might only show some of the columns.
+#[derive(Clone, Derivative)]
+#[derivative(Debug)]
+struct NColsTableData<const C: usize> {
+    /// The name of each column.
+    column_names: [&'static str; C],
+    /// All rows of data.
+    rows: Vec<[String; C]>,
+    /// Function to determine which columns to show for a given layout.
+    ///
+    /// This function should return a vector of column indices.
+    /// The indices should be less than `C`; otherwise this will cause a runtime panic.
+    #[derivative(Debug(format_with = "debug_fn::<C>"))]
+    column_selector: Rc<ColumnSelectorFn>,
+}
+
+/// Clippy wanted me to write this. 💢
+type ColumnSelectorFn = dyn Fn(&DisplayLayout) -> Vec<usize>;
+
+fn debug_fn<const C: usize>(
+    _func: &Rc<ColumnSelectorFn>,
+    f: &mut fmt::Formatter,
+) -> Result<(), fmt::Error> {
+    write!(f, "Rc</* function pointer */>")
+}
+
+/// A table displayed by bandwhich.
+#[derive(Clone, Debug)]
+pub struct Table {
+    title: &'static str,
+    /// A layout mapping between minimum available width and the width of each column.
+    ///
+    /// Note that the width of each column here is the "desired minimum width".
+    ///
+    /// - Wt = available width of table
+    /// - Wd = sum of desired minimum width of each column
+    ///
+    /// - If `Wt >= Wd`, spacers with a maximum width of `2` will be inserted
+    ///   between columns; and then the columns will proportionally expand.
+    /// - If `Wt < Wd`, columns will proportionally shrink.
+    width_cutoffs: Vec<(u16, DisplayLayout)>,
+    data: TableData,
+}
+impl Table {
     pub fn create_connections_table(state: &UIState, ip_to_host: &HashMap<IpAddr, String>) -> Self {
-        let connections_rows = state
+        use DisplayLayout as D;
+
+        let title = "Utilization by connection";
+        let width_cutoffs = vec![
+            (0, D::C2([32, 18])),
+            (80, D::C3([36, 12, 18])),
+            (100, D::C3([54, 18, 22])),
+            (120, D::C3([72, 24, 22])),
+        ];
+
+        let column_names = [
+            "Connection",
+            "Process",
+            if state.cumulative_mode {
+                "Data (Up / Down)"
+            } else {
+                "Rate (Up / Down)"
+            },
+        ];
+        let rows = state
             .connections
             .iter()
             .map(|(connection, connection_data)| {
-                vec![
+                [
                     display_connection_string(
                         connection,
                         ip_to_host,
@@ -110,199 +208,212 @@ impl<'a> Table<'a> {
                 ]
             })
             .collect();
-        let connections_title = "Utilization by connection";
-        let connections_column_names = &["Connection", "Process", "Up / Down"];
-        let mut breakpoints = BTreeMap::new();
-        breakpoints.insert(
-            0,
-            ColumnData {
-                column_count: ColumnCount::Two,
-                column_widths: vec![20, 23],
-            },
-        );
-        breakpoints.insert(
-            70,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![30, 12, 23],
-            },
-        );
-        breakpoints.insert(
-            100,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![60, 12, 23],
-            },
-        );
-        breakpoints.insert(
-            140,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![100, 12, 23],
-            },
-        );
+        let column_selector = Rc::new(|layout: &D| match layout {
+            D::C2(_) => vec![0, 2],
+            D::C3(_) => vec![0, 1, 2],
+        });
+
         Table {
-            title: connections_title,
-            column_names: connections_column_names,
-            rows: connections_rows,
-            breakpoints,
+            title,
+            width_cutoffs,
+            data: NColsTableData {
+                column_names,
+                rows,
+                column_selector,
+            }
+            .into(),
         }
     }
+
     pub fn create_processes_table(state: &UIState) -> Self {
-        let processes_rows = state
+        use DisplayLayout as D;
+
+        let title = "Utilization by process name";
+        let width_cutoffs = vec![
+            (0, D::C2([16, 18])),
+            (50, D::C3([16, 12, 20])),
+            (60, D::C3([24, 12, 20])),
+            (80, D::C3([36, 16, 24])),
+        ];
+
+        let column_names = [
+            "Process",
+            "Connections",
+            if state.cumulative_mode {
+                "Data (Up / Down)"
+            } else {
+                "Rate (Up / Down)"
+            },
+        ];
+        let rows = state
             .processes
             .iter()
             .map(|(process_name, data_for_process)| {
-                vec![
+                [
                     (*process_name).to_string(),
                     data_for_process.connection_count.to_string(),
                     display_upload_and_download(data_for_process, state.cumulative_mode),
                 ]
             })
             .collect();
-        let processes_title = "Utilization by process name";
-        let processes_column_names = &["Process", "Connections", "Up / Down"];
-        let mut breakpoints = BTreeMap::new();
-        breakpoints.insert(
-            0,
-            ColumnData {
-                column_count: ColumnCount::Two,
-                column_widths: vec![12, 23],
-            },
-        );
-        breakpoints.insert(
-            50,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![12, 12, 23],
-            },
-        );
-        breakpoints.insert(
-            100,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![40, 12, 23],
-            },
-        );
-        breakpoints.insert(
-            140,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![40, 12, 23],
-            },
-        );
+        let column_selector = Rc::new(|layout: &D| match layout {
+            D::C2(_) => vec![0, 2],
+            D::C3(_) => vec![0, 1, 2],
+        });
+
         Table {
-            title: processes_title,
-            column_names: processes_column_names,
-            rows: processes_rows,
-            breakpoints,
+            title,
+            width_cutoffs,
+            data: NColsTableData {
+                column_names,
+                rows,
+                column_selector,
+            }
+            .into(),
         }
     }
+
     pub fn create_remote_addresses_table(
         state: &UIState,
         ip_to_host: &HashMap<IpAddr, String>,
     ) -> Self {
-        let remote_addresses_rows = state
+        use DisplayLayout as D;
+
+        let title = "Utilization by remote address";
+        let width_cutoffs = vec![
+            (0, D::C2([16, 16])),
+            (40, D::C2([20, 16])),
+            (60, D::C3([24, 10, 20])),
+            (100, D::C3([54, 16, 24])),
+        ];
+
+        let column_names = [
+            "Remote Address",
+            "Connections",
+            if state.cumulative_mode {
+                "Data (Up / Down)"
+            } else {
+                "Rate (Up / Down)"
+            },
+        ];
+        let rows = state
             .remote_addresses
             .iter()
             .map(|(remote_address, data_for_remote_address)| {
                 let remote_address = display_ip_or_host(*remote_address, ip_to_host);
-                vec![
+                [
                     remote_address,
                     data_for_remote_address.connection_count.to_string(),
                     display_upload_and_download(data_for_remote_address, state.cumulative_mode),
                 ]
             })
             .collect();
-        let remote_addresses_title = "Utilization by remote address";
-        let remote_addresses_column_names = &["Remote Address", "Connections", "Up / Down"];
-        let mut breakpoints = BTreeMap::new();
-        breakpoints.insert(
-            0,
-            ColumnData {
-                column_count: ColumnCount::Two,
-                column_widths: vec![15, 20],
-            },
-        );
-        breakpoints.insert(
-            70,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![30, 12, 23],
-            },
-        );
-        breakpoints.insert(
-            100,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![60, 12, 23],
-            },
-        );
-        breakpoints.insert(
-            140,
-            ColumnData {
-                column_count: ColumnCount::Three,
-                column_widths: vec![100, 12, 23],
-            },
-        );
-        Table {
-            title: remote_addresses_title,
-            column_names: remote_addresses_column_names,
-            rows: remote_addresses_rows,
-            breakpoints,
-        }
-    }
-    pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
-        let mut column_spacing: u16 = 0;
-        let mut widths = &vec![];
-        let mut column_count: &ColumnCount = &ColumnCount::Three;
-
-        for (width_breakpoint, column_data) in self.breakpoints.iter() {
-            if *width_breakpoint < rect.width {
-                widths = &column_data.column_widths;
-                column_count = &column_data.column_count;
-
-                let total_column_width: u16 = widths.iter().sum();
-                if rect.width < total_column_width - column_count.as_u16() {
-                    column_spacing = 0;
-                } else {
-                    column_spacing = (rect.width - total_column_width) / column_count.as_u16();
-                }
-            }
-        }
-
-        let column_names = match column_count {
-            ColumnCount::Two => {
-                vec![self.column_names[0], self.column_names[2]] // always lose the middle column when needed
-            }
-            ColumnCount::Three => vec![
-                self.column_names[0],
-                self.column_names[1],
-                self.column_names[2],
-            ],
-        };
-
-        let rows = self.rows.iter().map(|row| match column_count {
-            ColumnCount::Two => vec![
-                truncate_middle(&row[0], widths[0]),
-                truncate_middle(&row[2], widths[1]),
-            ],
-            ColumnCount::Three => vec![
-                truncate_middle(&row[0], widths[0]),
-                truncate_middle(&row[1], widths[1]),
-                truncate_middle(&row[2], widths[2]),
-            ],
+        let column_selector = Rc::new(|layout: &D| match layout {
+            D::C2(_) => vec![0, 2],
+            D::C3(_) => vec![0, 1, 2],
         });
 
-        let table_rows = rows.map(|row| Row::new(row).style(Style::default()));
-        let width_constraints: Vec<Constraint> =
-            widths.iter().map(|w| Constraint::Length(*w)).collect();
-        let table = ratatui::widgets::Table::new(table_rows)
+        Table {
+            title,
+            width_cutoffs,
+            data: NColsTableData {
+                column_names,
+                rows,
+                column_selector,
+            }
+            .into(),
+        }
+    }
+
+    /// See [`Table`] for layout rules.
+    pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
+        let (computed_layout, spacer_width) = {
+            // pick the largest possible layout, constrained by the available width
+            let &(_, layout) = self
+                .width_cutoffs
+                .iter()
+                .rev()
+                .find(|(cutoff, _)| rect.width > *cutoff)
+                .unwrap(); // all cutoff tables have a 0-width entry
+            layout.compute_actual_widths(rect.width)
+        };
+
+        let columns_to_show = self.data.column_selector()(&computed_layout);
+        let column_names: Vec<_> = columns_to_show
+            .iter()
+            .copied()
+            .map(|i| self.data.column_names()[i])
+            .collect();
+
+        // text needs to react to column widths
+        let tui_rows_iter = self
+            .data
+            .rows()
+            .into_iter()
+            .map(|row_data| {
+                let shown_columns_data = columns_to_show.iter().copied().map(|i| &row_data[i]);
+                let column_widths = computed_layout.iter().copied();
+                shown_columns_data
+                    .zip_eq(column_widths)
+                    .map(|(text, width)| truncate_middle(text, width))
+                    .collect::<Vec<_>>()
+            })
+            .map(Row::new);
+
+        let widths_constraints: Vec<_> = computed_layout
+            .iter()
+            .copied()
+            .map(Constraint::Length)
+            .collect();
+
+        let table = ratatui::widgets::Table::new(tui_rows_iter)
             .block(Block::default().title(self.title).borders(Borders::ALL))
             .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
-            .widths(&width_constraints)
-            .style(Style::default())
-            .column_spacing(column_spacing);
+            .widths(&widths_constraints)
+            .column_spacing(spacer_width);
         frame.render_widget(table, rect);
+    }
+}
+
+fn display_upload_and_download(bandwidth: &impl Bandwidth, _cumulative: bool) -> String {
+    let up = DisplayBandwidth {
+        bandwidth: bandwidth.get_total_bytes_uploaded() as f64,
+    };
+    let down = DisplayBandwidth {
+        bandwidth: bandwidth.get_total_bytes_downloaded() as f64,
+    };
+    format!("{up} / {down}")
+}
+
+fn collect_to_unicode_width<T>(iter: impl Iterator<Item = char>, width: usize) -> T
+where
+    T: FromIterator<char>,
+{
+    let mut chunk_width = 0;
+    iter.take_while(|ch| {
+        chunk_width += ch.width().unwrap_or(0);
+        chunk_width <= width
+    })
+    .collect()
+}
+
+fn truncate_middle(row: &str, max_len: u16) -> String {
+    const ELLIPSIS: &str = "..";
+
+    if max_len < 6 {
+        collect_to_unicode_width(row.chars(), max_len as usize)
+    } else if row.width() as u16 > max_len {
+        let suffix_len = (max_len as usize - ELLIPSIS.len()) / 2;
+        // remainder length arbitrarily given to prefix
+        let prefix_len = max_len as usize - ELLIPSIS.len() - suffix_len;
+
+        let prefix: String = collect_to_unicode_width(row.chars(), prefix_len);
+        let suffix: String = collect_to_unicode_width::<Vec<_>>(row.chars().rev(), suffix_len)
+            .into_iter()
+            .rev()
+            .collect();
+        format!("{prefix}{ELLIPSIS}{suffix}")
+    } else {
+        row.to_string()
     }
 }

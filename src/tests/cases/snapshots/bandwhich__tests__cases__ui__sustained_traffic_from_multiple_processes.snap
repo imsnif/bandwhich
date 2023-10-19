@@ -2,9 +2,9 @@
 source: src/tests/cases/ui.rs
 expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR)
 ---
- Total Up / Down: 0Bps / 0Bps                                                                                                                                                                 
+ Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                                        
 ┌Utilization by process name──────────────────────────────────────────────────────────────────┐┌Utilization by remote address────────────────────────────────────────────────────────────────┐
-│Process                     Connections                 Up / Down                            ││Remote Address                          Connections           Up / Down                      │
+│Process                                       Connections          Rate (Up / Down)          ││Remote Address                              Connections       Rate (Up / Down)               │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -28,7 +28,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 │                                                                                             ││                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────┘└─────────────────────────────────────────────────────────────────────────────────────────────┘
 ┌Utilization by connection───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│Connection                                                                                                            Process                       Up / Down                               │
+│Connection                                                                                                           Process                                Rate (Up / Down)                │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
@@ -54,14 +54,11 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
  Press <SPACE> to pause. Use <TAB> to rearrange tables. (DNS queries hidden).                                                                                                                 
 
 --- SECTION SEPARATOR ---
-                         41Bps                                                                                                                                                                
+                                 41. 0B                                                                                                                                                       
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                           1                           0Bps / 22Bps                           1.1.1.1                                 1                     0Bps / 22Bps                    
- 5                           1                           0Bps / 19Bps                           3.3.3.3                                 1                     0Bps / 19Bps                    
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+ 1                                             1                    0.00B / 22.00B              1.1.1.1                                     1                 0.00B / 22.00B                  
+ 5                                             1                    0.00B / 19.00B              3.3.3.3                                     1                 0.00B / 19.00B                  
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -81,8 +78,11 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                           1                             0Bps / 22Bps                             
- <interface_name>:4435 => 3.3.3.3:1337 (tcp)                                                                           5                             0Bps / 19Bps                             
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                          1                                      0.00B / 22.00B                   
+ <interface_name>:4435 => 3.3.3.3:1337 (tcp)                                                                          5                                      0.00B / 19.00B                   
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -106,14 +106,11 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
 
 --- SECTION SEPARATOR ---
-                         65                                                                                                                                                                   
+                                 65                                                                                                                                                           
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                35                                                                                                   35                       
-                                                                30                                                                                                   30                       
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
+                                                                            35                                                                                        35                      
+                                                                            30                                                                                        30                      
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -133,8 +130,11 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                            35                                
-                                                                                                                                                            30                                
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                     35                       
+                                                                                                                                                                     30                       
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               

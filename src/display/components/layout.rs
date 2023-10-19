@@ -27,7 +27,7 @@ fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
 
 pub struct Layout<'a> {
     pub header: HeaderDetails<'a>,
-    pub children: Vec<Table<'a>>,
+    pub children: Vec<Table>,
     pub footer: HelpText,
 }
 

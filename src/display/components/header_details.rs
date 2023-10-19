@@ -80,19 +80,19 @@ impl<'a> HeaderDetails<'a> {
     }
 
     fn bandwidth_string(&self) -> String {
-        let c_mode = self.state.cumulative_mode;
-        format!(
-            " Total Up / Down: {} / {}{}",
-            DisplayBandwidth {
-                bandwidth: self.state.total_bytes_uploaded as f64,
-                as_rate: !c_mode,
-            },
-            DisplayBandwidth {
-                bandwidth: self.state.total_bytes_downloaded as f64,
-                as_rate: !c_mode,
-            },
-            if self.paused { " [PAUSED]" } else { "" }
-        )
+        let t = if self.state.cumulative_mode {
+            "Data"
+        } else {
+            "Rate"
+        };
+        let up = DisplayBandwidth {
+            bandwidth: self.state.total_bytes_uploaded as f64,
+        };
+        let down = DisplayBandwidth {
+            bandwidth: self.state.total_bytes_downloaded as f64,
+        };
+        let paused = if self.paused { " [PAUSED]" } else { "" };
+        format!(" Total {t} (Up / Down): {up} / {down}{paused}")
     }
 
     fn render_elapsed_time(

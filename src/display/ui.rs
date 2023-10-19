@@ -137,7 +137,7 @@ where
             .unwrap();
     }
 
-    fn get_tables_to_display(&self) -> Vec<Table<'static>> {
+    fn get_tables_to_display(&self) -> Vec<Table> {
         let opts = &self.opts;
         let mut children: Vec<Table> = Vec::new();
         if opts.processes {
