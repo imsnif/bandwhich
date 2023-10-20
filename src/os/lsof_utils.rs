@@ -1,9 +1,11 @@
 use std::{ffi::OsStr, net::IpAddr, process::Command, sync::OnceLock};
 
-use log::warn;
 use regex::Regex;
 
-use crate::network::{LocalSocket, Protocol};
+use crate::{
+    mt_log,
+    network::{LocalSocket, Protocol},
+};
 
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
