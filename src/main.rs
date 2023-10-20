@@ -44,7 +44,7 @@ static LOG_LOCK: Lazy<Mutex<()>> = Lazy::new(|| Mutex::new(()));
 #[macro_export]
 macro_rules! mt_log {
     ($log_macro: ident, $($fmt_args:expr),*) => {
-        let guard = crate::LOG_LOCK
+        let guard = $crate::LOG_LOCK
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
         log::$log_macro!($($fmt_args,)*);
