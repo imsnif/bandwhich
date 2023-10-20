@@ -148,9 +148,7 @@ impl UIState {
                         );
                         mt_log!(warn, "Looking for: {local_socket}; found: {lookalike}");
                     }
-                    None => {
-                        mt_log!(warn, "Cannot determine which process owns {local_socket}.");
-                    }
+                    None => mt_log!(warn, "Cannot determine which process owns {local_socket}."),
                 };
             }
         }
