@@ -7,9 +7,10 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 
-use log::warn;
-
-use crate::network::{Connection, LocalSocket, Utilization};
+use crate::{
+    mt_log,
+    network::{Connection, LocalSocket, Utilization},
+};
 
 static RECALL_LENGTH: usize = 5;
 static MAX_BANDWIDTH_ITEMS: usize = 1000;
@@ -141,12 +142,15 @@ impl UIState {
                     },
                 ) {
                     Some((lookalike, name)) => {
-                        warn!(
+                        mt_log!(
+                            warn,
                             r#""{name}" owns a similar looking connection, but its local ip doesn't match."#
                         );
-                        warn!("Looking for: {local_socket}; found: {lookalike}");
+                        mt_log!(warn, "Looking for: {local_socket}; found: {lookalike}");
                     }
-                    None => warn!("Cannot determine which process owns {local_socket}."),
+                    None => {
+                        mt_log!(warn, "Cannot determine which process owns {local_socket}.");
+                    }
                 };
             }
         }

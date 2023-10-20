@@ -120,15 +120,24 @@ impl RawConnection {
         let process = &self.process_name;
 
         let Some(ip) = self.get_local_ip() else {
-            warn!(r#"Failed to get the local IP of a connection belonging to "{process}"."#);
+            mt_log!(
+                warn,
+                r#"Failed to get the local IP of a connection belonging to "{process}"."#
+            );
             return None;
         };
         let Some(port) = self.get_local_port() else {
-            warn!(r#"Failed to get the local port of a connection belonging to "{process}"."#);
+            mt_log!(
+                warn,
+                r#"Failed to get the local port of a connection belonging to "{process}"."#
+            );
             return None;
         };
         let Some(protocol) = self.get_protocol() else {
-            warn!(r#"Failed to get the protocol of a connection belonging to "{process}"."#);
+            mt_log!(
+                warn,
+                r#"Failed to get the protocol of a connection belonging to "{process}"."#
+            );
             return None;
         };
 
