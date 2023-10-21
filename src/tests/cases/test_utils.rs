@@ -6,6 +6,7 @@ use std::{
 };
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
+use itertools::Itertools;
 use packet_builder::*;
 use pnet::{datalink::DataLinkReceiver, packet::Packet};
 use pnet_base::MacAddr;
@@ -248,11 +249,16 @@ pub fn os_input_output_dns(
 }
 
 pub fn os_input_output_factory(
-    network_frames: Vec<Box<dyn DataLinkReceiver>>,
+    network_frames: impl IntoIterator<Item = Box<dyn DataLinkReceiver>>,
     stdout: Option<Arc<Mutex<Vec<u8>>>>,
     dns_client: Option<Client>,
     keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
 ) -> OsInputOutput {
+    let interfaces_with_frames = get_interfaces()
+        .into_iter()
+        .zip_eq(network_frames)
+        .collect();
+
     let write_to_stdout: Box<dyn FnMut(String) + Send> = match stdout {
         Some(stdout) => Box::new({
             move |output: String| {
@@ -264,8 +270,7 @@ pub fn os_input_output_factory(
     };
 
     OsInputOutput {
-        network_interfaces: get_interfaces(),
-        network_frames,
+        interfaces_with_frames,
         get_open_sockets,
         terminal_events: keyboard_events,
         dns_client,

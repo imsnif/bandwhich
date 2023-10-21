@@ -93,8 +93,7 @@ pub struct OpenSockets {
 }
 
 pub struct OsInputOutput {
-    pub network_interfaces: Vec<NetworkInterface>,
-    pub network_frames: Vec<Box<dyn DataLinkReceiver>>,
+    pub interfaces_with_frames: Vec<(NetworkInterface, Box<dyn DataLinkReceiver>)>,
     pub get_open_sockets: fn() -> OpenSockets,
     pub terminal_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
@@ -281,9 +280,8 @@ where
     active_threads.push(terminal_event_handler);
 
     let sniffer_threads = os_input
-        .network_interfaces
+        .interfaces_with_frames
         .into_iter()
-        .zip(os_input.network_frames)
         .map(|(iface, frames)| {
             let name = format!("sniffing_handler_{}", iface.name);
             let running = running.clone();
