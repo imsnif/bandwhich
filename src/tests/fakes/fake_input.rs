@@ -7,6 +7,7 @@ use std::{
 use async_trait::async_trait;
 use crossterm::event::Event;
 use ipnetwork::IpNetwork;
+use itertools::Itertools;
 use pnet::datalink::{DataLinkReceiver, NetworkInterface};
 use tokio::runtime::Runtime;
 
@@ -157,6 +158,12 @@ pub fn get_interfaces() -> Vec<NetworkInterface> {
         // at offset 14
         flags: 0,
     }]
+}
+
+pub fn get_interfaces_with_frames(
+    frames: impl IntoIterator<Item = Box<dyn DataLinkReceiver>>,
+) -> Vec<(NetworkInterface, Box<dyn DataLinkReceiver>)> {
+    get_interfaces().into_iter().zip_eq(frames).collect()
 }
 
 pub fn create_fake_dns_client(ips_to_hosts: HashMap<IpAddr, String>) -> Option<dns::Client> {

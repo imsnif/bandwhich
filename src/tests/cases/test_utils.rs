@@ -14,8 +14,8 @@ use rstest::fixture;
 use crate::{
     network::dns::Client,
     tests::fakes::{
-        create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvent,
-        TerminalEvents, TestBackend,
+        create_fake_dns_client, get_interfaces_with_frames, get_open_sockets, NetworkFrames,
+        TerminalEvent, TerminalEvents, TestBackend,
     },
     Opt, OsInputOutput,
 };
@@ -248,11 +248,13 @@ pub fn os_input_output_dns(
 }
 
 pub fn os_input_output_factory(
-    network_frames: Vec<Box<dyn DataLinkReceiver>>,
+    network_frames: impl IntoIterator<Item = Box<dyn DataLinkReceiver>>,
     stdout: Option<Arc<Mutex<Vec<u8>>>>,
     dns_client: Option<Client>,
     keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
 ) -> OsInputOutput {
+    let interfaces_with_frames = get_interfaces_with_frames(network_frames);
+
     let write_to_stdout: Box<dyn FnMut(String) + Send> = match stdout {
         Some(stdout) => Box::new({
             move |output: String| {
@@ -264,8 +266,7 @@ pub fn os_input_output_factory(
     };
 
     OsInputOutput {
-        network_interfaces: get_interfaces(),
-        network_frames,
+        interfaces_with_frames,
         get_open_sockets,
         terminal_events: keyboard_events,
         dns_client,
