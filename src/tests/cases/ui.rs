@@ -17,7 +17,8 @@ use crate::{
             sleep_and_quit_events, sleep_resize_and_quit_events, test_backend_factory,
         },
         fakes::{
-            create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvents,
+            create_fake_dns_client, get_interfaces_with_frames, get_open_sockets, NetworkFrames,
+            TerminalEvents,
         },
     },
     Opt, OsInputOutput,
@@ -640,10 +641,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional_total(
 fn traffic_with_host_names(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let interfaces_with_frames = get_interfaces()
-        .into_iter()
-        .zip_eq(network_frames)
-        .collect();
+    let interfaces_with_frames = get_interfaces_with_frames(network_frames);
 
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
@@ -682,10 +680,7 @@ fn traffic_with_host_names(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
 fn truncate_long_hostnames(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let interfaces_with_frames = get_interfaces()
-        .into_iter()
-        .zip_eq(network_frames)
-        .collect();
+    let interfaces_with_frames = get_interfaces_with_frames(network_frames);
 
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
@@ -724,10 +719,7 @@ fn truncate_long_hostnames(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
 fn no_resolve_mode(network_frames: Vec<Box<dyn DataLinkReceiver>>) {
     let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 
-    let interfaces_with_frames = get_interfaces()
-        .into_iter()
-        .zip_eq(network_frames)
-        .collect();
+    let interfaces_with_frames = get_interfaces_with_frames(network_frames);
 
     let mut ips_to_hostnames = HashMap::new();
     ips_to_hostnames.insert(
@@ -771,10 +763,7 @@ fn traffic_with_winch_event() {
         12345,
         b"I am a fake tcp packet",
     ))]) as Box<dyn DataLinkReceiver>];
-    let interfaces_with_frames = get_interfaces()
-        .into_iter()
-        .zip_eq(network_frames)
-        .collect();
+    let interfaces_with_frames = get_interfaces_with_frames(network_frames);
 
     let (terminal_events, terminal_draw_events, backend) = test_backend_factory(190, 50);
 

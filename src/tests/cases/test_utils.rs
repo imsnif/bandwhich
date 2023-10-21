@@ -6,7 +6,6 @@ use std::{
 };
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers};
-use itertools::Itertools;
 use packet_builder::*;
 use pnet::{datalink::DataLinkReceiver, packet::Packet};
 use pnet_base::MacAddr;
@@ -15,8 +14,8 @@ use rstest::fixture;
 use crate::{
     network::dns::Client,
     tests::fakes::{
-        create_fake_dns_client, get_interfaces, get_open_sockets, NetworkFrames, TerminalEvent,
-        TerminalEvents, TestBackend,
+        create_fake_dns_client, get_interfaces_with_frames, get_open_sockets, NetworkFrames,
+        TerminalEvent, TerminalEvents, TestBackend,
     },
     Opt, OsInputOutput,
 };
@@ -254,10 +253,7 @@ pub fn os_input_output_factory(
     dns_client: Option<Client>,
     keyboard_events: Box<dyn Iterator<Item = Event> + Send>,
 ) -> OsInputOutput {
-    let interfaces_with_frames = get_interfaces()
-        .into_iter()
-        .zip_eq(network_frames)
-        .collect();
+    let interfaces_with_frames = get_interfaces_with_frames(network_frames);
 
     let write_to_stdout: Box<dyn FnMut(String) + Send> = match stdout {
         Some(stdout) => Box::new({
