@@ -130,6 +130,8 @@ pub fn get_input(
         });
 
     // bail if all of them fail
+    // note that `Iterator::all` returns `true` for an empty iterator, so it is important to handle
+    // that failure mode separately, which we already have
     if interfaces_with_frames_res
         .iter()
         .all(|(_, frames)| frames.is_err())
