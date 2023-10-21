@@ -1,4 +1,4 @@
-#![deny(clippy::all)]
+#![deny(clippy::enum_glob_use)]
 
 mod cli;
 mod display;
