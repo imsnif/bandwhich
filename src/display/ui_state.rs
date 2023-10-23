@@ -136,31 +136,38 @@ impl UIState {
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
                 let data_for_process = {
-                    let process_name =
-                        get_proc_name(connections_to_procs, &connection.local_socket);
+                    let local_socket = connection.local_socket;
+                    let process_name = get_proc_name(connections_to_procs, &local_socket);
 
                     // only log each orphan connection once
-                    let orphan = connection.local_socket;
-                    if process_name.is_none() && !self.known_orphan_sockets.contains(&orphan) {
+                    if process_name.is_none() && !self.known_orphan_sockets.contains(&local_socket)
+                    {
                         // newer connections go in the front so that searches are faster
                         // basically recency bias
-                        self.known_orphan_sockets.push_front(orphan);
+                        self.known_orphan_sockets.push_front(local_socket);
                         self.known_orphan_sockets.truncate(10_000); // arbitrary maximum backlog
 
-                        match connections_to_procs.iter().find(
-                            |(&LocalSocket { port, protocol, .. }, _)| {
-                                port == orphan.port && protocol == orphan.protocol
-                            },
-                        ) {
+                        match connections_to_procs
+                            .iter()
+                            .find(|(&LocalSocket { port, protocol, .. }, _)| {
+                                port == local_socket.port && protocol == local_socket.protocol
+                            })
+                            .and_then(|(local_conn_lookalike, name)| {
+                                network_utilization
+                                    .connections
+                                    .keys()
+                                    .find(|conn| &conn.local_socket == local_conn_lookalike)
+                                    .map(|conn| (conn, name))
+                            }) {
                             Some((lookalike, name)) => {
                                 mt_log!(
                                     warn,
                                     r#""{name}" owns a similar looking connection, but its local ip doesn't match."#
                                 );
-                                mt_log!(warn, "Looking for: {orphan}; found: {lookalike}");
+                                mt_log!(warn, "Looking for: {connection:?}; found: {lookalike:?}");
                             }
                             None => {
-                                mt_log!(warn, "Cannot determine which process owns {orphan}.")
+                                mt_log!(warn, "Cannot determine which process owns {connection:?}");
                             }
                         };
                     }
