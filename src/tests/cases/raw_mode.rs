@@ -5,8 +5,10 @@ use std::{
 };
 
 use insta::assert_snapshot;
+use once_cell::sync::Lazy;
 use packet_builder::*;
 use pnet::{datalink::DataLinkReceiver, packet::Packet};
+use regex::Regex;
 
 use crate::{
     start,
@@ -37,12 +39,12 @@ fn build_ip_tcp_packet(
     pkt.packet().to_vec()
 }
 
-fn format_raw_output(output: Vec<u8>) -> String {
-    let stdout_utf8 = String::from_utf8(output).unwrap();
-    use regex::Regex;
-    let timestamp = Regex::new(r"<\d+>").unwrap();
-    let replaced = timestamp.replace_all(&stdout_utf8, "<TIMESTAMP_REMOVED>");
-    format!("{replaced}")
+fn format_raw_stdout(raw: &Mutex<Vec<u8>>) -> String {
+    static TIMESTAMP_MATCHER: Lazy<Regex> = Lazy::new(|| Regex::new(r"<\d+>").unwrap());
+    let stdout = raw.lock().unwrap();
+    TIMESTAMP_MATCHER
+        .replace_all(std::str::from_utf8(&stdout).unwrap(), "<TIMESTAMP_REMOVED>")
+        .into()
 }
 
 #[test]
@@ -59,9 +61,7 @@ fn one_ip_packet_of_traffic() {
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -78,9 +78,7 @@ fn one_packet_of_traffic() {
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -106,9 +104,7 @@ fn bi_directional_traffic() {
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -134,9 +130,7 @@ fn multiple_packets_of_traffic_from_different_connections() {
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -162,9 +156,7 @@ fn multiple_packets_of_traffic_from_single_connection() {
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -190,9 +182,7 @@ fn one_process_with_multiple_connections() {
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -232,9 +222,7 @@ fn multiple_processes_with_multiple_connections() {
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -261,9 +249,7 @@ fn multiple_connections_from_remote_address() {
     let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -291,9 +277,7 @@ fn sustained_traffic_from_one_process() {
     let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -335,9 +319,7 @@ fn sustained_traffic_from_multiple_processes() {
     let os_input = os_input_output_stdout(network_frames, 3, Some(stdout.clone()));
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -407,9 +389,7 @@ fn sustained_traffic_from_multiple_processes_bi_directional() {
 
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -492,9 +472,7 @@ fn traffic_with_host_names() {
     let os_input = os_input_output_dns(network_frames, 3, Some(stdout.clone()), dns_client);
     let opts = opts_raw();
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
 
 #[test]
@@ -582,7 +560,5 @@ fn no_resolve_mode() {
         ..Default::default()
     };
     start(backend, os_input, opts);
-    let stdout = Arc::try_unwrap(stdout).unwrap().into_inner().unwrap();
-    let formatted = format_raw_output(stdout);
-    assert_snapshot!(formatted);
+    assert_snapshot!(format_raw_stdout(&stdout));
 }
