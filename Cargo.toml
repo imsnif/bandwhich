@@ -1,12 +1,6 @@
 [package]
-edition = "2021"
 name = "bandwhich"
-description = "Display current network utilization by process, connection and remote IP/hostname"
 version = "0.21.1"
-rust-version = "1.70.0"
-homepage = "https://github.com/imsnif/bandwhich"
-repository = "https://github.com/imsnif/bandwhich"
-readme = "README.md"
 authors = [
   "Aram Drevekenin <aram@poor.dev>",
   "Eduardo Toledo <etoledom@icloud.com>",
@@ -15,48 +9,57 @@ authors = [
   "Brooks Rady <b.j.rady@gmail.com>",
   "cyqsimon <28627918+cyqsimon@users.noreply.github.com>",
 ]
-keywords = ["networking", "utilization", "cli"]
 categories = ["network-programming", "command-line-utilities"]
-license = "MIT"
+edition = "2021"
 exclude = ["src/tests/*", "demo.gif"]
+homepage = "https://github.com/imsnif/bandwhich"
+keywords = ["networking", "utilization", "cli"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/imsnif/bandwhich"
+rust-version = "1.70.0"
+description = "Display current network utilization by process, connection and remote IP/hostname"
 
 [dependencies]
-pnet = "0.34.0"
-ipnetwork = "0.20.0"
-ratatui = "0.23.0"
-crossterm = "0.27.0"
-clap = { version = "4.4.6", features = ["derive"] }
+anyhow = { version = "1.0.75", features = ["backtrace"] }
+async-trait = "0.1.74"
 chrono = "0.4"
-regex = "1.10.1"
+clap-verbosity-flag = "2.0.1"
+clap = { version = "4.4.6", features = ["derive"] }
+crossterm = "0.27.0"
+derivative = "2.2.0"
+ipnetwork = "0.20.0"
+itertools = "0.11.0"
+log = "0.4.20"
+once_cell = "1.18.0"
+pnet = "0.34.0"
+pnet_macros_support = "0.34.0"
+ratatui = "0.23.0"
+resolv-conf = "0.7.0"
+simplelog = "0.12.1"
+thiserror = "1.0.49"
 tokio = { version = "1.33", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.1"
-async-trait = "0.1.74"
 unicode-width = "0.1.11"
-resolv-conf = "0.7.0"
-pnet_macros_support = "0.34.0"
-anyhow = { version = "1.0.75", features = ["backtrace"] }
-thiserror = "1.0.49"
-log = "0.4.20"
-simplelog = "0.12.1"
-clap-verbosity-flag = "2.0.1"
-derivative = "2.2.0"
-itertools = "0.11.0"
-once_cell = "1.18.0"
 
-[target.'cfg(target_os="windows")'.dependencies]
+[target.'cfg(target_os = "linux")'.dependencies]
+procfs = "0.15.1"
+
+[target.'cfg(any(target_os = "macos", target_os = "freebsd"))'.dependencies]
+regex = "1.10.1"
+
+[target.'cfg(target_os = "windows")'.dependencies]
 netstat2 = "0.9.1"
 sysinfo = "0.29.10"
 
-[target.'cfg(target_os="linux")'.dependencies]
-procfs = "0.15.1"
-
 [dev-dependencies]
 insta = "1.34.0"
-pnet_base = "0.34.0"
 packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-update" }
+pnet_base = "0.34.0"
+regex = "1.10.1"
 rstest = "0.18.2"
 
-[target.'cfg(target_os="windows")'.build-dependencies]
+[target.'cfg(target_os = "windows")'.build-dependencies]
 anyhow = "1.0.75"
 http_req = "0.10.0"
 zip = "0.6.6"
