@@ -29,7 +29,7 @@ pub struct Opt {
     pub dns_server: Option<Ipv4Addr>,
 
     #[arg(long)]
-    /// Enable logging to a file
+    /// Enable debug logging to a file
     pub log_to: Option<PathBuf>,
 
     #[command(flatten)]
