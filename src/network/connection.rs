@@ -30,20 +30,30 @@ impl fmt::Display for Protocol {
     }
 }
 
-#[derive(Clone, Ord, PartialOrd, PartialEq, Eq, Hash, Debug, Copy)]
+#[derive(Clone, Ord, PartialOrd, PartialEq, Eq, Hash, Copy)]
 pub struct Socket {
     pub ip: IpAddr,
     pub port: u16,
 }
 
-#[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Debug, Copy)]
+impl fmt::Debug for Socket {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let Socket { ip, port } = self;
+        match ip {
+            IpAddr::V4(v4) => write!(f, "{v4}:{port}"),
+            IpAddr::V6(v6) => write!(f, "[{v6}]:{port}"),
+        }
+    }
+}
+
+#[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Copy)]
 pub struct LocalSocket {
     pub ip: IpAddr,
     pub port: u16,
     pub protocol: Protocol,
 }
 
-impl fmt::Display for LocalSocket {
+impl fmt::Debug for LocalSocket {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let LocalSocket { ip, port, protocol } = self;
         match ip {
@@ -53,10 +63,20 @@ impl fmt::Display for LocalSocket {
     }
 }
 
-#[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Debug, Copy)]
+#[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Copy)]
 pub struct Connection {
     pub remote_socket: Socket,
     pub local_socket: LocalSocket,
+}
+
+impl fmt::Debug for Connection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let Connection {
+            remote_socket,
+            local_socket,
+        } = self;
+        write!(f, "{local_socket:?} => {remote_socket:?}")
+    }
 }
 
 pub fn display_ip_or_host(ip: IpAddr, ip_to_host: &HashMap<IpAddr, String>) -> String {
