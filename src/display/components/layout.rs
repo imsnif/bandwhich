@@ -1,5 +1,4 @@
 use ratatui::{
-    backend::Backend,
     layout::{Constraint, Direction, Rect},
     terminal::Frame,
 };
@@ -100,7 +99,7 @@ impl<'a> Layout<'a> {
         }
     }
 
-    pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect, ui_offset: usize) {
+    pub fn render(&self, frame: &mut Frame, rect: Rect, ui_offset: usize) {
         let (top, app, bottom) = top_app_and_bottom_split(rect);
         let layout_slots = self.build_layout(app);
         for i in 0..layout_slots.len() {
