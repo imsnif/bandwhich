@@ -1,14 +1,1 @@
-.cargo/
 target/
-vendor/
-vendor.tar
-**/*.rs.bk
-
-# Debian support
-
-debian/*
-!debian/changelog
-!debian/control
-!debian/copyright
-!debian/rules
-!debian/source

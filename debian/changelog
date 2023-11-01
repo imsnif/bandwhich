@@ -1,5 +1,0 @@
-bandwhich (0.9.0) bionic; urgency=medium
-
-  * Initial debian packaging
-
- -- Michael Aaron Murphy <michael@system76.com>  Thu, 16 Jan 2020 8:26:58 -0700
