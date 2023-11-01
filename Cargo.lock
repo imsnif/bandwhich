@@ -1930,9 +1930,9 @@ dependencies = [
 
 [[package]]
 name = "trust-dns-proto"
-version = "0.23.1"
+version = "0.23.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "559ac980345f7f5020883dd3bcacf176355225e01916f8c2efecad7534f682c6"
+checksum = "3119112651c157f4488931a01e586aa459736e9d6046d3bd9105ffb69352d374"
 dependencies = [
  "async-trait",
  "cfg-if",
@@ -1955,9 +1955,9 @@ dependencies = [
 
 [[package]]
 name = "trust-dns-resolver"
-version = "0.23.1"
+version = "0.23.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c723b0e608b24ad04c73b2607e0241b2c98fd79795a95e98b068b6966138a29d"
+checksum = "10a3e6c3aff1718b3c73e395d1f35202ba2ffa847c6a62eea0db8fb4cfe30be6"
 dependencies = [
  "cfg-if",
  "futures-util",
