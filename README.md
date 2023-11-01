@@ -1,6 +1,6 @@
 # bandwhich
 
-![demo](demo.gif)
+![demo](res/demo.gif)
 
 This is a CLI utility for displaying current network utilization by process, connection and remote IP/hostname
 
