@@ -61,5 +61,5 @@ rstest = "0.18.2"
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 anyhow = "1.0.75"
-http_req = "0.10.0"
+http_req = "0.10.1"
 zip = "0.6.6"
