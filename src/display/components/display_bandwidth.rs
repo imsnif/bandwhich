@@ -18,13 +18,13 @@ impl fmt::Display for DisplayBandwidth {
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum)]
 pub enum BandwidthUnitFamily {
     #[default]
-    /// bytes, in powers 2^10
+    /// bytes, in powers of 2^10
     BinBytes,
-    /// bits, in powers 2^10
+    /// bits, in powers of 2^10
     BinBits,
     /// bytes, in powers of 10^3
     SiBytes,
-    /// bits, in powers 10^3
+    /// bits, in powers of 10^3
     SiBits,
 }
 impl BandwidthUnitFamily {
