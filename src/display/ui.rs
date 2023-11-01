@@ -32,6 +32,7 @@ where
         terminal.hide_cursor().unwrap();
         let state = {
             let mut state = UIState::default();
+            state.unit_family = opts.unit_family;
             state.cumulative_mode = opts.total_utilization;
             state
         };
