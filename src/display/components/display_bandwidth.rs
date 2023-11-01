@@ -81,11 +81,13 @@ impl BandwidthUnitFamily {
 
     /// Select a unit for a given value, returning its divisor and suffix.
     fn get_unit_for(&self, bytes: f64) -> (f64, &'static str) {
-        let (div, _, suffix) = self
+        let Some((div, _, suffix)) = self
             .steps()
             .into_iter()
             .find(|&(_, bound, _)| bound >= bytes)
-            .expect("Cannot select an appropriate unit for {bytes:.2}B.");
+        else {
+            panic!("Cannot select an appropriate unit for {bytes:.2}B.")
+        };
 
         (div, suffix)
     }
