@@ -85,7 +85,7 @@ impl BandwidthUnitFamily {
             .steps()
             .into_iter()
             .find(|&(_, bound, _)| bound >= bytes)
-            .expect("Cannot select an appropriate unit");
+            .expect("Cannot select an appropriate unit for {bytes:.2}B.");
 
         (div, suffix)
     }
