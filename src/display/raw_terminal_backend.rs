@@ -10,7 +10,11 @@
 
 use std::io;
 
-use ratatui::{backend::Backend, buffer::Cell, layout::Rect};
+use ratatui::{
+    backend::{Backend, WindowSize},
+    buffer::Cell,
+    layout::{Rect, Size},
+};
 
 pub struct RawTerminalBackend {}
 
@@ -44,6 +48,13 @@ impl Backend for RawTerminalBackend {
 
     fn size(&self) -> io::Result<Rect> {
         Ok(Rect::new(0, 0, 0, 0))
+    }
+
+    fn window_size(&mut self) -> io::Result<WindowSize> {
+        Ok(WindowSize {
+            columns_rows: Size::default(),
+            pixels: Size::default(),
+        })
     }
 
     fn flush(&mut self) -> io::Result<()> {

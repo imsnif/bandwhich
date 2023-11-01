@@ -4,7 +4,11 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use ratatui::{backend::Backend, buffer::Cell, layout::Rect};
+use ratatui::{
+    backend::{Backend, WindowSize},
+    buffer::Cell,
+    layout::{Rect, Size},
+};
 
 #[derive(Hash, Debug, PartialEq)]
 pub enum TerminalEvent {
@@ -107,6 +111,16 @@ impl Backend for TestBackend {
         let terminal_width = self.terminal_width.lock().unwrap();
 
         Ok(Rect::new(0, 0, *terminal_width, *terminal_height))
+    }
+
+    fn window_size(&mut self) -> io::Result<WindowSize> {
+        let width = *self.terminal_width.lock().unwrap();
+        let height = *self.terminal_height.lock().unwrap();
+
+        Ok(WindowSize {
+            columns_rows: Size { width, height },
+            pixels: Size::default(),
+        })
     }
 
     fn flush(&mut self) -> io::Result<()> {

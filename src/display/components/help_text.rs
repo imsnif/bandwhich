@@ -1,5 +1,4 @@
 use ratatui::{
-    backend::Backend,
     layout::{Alignment, Rect},
     style::{Modifier, Style},
     terminal::Frame,
@@ -22,7 +21,7 @@ const TEXT_WHEN_DNS_SHOWN: &str = " (DNS queries shown).";
 const TEXT_TAB_TIP: &str = " Use <TAB> to rearrange tables.";
 
 impl HelpText {
-    pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
+    pub fn render(&self, frame: &mut Frame, rect: Rect) {
         let pause_content = if self.paused {
             TEXT_WHEN_PAUSED
         } else {

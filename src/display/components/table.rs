@@ -3,7 +3,6 @@ use std::{collections::HashMap, fmt, iter::FromIterator, net::IpAddr, ops::Index
 use derivative::Derivative;
 use itertools::Itertools;
 use ratatui::{
-    backend::Backend,
     layout::{Constraint, Rect},
     style::{Color, Style},
     terminal::Frame,
@@ -326,7 +325,7 @@ impl Table {
     }
 
     /// See [`Table`] for layout rules.
-    pub fn render(&self, frame: &mut Frame<impl Backend>, rect: Rect) {
+    pub fn render(&self, frame: &mut Frame, rect: Rect) {
         let (computed_layout, spacer_width) = {
             // pick the largest possible layout, constrained by the available width
             let &(_, layout) = self
