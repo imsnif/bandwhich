@@ -43,7 +43,7 @@ trust-dns-resolver = "0.23.2"
 unicode-width = "0.1.11"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-procfs = "0.15.1"
+procfs = "0.16.0"
 
 [target.'cfg(any(target_os = "macos", target_os = "freebsd"))'.dependencies]
 regex = "1.10.2"
