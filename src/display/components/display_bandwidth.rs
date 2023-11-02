@@ -36,38 +36,27 @@ impl BandwidthUnitFamily {
     fn steps(&self) -> [(f64, f64, &'static str); 6] {
         /// The fraction of the next unit the value has to meet to step up.
         const STEP_UP_FRAC: f64 = 0.95;
-        const BIN_POW: f64 = 2usize.pow(10) as f64; // 1024
+        /// Binary base: 2^10.
+        const BB: f64 = 1024.0;
 
         use BandwidthUnitFamily as F;
         // probably could macro this stuff, but I'm too lazy
         match self {
             F::BinBytes => [
-                (1.0, BIN_POW * STEP_UP_FRAC, "B"),
-                (BIN_POW, BIN_POW.powi(2) * STEP_UP_FRAC, "KiB"),
-                (BIN_POW.powi(2), BIN_POW.powi(3) * STEP_UP_FRAC, "MiB"),
-                (BIN_POW.powi(3), BIN_POW.powi(4) * STEP_UP_FRAC, "GiB"),
-                (BIN_POW.powi(4), BIN_POW.powi(5) * STEP_UP_FRAC, "TiB"),
-                (BIN_POW.powi(5), f64::MAX, "PiB"),
+                (1.0, BB * STEP_UP_FRAC, "B"),
+                (BB, BB.powi(2) * STEP_UP_FRAC, "KiB"),
+                (BB.powi(2), BB.powi(3) * STEP_UP_FRAC, "MiB"),
+                (BB.powi(3), BB.powi(4) * STEP_UP_FRAC, "GiB"),
+                (BB.powi(4), BB.powi(5) * STEP_UP_FRAC, "TiB"),
+                (BB.powi(5), f64::MAX, "PiB"),
             ],
             F::BinBits => [
-                (1.0 / 8.0, BIN_POW / 8.0 * STEP_UP_FRAC, "b"),
-                (BIN_POW / 8.0, BIN_POW.powi(2) / 8.0 * STEP_UP_FRAC, "Kib"),
-                (
-                    BIN_POW.powi(2) / 8.0,
-                    BIN_POW.powi(3) / 8.0 * STEP_UP_FRAC,
-                    "Mib",
-                ),
-                (
-                    BIN_POW.powi(3) / 8.0,
-                    BIN_POW.powi(4) / 8.0 * STEP_UP_FRAC,
-                    "Gib",
-                ),
-                (
-                    BIN_POW.powi(4) / 8.0,
-                    BIN_POW.powi(5) / 8.0 * STEP_UP_FRAC,
-                    "Tib",
-                ),
-                (BIN_POW.powi(5) / 8.0, f64::MAX, "Pib"),
+                (1.0 / 8.0, BB / 8.0 * STEP_UP_FRAC, "b"),
+                (BB / 8.0, BB.powi(2) / 8.0 * STEP_UP_FRAC, "Kib"),
+                (BB.powi(2) / 8.0, BB.powi(3) / 8.0 * STEP_UP_FRAC, "Mib"),
+                (BB.powi(3) / 8.0, BB.powi(4) / 8.0 * STEP_UP_FRAC, "Gib"),
+                (BB.powi(4) / 8.0, BB.powi(5) / 8.0 * STEP_UP_FRAC, "Tib"),
+                (BB.powi(5) / 8.0, f64::MAX, "Pib"),
             ],
             F::SiBytes => [
                 (1.0, 1e3 * STEP_UP_FRAC, "B"),
