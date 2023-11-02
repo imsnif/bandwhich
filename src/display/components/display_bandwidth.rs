@@ -33,7 +33,7 @@ impl BandwidthUnitFamily {
     /// Returns an array of tuples, corresponding to the steps of this unit family.
     ///
     /// Each step contains a divisor, an upper bound, and a unit suffix.
-    fn steps(&self) -> [(f64, f64, &'static str); 5] {
+    fn steps(&self) -> [(f64, f64, &'static str); 6] {
         /// The fraction of the next unit the value has to meet to step up.
         const STEP_UP_FRAC: f64 = 0.95;
         const BIN_POW: f64 = 2usize.pow(10) as f64; // 1024
@@ -46,7 +46,8 @@ impl BandwidthUnitFamily {
                 (BIN_POW, BIN_POW.powi(2) * STEP_UP_FRAC, "KiB"),
                 (BIN_POW.powi(2), BIN_POW.powi(3) * STEP_UP_FRAC, "MiB"),
                 (BIN_POW.powi(3), BIN_POW.powi(4) * STEP_UP_FRAC, "GiB"),
-                (BIN_POW.powi(4), f64::MAX, "TiB"),
+                (BIN_POW.powi(4), BIN_POW.powi(5) * STEP_UP_FRAC, "TiB"),
+                (BIN_POW.powi(5), f64::MAX, "PiB"),
             ],
             F::BinBits => [
                 (1.0 / 8.0, BIN_POW / 8.0 * STEP_UP_FRAC, "b"),
@@ -61,21 +62,28 @@ impl BandwidthUnitFamily {
                     BIN_POW.powi(4) / 8.0 * STEP_UP_FRAC,
                     "Gib",
                 ),
-                (BIN_POW.powi(4) / 8.0, f64::MAX, "Tib"),
+                (
+                    BIN_POW.powi(4) / 8.0,
+                    BIN_POW.powi(5) / 8.0 * STEP_UP_FRAC,
+                    "Tib",
+                ),
+                (BIN_POW.powi(5) / 8.0, f64::MAX, "Pib"),
             ],
             F::SiBytes => [
                 (1.0, 1e3 * STEP_UP_FRAC, "B"),
                 (1e3, 1e6 * STEP_UP_FRAC, "kB"),
                 (1e6, 1e9 * STEP_UP_FRAC, "MB"),
                 (1e9, 1e12 * STEP_UP_FRAC, "GB"),
-                (1e12, f64::MAX, "TB"),
+                (1e12, 1e15 * STEP_UP_FRAC, "TB"),
+                (1e15, f64::MAX, "PB"),
             ],
             F::SiBits => [
                 (1.0 / 8.0, 1e3 / 8.0 * STEP_UP_FRAC, "b"),
                 (1e3 / 8.0, 1e6 / 8.0 * STEP_UP_FRAC, "kb"),
                 (1e6 / 8.0, 1e9 / 8.0 * STEP_UP_FRAC, "Mb"),
                 (1e9 / 8.0, 1e12 / 8.0 * STEP_UP_FRAC, "Gb"),
-                (1e12 / 8.0, f64::MAX, "Tb"),
+                (1e12 / 8.0, 1e15 / 8.0 * STEP_UP_FRAC, "Tb"),
+                (1e15 / 8.0, f64::MAX, "Pb"),
             ],
         }
     }
@@ -109,11 +117,11 @@ mod tests {
         let test_bandwidths_formatted = BandwidthUnitFamily::iter()
             .cartesian_product(
                 // I feel like this is a decent selection of values
-                (-6..45)
+                (-6..60)
                     .map(|exp| 2f64.powi(exp))
-                    .chain((-5..35).map(|exp| 2.5f64.powi(exp)))
-                    .chain((-4..30).map(|exp| 3f64.powi(exp)))
-                    .chain((-3..20).map(|exp| 5f64.powi(exp))),
+                    .chain((-5..45).map(|exp| 2.5f64.powi(exp)))
+                    .chain((-4..38).map(|exp| 3f64.powi(exp)))
+                    .chain((-3..26).map(|exp| 5f64.powi(exp))),
             )
             .map(|(unit_family, bandwidth)| DisplayBandwidth {
                 bandwidth,
