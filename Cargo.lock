@@ -187,6 +187,7 @@ dependencies = [
  "resolv-conf",
  "rstest",
  "simplelog",
+ "strum",
  "sysinfo",
  "thiserror",
  "tokio",

@@ -78,11 +78,14 @@ impl<'a> HeaderDetails<'a> {
         } else {
             "Rate"
         };
+        let unit_family = self.state.unit_family;
         let up = DisplayBandwidth {
             bandwidth: self.state.total_bytes_uploaded as f64,
+            unit_family,
         };
         let down = DisplayBandwidth {
             bandwidth: self.state.total_bytes_downloaded as f64,
+            unit_family,
         };
         let paused = if self.paused { " [PAUSED]" } else { "" };
         format!(" Total {t} (Up / Down): {up} / {down}{paused}")

@@ -4,6 +4,8 @@ use clap::{Args, Parser};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
 use derivative::Derivative;
 
+use crate::display::BandwidthUnitFamily;
+
 #[derive(Clone, Debug, Derivative, Parser)]
 #[derivative(Default)]
 #[command(name = "bandwhich", version)]
@@ -53,6 +55,10 @@ pub struct RenderOpts {
     #[arg(short, long)]
     /// Show remote addresses table only
     pub addresses: bool,
+
+    #[arg(short, long, value_enum, default_value_t)]
+    /// Choose a specific family of units
+    pub unit_family: BandwidthUnitFamily,
 
     #[arg(short, long)]
     /// Show total (cumulative) usages
