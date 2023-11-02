@@ -1,6 +1,7 @@
 use std::fmt;
 
 use clap::ValueEnum;
+use strum::EnumIter;
 
 #[derive(Copy, Clone, Debug)]
 pub struct DisplayBandwidth {
@@ -15,7 +16,7 @@ impl fmt::Display for DisplayBandwidth {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum, EnumIter)]
 pub enum BandwidthUnitFamily {
     #[default]
     /// bytes, in powers of 2^10
@@ -90,5 +91,39 @@ impl BandwidthUnitFamily {
         };
 
         (div, suffix)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fmt::Write;
+
+    use insta::assert_snapshot;
+    use itertools::Itertools;
+    use strum::IntoEnumIterator;
+
+    use crate::display::{BandwidthUnitFamily, DisplayBandwidth};
+
+    #[test]
+    fn bandwidth_formatting() {
+        let test_bandwidths_formatted = BandwidthUnitFamily::iter()
+            .cartesian_product(
+                // I feel like this is a decent selection of values
+                (-6..45)
+                    .map(|exp| 2f64.powi(exp))
+                    .chain((-5..35).map(|exp| 2.5f64.powi(exp)))
+                    .chain((-4..30).map(|exp| 3f64.powi(exp)))
+                    .chain((-3..20).map(|exp| 5f64.powi(exp))),
+            )
+            .map(|(unit_family, bandwidth)| DisplayBandwidth {
+                bandwidth,
+                unit_family,
+            })
+            .fold(String::new(), |mut buf, b| {
+                let _ = writeln!(buf, "{b:?}: {b}");
+                buf
+            });
+
+        assert_snapshot!(test_bandwidths_formatted);
     }
 }

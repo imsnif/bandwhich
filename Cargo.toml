@@ -41,6 +41,7 @@ thiserror = "1.0.50"
 tokio = { version = "1.33", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.1.11"
+strum = { version = "0.25.0", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 procfs = "0.16.0"
