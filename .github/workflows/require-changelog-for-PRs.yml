@@ -23,4 +23,4 @@ jobs:
           echo "Added lines in CHANGELOG.md:"
           echo "$ADDED"
           echo "Grepping for PR info:"
-          grep "(#|pull/)${PR_NUMBER}\\b.*@${PR_SUBMITTER}\\b" <<< "$ADDED"
+          grep -P "(#|pull/)${PR_NUMBER}\\b.*@${PR_SUBMITTER}\\b" <<< "$ADDED"
