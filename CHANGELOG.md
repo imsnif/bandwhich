@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+* CI: ensure a changelog entry exists for each PR #331 - @cyqsimon
+
 ## [0.21.1] - 2023-10-16
 
 ### Fixed
