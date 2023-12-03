@@ -1,4 +1,4 @@
-use std::{net::Ipv4Addr, path::PathBuf};
+use std::{net::{Ipv4Addr, SocketAddrV4}, path::PathBuf};
 
 use clap::{Args, Parser};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
@@ -37,6 +37,16 @@ pub struct Opt {
     #[command(flatten)]
     #[derivative(Default(value = "Verbosity::new(0, 0)"))]
     pub verbosity: Verbosity<InfoLevel>,
+
+    #[arg(short, long)]
+    /// exclude ip addres with <-e x.x.x.x>
+    /// exclude multiple ip addresses with <-e x.x.x.x -e y.y.y.y>
+    pub excluded_ipv4: Option<Vec<Ipv4Addr>>,
+
+    #[arg(long)]
+    /// exclude ip addres with <-e x.x.x.x:zzzz>
+    /// exclude multiple ip addresses and port with <-e x.x.x.x:zzzz -e y.y.y.y:zzzz>
+    pub excluded_ipv4_port: Option<Vec<SocketAddrV4>>,
 
     #[command(flatten)]
     pub render_opts: RenderOpts,
