@@ -174,7 +174,7 @@ where
         &mut self,
         connections_to_procs: HashMap<LocalSocket, String>,
         utilization: Utilization,
-        ip_to_host: HashMap<IpAddr, String>
+        ip_to_host: HashMap<IpAddr, String>,
     ) {
         self.state.update(connections_to_procs, utilization);
         self.ip_to_host.extend(ip_to_host);
@@ -182,7 +182,7 @@ where
     pub fn end(&mut self) {
         self.terminal.show_cursor().unwrap();
     }
-    pub fn update_interface_name(&mut self,interface_name: String){
+    pub fn update_interface_name(&mut self, interface_name: String) {
         self.state.interface_name = interface_name;
     }
 }
