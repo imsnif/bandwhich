@@ -182,7 +182,4 @@ where
     pub fn end(&mut self) {
         self.terminal.show_cursor().unwrap();
     }
-    pub fn update_interface_name(&mut self, interface_name: String) {
-        self.state.interface_name = interface_name;
-    }
 }

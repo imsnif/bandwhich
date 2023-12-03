@@ -90,7 +90,6 @@ pub struct UIState {
     pub processes_map: HashMap<String, NetworkData>,
     pub remote_addresses_map: HashMap<IpAddr, NetworkData>,
     pub connections_map: HashMap<Connection, ConnectionData>,
-    pub interface_name: String,
     /// Used for reducing logging noise.
     known_orphan_sockets: VecDeque<LocalSocket>,
 }
