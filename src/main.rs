@@ -159,8 +159,9 @@ where
                             Some(ref interface_name) => interface_name.to_string(),
                             None => "All Interfaces".to_string(),
                         };
+                        ui.update_interface_name(interface);
                         if !paused {
-                            ui.update_state(sockets_to_procs, utilization, ip_to_host, interface);
+                            ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
                         let elapsed_time = elapsed_time(
                             *last_start_time.read().unwrap(),
