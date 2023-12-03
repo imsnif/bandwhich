@@ -88,7 +88,8 @@ impl<'a> HeaderDetails<'a> {
             unit_family,
         };
         let paused = if self.paused { " [PAUSED]" } else { "" };
-        format!(" Total {t} (Up / Down): {up} / {down}{paused}")
+        let intrf = &self.state.interface_name;
+        format!("Interface: <{intrf}> | Total {t} (Up / Down): {up} / {down}{paused}")
     }
 
     fn render_elapsed_time(&self, frame: &mut Frame, rect: Rect, elapsed_time: &str, color: Color) {

@@ -90,6 +90,7 @@ pub struct UIState {
     pub processes_map: HashMap<String, NetworkData>,
     pub remote_addresses_map: HashMap<IpAddr, NetworkData>,
     pub connections_map: HashMap<Connection, ConnectionData>,
+    pub interface_name: String,
     /// Used for reducing logging noise.
     known_orphan_sockets: VecDeque<LocalSocket>,
 }
@@ -127,6 +128,7 @@ impl UIState {
                 connection_data.total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 connection_data.total_bytes_uploaded += connection_info.total_bytes_uploaded;
                 connection_data.interface_name = connection_info.interface_name.clone();
+                self.interface_name = connection_info.interface_name.clone();
                 data_for_remote_address.total_bytes_downloaded +=
                     connection_info.total_bytes_downloaded;
                 data_for_remote_address.total_bytes_uploaded +=
