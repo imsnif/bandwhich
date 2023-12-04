@@ -1,4 +1,7 @@
-use std::{net::{Ipv4Addr, SocketAddrV4}, path::PathBuf};
+use std::{
+    net::{Ipv4Addr, SocketAddrV4},
+    path::PathBuf,
+};
 
 use clap::{Args, Parser};
 use clap_verbosity_flag::{InfoLevel, Verbosity};

@@ -1,4 +1,7 @@
-use std::{collections::HashMap, net::{Ipv4Addr, SocketAddrV4, SocketAddrV6}, os::unix::net::SocketAddr};
+use std::{
+    collections::HashMap,
+    net::{Ipv4Addr, SocketAddrV4},
+};
 
 use crate::network::{Connection, Direction, Segment};
 
@@ -47,13 +50,14 @@ impl Utilization {
         // i still don't understand the whole borrow/own system very well yet
         let placeholder = self.connections.clone();
         for util in placeholder {
-            match util.0.remote_socket.ip{
+            match util.0.remote_socket.ip {
                 std::net::IpAddr::V4(ip) => {
-                    if ips.contains(&ip){
+                    if ips.contains(&ip) {
                         self.connections.remove_entry(&util.0);
                     }
                 }
-                std::net::IpAddr::V6(..) => {/* nothing here yet (maybe implement it for ipV6 too) */}
+                std::net::IpAddr::V6(..) => { /* nothing here yet (maybe implement it for ipV6 too) */
+                }
             }
         }
     }
@@ -62,15 +66,15 @@ impl Utilization {
         // i still don't understand the whole borrow/own system very well yet
         let placeholder = self.connections.clone();
         for util in placeholder {
-            match util.0.remote_socket.ip{
+            match util.0.remote_socket.ip {
                 std::net::IpAddr::V4(ip) => {
-                    if ips.contains(&SocketAddrV4::new(ip, util.0.remote_socket.port)){
+                    if ips.contains(&SocketAddrV4::new(ip, util.0.remote_socket.port)) {
                         self.connections.remove_entry(&util.0);
                     }
                 }
-                std::net::IpAddr::V6(..) => {/* nothing here yet (maybe implement it for ipV6 too) */}
+                std::net::IpAddr::V6(..) => { /* nothing here yet (maybe implement it for ipV6 too) */
+                }
             }
         }
     }
-    
 }

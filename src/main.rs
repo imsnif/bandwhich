@@ -139,16 +139,12 @@ where
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
                     let mut utilization = { network_utilization.lock().unwrap().clone_and_reset() };
-                    match opts.excluded_ipv4{
-                        Some(ref ex) => {
-                            utilization.remove_ip(ex);
-                        }
+                    match opts.excluded_ipv4 {
+                        Some(ref ex) => utilization.remove_ip(ex),
                         None => {}
                     };
-                    match opts.excluded_ipv4_port{
-                        Some(ref ex) => {
-                            utilization.remove_ip_port(ex);
-                        }
+                    match opts.excluded_ipv4_port {
+                        Some(ref ex) => utilization.remove_ip_port(ex),
                         None => {}
                     };
                     let OpenSockets { sockets_to_procs } = get_open_sockets();
