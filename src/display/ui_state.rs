@@ -92,6 +92,7 @@ pub struct UIState {
     pub connections_map: HashMap<Connection, ConnectionData>,
     /// Used for reducing logging noise.
     known_orphan_sockets: VecDeque<LocalSocket>,
+    pub interface_name: String,
 }
 
 impl UIState {

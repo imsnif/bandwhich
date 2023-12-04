@@ -155,6 +155,11 @@ where
                         let mut ui = ui.lock().unwrap();
                         let paused = paused.load(Ordering::SeqCst);
                         let ui_offset = ui_offset.load(Ordering::SeqCst);
+                        let interface = match opts.interface {
+                            Some(ref interface_name) => interface_name.to_string(),
+                            None => "All Interfaces".to_string(),
+                        };
+                        ui.update_interface_name(interface);
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
