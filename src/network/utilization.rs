@@ -45,7 +45,7 @@ impl Utilization {
             }
         }
     }
-    pub fn remove_ip(&mut self, ips: &Vec<Ipv4Addr>) {
+    pub fn remove_ip(&mut self, ips: &[Ipv4Addr]) {
         // might be possible to refactor this part better
         // i still don't understand the whole borrow/own system very well yet
         let placeholder = self.connections.clone();
@@ -61,7 +61,7 @@ impl Utilization {
             }
         }
     }
-    pub fn remove_ip_port(&mut self, ips: &Vec<SocketAddrV4>) {
+    pub fn remove_ip_port(&mut self, ips: &[SocketAddrV4]) {
         // might be possible to refactor this part better
         // i still don't understand the whole borrow/own system very well yet
         let placeholder = self.connections.clone();

@@ -46,7 +46,7 @@ pub struct Opt {
     /// exclude multiple ip addresses with <-e x.x.x.x -e y.y.y.y>
     pub excluded_ipv4: Option<Vec<Ipv4Addr>>,
 
-    #[arg(long)]
+    #[arg(short = 'E', long)]
     /// exclude ip addres with <-e x.x.x.x:zzzz>
     /// exclude multiple ip addresses and port with <-e x.x.x.x:zzzz -e y.y.y.y:zzzz>
     pub excluded_ipv4_port: Option<Vec<SocketAddrV4>>,
