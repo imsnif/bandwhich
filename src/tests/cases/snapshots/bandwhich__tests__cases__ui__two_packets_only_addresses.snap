@@ -2,7 +2,7 @@
 source: src/tests/cases/ui.rs
 expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR)
 ---
- Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                                        
+IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                    
 ┌Utilization by remote address───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │Remote Address                                                                                                Connections                      Rate (Up / Down)                             │
 │                                                                                                                                                                                            │
@@ -54,7 +54,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
  Press <SPACE> to pause. Use <TAB> to rearrange tables. (DNS queries hidden).                                                                                                                 
 
 --- SECTION SEPARATOR ---
-                         24. 0B / 25.00B                                                                                                                                                      
+                                             24. 0B / 25.00B                                                                                                                                  
                                                                                                                                                                                               
                                                                                                                                                                                               
  1.1.1.1                                                                                                       1                                24.00B / 25.00B                               

@@ -2,7 +2,7 @@
 source: src/tests/cases/ui.rs
 expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR)
 ---
- Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                                        
+IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                    
 ┌Utilization by connection───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │Connection                                                                                                           Process                                Rate (Up / Down)                │
 │                                                                                                                                                                                            │
