@@ -4,7 +4,7 @@ use chrono::prelude::*;
 use ratatui::{backend::Backend, Terminal};
 
 use crate::{
-    cli::RenderOpts,
+    cli::{HostFilter, RenderOpts},
     display::{
         components::{HeaderDetails, HelpText, Layout, Table},
         UIState,
@@ -178,6 +178,9 @@ where
     ) {
         self.state.update(connections_to_procs, utilization);
         self.ip_to_host.extend(ip_to_host);
+    }
+    pub fn set_excluded(&mut self, ex: Option<Vec<HostFilter>>) {
+        self.state.excluded_ips = ex;
     }
     pub fn end(&mut self) {
         self.terminal.show_cursor().unwrap();

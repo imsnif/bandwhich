@@ -138,13 +138,7 @@ where
             move || {
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
-                    let mut utilization = { network_utilization.lock().unwrap().clone_and_reset() };
-                    if let Some(ref ex) = opts.excluded_ipv4 {
-                        utilization.remove_ip(ex)
-                    }
-                    if let Some(ref ex) = opts.excluded_ipv4_port {
-                        utilization.remove_ip_port(ex)
-                    }
+                    let utilization = { network_utilization.lock().unwrap().clone_and_reset() };
                     let OpenSockets { sockets_to_procs } = get_open_sockets();
                     let mut ip_to_host = IpTable::new();
                     if let Some(dns_client) = dns_client.as_mut() {
@@ -161,6 +155,7 @@ where
                         let mut ui = ui.lock().unwrap();
                         let paused = paused.load(Ordering::SeqCst);
                         let ui_offset = ui_offset.load(Ordering::SeqCst);
+                        ui.set_excluded(opts.excluded.clone());
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }

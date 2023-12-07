@@ -1,7 +1,36 @@
 use std::{
-    net::{Ipv4Addr, SocketAddrV4},
+    net::{Ipv4Addr, Ipv6Addr, SocketAddrV4, SocketAddrV6},
     path::PathBuf,
+    str::FromStr,
 };
+
+#[derive(Clone, Debug)]
+pub enum HostFilter {
+    Ipv4Addr(Ipv4Addr),
+    Ipv6Addr(Ipv6Addr),
+    SocketAddrV4(SocketAddrV4),
+    SocketAddrV6(SocketAddrV6),
+    Hostname(String),
+}
+
+impl FromStr for HostFilter {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Ok(ipv4) = s.parse() {
+            return Ok(HostFilter::Ipv4Addr(ipv4));
+        } else if let Ok(ipv6) = s.parse() {
+            return Ok(HostFilter::Ipv6Addr(ipv6));
+        } else if let Ok(socketv4) = s.parse() {
+            return Ok(HostFilter::SocketAddrV4(socketv4));
+        } else if let Ok(socketv6) = s.parse() {
+            return Ok(HostFilter::SocketAddrV6(socketv6));
+        } else {
+            // might need validation
+            return Ok(HostFilter::Hostname(s.to_string()));
+        }
+    }
+}
 
 use clap::{Args, Parser};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
@@ -44,12 +73,13 @@ pub struct Opt {
     #[arg(short, long)]
     /// exclude ip addres with <-e x.x.x.x>
     /// exclude multiple ip addresses with <-e x.x.x.x -e y.y.y.y>
-    pub excluded_ipv4: Option<Vec<Ipv4Addr>>,
-
-    #[arg(short = 'E', long)]
-    /// exclude ip addres with <-e x.x.x.x:zzzz>
-    /// exclude multiple ip addresses and port with <-e x.x.x.x:zzzz -e y.y.y.y:zzzz>
-    pub excluded_ipv4_port: Option<Vec<SocketAddrV4>>,
+    /// examples:
+    /// IpV4: 127.0.0.1
+    /// IpV6: 2001:db8::1 OR 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+    /// SocketAddrV4: 127.0.0.1:8080
+    /// SocketAddrV6: "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:8080"
+    /// hostname: String
+    pub excluded: Option<Vec<HostFilter>>,
 
     #[command(flatten)]
     pub render_opts: RenderOpts,

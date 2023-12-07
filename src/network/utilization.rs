@@ -1,7 +1,4 @@
-use std::{
-    collections::HashMap,
-    net::{Ipv4Addr, SocketAddrV4},
-};
+use std::collections::HashMap;
 
 use crate::network::{Connection, Direction, Segment};
 
@@ -42,38 +39,6 @@ impl Utilization {
             }
             Direction::Upload => {
                 total_bandwidth.total_bytes_uploaded += seg.data_length;
-            }
-        }
-    }
-    pub fn remove_ip(&mut self, ips: &[Ipv4Addr]) {
-        // might be possible to refactor this part better
-        // i still don't understand the whole borrow/own system very well yet
-        let placeholder = self.connections.clone();
-        for util in placeholder {
-            match util.0.remote_socket.ip {
-                std::net::IpAddr::V4(ip) => {
-                    if ips.contains(&ip) {
-                        self.connections.remove_entry(&util.0);
-                    }
-                }
-                std::net::IpAddr::V6(..) => { /* nothing here yet (maybe implement it for ipV6 too) */
-                }
-            }
-        }
-    }
-    pub fn remove_ip_port(&mut self, ips: &[SocketAddrV4]) {
-        // might be possible to refactor this part better
-        // i still don't understand the whole borrow/own system very well yet
-        let placeholder = self.connections.clone();
-        for util in placeholder {
-            match util.0.remote_socket.ip {
-                std::net::IpAddr::V4(ip) => {
-                    if ips.contains(&SocketAddrV4::new(ip, util.0.remote_socket.port)) {
-                        self.connections.remove_entry(&util.0);
-                    }
-                }
-                std::net::IpAddr::V6(..) => { /* nothing here yet (maybe implement it for ipV6 too) */
-                }
             }
         }
     }
