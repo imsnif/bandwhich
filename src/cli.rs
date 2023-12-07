@@ -18,16 +18,16 @@ impl FromStr for HostFilter {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Ok(ipv4) = s.parse() {
-            return Ok(HostFilter::Ipv4Addr(ipv4));
+            Ok(HostFilter::Ipv4Addr(ipv4))
         } else if let Ok(ipv6) = s.parse() {
-            return Ok(HostFilter::Ipv6Addr(ipv6));
+            Ok(HostFilter::Ipv6Addr(ipv6))
         } else if let Ok(socketv4) = s.parse() {
-            return Ok(HostFilter::SocketAddrV4(socketv4));
+            Ok(HostFilter::SocketAddrV4(socketv4))
         } else if let Ok(socketv6) = s.parse() {
-            return Ok(HostFilter::SocketAddrV6(socketv6));
+            Ok(HostFilter::SocketAddrV6(socketv6))
         } else {
             // might need validation
-            return Ok(HostFilter::Hostname(s.to_string()));
+            Ok(HostFilter::Hostname(s.to_string()))
         }
     }
 }

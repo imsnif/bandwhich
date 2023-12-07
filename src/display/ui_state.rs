@@ -97,12 +97,11 @@ pub struct UIState {
 }
 
 impl UIState {
-        pub fn update(
+    pub fn update(
         &mut self,
         connections_to_procs: HashMap<LocalSocket, String>,
         mut network_utilization: Utilization,
     ) {
-        println!("{:?}", self.excluded_ips);
         if let Some(excluded_addresses) = &self.excluded_ips {
             for ex in excluded_addresses {
                 network_utilization.connections.retain(|k, _| {
@@ -139,7 +138,7 @@ impl UIState {
                                 true
                             }
                         }
-                        HostFilter::Hostname(name) => {
+                        HostFilter::Hostname(_name) => {
                             // not implemented yet
                             true
                         }
