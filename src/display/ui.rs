@@ -177,8 +177,35 @@ where
         utilization: Utilization,
         ip_to_host: HashMap<IpAddr, String>,
     ) {
+        let hostnames: Vec<String> = self
+            .state
+            .excluded_ips
+            .clone()
+            .unwrap_or_default()
+            .iter()
+            .filter_map(|hf| match hf {
+                HostFilter::Hostname(s) => Some(s.clone()),
+                _ => None,
+            })
+            .collect();
+        for (k, v) in &ip_to_host {
+            if hostnames.contains(v) {
+                match &self.state.excluded_ips {
+                    None => {}
+                    Some(_) => match k {
+                        IpAddr::V4(ip) => self.push_to_excluded_ips(HostFilter::Ipv4Addr(*ip)),
+                        IpAddr::V6(ip) => self.push_to_excluded_ips(HostFilter::Ipv6Addr(*ip)),
+                    },
+                }
+            }
+        }
         self.state.update(connections_to_procs, utilization);
         self.ip_to_host.extend(ip_to_host);
+    }
+    fn push_to_excluded_ips(&mut self, ip: HostFilter) {
+        let mut vec = self.state.excluded_ips.take().unwrap_or_default();
+        vec.push(ip);
+        self.state.excluded_ips = Some(vec);
     }
     pub fn set_excluded(&mut self, ex: Option<Vec<HostFilter>>) {
         self.state.excluded_ips = ex;
