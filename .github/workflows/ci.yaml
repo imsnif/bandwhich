@@ -101,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}-failed_snapshots
-          path: src/tests/cases/snapshots/*.snap.new
+          path: '**/*.snap.new'
 
       - name: Upload unix binary
         if: ${{ matrix.os != 'windows-latest' && ( success() || steps.build.outcome == 'success' ) }}
