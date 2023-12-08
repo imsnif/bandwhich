@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Display bandwidth in different unit families #328 - @cyqsimon
 * CI: ensure a changelog entry exists for each PR #331 - @cyqsimon
 * Show interface names #340 - @ilyes-ced
+* Add option to exclude IPs #341 - @ilyes-ced
 
 ### Changed
 
