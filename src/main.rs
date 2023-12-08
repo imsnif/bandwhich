@@ -121,7 +121,7 @@ where
     let raw_mode = opts.raw;
 
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
-    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, opts.render_opts)));
+    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, &opts)));
 
     let display_handler = thread::Builder::new()
         .name("display_handler".to_string())
@@ -155,7 +155,6 @@ where
                         let mut ui = ui.lock().unwrap();
                         let paused = paused.load(Ordering::SeqCst);
                         let ui_offset = ui_offset.load(Ordering::SeqCst);
-                        ui.update_interface_name(opts.interface.clone());
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
