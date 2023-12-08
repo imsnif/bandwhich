@@ -121,7 +121,7 @@ where
     let raw_mode = opts.raw;
 
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
-    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, opts.render_opts)));
+    let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, &opts)));
 
     let display_handler = thread::Builder::new()
         .name("display_handler".to_string())

@@ -4,7 +4,7 @@ use chrono::prelude::*;
 use ratatui::{backend::Backend, Terminal};
 
 use crate::{
-    cli::RenderOpts,
+    cli::{Opt, RenderOpts},
     display::{
         components::{HeaderDetails, HelpText, Layout, Table},
         UIState,
@@ -26,21 +26,22 @@ impl<B> Ui<B>
 where
     B: Backend,
 {
-    pub fn new(terminal_backend: B, opts: RenderOpts) -> Self {
+    pub fn new(terminal_backend: B, opts: &Opt) -> Self {
         let mut terminal = Terminal::new(terminal_backend).unwrap();
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
         let state = {
             let mut state = UIState::default();
-            state.unit_family = opts.unit_family;
-            state.cumulative_mode = opts.total_utilization;
+            state.interface_name = opts.interface.clone();
+            state.unit_family = opts.render_opts.unit_family;
+            state.cumulative_mode = opts.render_opts.total_utilization;
             state
         };
         Ui {
             terminal,
             state,
             ip_to_host: Default::default(),
-            opts,
+            opts: opts.render_opts,
         }
     }
     pub fn output_text(&mut self, write_to_stdout: &mut (dyn FnMut(String) + Send)) {
