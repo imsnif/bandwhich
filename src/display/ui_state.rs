@@ -79,6 +79,8 @@ pub struct UtilizationData {
 
 #[derive(Default)]
 pub struct UIState {
+    /// The interface name in single-interface mode. `None` means all interfaces.
+    pub interface_name: Option<String>,
     pub processes: Vec<(String, NetworkData)>,
     pub remote_addresses: Vec<(IpAddr, NetworkData)>,
     pub connections: Vec<(Connection, ConnectionData)>,
@@ -92,7 +94,6 @@ pub struct UIState {
     pub connections_map: HashMap<Connection, ConnectionData>,
     /// Used for reducing logging noise.
     known_orphan_sockets: VecDeque<LocalSocket>,
-    pub interface_name: Option<String>,
 }
 
 impl UIState {

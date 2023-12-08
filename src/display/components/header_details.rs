@@ -73,6 +73,7 @@ impl<'a> HeaderDetails<'a> {
     }
 
     fn bandwidth_string(&self) -> String {
+        let intrf = self.state.interface_name.as_deref().unwrap_or("all");
         let t = if self.state.cumulative_mode {
             "Data"
         } else {
@@ -88,7 +89,6 @@ impl<'a> HeaderDetails<'a> {
             unit_family,
         };
         let paused = if self.paused { " [PAUSED]" } else { "" };
-        let intrf = self.state.interface_name.clone().unwrap_or("All".to_string());
         format!("IF: {intrf} | Total {t} (Up / Down): {up} / {down}{paused}")
     }
 
