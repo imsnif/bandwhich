@@ -4,7 +4,7 @@ use chrono::prelude::*;
 use ratatui::{backend::Backend, Terminal};
 
 use crate::{
-    cli::{Opt, RenderOpts, HostFilter},
+    cli::{HostFilter, Opt, RenderOpts},
     display::{
         components::{HeaderDetails, HelpText, Layout, Table},
         UIState,
