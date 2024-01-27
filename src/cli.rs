@@ -1,10 +1,9 @@
 use std::{net::Ipv4Addr, path::PathBuf};
 
-use clap::{Args, Parser};
+use clap::{Args, Parser, ValueEnum, ValueHint};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
 use derivative::Derivative;
-
-use crate::display::BandwidthUnitFamily;
+use strum::EnumIter;
 
 #[derive(Clone, Debug, Derivative, Parser)]
 #[derivative(Default)]
@@ -30,7 +29,7 @@ pub struct Opt {
     /// A dns server ip to use instead of the system default
     pub dns_server: Option<Ipv4Addr>,
 
-    #[arg(long)]
+    #[arg(long, value_hint = ValueHint::FilePath)]
     /// Enable debug logging to a file
     pub log_to: Option<PathBuf>,
 
@@ -58,9 +57,24 @@ pub struct RenderOpts {
 
     #[arg(short, long, value_enum, default_value_t)]
     /// Choose a specific family of units
-    pub unit_family: BandwidthUnitFamily,
+    pub unit_family: UnitFamily,
 
     #[arg(short, long)]
     /// Show total (cumulative) usages
     pub total_utilization: bool,
+}
+
+// IMPRV: it would be nice if we can `#[cfg_attr(not(build), derive(strum::EnumIter))]` this
+// unfortunately there is no configuration option for build script detection
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum, EnumIter)]
+pub enum UnitFamily {
+    #[default]
+    /// bytes, in powers of 2^10
+    BinBytes,
+    /// bits, in powers of 2^10
+    BinBits,
+    /// bytes, in powers of 10^3
+    SiBytes,
+    /// bits, in powers of 10^3
+    SiBits,
 }

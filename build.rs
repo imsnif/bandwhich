@@ -1,6 +1,39 @@
+use std::{env, fs::File};
+
+use anyhow::anyhow;
+use clap::CommandFactory;
+use clap_complete::Shell;
+use clap_mangen::Man;
+
 fn main() {
+    build_completion_manpage().unwrap();
+
     #[cfg(target_os = "windows")]
     download_windows_npcap_sdk().unwrap();
+}
+
+include!("src/cli.rs");
+
+fn build_completion_manpage() -> anyhow::Result<()> {
+    let mut cmd = Opt::command();
+
+    // build into `BANDWHICH_GEN_DIR` with a fallback to `OUT_DIR`
+    let gen_dir: PathBuf = env::var_os("BANDWHICH_GEN_DIR")
+        .or_else(|| env::var_os("OUT_DIR"))
+        .ok_or(anyhow!("OUT_DIR is unset"))?
+        .into();
+
+    // completion
+    for &shell in Shell::value_variants() {
+        clap_complete::generate_to(shell, &mut cmd, "bandwhich", &gen_dir)?;
+    }
+
+    // manpage
+    let mut manpage_out = File::create(gen_dir.join("bandwhich.1"))?;
+    let manpage = Man::new(cmd);
+    manpage.render(&mut manpage_out)?;
+
+    Ok(())
 }
 
 #[cfg(target_os = "windows")]

@@ -60,7 +60,15 @@ pnet_base = "0.34.0"
 regex = "1.10.3"
 rstest = "0.18.2"
 
-[target.'cfg(target_os = "windows")'.build-dependencies]
+[build-dependencies]
 anyhow = "1.0.79"
+clap = { version = "4.4.18", features = ["derive"] }
+clap-verbosity-flag = "2.1.2"
+clap_complete = "4.4.9"
+clap_mangen = "0.2.17"
+derivative = "2.2.0"
+strum = { version = "0.25.0", features = ["derive"] }
+
+[target.'cfg(target_os = "windows")'.build-dependencies]
 http_req = "0.10.2"
 zip = "0.6.6"
