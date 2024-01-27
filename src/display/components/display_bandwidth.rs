@@ -1,7 +1,8 @@
 use std::fmt;
 
-use clap::ValueEnum;
-use strum::EnumIter;
+use derivative::Derivative;
+
+use crate::cli::UnitFamily;
 
 #[derive(Copy, Clone, Debug)]
 pub struct DisplayBandwidth {
@@ -16,17 +17,14 @@ impl fmt::Display for DisplayBandwidth {
     }
 }
 
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, ValueEnum, EnumIter)]
-pub enum BandwidthUnitFamily {
-    #[default]
-    /// bytes, in powers of 2^10
-    BinBytes,
-    /// bits, in powers of 2^10
-    BinBits,
-    /// bytes, in powers of 10^3
-    SiBytes,
-    /// bits, in powers of 10^3
-    SiBits,
+/// Type wrapper around [`UnitFamily`] to provide extra functionality.
+#[derive(Copy, Clone, Derivative, Default, Eq, PartialEq)]
+#[derivative(Debug = "transparent")]
+pub struct BandwidthUnitFamily(UnitFamily);
+impl From<UnitFamily> for BandwidthUnitFamily {
+    fn from(value: UnitFamily) -> Self {
+        Self(value)
+    }
 }
 impl BandwidthUnitFamily {
     #[inline]
@@ -39,9 +37,9 @@ impl BandwidthUnitFamily {
         /// Binary base: 2^10.
         const BB: f64 = 1024.0;
 
-        use BandwidthUnitFamily as F;
+        use UnitFamily as F;
         // probably could macro this stuff, but I'm too lazy
-        match self {
+        match self.0 {
             F::BinBytes => [
                 (1.0, BB * STEP_UP_FRAC, "B"),
                 (BB, BB.powi(2) * STEP_UP_FRAC, "KiB"),
@@ -99,11 +97,12 @@ mod tests {
     use itertools::Itertools;
     use strum::IntoEnumIterator;
 
-    use crate::display::{BandwidthUnitFamily, DisplayBandwidth};
+    use crate::{cli::UnitFamily, display::DisplayBandwidth};
 
     #[test]
     fn bandwidth_formatting() {
-        let test_bandwidths_formatted = BandwidthUnitFamily::iter()
+        let test_bandwidths_formatted = UnitFamily::iter()
+            .map_into()
             .cartesian_product(
                 // I feel like this is a decent selection of values
                 (-6..60)
