@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.22.1] - 2024-01-28
+
+## Fixed
+
+* Hot fix a Windows compile issue #356 - @cyqsimon
+
 ## [0.22.0] - 2024-01-28
 
 ### Added
