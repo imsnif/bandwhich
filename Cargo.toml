@@ -21,11 +21,11 @@ rust-version = "1.70.0"
 description = "Display current network utilization by process, connection and remote IP/hostname"
 
 [dependencies]
-anyhow = { version = "1.0.78", features = ["backtrace"] }
-async-trait = "0.1.76"
+anyhow = { version = "1.0.79", features = ["backtrace"] }
+async-trait = "0.1.77"
 chrono = "0.4"
-clap-verbosity-flag = "2.1.1"
-clap = { version = "4.4.12", features = ["derive"] }
+clap-verbosity-flag = "2.1.2"
+clap = { version = "4.4.18", features = ["derive"] }
 crossterm = "0.27.0"
 derivative = "2.2.0"
 ipnetwork = "0.20.0"
@@ -37,7 +37,7 @@ pnet_macros_support = "0.34.0"
 ratatui = "0.25.0"
 resolv-conf = "0.7.0"
 simplelog = "0.12.1"
-thiserror = "1.0.53"
+thiserror = "1.0.56"
 tokio = { version = "1.35", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.1.11"
@@ -47,20 +47,20 @@ strum = { version = "0.25.0", features = ["derive"] }
 procfs = "0.16.0"
 
 [target.'cfg(any(target_os = "macos", target_os = "freebsd"))'.dependencies]
-regex = "1.10.2"
+regex = "1.10.3"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 netstat2 = "0.9.1"
-sysinfo = "0.29.11"
+sysinfo = "0.30.5"
 
 [dev-dependencies]
 insta = "1.34.0"
 packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-update" }
 pnet_base = "0.34.0"
-regex = "1.10.2"
+regex = "1.10.3"
 rstest = "0.18.2"
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
-anyhow = "1.0.78"
+anyhow = "1.0.79"
 http_req = "0.10.2"
 zip = "0.6.6"
