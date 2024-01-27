@@ -93,7 +93,7 @@ impl Backend for TestBackend {
                     Some(cell) => {
                         // this will contain no style information at all
                         // should be good enough for testing
-                        string.push_str(&cell.symbol);
+                        string.push_str(cell.symbol());
                     }
                     None => {
                         string.push(' ');

@@ -377,10 +377,9 @@ impl Table {
             .map(Constraint::Length)
             .collect();
 
-        let table = ratatui::widgets::Table::new(tui_rows_iter)
+        let table = ratatui::widgets::Table::new(tui_rows_iter, widths_constraints)
             .block(Block::default().title(self.title).borders(Borders::ALL))
             .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
-            .widths(&widths_constraints)
             .column_spacing(spacer_width);
         frame.render_widget(table, rect);
     }
