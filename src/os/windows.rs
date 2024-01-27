@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use netstat2::*;
-use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
+use sysinfo::{Pid, System};
 
 use crate::{
     network::{LocalSocket, Protocol},
