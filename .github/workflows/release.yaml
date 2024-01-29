@@ -47,6 +47,8 @@ jobs:
     env:
       # Emit backtraces on panics.
       RUST_BACKTRACE: 1
+      BANDWHICH_GEN_DIR: assets
+      PKGDIR: github-actions-pkg
     strategy:
       matrix:
         build:
@@ -83,38 +85,40 @@ jobs:
         run: sudo apt-get install -y --no-install-recommends musl-tools
 
       - name: Build release binary
+        shell: bash
         env:
           RUSTFLAGS: "-C strip=symbols"
-        run: cargo build --verbose --release --target ${{ matrix.target }}
+        run: |
+          mkdir -p "$BANDWHICH_GEN_DIR"
+          cargo build --verbose --release --target ${{ matrix.target }}
 
-      - name: Tar release (unix)
-        if: matrix.os != 'windows-latest'
-        working-directory: ./target/${{ matrix.target }}/release
-        run: tar cvfz bandwhich-${{ github.ref_name }}-${{matrix.target}}.tar.gz "bandwhich"
+      - name: Collect build artifacts
+        shell: bash
+        env:
+          BANDWHICH_BIN: ${{ contains(matrix.os, 'windows') && 'bandwhich.exe' || 'bandwhich' }}
+        run: |
+          mkdir "$PKGDIR"
+          mv "target/${{ matrix.target }}/release/$BANDWHICH_BIN" "$PKGDIR"
+          mv "$BANDWHICH_GEN_DIR" "$PKGDIR"
 
-      - name: Zip Windows release
-        if: matrix.os == 'windows-latest'
-        working-directory: ./target/${{ matrix.target }}/release
-        run: tar.exe -a -c -f bandwhich-${{ github.ref_name }}-${{matrix.target}}.zip "bandwhich.exe"
+      - name: Tar release (Unix)
+        if: ${{ !contains(matrix.os, 'windows') }}
+        working-directory: ${{ env.PKGDIR }}
+        run: tar cvfz bandwhich-${{ github.ref_name }}-${{ matrix.target }}.tar.gz *
 
-      - name: Upload release archive (unix)
-        if: matrix.os != 'windows-latest'
+      - name: Zip release (Windows)
+        if: contains(matrix.os, 'windows')
+        shell: bash
+        working-directory: ${{ env.PKGDIR }}
+        run: tar.exe -a -c -f bandwhich-${{ github.ref_name }}-${{ matrix.target }}.zip *
+
+      - name: Upload release archive
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARCHIVE_EXT: ${{ contains(matrix.os, 'windows') && 'zip' || 'tar.gz' }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/${{ matrix.target }}/release/bandwhich-${{ github.ref_name }}-${{matrix.target}}.tar.gz
-          asset_name: bandwhich-${{ github.ref_name }}-${{matrix.target}}.tar.gz
-          asset_content_type: application/octet-stream
-
-      - name: Upload Windows release archive
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./target/${{ matrix.target }}/release/bandwhich-${{ github.ref_name }}-${{matrix.target}}.zip
-          asset_name: bandwhich-${{ github.ref_name }}-${{matrix.target}}.zip
+          asset_path: ${{ env.PKGDIR }}/bandwhich-${{ github.ref_name }}-${{ matrix.target }}.${{ env.ARCHIVE_EXT }}
+          asset_name: bandwhich-${{ github.ref_name }}-${{ matrix.target }}.${{ env.ARCHIVE_EXT }}
           asset_content_type: application/octet-stream
