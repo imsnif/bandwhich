@@ -83,11 +83,9 @@ jobs:
         run: sudo apt-get install -y --no-install-recommends musl-tools
 
       - name: Build release binary
+        env:
+          RUSTFLAGS: "-C strip=symbols"
         run: cargo build --verbose --release --target ${{ matrix.target }}
-
-      - name: Strip release binary (unix)
-        if: matrix.os != 'windows-latest'
-        run: strip "target/${{ matrix.target }}/release/bandwhich"
 
       - name: Tar release (unix)
         if: matrix.os != 'windows-latest'
