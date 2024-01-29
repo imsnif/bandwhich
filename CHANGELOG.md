@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## Changed
+* CI: strip release binaries for all targets #358 - @cyqsimon
+
 ## [0.22.2] - 2024-01-28
 
 ## Added
