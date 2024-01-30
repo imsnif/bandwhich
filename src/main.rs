@@ -93,7 +93,7 @@ where
     let paused = Arc::new(AtomicBool::new(false));
     let last_start_time = Arc::new(RwLock::new(Instant::now()));
     let cumulative_time = Arc::new(RwLock::new(Duration::new(0, 0)));
-    let ui_offset = Arc::new(AtomicUsize::new(0));
+    let table_cycle_offset = Arc::new(AtomicUsize::new(0));
 
     let mut active_threads = vec![];
 
@@ -112,7 +112,7 @@ where
         .spawn({
             let running = running.clone();
             let paused = paused.clone();
-            let ui_offset = ui_offset.clone();
+            let table_cycle_offset = table_cycle_offset.clone();
 
             let network_utilization = network_utilization.clone();
             let last_start_time = last_start_time.clone();
@@ -138,7 +138,7 @@ where
                     {
                         let mut ui = ui.lock().unwrap();
                         let paused = paused.load(Ordering::SeqCst);
-                        let ui_offset = ui_offset.load(Ordering::SeqCst);
+                        let table_cycle_offset = table_cycle_offset.load(Ordering::SeqCst);
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
@@ -151,7 +151,7 @@ where
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, elapsed_time, ui_offset);
+                            ui.draw(paused, elapsed_time, table_cycle_offset);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -187,7 +187,7 @@ where
                                     *cumulative_time.read().unwrap(),
                                     paused,
                                 ),
-                                ui_offset.load(Ordering::SeqCst),
+                                table_cycle_offset.load(Ordering::SeqCst),
                             );
                         }
                         Event::Key(KeyEvent {
@@ -248,8 +248,8 @@ where
                                 paused,
                             );
                             let table_count = ui.get_table_count();
-                            let new = ui_offset.load(Ordering::SeqCst) + 1 % table_count;
-                            ui_offset.store(new, Ordering::SeqCst);
+                            let new = table_cycle_offset.load(Ordering::SeqCst) + 1 % table_count;
+                            table_cycle_offset.store(new, Ordering::SeqCst);
                             ui.draw(paused, elapsed_time, new);
                         }
                         _ => (),

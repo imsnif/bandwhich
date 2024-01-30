@@ -127,7 +127,7 @@ where
         write_to_stdout("");
     }
 
-    pub fn draw(&mut self, paused: bool, elapsed_time: Duration, ui_offset: usize) {
+    pub fn draw(&mut self, paused: bool, elapsed_time: Duration, table_cycle_offset: usize) {
         let layout = Layout {
             header: HeaderDetails {
                 state: &self.state,
@@ -141,7 +141,7 @@ where
             },
         };
         self.terminal
-            .draw(|frame| layout.render(frame, frame.area(), ui_offset))
+            .draw(|frame| layout.render(frame, frame.area(), table_cycle_offset))
             .unwrap();
     }
 
