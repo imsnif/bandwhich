@@ -94,7 +94,6 @@ where
     let last_start_time = Arc::new(RwLock::new(Instant::now()));
     let cumulative_time = Arc::new(RwLock::new(Duration::new(0, 0)));
     let ui_offset = Arc::new(AtomicUsize::new(0));
-    let dns_shown = opts.show_dns;
 
     let mut active_threads = vec![];
 
@@ -152,7 +151,7 @@ where
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, dns_shown, elapsed_time, ui_offset);
+                            ui.draw(paused, elapsed_time, ui_offset);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -183,7 +182,6 @@ where
                             let paused = paused.load(Ordering::SeqCst);
                             ui.draw(
                                 paused,
-                                dns_shown,
                                 elapsed_time(
                                     *last_start_time.read().unwrap(),
                                     *cumulative_time.read().unwrap(),
@@ -252,7 +250,7 @@ where
                             let table_count = ui.get_table_count();
                             let new = ui_offset.load(Ordering::SeqCst) + 1 % table_count;
                             ui_offset.store(new, Ordering::SeqCst);
-                            ui.draw(paused, dns_shown, elapsed_time, new);
+                            ui.draw(paused, elapsed_time, new);
                         }
                         _ => (),
                     };

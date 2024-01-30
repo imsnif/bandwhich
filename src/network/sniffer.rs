@@ -93,19 +93,19 @@ macro_rules! extract_transport_protocol {
 pub struct Sniffer {
     network_interface: NetworkInterface,
     network_frames: Box<dyn DataLinkReceiver>,
-    dns_shown: bool,
+    show_dns: bool,
 }
 
 impl Sniffer {
     pub fn new(
         network_interface: NetworkInterface,
         network_frames: Box<dyn DataLinkReceiver>,
-        dns_shown: bool,
+        show_dns: bool,
     ) -> Self {
         Sniffer {
             network_interface,
             network_frames,
-            dns_shown,
+            show_dns,
         }
     }
     pub fn next(&mut self) -> Option<Segment> {
@@ -138,7 +138,7 @@ impl Sniffer {
         let version = ip_packet.get_version();
 
         match version {
-            4 => Self::handle_v4(ip_packet, &self.network_interface, self.dns_shown),
+            4 => Self::handle_v4(ip_packet, &self.network_interface, self.show_dns),
             6 => Self::handle_v6(
                 Ipv6Packet::new(&bytes[payload_offset..])?,
                 &self.network_interface,
@@ -149,7 +149,7 @@ impl Sniffer {
                     EtherTypes::Ipv4 => Self::handle_v4(
                         Ipv4Packet::new(pkg.payload())?,
                         &self.network_interface,
-                        self.dns_shown,
+                        self.show_dns,
                     ),
                     EtherTypes::Ipv6 => {
                         Self::handle_v6(Ipv6Packet::new(pkg.payload())?, &self.network_interface)

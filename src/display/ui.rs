@@ -36,6 +36,7 @@ where
             state.interface_name.clone_from(&opts.interface);
             state.unit_family = opts.render_opts.unit_family.into();
             state.cumulative_mode = opts.render_opts.total_utilization;
+            state.show_dns = opts.show_dns;
             state
         };
         Ui {
@@ -126,7 +127,7 @@ where
         write_to_stdout("");
     }
 
-    pub fn draw(&mut self, paused: bool, show_dns: bool, elapsed_time: Duration, ui_offset: usize) {
+    pub fn draw(&mut self, paused: bool, elapsed_time: Duration, ui_offset: usize) {
         let layout = Layout {
             header: HeaderDetails {
                 state: &self.state,
@@ -134,7 +135,10 @@ where
                 paused,
             },
             children: self.get_tables_to_display(),
-            footer: HelpText { paused, show_dns },
+            footer: HelpText {
+                paused,
+                show_dns: self.state.show_dns,
+            },
         };
         self.terminal
             .draw(|frame| layout.render(frame, frame.area(), ui_offset))
