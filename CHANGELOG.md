@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## Added
+* CI: include generated assets in release archive #359 - @cyqsimon
+
 ## Changed
 * CI: strip release binaries for all targets #358 - @cyqsimon
 
