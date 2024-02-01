@@ -41,7 +41,7 @@ thiserror = "1.0.56"
 tokio = { version = "1.35", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.1.11"
-strum = { version = "0.25.0", features = ["derive"] }
+strum = { version = "0.26.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 procfs = "0.16.0"
@@ -67,7 +67,7 @@ clap-verbosity-flag = "2.1.2"
 clap_complete = "4.4.9"
 clap_mangen = "0.2.17"
 derivative = "2.2.0"
-strum = { version = "0.25.0", features = ["derive"] }
+strum = { version = "0.26.1", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 http_req = "0.10.2"
