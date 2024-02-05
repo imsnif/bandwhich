@@ -3,10 +3,11 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
     hash::Hash,
     iter::FromIterator,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
 use crate::{
+    cli::HostFilter,
     display::BandwidthUnitFamily,
     mt_log,
     network::{Connection, LocalSocket, Utilization},
@@ -94,14 +95,60 @@ pub struct UIState {
     pub connections_map: HashMap<Connection, ConnectionData>,
     /// Used for reducing logging noise.
     known_orphan_sockets: VecDeque<LocalSocket>,
+    pub excluded_ips: Option<Vec<HostFilter>>,
 }
 
 impl UIState {
     pub fn update(
         &mut self,
         connections_to_procs: HashMap<LocalSocket, String>,
-        network_utilization: Utilization,
+        mut network_utilization: Utilization,
     ) {
+        if let Some(excluded_addresses) = &self.excluded_ips {
+            for ex in excluded_addresses {
+                network_utilization.connections.retain(|k, _| {
+                    let ip_address = k.remote_socket.ip;
+                    let port = k.remote_socket.port;
+                    let socket = SocketAddr::new(ip_address, port);
+
+                    match ex {
+                        HostFilter::Ipv4Addr(ipaddr) => {
+                            if let IpAddr::V4(ipv4) = ip_address {
+                                &ipv4 != ipaddr
+                            } else {
+                                true
+                            }
+                        }
+                        HostFilter::Ipv6Addr(ipaddr) => {
+                            if let IpAddr::V6(ipv6) = ip_address {
+                                &ipv6 != ipaddr
+                            } else {
+                                true
+                            }
+                        }
+                        HostFilter::SocketAddrV4(socketaddr) => {
+                            if let SocketAddr::V4(socketv4) = socket {
+                                &socketv4 != socketaddr
+                            } else {
+                                true
+                            }
+                        }
+                        HostFilter::SocketAddrV6(socketaddr) => {
+                            if let SocketAddr::V6(socketv6) = socket {
+                                &socketv6 != socketaddr
+                            } else {
+                                true
+                            }
+                        }
+                        HostFilter::Hostname(_name) => {
+                            // not implemented yet
+                            true
+                        }
+                    }
+                });
+            }
+        }
+
         self.utilization_data.push_back(UtilizationData {
             connections_to_procs,
             network_utilization,

@@ -155,6 +155,7 @@ where
                         let mut ui = ui.lock().unwrap();
                         let paused = paused.load(Ordering::SeqCst);
                         let ui_offset = ui_offset.load(Ordering::SeqCst);
+                        ui.set_excluded(opts.excluded.clone());
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
