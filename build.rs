@@ -39,12 +39,10 @@ fn build_completion_manpage() -> anyhow::Result<()> {
 #[cfg(target_os = "windows")]
 fn download_windows_npcap_sdk() -> anyhow::Result<()> {
     use std::{
-        env, fs,
+        fs,
         io::{self, Write},
-        path::PathBuf,
     };
 
-    use anyhow::anyhow;
     use http_req::request;
     use zip::ZipArchive;
 
