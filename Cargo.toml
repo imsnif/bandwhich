@@ -65,7 +65,7 @@ anyhow = "1.0.80"
 clap = { version = "4.5.1", features = ["derive"] }
 clap-verbosity-flag = "2.1.2"
 clap_complete = "4.4.9"
-clap_mangen = "0.2.18"
+clap_mangen = "0.2.20"
 derivative = "2.2.0"
 strum = { version = "0.26.1", features = ["derive"] }
 
