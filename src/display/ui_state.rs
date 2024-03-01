@@ -2,7 +2,6 @@ use std::{
     cmp,
     collections::{HashMap, HashSet, VecDeque},
     hash::Hash,
-    iter::FromIterator,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 

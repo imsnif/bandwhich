@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt, iter::FromIterator, net::IpAddr, ops::Index, rc::Rc};
+use std::{collections::HashMap, fmt, net::IpAddr, ops::Index, rc::Rc};
 
 use derivative::Derivative;
 use itertools::Itertools;
