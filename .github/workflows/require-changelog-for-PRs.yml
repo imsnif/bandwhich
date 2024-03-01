@@ -3,6 +3,10 @@ name: Changelog
 on:
   pull_request:
 
+env:
+  PR_NUMBER: ${{ github.event.number }}
+  PR_BASE: ${{ github.base_ref }}
+
 jobs:
   get-submitter:
     name: Get the username of the PR submitter
@@ -19,9 +23,7 @@ jobs:
     name: Check for changelog entry
     needs: get-submitter
     env:
-      PR_NUMBER: ${{ github.event.number }}
       PR_SUBMITTER: ${{ needs.get-submitter.outputs.submitter }}
-      PR_BASE: ${{ github.base_ref }}
     runs-on: ubuntu-latest
     # allow dependabot PRs to have no changelog
     if: ${{ needs.get-submitter.outputs.submitter != 'dependabot[bot]' }}
