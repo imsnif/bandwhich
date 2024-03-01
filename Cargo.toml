@@ -17,7 +17,7 @@ keywords = ["networking", "utilization", "cli"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/imsnif/bandwhich"
-rust-version = "1.70.0"
+rust-version = "1.74.0"
 description = "Display current network utilization by process, connection and remote IP/hostname"
 
 [dependencies]
@@ -25,7 +25,7 @@ anyhow = { version = "1.0.79", features = ["backtrace"] }
 async-trait = "0.1.77"
 chrono = "0.4"
 clap-verbosity-flag = "2.1.2"
-clap = { version = "4.4.18", features = ["derive"] }
+clap = { version = "4.5.1", features = ["derive"] }
 crossterm = "0.27.0"
 derivative = "2.2.0"
 ipnetwork = "0.20.0"
@@ -62,7 +62,7 @@ rstest = "0.18.2"
 
 [build-dependencies]
 anyhow = "1.0.79"
-clap = { version = "4.4.18", features = ["derive"] }
+clap = { version = "4.5.1", features = ["derive"] }
 clap-verbosity-flag = "2.1.2"
 clap_complete = "4.4.9"
 clap_mangen = "0.2.18"
