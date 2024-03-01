@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## Fixed
+* Remove redundant imports #377 - @cyqsimon
+
 ## Added
 * CI: include generated assets in release archive #359 - @cyqsimon
 
