@@ -380,6 +380,7 @@ impl Table {
         let table = ratatui::widgets::Table::new(tui_rows_iter, widths_constraints)
             .block(Block::default().title(self.title).borders(Borders::ALL))
             .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
+            .flex(ratatui::layout::Flex::Legacy)
             .column_spacing(spacer_width);
         frame.render_widget(table, rect);
     }
