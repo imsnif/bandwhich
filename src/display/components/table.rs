@@ -304,8 +304,8 @@ impl Table {
             })
             .collect();
         let column_selector = Rc::new(|layout: &D| match layout {
-            D::C2(_) => vec![0, 2],
-            D::C3(_) => vec![0, 1, 2],
+            D::C2(_) => vec![0, 3],
+            D::C3(_) => vec![0, 2, 3],
             D::C4(_) => vec![0, 1, 2, 3],
         });
 
