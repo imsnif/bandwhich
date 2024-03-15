@@ -141,7 +141,7 @@ impl UIState {
 
                 let data_for_process = {
                     let local_socket = connection.local_socket;
-                    let proc_info = get_proc_name(connections_to_procs, &local_socket);
+                    let proc_info = get_proc_info(connections_to_procs, &local_socket);
 
                     // only log each orphan connection once
                     if proc_info.is_none() && !self.known_orphan_sockets.contains(&local_socket) {
@@ -224,7 +224,7 @@ impl UIState {
     }
 }
 
-fn get_proc_name<'a>(
+fn get_proc_info<'a>(
     connections_to_procs: &'a HashMap<LocalSocket, ProcessInfo>,
     local_socket: &LocalSocket,
 ) -> Option<&'a ProcessInfo> {
@@ -255,7 +255,6 @@ fn get_proc_name<'a>(
                 ..*local_socket
             })
         })
-        .map(|proc_info| proc_info)
 }
 
 fn merge_bandwidth<K, V>(self_map: &mut HashMap<K, V>, other_map: HashMap<K, V>)
