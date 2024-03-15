@@ -19,6 +19,12 @@ use crate::os::lsof::get_open_sockets;
 #[cfg(target_os = "windows")]
 use crate::os::windows::get_open_sockets;
 
+#[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
+pub struct ProcessInfo {
+    pub name: String,
+    pub pid: i32,
+}
+
 pub struct TerminalEvents;
 
 impl Iterator for TerminalEvents {
