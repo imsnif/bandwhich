@@ -16,6 +16,7 @@ use crate::{
         dns::{self, Lookup},
         Connection, Protocol,
     },
+    os::ProcessInfo,
     OpenSockets,
 };
 
@@ -96,7 +97,10 @@ pub fn get_open_sockets() -> OpenSockets {
             443,
             Protocol::Tcp,
         ),
-        String::from("1"),
+        ProcessInfo {
+            name: String::from("1"),
+            pid: 1,
+        },
     );
     open_sockets.insert(
         Connection::new(
@@ -105,7 +109,10 @@ pub fn get_open_sockets() -> OpenSockets {
             4434,
             Protocol::Tcp,
         ),
-        String::from("4"),
+        ProcessInfo {
+            name: String::from("4"),
+            pid: 4,
+        },
     );
     open_sockets.insert(
         Connection::new(
@@ -114,7 +121,10 @@ pub fn get_open_sockets() -> OpenSockets {
             4435,
             Protocol::Tcp,
         ),
-        String::from("5"),
+        ProcessInfo {
+            name: String::from("5"),
+            pid: 5,
+        },
     );
     open_sockets.insert(
         Connection::new(
@@ -123,7 +133,10 @@ pub fn get_open_sockets() -> OpenSockets {
             4432,
             Protocol::Tcp,
         ),
-        String::from("2"),
+        ProcessInfo {
+            name: String::from("2"),
+            pid: 2,
+        },
     );
     open_sockets.insert(
         Connection::new(
@@ -132,12 +145,15 @@ pub fn get_open_sockets() -> OpenSockets {
             443,
             Protocol::Tcp,
         ),
-        String::from("1"),
+        ProcessInfo {
+            name: String::from("1"),
+            pid: 1,
+        },
     );
     let mut local_socket_to_procs = HashMap::new();
     let mut connections = std::vec::Vec::new();
-    for (connection, process_name) in open_sockets {
-        local_socket_to_procs.insert(connection.local_socket, process_name);
+    for (connection, proc_info) in open_sockets {
+        local_socket_to_procs.insert(connection.local_socket, proc_info);
         connections.push(connection);
     }
 
