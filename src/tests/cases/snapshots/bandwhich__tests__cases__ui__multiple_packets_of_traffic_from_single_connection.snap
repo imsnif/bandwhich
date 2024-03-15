@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
 IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                    
 ┌Utilization by process name──────────────────────────────────────────────────────────────────┐┌Utilization by remote address────────────────────────────────────────────────────────────────┐
-│Process                                       Connections          Rate (Up / Down)          ││Remote Address                              Connections       Rate (Up / Down)               │
+│Process                            PID             Connections     Rate (Up / Down)          ││Remote Address                              Connections       Rate (Up / Down)               │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -57,7 +57,7 @@ IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B
                                                      45. 0B                                                                                                                                   
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                                             1                    0.00B / 45.00B              1.1.1.1                                     1                 0.00B / 45.00B                  
+ 1                                  1               1               0.00B / 45.00B              1.1.1.1                                     1                 0.00B / 45.00B                  
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -81,27 +81,4 @@ IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
- <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                          1                                      0.00B / 45.00B                   
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-
+ <interface_name>:443 => 1.1.1.1:12345 (tcp)                                                                          1                                      0.00B / 45.00B

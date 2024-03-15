@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
 IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B                                                             
 ┌Utilization by process name──────────────────────────────────────────────────────────────────────────────────────────┐
-│Process                                                  Connections               Rate (Up / Down)                  │
+│Process                                       PID                Connections        Rate (Up / Down)                 │
 │                                                                                                                     │
 │                                                                                                                     │
 │                                                                                                                     │
@@ -36,30 +36,7 @@ IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B
                                                      98. 0B                                                            
                                                                                                                        
                                                                                                                        
- 5                                                        1                         0.00B / 28.00B                     
- 4                                                        1                         0.00B / 26.00B                     
- 1                                                        1                         0.00B / 22.00B                     
- 2                                                        1                         0.00B / 21.00B                     
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-                                                                                                                       
-
+ 5                                             5                  1                  0.00B / 28.00B                    
+ 4                                             4                  1                  0.00B / 26.00B                    
+ 1                                             1                  1                  0.00B / 22.00B                    
+ 2                                             2                  1                  0.00B / 21.00B
