@@ -16,11 +16,8 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
         for process in all_procs.filter_map(|res| res.ok()) {
             let Ok(fds) = process.fd() else { continue };
             let Ok(stat) = process.stat() else { continue };
-            let procname = stat.comm;
-            let proc_info = ProcessInfo {
-                name: procname,
-                pid: stat.pid,
-            };
+            let proc_name = stat.comm;
+            let proc_info = ProcessInfo::new(&proc_name, stat.pid);
             for fd in fds.filter_map(|res| res.ok()) {
                 if let FDTarget::Socket(inode) = fd.target {
                     inode_to_procname.insert(inode, proc_info.clone());

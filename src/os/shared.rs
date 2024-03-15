@@ -25,6 +25,15 @@ pub struct ProcessInfo {
     pub pid: i32,
 }
 
+impl ProcessInfo {
+    pub fn new(name: &str, pid: i32) -> Self {
+        Self {
+            name: name.to_string(),
+            pid,
+        }
+    }
+}
+
 pub struct TerminalEvents;
 
 impl Iterator for TerminalEvents {

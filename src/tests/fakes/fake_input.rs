@@ -97,10 +97,7 @@ pub fn get_open_sockets() -> OpenSockets {
             443,
             Protocol::Tcp,
         ),
-        ProcessInfo {
-            name: String::from("1"),
-            pid: 1,
-        },
+        ProcessInfo::new("1", 1),
     );
     open_sockets.insert(
         Connection::new(
@@ -109,10 +106,7 @@ pub fn get_open_sockets() -> OpenSockets {
             4434,
             Protocol::Tcp,
         ),
-        ProcessInfo {
-            name: String::from("4"),
-            pid: 4,
-        },
+        ProcessInfo::new("4", 4),
     );
     open_sockets.insert(
         Connection::new(
@@ -121,10 +115,7 @@ pub fn get_open_sockets() -> OpenSockets {
             4435,
             Protocol::Tcp,
         ),
-        ProcessInfo {
-            name: String::from("5"),
-            pid: 5,
-        },
+        ProcessInfo::new("5", 5),
     );
     open_sockets.insert(
         Connection::new(
@@ -133,10 +124,7 @@ pub fn get_open_sockets() -> OpenSockets {
             4432,
             Protocol::Tcp,
         ),
-        ProcessInfo {
-            name: String::from("2"),
-            pid: 2,
-        },
+        ProcessInfo::new("2", 2),
     );
     open_sockets.insert(
         Connection::new(
@@ -145,10 +133,7 @@ pub fn get_open_sockets() -> OpenSockets {
             443,
             Protocol::Tcp,
         ),
-        ProcessInfo {
-            name: String::from("1"),
-            pid: 1,
-        },
+        ProcessInfo::new("1", 1),
     );
     let mut local_socket_to_procs = HashMap::new();
     let mut connections = std::vec::Vec::new();

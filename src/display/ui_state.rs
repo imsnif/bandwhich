@@ -176,13 +176,9 @@ impl UIState {
                         };
                     }
 
-                    let proc_info = match proc_info {
-                        Some(info) => info.to_owned(),
-                        None => ProcessInfo {
-                            name: "<UNKNOWN>".to_string(),
-                            pid: 0,
-                        },
-                    };
+                    let proc_info = proc_info
+                        .cloned()
+                        .unwrap_or_else(|| ProcessInfo::new("<UNKNOWN>", 0));
                     connection_data.process_name = proc_info.name.clone();
                     processes.entry(proc_info).or_default()
                 };

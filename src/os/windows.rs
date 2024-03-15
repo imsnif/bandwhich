@@ -24,11 +24,8 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
             let mut proc_info = ProcessInfo::default();
             for pid in si.associated_pids {
                 if let Some(process) = sysinfo.process(Pid::from_u32(pid)) {
-                    let procname = String::from(process.name());
-                    proc_info = ProcessInfo {
-                        name: procname,
-                        pid: pid as i32,
-                    };
+                    let proc_name = process.name();
+                    proc_info = ProcessInfo::new(proc_name, pid as i32);
                     break;
                 }
             }

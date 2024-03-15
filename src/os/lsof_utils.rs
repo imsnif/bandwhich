@@ -38,10 +38,7 @@ impl RawConnection {
         }
         let process_name = columns[0].replace("\\x20", " ");
         let pid = i32::from_str(columns[1]).expect("failed to convert PID to integer");
-        let proc_info = ProcessInfo {
-            name: process_name,
-            pid,
-        };
+        let proc_info = ProcessInfo::new(&process_name, pid);
         // Unneeded
         // let username = columns[2];
         // let fd = columns[3];
