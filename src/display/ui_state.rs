@@ -129,7 +129,9 @@ impl UIState {
                     .or_default();
                 connection_data.total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 connection_data.total_bytes_uploaded += connection_info.total_bytes_uploaded;
-                connection_data.interface_name = connection_info.interface_name.clone();
+                connection_data
+                    .interface_name
+                    .clone_from(&connection_info.interface_name);
                 data_for_remote_address.total_bytes_downloaded +=
                     connection_info.total_bytes_downloaded;
                 data_for_remote_address.total_bytes_uploaded +=
