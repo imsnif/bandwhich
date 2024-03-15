@@ -33,7 +33,7 @@ where
         terminal.hide_cursor().unwrap();
         let state = {
             let mut state = UIState::default();
-            state.interface_name.clone_from(&opts.interface);
+            state.interface_name = opts.interface.clone();
             state.unit_family = opts.render_opts.unit_family.into();
             state.cumulative_mode = opts.render_opts.total_utilization;
             state
