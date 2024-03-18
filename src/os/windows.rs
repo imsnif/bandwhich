@@ -21,14 +21,12 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
 
     if let Ok(sockets_info) = sockets_info {
         for si in sockets_info {
-            let mut proc_info = ProcessInfo::default();
-            for pid in si.associated_pids {
-                if let Some(process) = sysinfo.process(Pid::from_u32(pid)) {
-                    let proc_name = process.name();
-                    proc_info = ProcessInfo::new(proc_name, pid);
-                    break;
-                }
-            }
+            let proc_info = si
+                .associated_pids
+                .into_iter()
+                .find_map(|pid| sysinfo.process(Pid::from_u32(pid)))
+                .map(|p| ProcessInfo::new(p.name(), p.pid().as_u32()))
+                .unwrap_or_default();
 
             match si.protocol_socket_info {
                 ProtocolSocketInfo::Tcp(tcp_si) => {
