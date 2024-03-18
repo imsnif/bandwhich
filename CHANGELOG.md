@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## Added
 * CI: include generated assets in release archive #359 - @cyqsimon
+* Add PID column to the process table #379 - @notjedi
 
 ## Changed
 * CI: strip release binaries for all targets #358 - @cyqsimon

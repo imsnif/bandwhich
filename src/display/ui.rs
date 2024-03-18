@@ -10,6 +10,7 @@ use crate::{
         UIState,
     },
     network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization},
+    os::ProcessInfo,
 };
 
 pub struct Ui<B>
@@ -53,9 +54,10 @@ where
 
         let output_process_data = |write_to_stdout: &mut (dyn FnMut(String) + Send),
                                    no_traffic: &mut bool| {
-            for (process, process_network_data) in &state.processes {
+            for (proc_info, process_network_data) in &state.processes {
                 write_to_stdout(format!(
-                    "process: <{timestamp}> \"{process}\" up/down Bps: {}/{} connections: {}",
+                    "process: <{timestamp}> \"{}\" up/down Bps: {}/{} connections: {}",
+                    proc_info.name,
                     process_network_data.total_bytes_uploaded,
                     process_network_data.total_bytes_downloaded,
                     process_network_data.connection_count
@@ -173,7 +175,7 @@ where
 
     pub fn update_state(
         &mut self,
-        connections_to_procs: HashMap<LocalSocket, String>,
+        connections_to_procs: HashMap<LocalSocket, ProcessInfo>,
         utilization: Utilization,
         ip_to_host: HashMap<IpAddr, String>,
     ) {

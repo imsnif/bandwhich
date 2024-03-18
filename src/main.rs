@@ -34,6 +34,7 @@ use ratatui::backend::{Backend, CrosstermBackend};
 use simplelog::WriteLogger;
 
 use crate::cli::Opt;
+use crate::os::ProcessInfo;
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
@@ -89,7 +90,7 @@ fn main() -> anyhow::Result<()> {
 }
 
 pub struct OpenSockets {
-    sockets_to_procs: HashMap<LocalSocket, String>,
+    sockets_to_procs: HashMap<LocalSocket, ProcessInfo>,
 }
 
 pub struct OsInputOutput {

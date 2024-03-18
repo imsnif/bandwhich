@@ -6,6 +6,7 @@ use regex::Regex;
 use crate::{
     mt_log,
     network::{LocalSocket, Protocol},
+    os::ProcessInfo,
 };
 
 #[allow(dead_code)]
@@ -16,7 +17,7 @@ pub struct RawConnection {
     local_port: String,
     remote_port: String,
     protocol: String,
-    pub process_name: String,
+    pub proc_info: ProcessInfo,
 }
 
 fn get_null_addr(ip_type: &str) -> &str {
@@ -36,8 +37,9 @@ impl RawConnection {
             return None;
         }
         let process_name = columns[0].replace("\\x20", " ");
+        let pid = columns[1].parse().ok()?;
+        let proc_info = ProcessInfo::new(&process_name, pid);
         // Unneeded
-        // let pid = columns[1];
         // let username = columns[2];
         // let fd = columns[3];
 
@@ -74,7 +76,7 @@ impl RawConnection {
                 remote_ip,
                 remote_port,
                 protocol,
-                process_name,
+                proc_info,
             };
             Some(connection)
         } else if let Some(caps) = LISTEN_REGEX.captures(connection_str) {
@@ -97,7 +99,7 @@ impl RawConnection {
                 remote_ip,
                 remote_port,
                 protocol,
-                process_name,
+                proc_info,
             };
             Some(connection)
         } else {
@@ -118,7 +120,7 @@ impl RawConnection {
     }
 
     pub fn as_local_socket(&self) -> Option<LocalSocket> {
-        let process = &self.process_name;
+        let process = &self.proc_info.name;
 
         let Some(ip) = self.get_local_ip() else {
             mt_log!(
@@ -259,6 +261,6 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
     }
     fn test_raw_connection_parse_process_name(raw_line: &str) {
         let connection = RawConnection::new(raw_line).unwrap();
-        assert_eq!(connection.process_name, String::from("ProcessName"));
+        assert_eq!(connection.proc_info.name, String::from("ProcessName"));
     }
 }

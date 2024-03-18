@@ -5,6 +5,7 @@ use sysinfo::{Pid, System};
 
 use crate::{
     network::{LocalSocket, Protocol},
+    os::ProcessInfo,
     OpenSockets,
 };
 
@@ -20,13 +21,12 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
 
     if let Ok(sockets_info) = sockets_info {
         for si in sockets_info {
-            let mut procname = String::new();
-            for pid in si.associated_pids {
-                if let Some(process) = sysinfo.process(Pid::from_u32(pid)) {
-                    procname = String::from(process.name());
-                    break;
-                }
-            }
+            let proc_info = si
+                .associated_pids
+                .into_iter()
+                .find_map(|pid| sysinfo.process(Pid::from_u32(pid)))
+                .map(|p| ProcessInfo::new(p.name(), p.pid().as_u32()))
+                .unwrap_or_default();
 
             match si.protocol_socket_info {
                 ProtocolSocketInfo::Tcp(tcp_si) => {
@@ -36,7 +36,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
                             port: tcp_si.local_port,
                             protocol: Protocol::Tcp,
                         },
-                        procname,
+                        proc_info,
                     );
                 }
                 ProtocolSocketInfo::Udp(udp_si) => {
@@ -46,7 +46,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
                             port: udp_si.local_port,
                             protocol: Protocol::Udp,
                         },
-                        procname,
+                        proc_info,
                     );
                 }
             }

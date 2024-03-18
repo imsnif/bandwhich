@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
 IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B                                                                                                                                    
 ┌Utilization by process name─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│Process                                                                                    Connections                              Rate (Up / Down)                                        │
+│Process                                                               PID                            Connections                    Rate (Up / Down)                                        │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
@@ -51,5 +51,4 @@ IF: interface_name | Total Rate (Up / Down): 0.00B / 0.00B
 │                                                                                                                                                                                            │
 │                                                                                                                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
- Press <SPACE> to pause. Use <TAB> to rearrange tables. (DNS queries hidden).                                                                                                                 
-
+ Press <SPACE> to pause. Use <TAB> to rearrange tables. (DNS queries hidden).

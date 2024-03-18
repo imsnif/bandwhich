@@ -28,7 +28,10 @@ pub enum DisplayLayout {
     C2([u16; 2]),
     /// Show 3 columns.
     C3([u16; 3]),
+    /// Show 4 columns.
+    C4([u16; 4]),
 }
+
 impl Index<usize> for DisplayLayout {
     type Output = u16;
 
@@ -36,28 +39,35 @@ impl Index<usize> for DisplayLayout {
         match self {
             Self::C2(arr) => &arr[i],
             Self::C3(arr) => &arr[i],
+            Self::C4(arr) => &arr[i],
         }
     }
 }
+
 impl DisplayLayout {
     #[inline]
     fn columns_count(&self) -> usize {
         match self {
             Self::C2(_) => 2,
             Self::C3(_) => 3,
+            Self::C4(_) => 4,
         }
     }
+
     #[inline]
     fn iter(&self) -> impl Iterator<Item = &u16> {
         match self {
             Self::C2(ws) => ws.iter(),
             Self::C3(ws) => ws.iter(),
+            Self::C4(ws) => ws.iter(),
         }
     }
+
     #[inline]
     fn widths_sum(&self) -> u16 {
         self.iter().sum()
     }
+
     /// Returns the computed actual width and the spacer width.
     ///
     /// See [`Table`] for layout rules.
@@ -87,6 +97,17 @@ impl DisplayLayout {
                 let w2_new = (w2 as f64 * m).trunc() as u16;
                 Self::C3([available_without_spacers - w1_new - w2_new, w1_new, w2_new])
             }
+            Self::C4([_w0, w1, w2, w3]) => {
+                let w1_new = (w1 as f64 * m).trunc() as u16;
+                let w2_new = (w2 as f64 * m).trunc() as u16;
+                let w3_new = (w3 as f64 * m).trunc() as u16;
+                Self::C4([
+                    available_without_spacers - w1_new - w2_new - w3_new,
+                    w1_new,
+                    w2_new,
+                    w3_new,
+                ])
+            }
         };
 
         (computed, spacer)
@@ -101,26 +122,41 @@ impl DisplayLayout {
 enum TableData {
     /// A table with 3 columns.
     C3(NColsTableData<3>),
+    /// A table with 4 columns.
+    C4(NColsTableData<4>),
 }
+
 impl From<NColsTableData<3>> for TableData {
     fn from(data: NColsTableData<3>) -> Self {
         Self::C3(data)
     }
 }
+
+impl From<NColsTableData<4>> for TableData {
+    fn from(data: NColsTableData<4>) -> Self {
+        Self::C4(data)
+    }
+}
+
 impl TableData {
     fn column_names(&self) -> &[&str] {
         match self {
             Self::C3(inner) => &inner.column_names,
+            Self::C4(inner) => &inner.column_names,
         }
     }
+
     fn rows(&self) -> Vec<&[String]> {
         match self {
             Self::C3(inner) => inner.rows.iter().map(|r| r.as_slice()).collect(),
+            Self::C4(inner) => inner.rows.iter().map(|r| r.as_slice()).collect(),
         }
     }
+
     fn column_selector(&self) -> &dyn Fn(&DisplayLayout) -> Vec<usize> {
         match self {
             Self::C3(inner) => inner.column_selector.as_ref(),
+            Self::C4(inner) => inner.column_selector.as_ref(),
         }
     }
 }
@@ -171,6 +207,7 @@ pub struct Table {
     width_cutoffs: Vec<(u16, DisplayLayout)>,
     data: TableData,
 }
+
 impl Table {
     pub fn create_connections_table(state: &UIState, ip_to_host: &HashMap<IpAddr, String>) -> Self {
         use DisplayLayout as D;
@@ -214,6 +251,7 @@ impl Table {
         let column_selector = Rc::new(|layout: &D| match layout {
             D::C2(_) => vec![0, 2],
             D::C3(_) => vec![0, 1, 2],
+            D::C4(_) => unreachable!(),
         });
 
         Table {
@@ -236,11 +274,12 @@ impl Table {
             (0, D::C2([16, 18])),
             (50, D::C3([16, 12, 20])),
             (60, D::C3([24, 12, 20])),
-            (80, D::C3([36, 16, 24])),
+            (80, D::C4([28, 12, 12, 24])),
         ];
 
         let column_names = [
             "Process",
+            "PID",
             "Connections",
             if state.cumulative_mode {
                 "Data (Up / Down)"
@@ -251,9 +290,10 @@ impl Table {
         let rows = state
             .processes
             .iter()
-            .map(|(process_name, data_for_process)| {
+            .map(|(proc_info, data_for_process)| {
                 [
-                    (*process_name).to_string(),
+                    proc_info.name.to_string(),
+                    proc_info.pid.to_string(),
                     data_for_process.connection_count.to_string(),
                     display_upload_and_download(
                         data_for_process,
@@ -264,8 +304,9 @@ impl Table {
             })
             .collect();
         let column_selector = Rc::new(|layout: &D| match layout {
-            D::C2(_) => vec![0, 2],
-            D::C3(_) => vec![0, 1, 2],
+            D::C2(_) => vec![0, 3],
+            D::C3(_) => vec![0, 2, 3],
+            D::C4(_) => vec![0, 1, 2, 3],
         });
 
         Table {
@@ -322,6 +363,7 @@ impl Table {
         let column_selector = Rc::new(|layout: &D| match layout {
             D::C2(_) => vec![0, 2],
             D::C3(_) => vec![0, 1, 2],
+            D::C4(_) => unreachable!(),
         });
 
         Table {

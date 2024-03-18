@@ -4,6 +4,7 @@ use procfs::process::FDTarget;
 
 use crate::{
     network::{LocalSocket, Protocol},
+    os::ProcessInfo,
     OpenSockets,
 };
 
@@ -15,10 +16,11 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
         for process in all_procs.filter_map(|res| res.ok()) {
             let Ok(fds) = process.fd() else { continue };
             let Ok(stat) = process.stat() else { continue };
-            let procname = stat.comm;
+            let proc_name = stat.comm;
+            let proc_info = ProcessInfo::new(&proc_name, stat.pid as u32);
             for fd in fds.filter_map(|res| res.ok()) {
                 if let FDTarget::Socket(inode) = fd.target {
-                    inode_to_procname.insert(inode, procname.clone());
+                    inode_to_procname.insert(inode, proc_info.clone());
                 }
             }
         }
@@ -29,14 +31,14 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
             tcp.append(&mut tcp6);
         }
         for entry in tcp.into_iter() {
-            if let Some(procname) = inode_to_procname.get(&entry.inode) {
+            if let Some(proc_info) = inode_to_procname.get(&entry.inode) {
                 open_sockets.insert(
                     LocalSocket {
                         ip: entry.local_address.ip(),
                         port: entry.local_address.port(),
                         protocol: Protocol::Tcp,
                     },
-                    procname.clone(),
+                    proc_info.clone(),
                 );
             };
         }
@@ -47,14 +49,14 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
             udp.append(&mut udp6);
         }
         for entry in udp.into_iter() {
-            if let Some(procname) = inode_to_procname.get(&entry.inode) {
+            if let Some(proc_info) = inode_to_procname.get(&entry.inode) {
                 open_sockets.insert(
                     LocalSocket {
                         ip: entry.local_address.ip(),
                         port: entry.local_address.port(),
                         protocol: Protocol::Udp,
                     },
-                    procname.clone(),
+                    proc_info.clone(),
                 );
             };
         }

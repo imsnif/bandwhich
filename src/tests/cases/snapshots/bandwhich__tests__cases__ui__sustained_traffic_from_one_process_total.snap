@@ -4,7 +4,7 @@ expression: terminal_draw_events.lock().unwrap().join(SNAPSHOT_SECTION_SEPARATOR
 ---
 IF: interface_name | Total Data (Up / Down): 0.00B / 0.00B                                                                                                                                    
 ┌Utilization by process name──────────────────────────────────────────────────────────────────┐┌Utilization by remote address────────────────────────────────────────────────────────────────┐
-│Process                                       Connections          Data (Up / Down)          ││Remote Address                              Connections       Data (Up / Down)               │
+│Process                            PID             Connections     Data (Up / Down)          ││Remote Address                              Connections       Data (Up / Down)               │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
 │                                                                                             ││                                                                                             │
@@ -57,7 +57,7 @@ IF: interface_name | Total Data (Up / Down): 0.00B / 0.00B
                                                      22. 0B                                                                                                                                   
                                                                                                                                                                                               
                                                                                                                                                                                               
- 1                                             1                    0.00B / 22.00B              1.1.1.1                                     1                 0.00B / 22.00B                  
+ 1                                  1               1               0.00B / 22.00B              1.1.1.1                                     1                 0.00B / 22.00B                  
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
@@ -133,27 +133,4 @@ IF: interface_name | Total Data (Up / Down): 0.00B / 0.00B
                                                                                                                                                                                               
                                                                                                                                                                                               
                                                                                                                                                                                               
-                                                                                                                                                                     53                       
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-                                                                                                                                                                                              
-
+                                                                                                                                                                     53
