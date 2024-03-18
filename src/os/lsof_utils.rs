@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, net::IpAddr, process::Command, str::FromStr};
+use std::{ffi::OsStr, net::IpAddr, process::Command};
 
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -37,7 +37,7 @@ impl RawConnection {
             return None;
         }
         let process_name = columns[0].replace("\\x20", " ");
-        let pid = i32::from_str(columns[1]).expect("failed to convert PID to integer");
+        let pid = columns[1].parse().ok()?;
         let proc_info = ProcessInfo::new(&process_name, pid);
         // Unneeded
         // let username = columns[2];

@@ -22,11 +22,11 @@ use crate::os::windows::get_open_sockets;
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq)]
 pub struct ProcessInfo {
     pub name: String,
-    pub pid: i32,
+    pub pid: u32,
 }
 
 impl ProcessInfo {
-    pub fn new(name: &str, pid: i32) -> Self {
+    pub fn new(name: &str, pid: u32) -> Self {
         Self {
             name: name.to_string(),
             pid,
