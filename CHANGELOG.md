@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * CI: use GitHub API to exempt dependabot from changelog requirement #378 - @cyqsimon
 * Remove unnecessary logging synchronisation #381 - @cyqsimon
 * Apply suggestions from new clippy lint clippy::assigning_clones #382 - @cyqsimon
+* Fix IPv6 socket detect logic #383 - @cyqsimon
 
 ## Added
 * CI: include generated assets in release archive #359 - @cyqsimon
