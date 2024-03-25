@@ -129,7 +129,9 @@ impl UIState {
                     .or_default();
                 connection_data.total_bytes_downloaded += connection_info.total_bytes_downloaded;
                 connection_data.total_bytes_uploaded += connection_info.total_bytes_uploaded;
-                connection_data.interface_name = connection_info.interface_name.clone();
+                connection_data
+                    .interface_name
+                    .clone_from(&connection_info.interface_name);
                 data_for_remote_address.total_bytes_downloaded +=
                     connection_info.total_bytes_downloaded;
                 data_for_remote_address.total_bytes_uploaded +=
@@ -179,7 +181,7 @@ impl UIState {
                     let proc_info = proc_info
                         .cloned()
                         .unwrap_or_else(|| ProcessInfo::new("<UNKNOWN>", 0));
-                    connection_data.process_name = proc_info.name.clone();
+                    connection_data.process_name.clone_from(&proc_info.name);
                     processes.entry(proc_info).or_default()
                 };
 
