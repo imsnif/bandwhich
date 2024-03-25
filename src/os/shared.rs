@@ -7,10 +7,11 @@ use std::{
 use anyhow::{anyhow, bail};
 use crossterm::event::{read, Event};
 use itertools::Itertools;
+use log::{debug, warn};
 use pnet::datalink::{self, Channel::Ethernet, Config, DataLinkReceiver, NetworkInterface};
 use tokio::runtime::Runtime;
 
-use crate::{mt_log, network::dns, os::errors::GetInterfaceError, OsInputOutput};
+use crate::{network::dns, os::errors::GetInterfaceError, OsInputOutput};
 
 #[cfg(target_os = "linux")]
 use crate::os::linux::get_open_sockets;
@@ -112,7 +113,7 @@ pub fn get_input(
                 interface.is_up() && !interface.ips.is_empty()
             };
             if !keep {
-                mt_log!(debug, "{} is down. Skipping it.", interface.name);
+                debug!("{} is down. Skipping it.", interface.name);
             }
             keep
         })
@@ -137,8 +138,7 @@ pub fn get_input(
         .iter()
         .filter_map(|(interface, frames_res)| frames_res.as_ref().err().map(|err| (interface, err)))
         .for_each(|(interface, err)| {
-            mt_log!(
-                warn,
+            warn!(
                 "Failed to acquire a frame receiver for {}: {err}",
                 interface.name
             )

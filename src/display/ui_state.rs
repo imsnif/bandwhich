@@ -5,9 +5,10 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 
+use log::warn;
+
 use crate::{
     display::BandwidthUnitFamily,
-    mt_log,
     network::{Connection, LocalSocket, Utilization},
     os::ProcessInfo,
 };
@@ -163,15 +164,14 @@ impl UIState {
                                     .map(|conn| (conn, info))
                             }) {
                             Some((lookalike, proc_info)) => {
-                                mt_log!(
-                                    warn,
+                                warn!(
                                     r#""{0}" owns a similar looking connection, but its local ip doesn't match."#,
                                     proc_info.name
                                 );
-                                mt_log!(warn, "Looking for: {connection:?}; found: {lookalike:?}");
+                                warn!("Looking for: {connection:?}; found: {lookalike:?}");
                             }
                             None => {
-                                mt_log!(warn, "Cannot determine which process owns {connection:?}");
+                                warn!("Cannot determine which process owns {connection:?}");
                             }
                         };
                     }
