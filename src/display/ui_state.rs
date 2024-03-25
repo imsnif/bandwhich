@@ -181,7 +181,7 @@ impl UIState {
                     let proc_info = proc_info
                         .cloned()
                         .unwrap_or_else(|| ProcessInfo::new("<UNKNOWN>", 0));
-                    connection_data.process_name = proc_info.name.clone();
+                    connection_data.process_name.clone_from(&proc_info.name);
                     processes.entry(proc_info).or_default()
                 };
 
