@@ -4,7 +4,6 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 
 use crate::{
-    mt_log,
     network::{LocalSocket, Protocol},
     os::ProcessInfo,
 };
@@ -123,24 +122,15 @@ impl RawConnection {
         let process = &self.proc_info.name;
 
         let Some(ip) = self.get_local_ip() else {
-            mt_log!(
-                warn,
-                r#"Failed to get the local IP of a connection belonging to "{process}"."#
-            );
+            warn!(r#"Failed to get the local IP of a connection belonging to "{process}"."#);
             return None;
         };
         let Some(port) = self.get_local_port() else {
-            mt_log!(
-                warn,
-                r#"Failed to get the local port of a connection belonging to "{process}"."#
-            );
+            warn!(r#"Failed to get the local port of a connection belonging to "{process}"."#);
             return None;
         };
         let Some(protocol) = self.get_protocol() else {
-            mt_log!(
-                warn,
-                r#"Failed to get the protocol of a connection belonging to "{process}"."#
-            );
+            warn!(r#"Failed to get the protocol of a connection belonging to "{process}"."#);
             return None;
         };
 
