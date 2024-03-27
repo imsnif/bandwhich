@@ -43,7 +43,7 @@ trust-dns-resolver = "0.23.2"
 unicode-width = "0.1.11"
 strum = { version = "0.26.2", features = ["derive"] }
 
-[target.'cfg(target_os = "linux")'.dependencies]
+[target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
 procfs = "0.16.0"
 
 [target.'cfg(any(target_os = "macos", target_os = "freebsd"))'.dependencies]

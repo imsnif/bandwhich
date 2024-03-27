@@ -13,7 +13,7 @@ use tokio::runtime::Runtime;
 
 use crate::{network::dns, os::errors::GetInterfaceError, OsInputOutput};
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "android", target_os = "linux"))]
 use crate::os::linux::get_open_sockets;
 #[cfg(any(target_os = "macos", target_os = "freebsd"))]
 use crate::os::lsof::get_open_sockets;
@@ -220,7 +220,7 @@ fn eperm_message() -> &'static str {
 }
 
 #[inline]
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "android", target_os = "linux"))]
 fn eperm_message() -> &'static str {
     r#"
     Insufficient permissions to listen on network interface(s). You can work around
