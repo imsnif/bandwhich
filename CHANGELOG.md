@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Unreleased]
 
 ## Fixed
+
 * Remove redundant imports #377 - @cyqsimon
 * CI: use GitHub API to exempt dependabot from changelog requirement #378 - @cyqsimon
 * Remove unnecessary logging synchronisation #381 - @cyqsimon
@@ -15,10 +16,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Support build for `target_os`` `android` #384 - @flxo
 
 ## Added
+
 * CI: include generated assets in release archive #359 - @cyqsimon
 * Add PID column to the process table #379 - @notjedi
+* CI: add builds for target `aarch64-linux-android` #384 - @flxo
 
 ## Changed
+
 * CI: strip release binaries for all targets #358 - @cyqsimon
 * Bump MSRV to 1.74 (required by clap 4.5; see #373)
 * CI: Configure dependabot grouping #395 - @cyqsimon
