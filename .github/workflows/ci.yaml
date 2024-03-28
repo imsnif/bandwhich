@@ -47,12 +47,19 @@ jobs:
           toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
 
+      - name: Install Cross on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo install --git https://github.com/cross-rs/cross.git --rev 085092c cross
+
       - name: Check formatting
         run: cargo fmt --all -- --check
 
       - name: Build
-        id: build
         run: cargo build --verbose
+
+      - name: Build target aarch64-linux-android
+        if: matrix.os == 'ubuntu-latest'
+        run: cross build --target aarch64-linux-android --verbose
 
       # This is useful for debugging problems when the expected build artifacts
       # (like shell completions and man pages) aren't generated.
@@ -102,6 +109,13 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}-failed_snapshots
           path: '**/*.snap.new'
+
+      - name: Upload android binary
+        if: ${{ matrix.os == 'ubuntu-latest' && ( success() || steps.build.outcome == 'success' ) }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: aarch64-linux-android-${{ matrix.rust }}
+          path: target/aarch64-linux-android/debug/bandwhich
 
       - name: Upload unix binary
         if: ${{ matrix.os != 'windows-latest' && ( success() || steps.build.outcome == 'success' ) }}
