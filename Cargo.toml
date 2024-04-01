@@ -36,7 +36,7 @@ pnet = "0.34.0"
 pnet_macros_support = "0.34.0"
 ratatui = "0.26.1"
 resolv-conf = "0.7.0"
-simplelog = "0.12.1"
+simplelog = "0.12.2"
 thiserror = "1.0.57"
 tokio = { version = "1.36", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
