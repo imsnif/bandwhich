@@ -5,3 +5,7 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 30
+    groups:
+      dependencies:
+        patterns:
+          - "*"
