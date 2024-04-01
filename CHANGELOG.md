@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## Changed
 * CI: strip release binaries for all targets #358 - @cyqsimon
 * Bump MSRV to 1.74 (required by clap 4.5; see #373)
+* CI: Configure dependabot grouping #395 - @cyqsimon
 
 ## [0.22.2] - 2024-01-28
 
