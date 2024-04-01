@@ -22,7 +22,7 @@ description = "Display current network utilization by process, connection and re
 
 [dependencies]
 anyhow = { version = "1.0.80", features = ["backtrace"] }
-async-trait = "0.1.77"
+async-trait = "0.1.79"
 chrono = "0.4"
 clap-verbosity-flag = "2.2.0"
 clap = { version = "4.5.1", features = ["derive"] }
