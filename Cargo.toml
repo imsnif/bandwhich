@@ -25,7 +25,7 @@ anyhow = { version = "1.0.80", features = ["backtrace"] }
 async-trait = "0.1.77"
 chrono = "0.4"
 clap-verbosity-flag = "2.2.0"
-clap = { version = "4.5.1", features = ["derive"] }
+clap = { version = "4.5.4", features = ["derive"] }
 crossterm = "0.27.0"
 derivative = "2.2.0"
 ipnetwork = "0.20.0"
@@ -62,7 +62,7 @@ rstest = "0.18.2"
 
 [build-dependencies]
 anyhow = "1.0.80"
-clap = { version = "4.5.1", features = ["derive"] }
+clap = { version = "4.5.4", features = ["derive"] }
 clap-verbosity-flag = "2.2.0"
 clap_complete = "4.5.1"
 clap_mangen = "0.2.20"
