@@ -21,7 +21,7 @@ rust-version = "1.74.0"
 description = "Display current network utilization by process, connection and remote IP/hostname"
 
 [dependencies]
-anyhow = { version = "1.0.80", features = ["backtrace"] }
+anyhow = { version = "1.0.81", features = ["backtrace"] }
 async-trait = "0.1.77"
 chrono = "0.4"
 clap-verbosity-flag = "2.2.0"
@@ -61,7 +61,7 @@ regex = "1.10.3"
 rstest = "0.18.2"
 
 [build-dependencies]
-anyhow = "1.0.80"
+anyhow = "1.0.81"
 clap = { version = "4.5.1", features = ["derive"] }
 clap-verbosity-flag = "2.2.0"
 clap_complete = "4.5.1"
