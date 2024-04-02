@@ -52,11 +52,17 @@ jobs:
     strategy:
       matrix:
         build:
+          - aarch64-linux-android
           - linux-x64-gnu
           - linux-x64-musl
           - macos-x64
           - windows-x64-msvc
         include:
+          - cargo: cargo # default; overwrite with `cross` if necessary
+          - build: aarch64-linux-android
+            os: ubuntu-latest
+            target: aarch64-linux-android
+            cargo: cross
           - build: linux-x64-gnu
             os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -84,13 +90,17 @@ jobs:
         if: matrix.target == 'x86_64-unknown-linux-musl'
         run: sudo apt-get install -y --no-install-recommends musl-tools
 
+      - name: Install cross
+        if: matrix.cargo == 'cross'
+        run: cargo install --git https://github.com/cross-rs/cross.git --rev 085092c cross
+
       - name: Build release binary
         shell: bash
         env:
           RUSTFLAGS: "-C strip=symbols"
         run: |
           mkdir -p "$BANDWHICH_GEN_DIR"
-          cargo build --verbose --release --target ${{ matrix.target }}
+          ${{ matrix.cargo }} build --verbose --release --target ${{ matrix.target }}
 
       - name: Collect build artifacts
         shell: bash

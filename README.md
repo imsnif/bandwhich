@@ -56,7 +56,7 @@ For more details, see [The Future of Bandwhich #275](https://github.com/imsnif/b
 
 ### Download a prebuilt binary
 
-If you're on linux, you can download the generic binary from the releases.
+If you're on `android` or `linux`, you can download the generic binary from the [releases](https://github.com/imsnif/bandwhich/releases)
 
 ### Arch Linux
 
@@ -122,6 +122,19 @@ The minimum supported Rust version is **1.70.0**.
 ```
 cargo install bandwhich
 ```
+
+#### Building from source for Android (`aarch64-linux-android`)
+
+Building for target `aarch64-linux-android` is supported via [cross](https://github.com/cross-rs/cross). Until [#1222](https://github.com/cross-rs/cross/issues/1222) is solved, use the latest HEAD:
+
+```sh
+cargo install --git https://github.com/cross-rs/cross.git cross
+cross build --release --target aarch64-linux-android
+```
+
+Kindly be aware that this process generates a pure binary file and not an APK suitable for installation on any arbitrary Android device.
+
+The Android support for bandwhich beyond its build is *not* endorsed by this project and may be unstable or non-functional.
 
 ### OpenWRT
 
