@@ -14,6 +14,7 @@ This is a CLI utility for displaying current network utilization by process, con
     - [Downstream packaging status](#downstream-packaging-status)
     - [Download a prebuilt binary](#download-a-prebuilt-binary)
     - [Arch Linux](#arch-linux)
+    - [Exherbo Linux](#exherbo-linux)
     - [Nix/NixOS](#nixnixos)
     - [Void Linux](#void-linux)
     - [Fedora](#fedora)
@@ -62,6 +63,15 @@ If you're on `android` or `linux`, you can download the generic binary from the 
 
 ```
 pacman -S bandwhich
+```
+
+### Exherbo Linux
+
+`bandwhich` is available in [rust repository](https://gitlab.exherbo.org/exherbo/rust/-/tree/master/packages/sys-apps/bandwhich), and can be installed via `cave`:
+
+```
+cave resolve -x repository/rust
+cave resolve -x bandwhich
 ```
 
 ### Nix/NixOS
