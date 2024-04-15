@@ -13,7 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Remove unnecessary logging synchronisation #381 - @cyqsimon
 * Apply suggestions from new clippy lint clippy::assigning_clones #382 - @cyqsimon
 * Fix IPv6 socket detect logic #383 - @cyqsimon
-* Support build for `target_os`` `android` #384 - @flxo
+* Support build for `target_os` `android` #384 - @flxo
+* Fix Windows FP discrepancy issue in test #400 - @cyqsimon
 
 ## Added
 
