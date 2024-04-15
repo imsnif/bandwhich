@@ -130,11 +130,6 @@ jobs:
       - name: Run clippy
         run: ${{ matrix.cargo }} clippy --all-targets --all-features --target ${{ matrix.target }} -- -D warnings
 
-      - name: Install cargo-insta
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-insta
-
       - name: Install npcap on Windows
         # PRs from other repositories cannot not be trusted with repository secrets
         if: matrix.os == 'windows-latest' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
@@ -146,7 +141,7 @@ jobs:
           # see https://stackoverflow.com/a/1674950/5637701
           & "$env:TEMP/npcap-oem.exe" /S
 
-      - name: Run tests using cargo-insta
+      - name: Run tests
         id: run_tests
         # npcap is needed to run tests on Windows, so unfortunately we cannot run tests
         # on PRs from other repositories
@@ -154,7 +149,7 @@ jobs:
         env:
           # make insta generate new snapshots in CI
           INSTA_UPDATE: new
-        run: cargo insta test --color=never
+        run: ${{ matrix.cargo }} test --all-targets --all-features --target ${{ matrix.target }} --color=never
 
       - name: Upload snapshots of failed tests
         if: ${{ failure() && steps.run_tests.outcome == 'failure' }}
