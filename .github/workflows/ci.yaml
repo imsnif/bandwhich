@@ -86,10 +86,12 @@ jobs:
           - build: linux-x64-musl
             target: x86_64-unknown-linux-musl
           - build: macos-aarch64
-            os: macos-latest
+            # Go back ot `macos-latest` after migration is complete
+            # See https://github.blog/changelog/2024-04-01-macos-14-sonoma-is-generally-available-and-the-latest-macos-runner-image/.
+            os: macos-14
             target: aarch64-apple-darwin
           - build: macos-x64
-            os: macos-latest
+            os: macos-14
             target: x86_64-apple-darwin
           - build: windows-x64-msvc
             os: windows-latest
