@@ -58,8 +58,11 @@ jobs:
       matrix:
         build:
           - android-aarch64
+          - linux-aarch64-gnu
+          - linux-aarch64-musl
           - linux-x64-gnu
           - linux-x64-musl
+          - macos-aarch64
           - macos-x64
           - windows-x64-msvc
         rust:
@@ -72,10 +75,17 @@ jobs:
           - build: android-aarch64
             target: aarch64-linux-android
             cargo: cross
+          - build: linux-aarch64-gnu
+            target: aarch64-unknown-linux-gnu
+          - build: linux-aarch64-musl
+            target: aarch64-unknown-linux-musl
           - build: linux-x64-gnu
             target: x86_64-unknown-linux-gnu
           - build: linux-x64-musl
             target: x86_64-unknown-linux-musl
+          - build: macos-aarch64
+            os: macos-latest
+            target: aarch64-apple-darwin
           - build: macos-x64
             os: macos-latest
             target: x86_64-apple-darwin
