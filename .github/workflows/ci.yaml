@@ -22,17 +22,13 @@ jobs:
         id: get_msrv
         run: rg '^\s*rust-version\s*=\s*"(\d+(\.\d+){0,2})"' --replace 'msrv=$1' Cargo.toml >> "$GITHUB_OUTPUT"
 
-  test:
-    name: test
+  check-fmt:
+    name: Check code formatting
+    runs-on: ubuntu-latest
     needs: get-msrv
-    env:
-      # Emit backtraces on panics.
-      RUST_BACKTRACE: 1
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
         rust:
           - ${{ needs.get-msrv.outputs.msrv }}
           - stable
@@ -45,26 +41,78 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
-          components: rustfmt, clippy
+          components: rustfmt
+      
+      - name: Check formatting
+        run: cargo fmt --all -- --check
 
-      - name: Install Cross on Ubuntu
-        if: matrix.os == 'ubuntu-latest'
+  test:
+    name: Test on each target
+    needs: get-msrv
+    env:
+      # Emit backtraces on panics.
+      RUST_BACKTRACE: 1
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        build:
+          - android-aarch64
+          - linux-x64-gnu
+          - linux-x64-musl
+          - macos-x64
+          - windows-x64-msvc
+        rust:
+          - ${{ needs.get-msrv.outputs.msrv }}
+          - stable
+          - nightly
+        include:
+          - os: ubuntu-latest # default
+          - cargo: cargo # default; overwrite with `cross` if necessary
+          - build: android-aarch64
+            target: aarch64-linux-android
+            cargo: cross
+          - build: linux-x64-gnu
+            target: x86_64-unknown-linux-gnu
+          - build: linux-x64-musl
+            target: x86_64-unknown-linux-musl
+          - build: macos-x64
+            os: macos-latest
+            target: x86_64-apple-darwin
+          - build: windows-x64-msvc
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.target }}
+          components: clippy
+
+      - name: Install musl-tools
+        if: matrix.build == 'linux-x64-musl'
+        run: sudo apt-get install -y --no-install-recommends musl-tools
+
+      - name: Install cross
+        if: matrix.cargo == 'cross'
         # The latest realese of `cross` is not able to build/link for `aarch64-linux-android`
         # See: https://github.com/cross-rs/cross/issues/1222
         # This is fixed on `main` but not yet released. To avoid a breakage somewhen in the future
         # pin the cross revision used to the latest HEAD at 04/2024. 
-        # Remove the git source and revision once cross 0.3 is released.
-        run: cargo install --git https://github.com/cross-rs/cross.git --rev 085092c cross
-
-      - name: Check formatting
-        run: cargo fmt --all -- --check
+        # Go back to taiki-e/install-action once cross 0.3 is released.
+        uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: cross
+          git: https://github.com/cross-rs/cross.git
+          rev: 085092c
 
       - name: Build
-        run: cargo build --verbose
-
-      - name: Build target aarch64-linux-android
-        if: matrix.os == 'ubuntu-latest'
-        run: cross build --target aarch64-linux-android --verbose
+        id: build
+        run: ${{ matrix.cargo }} build --verbose --target ${{ matrix.target }}
 
       # This is useful for debugging problems when the expected build artifacts
       # (like shell completions and man pages) aren't generated.
@@ -72,7 +120,7 @@ jobs:
         shell: bash
         run: |
           # it's probably okay to assume no spaces?
-          STDERR_FILES=$(find "./target/debug" -name stderr | grep bandwhich)
+          STDERR_FILES=$(find "./target/debug" -name stderr | grep bandwhich || true)
           for FILE in $STDERR_FILES; do
             echo "::group::$FILE"
             cat "$FILE"
@@ -80,15 +128,10 @@ jobs:
           done
 
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
-
-      - name: Install cargo-insta
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-insta
+        run: ${{ matrix.cargo }} clippy --all-targets --all-features --target ${{ matrix.target }} -- -D warnings
 
       - name: Install npcap on Windows
-        # PRs from other repositories cannot not be trusted with repository secrets
+        # PRs from other repositories cannot be trusted with repository secrets
         if: matrix.os == 'windows-latest' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         env:
           NPCAP_OEM_URL: ${{ secrets.NPCAP_OEM_URL }}
@@ -98,7 +141,7 @@ jobs:
           # see https://stackoverflow.com/a/1674950/5637701
           & "$env:TEMP/npcap-oem.exe" /S
 
-      - name: Run tests using cargo-insta
+      - name: Run tests
         id: run_tests
         # npcap is needed to run tests on Windows, so unfortunately we cannot run tests
         # on PRs from other repositories
@@ -106,7 +149,7 @@ jobs:
         env:
           # make insta generate new snapshots in CI
           INSTA_UPDATE: new
-        run: cargo insta test --color=never
+        run: ${{ matrix.cargo }} test --all-targets --all-features --target ${{ matrix.target }}
 
       - name: Upload snapshots of failed tests
         if: ${{ failure() && steps.run_tests.outcome == 'failure' }}
@@ -115,25 +158,12 @@ jobs:
           name: ${{ matrix.os }}-${{ matrix.rust }}-failed_snapshots
           path: '**/*.snap.new'
 
-      - name: Upload android binary
-        if: ${{ matrix.os == 'ubuntu-latest' && ( success() || steps.build.outcome == 'success' ) }}
+      - name: Upload binaries
+        if: ${{ success() || steps.build.outcome == 'success' }}
         uses: actions/upload-artifact@v3
         with:
-          name: aarch64-linux-android-${{ matrix.rust }}
-          path: target/aarch64-linux-android/debug/bandwhich
-
-      - name: Upload unix binary
-        if: ${{ matrix.os != 'windows-latest' && ( success() || steps.build.outcome == 'success' ) }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.os }}-${{ matrix.rust }}
-          path: target/debug/bandwhich
-
-      - name: Upload windows binary
-        if: ${{ matrix.os == 'windows-latest' && ( success() || steps.build.outcome == 'success' ) }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.os }}-${{ matrix.rust }}
+          name: ${{ matrix.target }}-${{ matrix.rust }}
           path: |
-            target/debug/bandwhich.exe
-            target/debug/bandwhich.pdb
+            target/${{ matrix.target }}/debug/bandwhich
+            target/${{ matrix.target }}/debug/bandwhich.exe
+            target/${{ matrix.target }}/debug/bandwhich.pdb
