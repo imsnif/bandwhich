@@ -77,8 +77,10 @@ jobs:
             cargo: cross
           - build: linux-aarch64-gnu
             target: aarch64-unknown-linux-gnu
+            cargo: cross
           - build: linux-aarch64-musl
             target: aarch64-unknown-linux-musl
+            cargo: cross
           - build: linux-x64-gnu
             target: x86_64-unknown-linux-gnu
           - build: linux-x64-musl
