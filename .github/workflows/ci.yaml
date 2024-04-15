@@ -149,7 +149,7 @@ jobs:
         env:
           # make insta generate new snapshots in CI
           INSTA_UPDATE: new
-        run: ${{ matrix.cargo }} test --all-targets --all-features --target ${{ matrix.target }} -- --color never
+        run: ${{ matrix.cargo }} test --all-targets --all-features --target ${{ matrix.target }}
 
       - name: Upload snapshots of failed tests
         if: ${{ failure() && steps.run_tests.outcome == 'failure' }}
