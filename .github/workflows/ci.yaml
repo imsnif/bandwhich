@@ -131,7 +131,7 @@ jobs:
         run: ${{ matrix.cargo }} clippy --all-targets --all-features --target ${{ matrix.target }} -- -D warnings
 
       - name: Install npcap on Windows
-        # PRs from other repositories cannot not be trusted with repository secrets
+        # PRs from other repositories cannot be trusted with repository secrets
         if: matrix.os == 'windows-latest' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         env:
           NPCAP_OEM_URL: ${{ secrets.NPCAP_OEM_URL }}
