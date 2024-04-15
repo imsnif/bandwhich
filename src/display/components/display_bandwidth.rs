@@ -4,8 +4,10 @@ use derivative::Derivative;
 
 use crate::cli::UnitFamily;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Derivative)]
+#[derivative(Debug)]
 pub struct DisplayBandwidth {
+    #[derivative(Debug(format_with = "fmt_f64"))]
     pub bandwidth: f64,
     pub unit_family: BandwidthUnitFamily,
 }
@@ -15,6 +17,14 @@ impl fmt::Display for DisplayBandwidth {
         let (div, suffix) = self.unit_family.get_unit_for(self.bandwidth);
         write!(f, "{:.2}{suffix}", self.bandwidth / div)
     }
+}
+
+/// Custom formatter with reduced precision.
+///
+/// Workaround for FP calculation discrepancy between Unix and Windows.
+/// See https://github.com/rust-lang/rust/issues/111405#issuecomment-2055964223.
+fn fmt_f64(val: &f64, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    write!(f, "{val:.10e}")
 }
 
 /// Type wrapper around [`UnitFamily`] to provide extra functionality.
