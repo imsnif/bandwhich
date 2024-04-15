@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * CI: include generated assets in release archive #359 - @cyqsimon
 * Add PID column to the process table #379 - @notjedi
 * CI: add builds for target `aarch64-linux-android` #384 - @flxo
+* CI: Keep GitHub Actions up to date with GitHub's Dependabot #403 - @cclauss
 
 ## Changed
 
