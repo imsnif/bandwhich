@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "ui_test"), allow(dead_code))]
+
 use std::{
     collections::HashMap,
     io::Write,

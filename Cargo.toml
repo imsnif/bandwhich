@@ -20,6 +20,11 @@ repository = "https://github.com/imsnif/bandwhich"
 rust-version = "1.74.0"
 description = "Display current network utilization by process, connection and remote IP/hostname"
 
+[features]
+default = []
+# UI tests temporarily disabled by default, until big refactor is done
+ui_test = []
+
 [dependencies]
 anyhow = { version = "1.0.82", features = ["backtrace"] }
 async-trait = "0.1.80"
