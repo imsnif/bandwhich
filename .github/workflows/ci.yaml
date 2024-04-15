@@ -93,10 +93,6 @@ jobs:
           targets: ${{ matrix.target }}
           components: clippy
 
-      - name: Install musl-tools
-        if: matrix.build == 'linux-x64-musl'
-        run: sudo apt-get install -y --no-install-recommends musl-tools
-
       - name: Install cross
         if: matrix.cargo == 'cross'
         # The latest realese of `cross` is not able to build/link for `aarch64-linux-android`
