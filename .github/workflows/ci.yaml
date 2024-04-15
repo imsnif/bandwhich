@@ -120,7 +120,7 @@ jobs:
         shell: bash
         run: |
           # it's probably okay to assume no spaces?
-          STDERR_FILES=$(find "./target/debug" -name stderr | grep bandwhich)
+          STDERR_FILES=$(find "./target/debug" -name stderr | grep bandwhich || true)
           for FILE in $STDERR_FILES; do
             echo "::group::$FILE"
             cat "$FILE"
