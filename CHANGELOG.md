@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * CI: Configure dependabot grouping #395 - @cyqsimon
 * CI refactor #399 - @cyqsimon
 * CI: Temporarily disable UI tests #406 - @cyqsimon
+* Update README #407 - @cyqsimon
 
 ## Removed
 
