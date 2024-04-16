@@ -52,25 +52,45 @@ jobs:
     strategy:
       matrix:
         build:
-          - aarch64-linux-android
+          - android-aarch64
+          - linux-aarch64-gnu
+          - linux-aarch64-musl
+          - linux-armv7-gnueabihf
+          - linux-armv7-musleabihf
           - linux-x64-gnu
           - linux-x64-musl
+          - macos-aarch64
           - macos-x64
           - windows-x64-msvc
         include:
+          - os: ubuntu-latest # default
           - cargo: cargo # default; overwrite with `cross` if necessary
-          - build: aarch64-linux-android
-            os: ubuntu-latest
+          - build: android-aarch64
             target: aarch64-linux-android
             cargo: cross
+          - build: linux-aarch64-gnu
+            target: aarch64-unknown-linux-gnu
+            cargo: cross
+          - build: linux-aarch64-musl
+            target: aarch64-unknown-linux-musl
+            cargo: cross
+          - build: linux-armv7-gnueabihf 
+            target: armv7-unknown-linux-gnueabihf
+            cargo: cross
+          - build: linux-armv7-musleabihf
+            target: armv7-unknown-linux-musleabihf
+            cargo: cross
           - build: linux-x64-gnu
-            os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
           - build: linux-x64-musl
-            os: ubuntu-latest
             target: x86_64-unknown-linux-musl
+          - build: macos-aarch64
+            # Go back ot `macos-latest` after migration is complete
+            # See https://github.blog/changelog/2024-04-01-macos-14-sonoma-is-generally-available-and-the-latest-macos-runner-image/.
+            os: macos-14
+            target: aarch64-apple-darwin
           - build: macos-x64
-            os: macos-latest
+            os: macos-14
             target: x86_64-apple-darwin
           - build: windows-x64-msvc
             os: windows-latest
@@ -86,13 +106,18 @@ jobs:
           toolchain: stable
           targets: ${{ matrix.target }}
 
-      - name: Install musl-tools
-        if: matrix.target == 'x86_64-unknown-linux-musl'
-        run: sudo apt-get install -y --no-install-recommends musl-tools
-
       - name: Install cross
         if: matrix.cargo == 'cross'
-        run: cargo install --git https://github.com/cross-rs/cross.git --rev 085092c cross
+        # The latest release of `cross` is not able to build/link for `aarch64-linux-android`
+        # See: https://github.com/cross-rs/cross/issues/1222
+        # This is fixed on `main` but not yet released. To avoid a breakage somewhen in the future
+        # pin the cross revision used to the latest HEAD at 04/2024. 
+        # Go back to taiki-e/install-action once cross 0.3 is released.
+        uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: cross
+          git: https://github.com/cross-rs/cross.git
+          rev: 085092c
 
       - name: Build release binary
         shell: bash
