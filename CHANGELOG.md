@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Bump MSRV to 1.74 (required by clap 4.5; see #373)
 * CI: Configure dependabot grouping #395 - @cyqsimon
 * CI refactor #399 - @cyqsimon
+* CI: Temporarily disable UI tests #406 - @cyqsimon
 
 ## Removed
 

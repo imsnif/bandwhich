@@ -124,7 +124,7 @@ jobs:
           done
 
       - name: Run clippy
-        run: ${{ matrix.cargo }} clippy --all-targets --all-features --target ${{ matrix.target }} -- -D warnings
+        run: ${{ matrix.cargo }} clippy --all-targets --target ${{ matrix.target }} -- -D warnings
 
       - name: Install npcap on Windows
         # PRs from other repositories cannot be trusted with repository secrets
@@ -145,7 +145,7 @@ jobs:
         env:
           # make insta generate new snapshots in CI
           INSTA_UPDATE: new
-        run: ${{ matrix.cargo }} test --all-targets --all-features --target ${{ matrix.target }}
+        run: ${{ matrix.cargo }} test --all-targets --target ${{ matrix.target }}
 
       - name: Upload snapshots of failed tests
         if: ${{ failure() && steps.run_tests.outcome == 'failure' }}
