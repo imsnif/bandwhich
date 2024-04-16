@@ -50,6 +50,9 @@ jobs:
     name: Test on each target
     needs: get-msrv
     env:
+      # use sccache
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: "sccache"
       # Emit backtraces on panics.
       RUST_BACKTRACE: 1
     runs-on: ${{ matrix.os }}
@@ -114,6 +117,9 @@ jobs:
           toolchain: ${{ matrix.rust }}
           targets: ${{ matrix.target }}
           components: clippy
+      
+      - name: Set up sccache
+        uses: mozilla-actions/sccache-action@v0.0.4
 
       - name: Install cross
         if: matrix.cargo == 'cross'
