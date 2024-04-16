@@ -74,7 +74,7 @@ We offer several generic binaries in [releases](https://github.com/imsnif/bandwh
       <td>armv7hf</td><td>Best effort</td><td>32-bit ARMv7 (older routers, pre-RPi-4).</td>
     </tr>
     <tr>
-      <td>x64-gnu</td><td>Full</td>
+      <td>x64</td><td>Full</td>
       <td>Most Linux desktops & servers.</td>
     </tr>
     <tr>
