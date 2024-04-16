@@ -100,7 +100,7 @@ jobs:
 
       - name: Install cross
         if: matrix.cargo == 'cross'
-        # The latest realese of `cross` is not able to build/link for `aarch64-linux-android`
+        # The latest release of `cross` is not able to build/link for `aarch64-linux-android`
         # See: https://github.com/cross-rs/cross/issues/1222
         # This is fixed on `main` but not yet released. To avoid a breakage somewhen in the future
         # pin the cross revision used to the latest HEAD at 04/2024. 
