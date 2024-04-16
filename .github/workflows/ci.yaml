@@ -51,8 +51,10 @@ jobs:
     needs: get-msrv
     env:
       # use sccache
-      SCCACHE_GHA_ENABLED: "true"
-      RUSTC_WRAPPER: "sccache"
+      # It's too much of a hassle to set up sccache in cross.
+      # See https://github.com/cross-rs/cross/wiki/Recipes#sccache.
+      SCCACHE_GHA_ENABLED: ${{ matrix.cargo == 'cargo' && 'true' || 'false'}}
+      RUSTC_WRAPPER: ${{ matrix.cargo == 'cargo' && 'sccache' || '' }}
       # Emit backtraces on panics.
       RUST_BACKTRACE: 1
     runs-on: ${{ matrix.os }}
@@ -119,6 +121,9 @@ jobs:
           components: clippy
       
       - name: Set up sccache
+        # It's too much of a hassle to set up sccache in cross.
+        # See https://github.com/cross-rs/cross/wiki/Recipes#sccache.
+        if: matrix.cargo == 'cargo'
         uses: mozilla-actions/sccache-action@v0.0.4
 
       - name: Install cross
