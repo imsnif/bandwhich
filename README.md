@@ -22,7 +22,6 @@ This is a CLI utility for displaying current network utilization by process, con
     - [2. `sudo` (or alternative)](#2-sudo-or-alternative)
   - [Post install (Windows)](#post-install-windows)
   - [Usage](#usage)
-  - [raw\_mode](#raw_mode)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -169,31 +168,24 @@ You might need to first install [npcap](https://npcap.com/#download) for capturi
 ## Usage
 
 ```
-USAGE:
-    bandwhich [FLAGS] [OPTIONS]
+Usage: bandwhich [OPTIONS]
 
-FLAGS:
-    -a, --addresses            Show remote addresses table only
-    -c, --connections          Show connections table only
-    -h, --help                 Prints help information
-    -n, --no-resolve           Do not attempt to resolve IPs to their hostnames
-    -p, --processes            Show processes table only
-    -r, --raw                  Machine friendlier output
-    -s, --show-dns             Show DNS queries
-    -t, --total-utilization    Show total (cumulative) usages
-    -V, --version              Prints version information
-
-OPTIONS:
-    -i, --interface <interface>    The network interface to listen on, eg. eth0
-    -d, --dns-server <dns-server>    A dns server ip to use instead of the system default
-```
-
-## raw_mode
-
-`bandwhich` also supports an easier-to-parse mode that can be piped or redirected to a file. For example, try:
-
-```
-bandwhich --raw | grep firefox
+Options:
+  -i, --interface <INTERFACE>      The network interface to listen on, eg. eth0
+  -r, --raw                        Machine friendlier output
+  -n, --no-resolve                 Do not attempt to resolve IPs to their hostnames
+  -s, --show-dns                   Show DNS queries
+  -d, --dns-server <DNS_SERVER>    A dns server ip to use instead of the system default
+      --log-to <LOG_TO>            Enable debug logging to a file
+  -v, --verbose...                 Increase logging verbosity
+  -q, --quiet...                   Decrease logging verbosity
+  -p, --processes                  Show processes table only
+  -c, --connections                Show connections table only
+  -a, --addresses                  Show remote addresses table only
+  -u, --unit-family <UNIT_FAMILY>  Choose a specific family of units [default: bin-bytes] [possible values: bin-bytes, bin-bits, si-bytes, si-bits]
+  -t, --total-utilization          Show total (cumulative) usages
+  -h, --help                       Print help (see more with '--help')
+  -V, --version                    Print version
 ```
 
 ## Contributing
