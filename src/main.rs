@@ -278,7 +278,7 @@ where
 
                     while running.load(Ordering::Acquire) {
                         if let Some(segment) = sniffer.next() {
-                            network_utilization.lock().unwrap().update(segment);
+                            network_utilization.lock().unwrap().ingest(segment);
                         }
                     }
                 })

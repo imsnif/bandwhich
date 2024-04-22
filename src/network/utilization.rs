@@ -24,7 +24,7 @@ impl Utilization {
         self.connections.clear();
         clone
     }
-    pub fn update(&mut self, seg: Segment) {
+    pub fn ingest(&mut self, seg: Segment) {
         let total_bandwidth = self
             .connections
             .entry(seg.connection)
