@@ -42,10 +42,10 @@ pnet_macros_support = "0.34.0"
 ratatui = "0.26.2"
 resolv-conf = "0.7.0"
 simplelog = "0.12.2"
-thiserror = "1.0.58"
+thiserror = "1.0.59"
 tokio = { version = "1.37", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
-unicode-width = "0.1.11"
+unicode-width = "0.1.12"
 strum = { version = "0.26.2", features = ["derive"] }
 
 [target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
@@ -75,5 +75,5 @@ derivative = "2.2.0"
 strum = { version = "0.26.2", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
-http_req = "0.10.2"
-zip = "0.6.6"
+http_req = "0.10.3"
+zip = "1.1.3"
