@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use netstat2::*;
-use sysinfo::{Pid, System};
+use sysinfo::{Pid, ProcessesToUpdate, System};
 
 use crate::{
     network::{LocalSocket, Protocol},
@@ -13,7 +13,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
 
     let mut sysinfo = System::new_all();
-    sysinfo.refresh_processes();
+    sysinfo.refresh_processes(ProcessesToUpdate::All);
 
     let af_flags = AddressFamilyFlags::IPV4 | AddressFamilyFlags::IPV6;
     let proto_flags = ProtocolFlags::TCP | ProtocolFlags::UDP;
@@ -25,7 +25,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
                 .associated_pids
                 .into_iter()
                 .find_map(|pid| sysinfo.process(Pid::from_u32(pid)))
-                .map(|p| ProcessInfo::new(p.name(), p.pid().as_u32()))
+                .map(|p| ProcessInfo::new(&p.name().to_string_lossy(), p.pid().as_u32()))
                 .unwrap_or_default();
 
             match si.protocol_socket_info {
