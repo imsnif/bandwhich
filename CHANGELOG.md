@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [0.23.0] - 2024-08-17
+
 ## Fixed
 
 * Remove redundant imports #377 - @cyqsimon

@@ -1,6 +1,6 @@
 [package]
 name = "bandwhich"
-version = "0.22.2"
+version = "0.23.0"
 authors = [
   "Aram Drevekenin <aram@poor.dev>",
   "Eduardo Toledo <etoledom@icloud.com>",
