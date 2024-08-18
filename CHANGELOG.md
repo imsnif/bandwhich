@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+
+* CI: Use Powershell Compress-Archive to create Windows binary zip #424 - @cyqsimon
+
 ## [0.23.0] - 2024-08-17
 
 ## Fixed

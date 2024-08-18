@@ -74,7 +74,7 @@ jobs:
           - build: linux-aarch64-musl
             target: aarch64-unknown-linux-musl
             cargo: cross
-          - build: linux-armv7-gnueabihf 
+          - build: linux-armv7-gnueabihf
             target: armv7-unknown-linux-gnueabihf
             cargo: cross
           - build: linux-armv7-musleabihf
@@ -111,7 +111,7 @@ jobs:
         # The latest release of `cross` is not able to build/link for `aarch64-linux-android`
         # See: https://github.com/cross-rs/cross/issues/1222
         # This is fixed on `main` but not yet released. To avoid a breakage somewhen in the future
-        # pin the cross revision used to the latest HEAD at 04/2024. 
+        # pin the cross revision used to the latest HEAD at 04/2024.
         # Go back to taiki-e/install-action once cross 0.3 is released.
         uses: taiki-e/cache-cargo-install-action@v2
         with:
@@ -143,9 +143,8 @@ jobs:
 
       - name: Zip release (Windows)
         if: contains(matrix.os, 'windows')
-        shell: bash
         working-directory: ${{ env.PKGDIR }}
-        run: tar.exe -a -c -f bandwhich-${{ github.ref_name }}-${{ matrix.target }}.zip *
+        run: Compress-Archive -Path * -DestinationPath bandwhich-${{ github.ref_name }}-${{ matrix.target }}.zip
 
       - name: Upload release archive
         uses: actions/upload-release-asset@v1
