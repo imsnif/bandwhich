@@ -26,54 +26,54 @@ default = []
 ui_test = []
 
 [dependencies]
-anyhow = { version = "1.0.86", features = ["backtrace"] }
-async-trait = "0.1.81"
+anyhow = { version = "1.0.89", features = ["backtrace"] }
+async-trait = "0.1.83"
 chrono = "0.4"
-clap-verbosity-flag = "2.2.1"
-clap = { version = "4.5.13", features = ["derive"] }
-crossterm = "0.27.0"
+clap-verbosity-flag = "2.2.2"
+clap = { version = "4.5.19", features = ["derive"] }
+crossterm = "0.28.1"
 derivative = "2.2.0"
 ipnetwork = "0.20.0"
 itertools = "0.13.0"
 log = "0.4.22"
-once_cell = "1.19.0"
-pnet = "0.34.0"
-pnet_macros_support = "0.34.0"
-ratatui = "0.27.0"
+once_cell = "1.20.2"
+pnet = "0.35.0"
+pnet_macros_support = "0.35.0"
+ratatui = "0.28.1"
 resolv-conf = "0.7.0"
 simplelog = "0.12.2"
-thiserror = "1.0.63"
-tokio = { version = "1.39", features = ["rt", "sync"] }
+thiserror = "1.0.64"
+tokio = { version = "1.40", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
-unicode-width = "0.1.11"
+unicode-width = "0.2.0"
 strum = { version = "0.26.3", features = ["derive"] }
 
 [target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
-procfs = "0.16.0"
+procfs = "0.17.0"
 
 [target.'cfg(any(target_os = "macos", target_os = "freebsd"))'.dependencies]
-regex = "1.10.5"
+regex = "1.11.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 netstat2 = "0.9.1"
-sysinfo = "0.31.0"
+sysinfo = "0.32.0"
 
 [dev-dependencies]
-insta = "1.39.0"
+insta = "1.40.0"
 packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-update" }
-pnet_base = "0.34.0"
-regex = "1.10.5"
-rstest = "0.21.0"
+pnet_base = "0.35.0"
+regex = "1.11.0"
+rstest = "0.23.0"
 
 [build-dependencies]
-anyhow = "1.0.86"
-clap = { version = "4.5.13", features = ["derive"] }
-clap-verbosity-flag = "2.2.1"
-clap_complete = "4.5.12"
+anyhow = "1.0.89"
+clap = { version = "4.5.19", features = ["derive"] }
+clap-verbosity-flag = "2.2.2"
+clap_complete = "4.5.32"
 clap_mangen = "0.2.23"
 derivative = "2.2.0"
 strum = { version = "0.26.3", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
-http_req = "0.11.1"
-zip = "2.1.6"
+http_req = "0.12.0"
+zip = "2.2.0"
