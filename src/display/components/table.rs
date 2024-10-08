@@ -5,8 +5,8 @@ use itertools::Itertools;
 use ratatui::{
     layout::{Constraint, Rect},
     style::{Color, Style},
-    terminal::Frame,
     widgets::{Block, Borders, Row},
+    Frame,
 };
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 

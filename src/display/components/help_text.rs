@@ -1,9 +1,9 @@
 use ratatui::{
     layout::{Alignment, Rect},
     style::{Modifier, Style},
-    terminal::Frame,
     text::Span,
     widgets::Paragraph,
+    Frame,
 };
 
 pub struct HelpText {

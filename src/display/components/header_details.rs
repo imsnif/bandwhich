@@ -3,9 +3,9 @@ use std::time::{Duration, Instant};
 use ratatui::{
     layout::{Alignment, Rect},
     style::{Color, Modifier, Style},
-    terminal::Frame,
     text::Span,
     widgets::Paragraph,
+    Frame,
 };
 use unicode_width::UnicodeWidthStr;
 

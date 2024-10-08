@@ -1,6 +1,6 @@
 use ratatui::{
     layout::{Constraint, Direction, Rect},
-    terminal::Frame,
+    Frame,
 };
 
 use crate::display::{HeaderDetails, HelpText, Table};
