@@ -77,3 +77,10 @@ strum = { version = "0.26.3", features = ["derive"] }
 [target.'cfg(target_os = "windows")'.build-dependencies]
 http_req = "0.12.0"
 zip = "2.2.0"
+
+[profile.release]
+codegen-units = 1
+opt-level = 3
+lto = "fat"
+panic = "abort"
+strip = "symbols"
