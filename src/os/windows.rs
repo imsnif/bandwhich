@@ -13,7 +13,7 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
 
     let mut sysinfo = System::new_all();
-    sysinfo.refresh_processes(ProcessesToUpdate::All);
+    sysinfo.refresh_processes(ProcessesToUpdate::All, true);
 
     let af_flags = AddressFamilyFlags::IPV4 | AddressFamilyFlags::IPV6;
     let proto_flags = ProtocolFlags::TCP | ProtocolFlags::UDP;
