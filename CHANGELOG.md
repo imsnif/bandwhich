@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Exit gracefully when there is a broken pipe error #429 - @sigmaSd
 * Fix breaking changes of sysinfo crate #431 - @cyqsimon
 * Fix `clippy::needless_lifetimes` warnings on nightly #432 - @cyqsimon
+
+### Changed
+
 * Add build optimizations for release binary #434 - @pando85
 
 ## [0.23.0] - 2024-08-17
