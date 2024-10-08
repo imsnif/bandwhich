@@ -7,7 +7,7 @@ use std::{
 use ratatui::{
     backend::{Backend, WindowSize},
     buffer::Cell,
-    layout::{Rect, Size},
+    layout::{Position, Size},
 };
 
 #[derive(Hash, Debug, PartialEq)]
@@ -65,12 +65,12 @@ impl Backend for TestBackend {
         Ok(())
     }
 
-    fn get_cursor(&mut self) -> io::Result<(u16, u16)> {
+    fn get_cursor_position(&mut self) -> io::Result<Position> {
         self.events.lock().unwrap().push(TerminalEvent::GetCursor);
-        Ok((0, 0))
+        Ok(Position::new(0, 0))
     }
 
-    fn set_cursor(&mut self, _x: u16, _y: u16) -> io::Result<()> {
+    fn set_cursor_position<P: Into<Position>>(&mut self, _position: P) -> io::Result<()> {
         Ok(())
     }
 
@@ -106,11 +106,11 @@ impl Backend for TestBackend {
         Ok(())
     }
 
-    fn size(&self) -> io::Result<Rect> {
+    fn size(&self) -> io::Result<Size> {
         let terminal_height = self.terminal_height.lock().unwrap();
         let terminal_width = self.terminal_width.lock().unwrap();
 
-        Ok(Rect::new(0, 0, *terminal_width, *terminal_height))
+        Ok(Size::new(*terminal_width, *terminal_height))
     }
 
     fn window_size(&mut self) -> io::Result<WindowSize> {

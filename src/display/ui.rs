@@ -137,7 +137,7 @@ where
             footer: HelpText { paused, show_dns },
         };
         self.terminal
-            .draw(|frame| layout.render(frame, frame.size(), ui_offset))
+            .draw(|frame| layout.render(frame, frame.area(), ui_offset))
             .unwrap();
     }
 
