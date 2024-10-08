@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 
 * CI: Use Powershell Compress-Archive to create Windows binary zip #424 - @cyqsimon
+* Exit gracefully when there is a broken pipe error #429 - @sigmaSd
 
 ## [0.23.0] - 2024-08-17
 
