@@ -159,7 +159,7 @@ dependencies = [
 
 [[package]]
 name = "bandwhich"
-version = "0.23.0"
+version = "0.23.1"
 dependencies = [
  "anyhow",
  "async-trait",
