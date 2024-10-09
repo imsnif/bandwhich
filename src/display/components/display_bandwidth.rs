@@ -1,13 +1,13 @@
 use std::fmt;
 
-use derivative::Derivative;
+use educe::Educe;
 
 use crate::cli::UnitFamily;
 
-#[derive(Copy, Clone, Derivative)]
-#[derivative(Debug)]
+#[derive(Copy, Clone, Educe)]
+#[educe(Debug)]
 pub struct DisplayBandwidth {
-    #[derivative(Debug(format_with = "fmt_f64"))]
+    #[educe(Debug(method(fmt_f64)))]
     pub bandwidth: f64,
     pub unit_family: BandwidthUnitFamily,
 }
@@ -28,9 +28,15 @@ fn fmt_f64(val: &f64, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
 }
 
 /// Type wrapper around [`UnitFamily`] to provide extra functionality.
-#[derive(Copy, Clone, Derivative, Default, Eq, PartialEq)]
-#[derivative(Debug = "transparent")]
+#[derive(Copy, Clone, Default, Eq, PartialEq)]
 pub struct BandwidthUnitFamily(UnitFamily);
+
+impl std::fmt::Debug for BandwidthUnitFamily {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+        write!(fmt, "{:?}", self.0)
+    }
+}
+
 impl From<UnitFamily> for BandwidthUnitFamily {
     fn from(value: UnitFamily) -> Self {
         Self(value)
