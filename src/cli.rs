@@ -2,11 +2,11 @@ use std::{net::Ipv4Addr, path::PathBuf};
 
 use clap::{Args, Parser, ValueEnum, ValueHint};
 use clap_verbosity_flag::{InfoLevel, Verbosity};
-use derivative::Derivative;
+use educe::Educe;
 use strum::EnumIter;
 
-#[derive(Clone, Debug, Derivative, Parser)]
-#[derivative(Default)]
+#[derive(Clone, Debug, Educe, Parser)]
+#[educe(Default)]
 #[command(name = "bandwhich", version)]
 pub struct Opt {
     #[arg(short, long)]
@@ -34,7 +34,7 @@ pub struct Opt {
     pub log_to: Option<PathBuf>,
 
     #[command(flatten)]
-    #[derivative(Default(value = "Verbosity::new(0, 0)"))]
+    #[educe(Default(expression = Verbosity::new(0, 0)))]
     pub verbosity: Verbosity<InfoLevel>,
 
     #[command(flatten)]

@@ -32,7 +32,6 @@ chrono = "0.4"
 clap-verbosity-flag = "2.2.2"
 clap = { version = "4.5.19", features = ["derive"] }
 crossterm = "0.28.1"
-derivative = "2.2.0"
 ipnetwork = "0.20.0"
 itertools = "0.13.0"
 log = "0.4.22"
@@ -47,6 +46,7 @@ tokio = { version = "1.40", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.2.0"
 strum = { version = "0.26.3", features = ["derive"] }
+educe = { version = "0.6.0", default-features = false, features = ["Debug","Default"] }
 
 [target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
 procfs = "0.17.0"
@@ -71,8 +71,9 @@ clap = { version = "4.5.19", features = ["derive"] }
 clap-verbosity-flag = "2.2.2"
 clap_complete = "4.5.32"
 clap_mangen = "0.2.23"
-derivative = "2.2.0"
 strum = { version = "0.26.3", features = ["derive"] }
+educe = { version = "0.6.0", default-features = false, features = ["Debug","Default"] }
+
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 http_req = "0.12.0"
@@ -84,3 +85,4 @@ opt-level = 3
 lto = "fat"
 panic = "abort"
 strip = "symbols"
+

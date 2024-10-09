@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt, net::IpAddr, ops::Index, rc::Rc};
 
-use derivative::Derivative;
+use educe::Educe;
 use itertools::Itertools;
 use ratatui::{
     layout::{Constraint, Rect},
@@ -165,8 +165,8 @@ impl TableData {
 ///
 /// Note that the number of columns here is independent of the number of columns
 /// being actually shown. If width-constrained, we might only show some of the columns.
-#[derive(Clone, Derivative)]
-#[derivative(Debug)]
+#[derive(Clone, Educe)]
+#[educe(Debug)]
 struct NColsTableData<const C: usize> {
     /// The name of each column.
     column_names: [&'static str; C],
@@ -176,7 +176,7 @@ struct NColsTableData<const C: usize> {
     ///
     /// This function should return a vector of column indices.
     /// The indices should be less than `C`; otherwise this will cause a runtime panic.
-    #[derivative(Debug(format_with = "debug_fn::<C>"))]
+    #[educe(Debug(method(debug_fn::<C>)))]
     column_selector: Rc<ColumnSelectorFn>,
 }
 
