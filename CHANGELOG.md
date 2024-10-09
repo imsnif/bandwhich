@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+
+* Update CONTRIBUTING information #438 - @YJDoc2 @cyqsimon
+
 ### Changed
 
 * Add build optimizations for release binary #434 - @pando85
