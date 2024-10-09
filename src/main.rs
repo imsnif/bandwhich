@@ -82,7 +82,7 @@ pub struct OsInputOutput {
     pub get_open_sockets: fn() -> OpenSockets,
     pub terminal_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
-    pub write_to_stdout: Box<dyn FnMut(String) + Send>,
+    pub write_to_stdout: Box<dyn FnMut(&str) + Send>,
 }
 
 pub fn start<B>(terminal_backend: B, os_input: OsInputOutput, opts: Opt)
@@ -93,8 +93,7 @@ where
     let paused = Arc::new(AtomicBool::new(false));
     let last_start_time = Arc::new(RwLock::new(Instant::now()));
     let cumulative_time = Arc::new(RwLock::new(Duration::new(0, 0)));
-    let ui_offset = Arc::new(AtomicUsize::new(0));
-    let dns_shown = opts.show_dns;
+    let table_cycle_offset = Arc::new(AtomicUsize::new(0));
 
     let mut active_threads = vec![];
 
@@ -113,7 +112,7 @@ where
         .spawn({
             let running = running.clone();
             let paused = paused.clone();
-            let ui_offset = ui_offset.clone();
+            let table_cycle_offset = table_cycle_offset.clone();
 
             let network_utilization = network_utilization.clone();
             let last_start_time = last_start_time.clone();
@@ -123,7 +122,7 @@ where
             move || {
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
-                    let utilization = { network_utilization.lock().unwrap().clone_and_reset() };
+                    let utilization = network_utilization.lock().unwrap().clone_and_reset();
                     let OpenSockets { sockets_to_procs } = get_open_sockets();
                     let mut ip_to_host = IpTable::new();
                     if let Some(dns_client) = dns_client.as_mut() {
@@ -139,7 +138,7 @@ where
                     {
                         let mut ui = ui.lock().unwrap();
                         let paused = paused.load(Ordering::SeqCst);
-                        let ui_offset = ui_offset.load(Ordering::SeqCst);
+                        let table_cycle_offset = table_cycle_offset.load(Ordering::SeqCst);
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
@@ -152,7 +151,7 @@ where
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, dns_shown, elapsed_time, ui_offset);
+                            ui.draw(paused, elapsed_time, table_cycle_offset);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -183,13 +182,12 @@ where
                             let paused = paused.load(Ordering::SeqCst);
                             ui.draw(
                                 paused,
-                                dns_shown,
                                 elapsed_time(
                                     *last_start_time.read().unwrap(),
                                     *cumulative_time.read().unwrap(),
                                     paused,
                                 ),
-                                ui_offset.load(Ordering::SeqCst),
+                                table_cycle_offset.load(Ordering::SeqCst),
                             );
                         }
                         Event::Key(KeyEvent {
@@ -250,9 +248,9 @@ where
                                 paused,
                             );
                             let table_count = ui.get_table_count();
-                            let new = ui_offset.load(Ordering::SeqCst) + 1 % table_count;
-                            ui_offset.store(new, Ordering::SeqCst);
-                            ui.draw(paused, dns_shown, elapsed_time, new);
+                            let new = table_cycle_offset.load(Ordering::SeqCst) + 1 % table_count;
+                            table_cycle_offset.store(new, Ordering::SeqCst);
+                            ui.draw(paused, elapsed_time, new);
                         }
                         _ => (),
                     };
@@ -280,7 +278,7 @@ where
 
                     while running.load(Ordering::Acquire) {
                         if let Some(segment) = sniffer.next() {
-                            network_utilization.lock().unwrap().update(segment);
+                            network_utilization.lock().unwrap().ingest(segment);
                         }
                     }
                 })

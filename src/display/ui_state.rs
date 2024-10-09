@@ -88,6 +88,7 @@ pub struct UIState {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub cumulative_mode: bool,
+    pub show_dns: bool,
     pub unit_family: BandwidthUnitFamily,
     pub utilization_data: VecDeque<UtilizationData>,
     pub processes_map: HashMap<ProcessInfo, NetworkData>,
