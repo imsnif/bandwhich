@@ -1,6 +1,6 @@
-use std::{collections::HashMap, fmt, net::IpAddr, ops::Index, rc::Rc};
+use std::{collections::HashMap, net::IpAddr, ops::Index, rc::Rc};
 
-use derivative::Derivative;
+use derive_more::Debug;
 use itertools::Itertools;
 use ratatui::{
     layout::{Constraint, Rect},
@@ -165,8 +165,7 @@ impl TableData {
 ///
 /// Note that the number of columns here is independent of the number of columns
 /// being actually shown. If width-constrained, we might only show some of the columns.
-#[derive(Clone, Derivative)]
-#[derivative(Debug)]
+#[derive(Clone, Debug)]
 struct NColsTableData<const C: usize> {
     /// The name of each column.
     column_names: [&'static str; C],
@@ -176,19 +175,12 @@ struct NColsTableData<const C: usize> {
     ///
     /// This function should return a vector of column indices.
     /// The indices should be less than `C`; otherwise this will cause a runtime panic.
-    #[derivative(Debug(format_with = "debug_fn::<C>"))]
+    #[debug("Rc</* function pointer */>")]
     column_selector: Rc<ColumnSelectorFn>,
 }
 
 /// Clippy wanted me to write this. 💢
 type ColumnSelectorFn = dyn Fn(&DisplayLayout) -> Vec<usize>;
-
-fn debug_fn<const C: usize>(
-    _func: &Rc<ColumnSelectorFn>,
-    f: &mut fmt::Formatter,
-) -> Result<(), fmt::Error> {
-    write!(f, "Rc</* function pointer */>")
-}
 
 /// A table displayed by bandwhich.
 #[derive(Clone, Debug)]

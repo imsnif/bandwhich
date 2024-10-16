@@ -1,13 +1,13 @@
+use crate::cli::UnitFamily;
+use derive_more::Debug;
 use std::fmt;
 
-use derivative::Derivative;
-
-use crate::cli::UnitFamily;
-
-#[derive(Copy, Clone, Derivative)]
-#[derivative(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct DisplayBandwidth {
-    #[derivative(Debug(format_with = "fmt_f64"))]
+    // Custom format for reduced precision.
+    // Workaround for FP calculation discrepancy between Unix and Windows.
+    // See https://github.com/rust-lang/rust/issues/111405#issuecomment-2055964223.
+    #[debug("{bandwidth:.10e}")]
     pub bandwidth: f64,
     pub unit_family: BandwidthUnitFamily,
 }
@@ -19,17 +19,9 @@ impl fmt::Display for DisplayBandwidth {
     }
 }
 
-/// Custom formatter with reduced precision.
-///
-/// Workaround for FP calculation discrepancy between Unix and Windows.
-/// See https://github.com/rust-lang/rust/issues/111405#issuecomment-2055964223.
-fn fmt_f64(val: &f64, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-    write!(f, "{val:.10e}")
-}
-
 /// Type wrapper around [`UnitFamily`] to provide extra functionality.
-#[derive(Copy, Clone, Derivative, Default, Eq, PartialEq)]
-#[derivative(Debug = "transparent")]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq)]
+#[debug("{_0:?}")]
 pub struct BandwidthUnitFamily(UnitFamily);
 impl From<UnitFamily> for BandwidthUnitFamily {
     fn from(value: UnitFamily) -> Self {
