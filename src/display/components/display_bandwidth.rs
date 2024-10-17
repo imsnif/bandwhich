@@ -1,6 +1,8 @@
-use crate::cli::UnitFamily;
-use derive_more::Debug;
 use std::fmt;
+
+use derive_more::Debug;
+
+use crate::cli::UnitFamily;
 
 #[derive(Copy, Clone, Debug)]
 pub struct DisplayBandwidth {
