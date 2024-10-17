@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 
+* Bump msrv to 1.75.0 #439 - @YJDoc2
+* Replace `derivative` with `derive_more` #439 - @YJDoc2
 * Add build optimizations for release binary #434 - @pando85
 * Minor cleanup and optimisations #435 - @cyqsimon
 
