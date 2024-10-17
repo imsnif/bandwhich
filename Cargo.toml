@@ -17,7 +17,7 @@ keywords = ["networking", "utilization", "cli"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/imsnif/bandwhich"
-rust-version = "1.74.0"
+rust-version = "1.75.0"
 description = "Display current network utilization by process, connection and remote IP/hostname"
 
 [features]
