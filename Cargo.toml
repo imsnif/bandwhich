@@ -46,7 +46,7 @@ tokio = { version = "1.41", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.2.0"
 strum = { version = "0.26.3", features = ["derive"] }
-derive_more = {version = "1.0.0", features = ["debug"]}
+derive_more = { version = "1.0.0", features = ["debug"] }
 
 [target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
 procfs = "0.17.0"
@@ -71,7 +71,7 @@ clap = { version = "4.5.21", features = ["derive"] }
 clap-verbosity-flag = "3.0.1"
 clap_complete = "4.5.38"
 clap_mangen = "0.2.24"
-derive_more = {version = "1.0.0", features = ["debug"]}
+derive_more = { version = "1.0.0", features = ["debug"] }
 strum = { version = "0.26.3", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
