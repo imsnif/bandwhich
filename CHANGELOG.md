@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Add build optimizations for release binary #434 - @pando85
 * Minor cleanup and optimisations #435 - @cyqsimon
 * Bump `pnet` & `packet-builder` #444 - @cyqsimon
+* Switch from anyhow to eyre #450 - @cyqsimon
 
 ## [0.23.1] - 2024-10-09
 
