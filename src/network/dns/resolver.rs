@@ -15,7 +15,7 @@ pub trait Lookup {
 pub struct Resolver(TokioAsyncResolver);
 
 impl Resolver {
-    pub async fn new(dns_server: Option<Ipv4Addr>) -> anyhow::Result<Self> {
+    pub async fn new(dns_server: Option<Ipv4Addr>) -> eyre::Result<Self> {
         let resolver = match dns_server {
             Some(dns_server_address) => {
                 let mut config = ResolverConfig::new();

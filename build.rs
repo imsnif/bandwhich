@@ -1,9 +1,9 @@
 use std::{env, fs::File};
 
-use anyhow::anyhow;
 use clap::CommandFactory;
 use clap_complete::Shell;
 use clap_mangen::Man;
+use eyre::eyre;
 
 fn main() {
     build_completion_manpage().unwrap();
@@ -14,13 +14,13 @@ fn main() {
 
 include!("src/cli.rs");
 
-fn build_completion_manpage() -> anyhow::Result<()> {
+fn build_completion_manpage() -> eyre::Result<()> {
     let mut cmd = Opt::command();
 
     // build into `BANDWHICH_GEN_DIR` with a fallback to `OUT_DIR`
     let gen_dir: PathBuf = env::var_os("BANDWHICH_GEN_DIR")
         .or_else(|| env::var_os("OUT_DIR"))
-        .ok_or(anyhow!("OUT_DIR is unset"))?
+        .ok_or(eyre!("OUT_DIR is unset"))?
         .into();
 
     // completion
@@ -37,7 +37,7 @@ fn build_completion_manpage() -> anyhow::Result<()> {
 }
 
 #[cfg(target_os = "windows")]
-fn download_windows_npcap_sdk() -> anyhow::Result<()> {
+fn download_windows_npcap_sdk() -> eyre::Result<()> {
     use std::{
         fs,
         io::{self, Write},
@@ -102,7 +102,7 @@ fn download_windows_npcap_sdk() -> anyhow::Result<()> {
         "cargo:rustc-link-search=native={}",
         lib_dir
             .to_str()
-            .ok_or(anyhow!("{lib_dir:?} is not valid UTF-8"))?
+            .ok_or(eyre!("{lib_dir:?} is not valid UTF-8"))?
     );
 
     Ok(())
