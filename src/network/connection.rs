@@ -2,7 +2,10 @@ use std::{
     collections::HashMap,
     fmt,
     net::{IpAddr, SocketAddr},
+    str::FromStr,
 };
+
+use eyre::bail;
 
 #[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Debug, Copy)]
 pub enum Protocol {
@@ -10,22 +13,22 @@ pub enum Protocol {
     Udp,
 }
 
-impl Protocol {
-    #[allow(dead_code)]
-    pub fn from_str(string: &str) -> Option<Self> {
-        match string {
-            "TCP" => Some(Protocol::Tcp),
-            "UDP" => Some(Protocol::Udp),
-            _ => None,
-        }
-    }
-}
-
 impl fmt::Display for Protocol {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Protocol::Tcp => write!(f, "tcp"),
             Protocol::Udp => write!(f, "udp"),
+        }
+    }
+}
+
+impl FromStr for Protocol {
+    type Err = eyre::Report;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "tcp" | "TCP" => Ok(Protocol::Tcp),
+            "udp" | "UDP" => Ok(Protocol::Udp),
+            p => bail!("Unknown protocol `{p}`"),
         }
     }
 }
