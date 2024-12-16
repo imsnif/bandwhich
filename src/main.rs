@@ -24,6 +24,7 @@ use crossterm::{
     terminal,
 };
 use display::{elapsed_time, RawTerminalBackend, Ui};
+use eyre::bail;
 use network::{
     dns::{self, IpTable},
     LocalSocket, Sniffer, Utilization,
@@ -37,7 +38,7 @@ use crate::os::ProcessInfo;
 
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
-fn main() -> anyhow::Result<()> {
+fn main() -> eyre::Result<()> {
     let opts = Opt::parse();
 
     // init logging
@@ -59,7 +60,7 @@ fn main() -> anyhow::Result<()> {
         start(terminal_backend, os_input, opts);
     } else {
         let Ok(()) = terminal::enable_raw_mode() else {
-            anyhow::bail!(
+            bail!(
                 "Failed to get stdout: if you are trying to pipe 'bandwhich' you should use the --raw flag"
             )
         };

@@ -24,7 +24,7 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new<R>(resolver: R, runtime: Runtime) -> anyhow::Result<Self>
+    pub fn new<R>(resolver: R, runtime: Runtime) -> eyre::Result<Self>
     where
         R: Lookup + Send + Sync + 'static,
     {

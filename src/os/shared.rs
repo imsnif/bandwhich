@@ -4,8 +4,8 @@ use std::{
     time,
 };
 
-use anyhow::{anyhow, bail};
 use crossterm::event::{read, Event};
+use eyre::{bail, eyre};
 use itertools::Itertools;
 use log::{debug, warn};
 use pnet::datalink::{self, Channel::Ethernet, Config, DataLinkReceiver, NetworkInterface};
@@ -99,11 +99,11 @@ pub fn get_input(
     interface_name: Option<&str>,
     resolve: bool,
     dns_server: Option<Ipv4Addr>,
-) -> anyhow::Result<OsInputOutput> {
+) -> eyre::Result<OsInputOutput> {
     // get the user's requested interface, if any
     // IDEA: allow requesting multiple interfaces
     let requested_interfaces = interface_name
-        .map(|name| get_interface(name).ok_or_else(|| anyhow!("Cannot find interface {name}")))
+        .map(|name| get_interface(name).ok_or_else(|| eyre!("Cannot find interface {name}")))
         .transpose()?
         .map(|interface| vec![interface]);
 
@@ -200,7 +200,7 @@ pub fn get_input(
         let resolver = runtime
             .block_on(dns::Resolver::new(dns_server))
             .map_err(|err| {
-                anyhow!("Could not initialize the DNS resolver. Are you offline?\n\nReason: {err}")
+                eyre!("Could not initialize the DNS resolver. Are you offline?\n\nReason: {err}")
             })?;
         let dns_client = dns::Client::new(resolver, runtime)?;
         Some(dns_client)
