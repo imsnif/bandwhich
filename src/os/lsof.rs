@@ -5,7 +5,7 @@ use std::{
     str::FromStr,
 };
 
-use eyre::{bail, Context};
+use eyre::{bail, Context, OptionExt};
 use log::warn;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -79,37 +79,44 @@ impl FromStr for Connection {
     fn from_str(raw_line: &str) -> Result<Self, Self::Err> {
         // Example row
         // com.apple   664     user  198u  IPv4 0xeb179a6650592b8d      0t0    TCP 192.168.1.187:58535->1.2.3.4:443 (ESTABLISHED)
-        let columns = raw_line.split_ascii_whitespace().collect::<Vec<_>>();
-        if columns.len() < 9 {
-            bail!(r#"lsof output line contains fewer than 9 columns: "{raw_line}""#);
-        }
+        let mut fields = raw_line.split_ascii_whitespace();
 
-        let process_name = columns[0].replace("\\x20", " ");
-        let pid = columns[1]
-            .parse()
-            .wrap_err_with(|| format!("PID `{}` failed parsing", columns[1]))?;
+        let process_name = fields
+            .next()
+            .ok_or_eyre("Missing field: process name")?
+            .replace("\\x20", " ");
+        let pid = {
+            let pid_str = fields.next().ok_or_eyre("Missing field: PID")?;
+            pid_str
+                .parse()
+                .wrap_err_with(|| format!("PID `{pid_str}` failed parsing"))?
+        };
         let proc_info = ProcessInfo::new(&process_name, pid);
 
-        let _username = columns[2];
-        let _fd = columns[3];
+        let _user = fields.next().ok_or_eyre("Missing field: user")?;
+        let _fd = fields.next().ok_or_eyre("Missing field: file descriptor")?;
 
-        let ip_ver = if columns[4].contains('4') {
+        let ip_ver = if fields
+            .next()
+            .ok_or_eyre("Missing field: IP version")?
+            .contains('4')
+        {
             IpVer::V4
         } else {
             IpVer::V6
         };
 
-        let _device = columns[5];
-        let _size = columns[6];
+        let _device = fields.next().ok_or_eyre("Missing field: device")?;
+        let _size = fields.next().ok_or_eyre("Missing field: size")?;
 
-        let protocol = columns[7].parse().wrap_err_with(|| {
-            format!(
-                "Protocol `{}` failed parsing for process `{process_name}`",
-                columns[7],
-            )
-        })?;
+        let protocol = {
+            let proto_str = fields.next().ok_or_eyre("Missing field: protocol")?;
+            proto_str.parse().wrap_err_with(|| {
+                format!("Protocol `{proto_str}` failed parsing for process `{process_name}`")
+            })?
+        };
 
-        let connection_str = columns[8];
+        let connection_str = fields.next().ok_or_eyre("Missing field: connection")?;
         static ESTABLISHED_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"\[?([^\s\]]*)\]?:(\d+)->\[?([^\s\]]*)\]?:(\d+)").unwrap());
         static LISTENING_REGEX: Lazy<Regex> =
@@ -152,7 +159,7 @@ impl FromStr for Connection {
         };
 
         // "(LISTEN)" or "(ESTABLISHED)",  this column may or may not be present
-        let _connection_state = columns[9];
+        let _connection_state = fields.next(); // allow missing
 
         Ok(Self {
             local,
