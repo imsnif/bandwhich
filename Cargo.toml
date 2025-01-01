@@ -28,13 +28,13 @@ ui_test = []
 [dependencies]
 async-trait = "0.1.83"
 chrono = "0.4"
-clap-verbosity-flag = "3.0.1"
-clap = { version = "4.5.21", features = ["derive"] }
+clap-verbosity-flag = "3.0.2"
+clap = { version = "4.5.23", features = ["derive"] }
 crossterm = "0.28.1"
 derive_more = { version = "1.0.0", features = ["debug"] }
 eyre = "0.6.12"
 ipnetwork = "0.20.0"
-itertools = "0.13.0"
+itertools = "0.14.0"
 log = "0.4.22"
 once_cell = "1.20.2"
 pnet = "0.35.0"
@@ -42,8 +42,8 @@ pnet_macros_support = "0.35.0"
 ratatui = "0.29.0"
 resolv-conf = "0.7.0"
 simplelog = "0.12.2"
-thiserror = "2.0.3"
-tokio = { version = "1.41", features = ["rt", "sync"] }
+thiserror = "2.0.9"
+tokio = { version = "1.42", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.2.0"
 strum = { version = "0.26.3", features = ["derive"] }
@@ -56,8 +56,8 @@ procfs = "0.17.0"
 regex = "1.11.1"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-netstat2 = "0.11.0"
-sysinfo = "0.32.1"
+netstat2 = "0.11.1"
+sysinfo = "0.33.1"
 
 [dev-dependencies]
 insta = "1.41.1"
@@ -67,17 +67,17 @@ regex = "1.11.1"
 rstest = "0.23.0"
 
 [build-dependencies]
-clap = { version = "4.5.21", features = ["derive"] }
-clap-verbosity-flag = "3.0.1"
-clap_complete = "4.5.38"
+clap = { version = "4.5.23", features = ["derive"] }
+clap-verbosity-flag = "3.0.2"
+clap_complete = "4.5.40"
 clap_mangen = "0.2.24"
 derive_more = { version = "1.0.0", features = ["debug"] }
 eyre = "0.6.12"
 strum = { version = "0.26.3", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
-http_req = "0.13.0"
-zip = "2.2.1"
+http_req = "0.13.1"
+zip = "2.2.2"
 
 [profile.release]
 codegen-units = 1
