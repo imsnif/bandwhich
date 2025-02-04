@@ -5,9 +5,9 @@ use std::{
     time::Duration,
 };
 
-use ipnetwork::IpNetwork;
 use pnet::{
     datalink::{DataLinkReceiver, NetworkInterface},
+    ipnetwork::IpNetwork,
     packet::{
         ethernet::{EtherTypes, EthernetPacket},
         ip::{IpNextHeaderProtocol, IpNextHeaderProtocols},
