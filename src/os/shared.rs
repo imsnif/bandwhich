@@ -40,10 +40,7 @@ pub struct TerminalEvents;
 impl Iterator for TerminalEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
-        match read() {
-            Ok(ev) => Some(ev),
-            Err(_) => None,
-        }
+        read().ok()
     }
 }
 
