@@ -6,9 +6,11 @@ use std::{
 
 use async_trait::async_trait;
 use crossterm::event::Event;
-use ipnetwork::IpNetwork;
 use itertools::Itertools;
-use pnet::datalink::{DataLinkReceiver, NetworkInterface};
+use pnet::{
+    datalink::{DataLinkReceiver, NetworkInterface},
+    ipnetwork::IpNetwork,
+};
 use tokio::runtime::Runtime;
 
 use crate::{
