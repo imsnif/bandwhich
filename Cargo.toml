@@ -29,13 +29,13 @@ ui_test = []
 async-trait = "0.1.86"
 chrono = "0.4"
 clap-verbosity-flag = "3.0.2"
-clap = { version = "4.5.28", features = ["derive"] }
+clap = { version = "4.5.31", features = ["derive"] }
 crossterm = "0.28.1"
 derive_more = { version = "2.0.1", features = ["debug"] }
 eyre = "0.6.12"
 itertools = "0.14.0"
-log = "0.4.25"
-once_cell = "1.20.2"
+log = "0.4.26"
+once_cell = "1.20.3"
 pnet = "0.35.0"
 pnet_macros_support = "0.35.0"
 ratatui = "0.29.0"
@@ -45,7 +45,7 @@ thiserror = "2.0.11"
 tokio = { version = "1.43", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.2.0"
-strum = { version = "0.26.3", features = ["derive"] }
+strum = { version = "0.27.1", features = ["derive"] }
 
 
 [target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
@@ -66,17 +66,17 @@ regex = "1.11.1"
 rstest = "0.24.0"
 
 [build-dependencies]
-clap = { version = "4.5.28", features = ["derive"] }
+clap = { version = "4.5.31", features = ["derive"] }
 clap-verbosity-flag = "3.0.2"
-clap_complete = "4.5.44"
+clap_complete = "4.5.46"
 clap_mangen = "0.2.26"
 derive_more = { version = "2.0.1", features = ["debug"] }
 eyre = "0.6.12"
-strum = { version = "0.26.3", features = ["derive"] }
+strum = { version = "0.27.1", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 http_req = "0.13.1"
-zip = "2.2.2"
+zip = "2.2.3"
 
 [profile.release]
 codegen-units = 1
