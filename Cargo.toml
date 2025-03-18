@@ -76,7 +76,7 @@ strum = { version = "0.26.3", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 http_req = "0.13.1"
-zip = "2.2.2"
+zip = "2.3.0"
 
 [profile.release]
 codegen-units = 1
