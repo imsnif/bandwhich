@@ -261,7 +261,7 @@ pub fn os_input_output_factory(
         Some(stdout) => Box::new({
             move |output| {
                 let mut stdout = stdout.lock().unwrap();
-                writeln!(&mut stdout, "{}", output).unwrap();
+                writeln!(&mut stdout, "{output}").unwrap();
             }
         }),
         None => Box::new(|_output| {}),

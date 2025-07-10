@@ -80,7 +80,7 @@ fn get_interface(interface_name: &str) -> Option<NetworkInterface> {
 fn create_write_to_stdout() -> Box<dyn FnMut(&str) + Send> {
     let mut stdout = io::stdout();
     Box::new({
-        move |output| match writeln!(stdout, "{}", output) {
+        move |output| match writeln!(stdout, "{output}") {
             Ok(_) => (),
             Err(e) if e.kind() == ErrorKind::BrokenPipe => {
                 // A process that was listening to bandwhich stdout has exited

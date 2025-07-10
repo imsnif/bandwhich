@@ -161,7 +161,7 @@ impl Sniffer {
     }
     pub fn reset_channel(&mut self) -> Result<()> {
         self.network_frames = get_datalink_channel(&self.network_interface)
-            .map_err(|_| io::Error::new(io::ErrorKind::Other, "Interface not available"))?;
+            .map_err(|_| io::Error::other("Interface not available"))?;
         Ok(())
     }
     fn handle_v6(ip_packet: Ipv6Packet, network_interface: &NetworkInterface) -> Option<Segment> {
