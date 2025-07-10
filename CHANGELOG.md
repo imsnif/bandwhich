@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 * Update CONTRIBUTING information #438 - @YJDoc2 @cyqsimon
 * Fix new clippy lint #457 - @cyqsimon
+* Apply new clippy lints #468 - @cyqsimon
 
 ### Changed
 
