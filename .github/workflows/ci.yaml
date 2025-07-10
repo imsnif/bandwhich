@@ -124,7 +124,7 @@ jobs:
         # It's too much of a hassle to set up sccache in cross.
         # See https://github.com/cross-rs/cross/wiki/Recipes#sccache.
         if: matrix.cargo == 'cargo'
-        uses: mozilla-actions/sccache-action@v0.0.7
+        uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Install cross
         if: matrix.cargo == 'cross'
