@@ -1,5 +1,8 @@
 use std::{collections::HashMap, ffi::OsStr, net::IpAddr, process::Command};
 
+#[cfg(unix)]
+use std::os::unix::process::ExitStatusExt;
+
 use log::warn;
 use once_cell::sync::Lazy;
 use regex::Regex;
