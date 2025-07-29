@@ -44,29 +44,6 @@ impl Resolver {
 #[async_trait]
 impl Lookup for Resolver {
     async fn lookup(&self, ip: IpAddr) -> Option<String> {
-        let mut retries = 0_u8;
-        // loop {
-        //     match self.0.reverse_lookup(ip).await {
-        //         Ok(names) => {
-        //             // Take the first result and convert it to a string
-        //             return names.into_iter().next().map(|name| name.to_string());
-        //         }
-        //         Err(e) => match e.kind() {
-        //             // If the IP is not associated with a hostname, store the IP
-        //             // so that we don't retry indefinitely
-        //             ResolveErrorKind::NoRecordsFound { .. } => return Some(ip.to_string()),
-        //             ResolveErrorKind::Timeout if retries < 5 => {
-        //                 sleep(Duration::from_millis(1000)).await;
-        //                 retries += 1;
-        //                 continue;
-        //             }
-        //             ResolveErrorKind::Timeout => {
-        //                 return Some(String::from("DNS lookup timeout."));
-        //             }
-        //             _ => break None,
-        //         },
-        //     };
-        // }
         let retry_config = RetryPolicy {
             max_retries: 3,
             ..Default::default()
