@@ -2,12 +2,12 @@
 name = "bandwhich"
 version = "0.23.1"
 authors = [
-  "Aram Drevekenin <aram@poor.dev>",
-  "Eduardo Toledo <etoledom@icloud.com>",
-  "Eduardo Broto <ebroto@tutanota.com>",
-  "Kelvin Zhang <zhangxp1998@gmail.com>",
-  "Brooks Rady <b.j.rady@gmail.com>",
-  "cyqsimon <28627918+cyqsimon@users.noreply.github.com>",
+        "Aram Drevekenin <aram@poor.dev>",
+        "Eduardo Toledo <etoledom@icloud.com>",
+        "Eduardo Broto <ebroto@tutanota.com>",
+        "Kelvin Zhang <zhangxp1998@gmail.com>",
+        "Brooks Rady <b.j.rady@gmail.com>",
+        "cyqsimon <28627918+cyqsimon@users.noreply.github.com>",
 ]
 categories = ["network-programming", "command-line-utilities"]
 edition = "2021"
@@ -42,7 +42,7 @@ ratatui = "0.29.0"
 resolv-conf = "0.7.4"
 simplelog = "0.12.2"
 thiserror = "2.0.12"
-tokio = { version = "1.46", features = ["rt", "sync"] }
+tokio = { version = "1.46", features = ["rt", "sync", "macros"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.2.0"
 strum = { version = "0.27.1", features = ["derive"] }
