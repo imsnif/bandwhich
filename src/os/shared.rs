@@ -50,6 +50,7 @@ impl ProcessInfo {
 pub struct ProcessTreeNode {
     pub process_info: ProcessInfo,
     pub children: Vec<ProcessTreeNode>,
+    #[allow(dead_code)]
     pub depth: usize,
 }
 
@@ -66,6 +67,7 @@ impl ProcessTreeNode {
         self.children.push(child);
     }
 
+    #[allow(dead_code)]
     pub fn find_node_mut(&mut self, pid: u32) -> Option<&mut ProcessTreeNode> {
         if self.process_info.pid == pid {
             return Some(self);

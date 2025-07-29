@@ -16,6 +16,7 @@ pub enum BandwhichError {
 
     /// Thread spawning or joining failed
     #[error("Thread error: {0}")]
+    #[allow(dead_code)]
     Thread(String),
 
     /// Lock acquisition failed (poisoned mutex)
@@ -24,22 +25,27 @@ pub enum BandwhichError {
 
     /// DNS resolution error
     #[error("DNS error: {0}")]
+    #[allow(dead_code)]
     Dns(String),
 
     /// Network interface error
     #[error("Network interface error: {0}")]
+    #[allow(dead_code)]
     NetworkInterface(String),
 
     /// Process information retrieval error
     #[error("Process info error: {0}")]
+    #[allow(dead_code)]
     ProcessInfo(String),
 
     /// Configuration or CLI argument error
     #[error("Configuration error: {0}")]
+    #[allow(dead_code)]
     Config(String),
 }
 
 /// Result type alias for bandwhich operations
+#[allow(dead_code)]
 pub type Result<T> = std::result::Result<T, BandwhichError>;
 
 /// Convert from std::sync::PoisonError to BandwhichError
