@@ -82,7 +82,7 @@ impl ProcessTreeNode {
         None
     }
 
-    pub fn iter_depth_first(&self) -> ProcessTreeIterator {
+    pub fn iter_depth_first(&self) -> ProcessTreeIterator<'_> {
         ProcessTreeIterator::new(self)
     }
 }
