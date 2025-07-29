@@ -72,13 +72,13 @@ impl ProcessTreeNode {
         if self.process_info.pid == pid {
             return Some(self);
         }
-        
+
         for child in &mut self.children {
             if let Some(node) = child.find_node_mut(pid) {
                 return Some(node);
             }
         }
-        
+
         None
     }
 
@@ -93,8 +93,7 @@ pub struct ProcessTreeIterator<'a> {
 
 impl<'a> ProcessTreeIterator<'a> {
     fn new(root: &'a ProcessTreeNode) -> Self {
-        let mut stack = Vec::new();
-        stack.push((root, 0));
+        let stack = vec![(root, 0)];
         Self { stack }
     }
 }
@@ -108,7 +107,7 @@ impl<'a> Iterator for ProcessTreeIterator<'a> {
             for child in node.children.iter().rev() {
                 self.stack.push((child, depth + 1));
             }
-            
+
             Some((&node.process_info, depth))
         } else {
             None
@@ -146,7 +145,9 @@ pub fn build_process_trees(processes: Vec<ProcessInfo>) -> Vec<ProcessTreeNode> 
 
         if let Some(child_pids) = children_map.get(&pid) {
             for &child_pid in child_pids {
-                if let Some(child_node) = build_tree_recursive(child_pid, process_map, children_map, depth + 1) {
+                if let Some(child_node) =
+                    build_tree_recursive(child_pid, process_map, children_map, depth + 1)
+                {
                     node.add_child(child_node);
                 }
             }
@@ -183,7 +184,7 @@ pub fn aggregate_bandwidth_by_tree(
     processes_map: &HashMap<ProcessInfo, crate::display::NetworkData>,
 ) -> HashMap<ProcessInfo, crate::display::NetworkData> {
     use crate::display::{Bandwidth, NetworkData};
-    
+
     let mut aggregated = HashMap::new();
 
     fn aggregate_recursive(
@@ -425,7 +426,7 @@ fn eperm_message() -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_process_info_new() {
         let proc_info = ProcessInfo::new("test_process", 1234);
@@ -433,7 +434,7 @@ mod tests {
         assert_eq!(proc_info.pid, 1234);
         assert_eq!(proc_info.parent_pid, None);
     }
-    
+
     #[test]
     fn test_process_info_with_parent() {
         let proc_info = ProcessInfo::with_parent("test_process", 1234, Some(5678));
@@ -441,28 +442,28 @@ mod tests {
         assert_eq!(proc_info.pid, 1234);
         assert_eq!(proc_info.parent_pid, Some(5678));
     }
-    
+
     #[test]
     fn test_build_process_trees_simple() {
         let processes = vec![
             ProcessInfo::with_parent("parent", 1, None),
             ProcessInfo::with_parent("child", 2, Some(1)),
         ];
-        
+
         let trees = build_process_trees(processes);
         assert_eq!(trees.len(), 1);
-        
+
         let root = &trees[0];
         assert_eq!(root.process_info.name, "parent");
         assert_eq!(root.process_info.pid, 1);
         assert_eq!(root.children.len(), 1);
-        
+
         let child = &root.children[0];
         assert_eq!(child.process_info.name, "child");
         assert_eq!(child.process_info.pid, 2);
         assert_eq!(child.children.len(), 0);
     }
-    
+
     #[test]
     fn test_build_process_trees_multiple_roots() {
         let processes = vec![
@@ -470,37 +471,37 @@ mod tests {
             ProcessInfo::with_parent("root2", 2, None),
             ProcessInfo::with_parent("child1", 3, Some(1)),
         ];
-        
+
         let trees = build_process_trees(processes);
         assert_eq!(trees.len(), 2);
-        
+
         // Find the root with children
         let tree_with_child = trees.iter().find(|t| !t.children.is_empty()).unwrap();
         assert_eq!(tree_with_child.process_info.name, "root1");
         assert_eq!(tree_with_child.children.len(), 1);
         assert_eq!(tree_with_child.children[0].process_info.name, "child1");
-        
+
         // Find the root without children
         let tree_without_child = trees.iter().find(|t| t.children.is_empty()).unwrap();
         assert_eq!(tree_without_child.process_info.name, "root2");
     }
-    
+
     #[test]
     fn test_build_process_trees_orphaned_processes() {
         let processes = vec![
             ProcessInfo::with_parent("orphan", 1, Some(999)), // Parent 999 doesn't exist
             ProcessInfo::with_parent("child", 2, Some(1)),
         ];
-        
+
         let trees = build_process_trees(processes);
         assert_eq!(trees.len(), 1);
-        
+
         let root = &trees[0];
         assert_eq!(root.process_info.name, "orphan");
         assert_eq!(root.children.len(), 1);
         assert_eq!(root.children[0].process_info.name, "child");
     }
-    
+
     #[test]
     fn test_process_tree_iterator() {
         let processes = vec![
@@ -509,13 +510,13 @@ mod tests {
             ProcessInfo::with_parent("child2", 3, Some(1)),
             ProcessInfo::with_parent("grandchild", 4, Some(2)),
         ];
-        
+
         let trees = build_process_trees(processes);
         assert_eq!(trees.len(), 1);
-        
+
         let root = &trees[0];
         let items: Vec<_> = root.iter_depth_first().collect();
-        
+
         // Should visit root, then child1, then grandchild, then child2
         assert_eq!(items.len(), 4);
         assert_eq!(items[0].0.name, "root");
@@ -527,18 +528,18 @@ mod tests {
         assert_eq!(items[3].0.name, "child2");
         assert_eq!(items[3].1, 1); // depth 1
     }
-    
+
     #[test]
     fn test_aggregate_bandwidth_by_tree() {
         use crate::display::NetworkData;
         use std::collections::HashMap;
-        
+
         // Create test processes
         let processes = vec![
             ProcessInfo::with_parent("parent", 1, None),
             ProcessInfo::with_parent("child", 2, Some(1)),
         ];
-        
+
         // Create bandwidth data
         let mut bandwidth_map = HashMap::new();
         bandwidth_map.insert(
@@ -557,18 +558,22 @@ mod tests {
                 connection_count: 2,
             },
         );
-        
+
         let trees = build_process_trees(processes);
         let aggregated = aggregate_bandwidth_by_tree(&trees, &bandwidth_map);
-        
+
         // Parent should have its own bandwidth + child's bandwidth
-        let parent_data = aggregated.get(&ProcessInfo::with_parent("parent", 1, None)).unwrap();
+        let parent_data = aggregated
+            .get(&ProcessInfo::with_parent("parent", 1, None))
+            .unwrap();
         assert_eq!(parent_data.total_bytes_downloaded, 300); // 100 + 200
         assert_eq!(parent_data.total_bytes_uploaded, 150); // 50 + 100
         assert_eq!(parent_data.connection_count, 2); // child's count (combined_bandwidth doesn't add connection_count for parent)
-        
+
         // Child should have only its own bandwidth
-        let child_data = aggregated.get(&ProcessInfo::with_parent("child", 2, Some(1))).unwrap();
+        let child_data = aggregated
+            .get(&ProcessInfo::with_parent("child", 2, Some(1)))
+            .unwrap();
         assert_eq!(child_data.total_bytes_downloaded, 200);
         assert_eq!(child_data.total_bytes_uploaded, 100);
         assert_eq!(child_data.connection_count, 2);

@@ -51,6 +51,6 @@ pub type Result<T> = std::result::Result<T, BandwhichError>;
 /// Convert from std::sync::PoisonError to BandwhichError
 impl<T> From<std::sync::PoisonError<T>> for BandwhichError {
     fn from(err: std::sync::PoisonError<T>) -> Self {
-        BandwhichError::LockPoisoned(format!("Mutex poisoned: {}", err))
+        BandwhichError::LockPoisoned(format!("Mutex poisoned: {err}"))
     }
 }

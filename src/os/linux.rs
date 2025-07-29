@@ -17,7 +17,11 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
             let Ok(fds) = process.fd() else { continue };
             let Ok(stat) = process.stat() else { continue };
             let proc_name = stat.comm;
-            let parent_pid = if stat.ppid > 0 { Some(stat.ppid as u32) } else { None };
+            let parent_pid = if stat.ppid > 0 {
+                Some(stat.ppid as u32)
+            } else {
+                None
+            };
             let proc_info = ProcessInfo::with_parent(&proc_name, stat.pid as u32, parent_pid);
             for fd in fds.filter_map(|res| res.ok()) {
                 if let FDTarget::Socket(inode) = fd.target {

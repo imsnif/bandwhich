@@ -266,7 +266,7 @@ impl Table {
         } else {
             "Utilization by process name"
         };
-        
+
         let width_cutoffs = vec![
             (0, D::C2([16, 18])),
             (50, D::C3([16, 12, 20])),
