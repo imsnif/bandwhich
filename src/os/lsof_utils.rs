@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, net::IpAddr, process::Command};
+use std::{collections::HashMap, ffi::OsStr, net::IpAddr, process::Command};
 
 use log::warn;
 use once_cell::sync::Lazy;
@@ -29,7 +29,7 @@ fn get_null_addr(ip_type: &str) -> &str {
 }
 
 impl RawConnection {
-    pub fn new(raw_line: &str) -> Option<RawConnection> {
+    pub fn new(raw_line: &str, parent_pids: &HashMap<u32, u32>) -> Option<RawConnection> {
         // Example row
         // com.apple   664     user  198u  IPv4 0xeb179a6650592b8d      0t0    TCP 192.168.1.187:58535->1.2.3.4:443 (ESTABLISHED)
         let columns: Vec<&str> = raw_line.split_ascii_whitespace().collect();
@@ -38,7 +38,8 @@ impl RawConnection {
         }
         let process_name = columns[0].replace("\\x20", " ");
         let pid = columns[1].parse().ok()?;
-        let proc_info = ProcessInfo::new(&process_name, pid);
+        let parent_pid = parent_pids.get(&pid).copied();
+        let proc_info = ProcessInfo::with_parent(&process_name, pid, parent_pid);
         // Unneeded
         // let username = columns[2];
         // let fd = columns[3];
@@ -139,9 +140,37 @@ impl RawConnection {
     }
 }
 
+fn get_parent_pids() -> HashMap<u32, u32> {
+    let output = Command::new("ps")
+        .args(["-eo", "pid,ppid"])
+        .output()
+        .unwrap_or_else(|_| std::process::Output {
+            stdout: Vec::new(),
+            stderr: Vec::new(),
+            status: std::process::ExitStatus::from_raw(1),
+        });
+
+    let content = String::from_utf8_lossy(&output.stdout);
+    let mut parent_map = HashMap::new();
+
+    for line in content.lines().skip(1) {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() >= 2 {
+            if let (Ok(pid), Ok(ppid)) = (parts[0].parse::<u32>(), parts[1].parse::<u32>()) {
+                if ppid > 0 {
+                    parent_map.insert(pid, ppid);
+                }
+            }
+        }
+    }
+
+    parent_map
+}
+
 pub fn get_connections() -> RawConnections {
     let content = run(["-n", "-P", "-i4", "-i6", "+c", "0"]);
-    RawConnections::new(content)
+    let parent_pids = get_parent_pids();
+    RawConnections::new(content, parent_pids)
 }
 
 fn run<I, S>(args: I) -> String
@@ -162,8 +191,11 @@ pub struct RawConnections {
 }
 
 impl RawConnections {
-    pub fn new(content: String) -> RawConnections {
-        let lines: Vec<RawConnection> = content.lines().flat_map(RawConnection::new).collect();
+    pub fn new(content: String, parent_pids: HashMap<u32, u32>) -> RawConnections {
+        let lines: Vec<RawConnection> = content
+            .lines()
+            .filter_map(|line| RawConnection::new(line, &parent_pids))
+            .collect();
 
         RawConnections { content: lines }
     }
@@ -192,7 +224,8 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
 
     #[test]
     fn test_iterator_multiline() {
-        let iterator = RawConnections::new(String::from(FULL_RAW_OUTPUT));
+        let parent_pids = HashMap::new();
+        let iterator = RawConnections::new(String::from(FULL_RAW_OUTPUT), parent_pids);
         let connections: Vec<RawConnection> = iterator.collect();
         assert_eq!(connections.len(), 4);
     }
@@ -206,13 +239,15 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
         test_raw_connection_is_created_from_raw_output(IPV6_LINE_RAW_OUTPUT);
     }
     fn test_raw_connection_is_created_from_raw_output(raw_output: &str) {
-        let connection = RawConnection::new(raw_output);
+        let parent_pids = HashMap::new();
+        let connection = RawConnection::new(raw_output, &parent_pids);
         assert!(connection.is_some());
     }
 
     #[test]
     fn test_raw_connection_is_not_created_from_wrong_raw_output() {
-        let connection = RawConnection::new("not a process");
+        let parent_pids = HashMap::new();
+        let connection = RawConnection::new("not a process", &parent_pids);
         assert!(connection.is_none());
     }
 
@@ -225,7 +260,8 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
         test_raw_connection_parse_local_port(IPV6_LINE_RAW_OUTPUT);
     }
     fn test_raw_connection_parse_local_port(raw_output: &str) {
-        let connection = RawConnection::new(raw_output).unwrap();
+        let parent_pids = HashMap::new();
+        let connection = RawConnection::new(raw_output, &parent_pids).unwrap();
         assert_eq!(connection.get_local_port(), Some(1111));
     }
 
@@ -238,7 +274,8 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
         test_raw_connection_parse_protocol(IPV6_LINE_RAW_OUTPUT);
     }
     fn test_raw_connection_parse_protocol(raw_line: &str) {
-        let connection = RawConnection::new(raw_line).unwrap();
+        let parent_pids = HashMap::new();
+        let connection = RawConnection::new(raw_line, &parent_pids).unwrap();
         assert_eq!(connection.get_protocol(), Some(Protocol::Udp));
     }
 
@@ -251,7 +288,8 @@ com.apple   590 etoledom  204u  IPv4 0x28ffb9c04111253f      0t0  TCP 192.168.1.
         test_raw_connection_parse_process_name(IPV6_LINE_RAW_OUTPUT);
     }
     fn test_raw_connection_parse_process_name(raw_line: &str) {
-        let connection = RawConnection::new(raw_line).unwrap();
+        let parent_pids = HashMap::new();
+        let connection = RawConnection::new(raw_line, &parent_pids).unwrap();
         assert_eq!(connection.proc_info.name, String::from("ProcessName"));
     }
 }

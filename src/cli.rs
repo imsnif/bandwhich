@@ -60,6 +60,10 @@ pub struct RenderOpts {
     #[arg(short, long)]
     /// Show total (cumulative) usages
     pub total_utilization: bool,
+
+    #[arg(long)]
+    /// Display processes in hierarchical tree view showing parent-child relationships
+    pub tree_view: bool,
 }
 
 // IMPRV: it would be nice if we can `#[cfg_attr(not(build), derive(strum::EnumIter))]` this

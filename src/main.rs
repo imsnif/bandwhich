@@ -1,7 +1,29 @@
+//! Bandwhich - Terminal bandwidth utilization tool
+//!
+//! This is the main entry point for bandwhich, a CLI utility for displaying
+//! current network utilization by process, connection and remote IP/hostname.
+//!
+//! # Architecture
+//!
+//! The application uses a multi-threaded architecture with three main components:
+//!
+//! 1. **Display Handler Thread**: Updates the terminal UI every second with current
+//!    network statistics. Handles both TUI and raw output modes.
+//!
+//! 2. **Terminal Event Handler Thread**: Processes keyboard input for interactive
+//!    controls (pause/resume, quit, tab to switch views).
+//!
+//! 3. **Sniffer Threads**: One per network interface, continuously captures packets
+//!    and updates shared network utilization statistics.
+//!
+//! All threads communicate through shared state protected by Arc<Mutex<_>> and
+//! Arc<RwLock<_>> for thread-safe access.
+
 #![deny(clippy::enum_glob_use)]
 
 mod cli;
 mod display;
+mod error;
 mod network;
 mod os;
 #[cfg(test)]
@@ -36,6 +58,7 @@ use simplelog::WriteLogger;
 use crate::cli::Opt;
 use crate::os::ProcessInfo;
 
+/// Refresh interval for the display thread - updates UI every second
 const DISPLAY_DELTA: Duration = Duration::from_millis(1000);
 
 fn main() -> eyre::Result<()> {
@@ -111,19 +134,22 @@ where
     let display_handler = thread::Builder::new()
         .name("display_handler".to_string())
         .spawn({
-            let running = running.clone();
-            let paused = paused.clone();
-            let table_cycle_offset = table_cycle_offset.clone();
+            let running = Arc::clone(&running);
+            let paused = Arc::clone(&paused);
+            let table_cycle_offset = Arc::clone(&table_cycle_offset);
 
-            let network_utilization = network_utilization.clone();
-            let last_start_time = last_start_time.clone();
-            let cumulative_time = cumulative_time.clone();
-            let ui = ui.clone();
+            let network_utilization = Arc::clone(&network_utilization);
+            let last_start_time = Arc::clone(&last_start_time);
+            let cumulative_time = Arc::clone(&cumulative_time);
+            let ui = Arc::clone(&ui);
 
             move || {
                 while running.load(Ordering::Acquire) {
                     let render_start_time = Instant::now();
-                    let utilization = network_utilization.lock().unwrap().clone_and_reset();
+                    let utilization = network_utilization
+                        .lock()
+                        .expect("network_utilization lock poisoned")
+                        .clone_and_reset();
                     let OpenSockets { sockets_to_procs } = get_open_sockets();
                     let mut ip_to_host = IpTable::new();
                     if let Some(dns_client) = dns_client.as_mut() {
@@ -137,15 +163,19 @@ where
                         dns_client.resolve(unresolved_ips);
                     }
                     {
-                        let mut ui = ui.lock().unwrap();
+                        let mut ui = ui.lock().expect("ui lock poisoned");
                         let paused = paused.load(Ordering::SeqCst);
                         let table_cycle_offset = table_cycle_offset.load(Ordering::SeqCst);
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
                         let elapsed_time = elapsed_time(
-                            *last_start_time.read().unwrap(),
-                            *cumulative_time.read().unwrap(),
+                            *last_start_time
+                                .read()
+                                .expect("last_start_time read lock poisoned"),
+                            *cumulative_time
+                                .read()
+                                .expect("cumulative_time read lock poisoned"),
                             paused,
                         );
 
@@ -161,22 +191,23 @@ where
                     }
                 }
                 if !raw_mode {
-                    let mut ui = ui.lock().unwrap();
-                    ui.end();
+                    if let Ok(mut ui) = ui.lock() {
+                        ui.end();
+                    }
                 }
             }
         })
-        .unwrap();
+        .expect("Failed to spawn display_handler thread");
 
     let terminal_event_handler = thread::Builder::new()
         .name("terminal_events_handler".to_string())
         .spawn({
-            let running = running.clone();
+            let running = Arc::clone(&running);
             let display_handler = display_handler.thread().clone();
 
             move || {
                 for evt in terminal_events {
-                    let mut ui = ui.lock().unwrap();
+                    let mut ui = ui.lock().expect("ui lock poisoned");
 
                     match evt {
                         Event::Resize(_x, _y) if !raw_mode => {
@@ -184,8 +215,12 @@ where
                             ui.draw(
                                 paused,
                                 elapsed_time(
-                                    *last_start_time.read().unwrap(),
-                                    *cumulative_time.read().unwrap(),
+                                    *last_start_time
+                                        .read()
+                                        .expect("last_start_time read lock poisoned"),
+                                    *cumulative_time
+                                        .read()
+                                        .expect("cumulative_time read lock poisoned"),
                                     paused,
                                 ),
                                 table_cycle_offset.load(Ordering::SeqCst),
@@ -225,13 +260,22 @@ where
                         }) => {
                             let restarting = paused.fetch_xor(true, Ordering::SeqCst);
                             if restarting {
-                                *last_start_time.write().unwrap() = Instant::now();
+                                *last_start_time
+                                    .write()
+                                    .expect("last_start_time write lock poisoned") = Instant::now();
                             } else {
-                                let last_start_time_copy = *last_start_time.read().unwrap();
-                                let current_cumulative_time_copy = *cumulative_time.read().unwrap();
+                                let last_start_time_copy = *last_start_time
+                                    .read()
+                                    .expect("last_start_time read lock poisoned");
+                                let current_cumulative_time_copy = *cumulative_time
+                                    .read()
+                                    .expect("cumulative_time read lock poisoned");
                                 let new_cumulative_time =
                                     current_cumulative_time_copy + last_start_time_copy.elapsed();
-                                *cumulative_time.write().unwrap() = new_cumulative_time;
+                                *cumulative_time
+                                    .write()
+                                    .expect("cumulative_time write lock poisoned") =
+                                    new_cumulative_time;
                             }
 
                             display_handler.unpark();
@@ -244,8 +288,12 @@ where
                         }) => {
                             let paused = paused.load(Ordering::SeqCst);
                             let elapsed_time = elapsed_time(
-                                *last_start_time.read().unwrap(),
-                                *cumulative_time.read().unwrap(),
+                                *last_start_time
+                                    .read()
+                                    .expect("last_start_time read lock poisoned"),
+                                *cumulative_time
+                                    .read()
+                                    .expect("cumulative_time read lock poisoned"),
                                 paused,
                             );
                             let table_count = ui.get_table_count();
@@ -258,7 +306,7 @@ where
                 }
             }
         })
-        .unwrap();
+        .expect("Failed to spawn terminal_event_handler thread");
 
     active_threads.push(display_handler);
     active_threads.push(terminal_event_handler);
@@ -268,9 +316,9 @@ where
         .into_iter()
         .map(|(iface, frames)| {
             let name = format!("sniffing_handler_{}", iface.name);
-            let running = running.clone();
+            let running = Arc::clone(&running);
             let show_dns = opts.show_dns;
-            let network_utilization = network_utilization.clone();
+            let network_utilization = Arc::clone(&network_utilization);
 
             thread::Builder::new()
                 .name(name)
@@ -279,16 +327,19 @@ where
 
                     while running.load(Ordering::Acquire) {
                         if let Some(segment) = sniffer.next() {
-                            network_utilization.lock().unwrap().ingest(segment);
+                            network_utilization
+                                .lock()
+                                .expect("network_utilization lock poisoned")
+                                .ingest(segment);
                         }
                     }
                 })
-                .unwrap()
+                .expect("Failed to spawn sniffer thread")
         })
         .collect::<Vec<_>>();
     active_threads.extend(sniffer_threads);
 
     for thread_handler in active_threads {
-        thread_handler.join().unwrap()
+        thread_handler.join().expect("Failed to join thread")
     }
 }
