@@ -10,7 +10,7 @@ use log::warn;
 use crate::{
     display::BandwidthUnitFamily,
     network::{Connection, LocalSocket, Utilization},
-    os::ProcessInfo,
+    os::{aggregate_bandwidth_by_tree, build_process_trees, ProcessInfo, ProcessTreeNode},
 };
 
 static RECALL_LENGTH: usize = 5;
@@ -89,11 +89,14 @@ pub struct UIState {
     pub total_bytes_uploaded: u128,
     pub cumulative_mode: bool,
     pub show_dns: bool,
+    pub tree_view: bool,
     pub unit_family: BandwidthUnitFamily,
     pub utilization_data: VecDeque<UtilizationData>,
     pub processes_map: HashMap<ProcessInfo, NetworkData>,
     pub remote_addresses_map: HashMap<IpAddr, NetworkData>,
     pub connections_map: HashMap<Connection, ConnectionData>,
+    pub process_trees: Vec<ProcessTreeNode>,
+    pub aggregated_processes_map: HashMap<ProcessInfo, NetworkData>,
     /// Used for reducing logging noise.
     known_orphan_sockets: VecDeque<LocalSocket>,
 }
@@ -224,6 +227,16 @@ impl UIState {
         self.processes = sort_and_prune(&mut self.processes_map);
         self.remote_addresses = sort_and_prune(&mut self.remote_addresses_map);
         self.connections = sort_and_prune(&mut self.connections_map);
+
+        // Build process trees if tree view is enabled
+        if self.tree_view {
+            let all_processes: Vec<ProcessInfo> = self.processes_map.keys().cloned().collect();
+            self.process_trees = build_process_trees(all_processes);
+
+            // Aggregate bandwidth by process tree
+            self.aggregated_processes_map =
+                aggregate_bandwidth_by_tree(&self.process_trees, &self.processes_map);
+        }
     }
 }
 

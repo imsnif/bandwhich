@@ -25,7 +25,14 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
                 .associated_pids
                 .into_iter()
                 .find_map(|pid| sysinfo.process(Pid::from_u32(pid)))
-                .map(|p| ProcessInfo::new(&p.name().to_string_lossy(), p.pid().as_u32()))
+                .map(|p| {
+                    let parent_pid = p.parent().map(|ppid| ppid.as_u32());
+                    ProcessInfo::with_parent(
+                        &p.name().to_string_lossy(),
+                        p.pid().as_u32(),
+                        parent_pid,
+                    )
+                })
                 .unwrap_or_default();
 
             match si.protocol_socket_info {

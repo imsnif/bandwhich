@@ -28,15 +28,16 @@ where
     B: Backend,
 {
     pub fn new(terminal_backend: B, opts: &Opt) -> Self {
-        let mut terminal = Terminal::new(terminal_backend).unwrap();
-        terminal.clear().unwrap();
-        terminal.hide_cursor().unwrap();
+        let mut terminal = Terminal::new(terminal_backend).expect("Failed to create terminal");
+        terminal.clear().expect("Failed to clear terminal");
+        terminal.hide_cursor().expect("Failed to hide cursor");
         let state = {
             let mut state = UIState::default();
             state.interface_name.clone_from(&opts.interface);
             state.unit_family = opts.render_opts.unit_family.into();
             state.cumulative_mode = opts.render_opts.total_utilization;
             state.show_dns = opts.show_dns;
+            state.tree_view = opts.render_opts.tree_view;
             state
         };
         Ui {
@@ -140,9 +141,9 @@ where
                 show_dns: self.state.show_dns,
             },
         };
-        self.terminal
-            .draw(|frame| layout.render(frame, frame.area(), table_cycle_offset))
-            .unwrap();
+        let _ = self
+            .terminal
+            .draw(|frame| layout.render(frame, frame.area(), table_cycle_offset));
     }
 
     fn get_tables_to_display(&self) -> Vec<Table> {
@@ -187,6 +188,6 @@ where
         self.ip_to_host.extend(ip_to_host);
     }
     pub fn end(&mut self) {
-        self.terminal.show_cursor().unwrap();
+        let _ = self.terminal.show_cursor();
     }
 }

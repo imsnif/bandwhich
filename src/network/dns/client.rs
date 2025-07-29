@@ -14,6 +14,8 @@ use crate::network::dns::{resolver::Lookup, IpTable};
 
 type PendingAddrs = HashSet<IpAddr>;
 
+/// Size of the channel buffer for DNS resolution requests
+/// Large enough to handle bursts of new connections without blocking
 const CHANNEL_SIZE: usize = 1_000;
 
 pub struct Client {
@@ -48,9 +50,9 @@ impl Client {
 
                                 async move {
                                     if let Some(name) = resolver.lookup(ip).await {
-                                        cache.lock().unwrap().insert(ip, name);
+                                        cache.lock().expect("cache lock poisoned").insert(ip, name);
                                     }
-                                    pending.lock().unwrap().remove(&ip);
+                                    pending.lock().expect("pending lock poisoned").remove(&ip);
                                 }
                             });
                         }
@@ -71,17 +73,22 @@ impl Client {
         // Remove ips that are already being resolved
         let ips = ips
             .into_iter()
-            .filter(|ip| self.pending.lock().unwrap().insert(*ip))
+            .filter(|ip| {
+                self.pending
+                    .lock()
+                    .expect("pending lock poisoned")
+                    .insert(*ip)
+            })
             .collect::<Vec<_>>();
 
         if !ips.is_empty() {
             // Discard the message if the channel is full; it will be retried eventually
-            let _ = self.tx.as_mut().unwrap().try_send(ips);
+            let _ = self.tx.as_mut().expect("tx should be Some").try_send(ips);
         }
     }
 
     pub fn cache(&mut self) -> IpTable {
-        let cache = self.cache.lock().unwrap();
+        let cache = self.cache.lock().expect("cache lock poisoned");
         cache.clone()
     }
 }
@@ -89,7 +96,9 @@ impl Client {
 impl Drop for Client {
     fn drop(&mut self) {
         // Do the Option dance to be able to drop the sender so that the receiver finishes and the thread can be joined
-        drop(self.tx.take().unwrap());
-        self.handle.take().unwrap().join().unwrap();
+        drop(self.tx.take().expect("tx should be Some"));
+        if let Some(handle) = self.handle.take() {
+            let _ = handle.join();
+        }
     }
 }

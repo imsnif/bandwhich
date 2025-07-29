@@ -261,7 +261,12 @@ impl Table {
     pub fn create_processes_table(state: &UIState) -> Self {
         use DisplayLayout as D;
 
-        let title = "Utilization by process name";
+        let title = if state.tree_view {
+            "Utilization by process tree"
+        } else {
+            "Utilization by process name"
+        };
+
         let width_cutoffs = vec![
             (0, D::C2([16, 18])),
             (50, D::C3([16, 12, 20])),
@@ -279,22 +284,50 @@ impl Table {
                 "Rate (Up / Down)"
             },
         ];
-        let rows = state
-            .processes
-            .iter()
-            .map(|(proc_info, data_for_process)| {
-                [
-                    proc_info.name.to_string(),
-                    proc_info.pid.to_string(),
-                    data_for_process.connection_count.to_string(),
-                    display_upload_and_download(
-                        data_for_process,
-                        state.unit_family,
-                        state.cumulative_mode,
-                    ),
-                ]
-            })
-            .collect();
+
+        let rows = if state.tree_view {
+            // Build hierarchical process list from process trees using aggregated data
+            let mut tree_rows = Vec::new();
+            for tree in &state.process_trees {
+                for (proc_info, depth) in tree.iter_depth_first() {
+                    // Use aggregated data which includes children's bandwidth
+                    if let Some(data_for_process) = state.aggregated_processes_map.get(proc_info) {
+                        let indent = "  ".repeat(depth);
+                        let process_name = format!("{}{}", indent, proc_info.name);
+                        tree_rows.push([
+                            process_name,
+                            proc_info.pid.to_string(),
+                            data_for_process.connection_count.to_string(),
+                            display_upload_and_download(
+                                data_for_process,
+                                state.unit_family,
+                                state.cumulative_mode,
+                            ),
+                        ]);
+                    }
+                }
+            }
+            tree_rows
+        } else {
+            // Regular flat process list
+            state
+                .processes
+                .iter()
+                .map(|(proc_info, data_for_process)| {
+                    [
+                        proc_info.name.to_string(),
+                        proc_info.pid.to_string(),
+                        data_for_process.connection_count.to_string(),
+                        display_upload_and_download(
+                            data_for_process,
+                            state.unit_family,
+                            state.cumulative_mode,
+                        ),
+                    ]
+                })
+                .collect()
+        };
+
         let column_selector = Rc::new(|layout: &D| match layout {
             D::C2(_) => vec![0, 3],
             D::C3(_) => vec![0, 2, 3],

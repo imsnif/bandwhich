@@ -1,3 +1,15 @@
+//! Operating system specific functionality
+//!
+//! This module provides platform-specific implementations for:
+//! - Mapping network sockets to processes
+//! - Terminal event handling
+//! - Network interface discovery
+//!
+//! Supported platforms:
+//! - Linux/Android: Uses /proc filesystem
+//! - macOS/FreeBSD: Uses lsof command
+//! - Windows: Uses Windows APIs
+
 #[cfg(any(target_os = "android", target_os = "linux"))]
 mod linux;
 

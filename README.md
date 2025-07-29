@@ -184,9 +184,18 @@ Options:
   -a, --addresses                  Show remote addresses table only
   -u, --unit-family <UNIT_FAMILY>  Choose a specific family of units [default: bin-bytes] [possible values: bin-bytes, bin-bits, si-bytes, si-bits]
   -t, --total-utilization          Show total (cumulative) usages
+      --tree-view                  Display processes in hierarchical tree view showing parent-child relationships
   -h, --help                       Print help (see more with '--help')
   -V, --version                    Print version
 ```
+
+### Process Tree View
+
+The `--tree-view` flag enables hierarchical process visualization, showing parent-child relationships between processes. This is particularly useful for understanding which services or daemons are responsible for network activity, and for visualizing complex applications with multiple child processes. When enabled:
+
+- Processes are displayed in a tree structure with indentation showing the hierarchy
+- Bandwidth usage is aggregated up the tree (parent processes show their own usage plus their children's)
+- Each process shows its own PID and its relationship to other processes
 
 ## Contributing
 
