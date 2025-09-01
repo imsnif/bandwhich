@@ -26,10 +26,10 @@ default = []
 ui_test = []
 
 [dependencies]
-async-trait = "0.1.88"
+async-trait = "0.1.89"
 chrono = "0.4"
-clap-verbosity-flag = "3.0.3"
-clap = { version = "4.5.41", features = ["derive"] }
+clap-verbosity-flag = "3.0.4"
+clap = { version = "4.5.46", features = ["derive"] }
 crossterm = "0.29.0"
 derive_more = { version = "2.0.1", features = ["debug"] }
 eyre = "0.6.12"
@@ -41,42 +41,42 @@ pnet_macros_support = "0.35.0"
 ratatui = "0.29.0"
 resolv-conf = "0.7.4"
 simplelog = "0.12.2"
-thiserror = "2.0.12"
-tokio = { version = "1.46", features = ["rt", "sync"] }
+thiserror = "2.0.16"
+tokio = { version = "1.47", features = ["rt", "sync"] }
 trust-dns-resolver = "0.23.2"
 unicode-width = "0.2.0"
-strum = { version = "0.27.1", features = ["derive"] }
+strum = { version = "0.27.2", features = ["derive"] }
 
 
 [target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
-procfs = "0.17.0"
+procfs = "0.18.0"
 
 [target.'cfg(any(target_os = "macos", target_os = "freebsd"))'.dependencies]
-regex = "1.11.1"
+regex = "1.11.2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-netstat2 = "0.11.1"
-sysinfo = "0.35.2"
+netstat2 = "0.11.2"
+sysinfo = "0.37.0"
 
 [dev-dependencies]
 insta = "1.43.1"
 packet-builder = { version = "0.7.0", git = "https://github.com/cyqsimon/packet_builder.git", branch = "patch-pnet-0.35" }
 pnet_base = "0.35.0"
-regex = "1.11.1"
-rstest = "0.25.0"
+regex = "1.11.2"
+rstest = "0.26.1"
 
 [build-dependencies]
-clap = { version = "4.5.41", features = ["derive"] }
-clap-verbosity-flag = "3.0.3"
-clap_complete = "4.5.55"
-clap_mangen = "0.2.28"
+clap = { version = "4.5.46", features = ["derive"] }
+clap-verbosity-flag = "3.0.4"
+clap_complete = "4.5.57"
+clap_mangen = "0.2.29"
 derive_more = { version = "2.0.1", features = ["debug"] }
 eyre = "0.6.12"
-strum = { version = "0.27.1", features = ["derive"] }
+strum = { version = "0.27.2", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
-http_req = "0.14.0"
-zip = "2.4.2"
+http_req = "0.14.1"
+zip = "4.6.0"
 
 [profile.release]
 codegen-units = 1
