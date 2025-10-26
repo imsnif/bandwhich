@@ -1,10 +1,10 @@
 use std::{
-    io::{self, ErrorKind, Write},
+    io::{self, BufRead, ErrorKind, Write},
     net::Ipv4Addr,
     time,
 };
 
-use crossterm::event::{read, Event};
+use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use eyre::{bail, eyre};
 use itertools::Itertools;
 use log::{debug, warn};
@@ -41,6 +41,42 @@ impl Iterator for TerminalEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
         read().ok()
+    }
+}
+
+pub struct StdinEvents {
+    stdin: io::Stdin,
+}
+
+impl StdinEvents {
+    pub fn new() -> Self {
+        Self { stdin: io::stdin() }
+    }
+}
+
+impl Iterator for StdinEvents {
+    type Item = Event;
+    fn next(&mut self) -> Option<Event> {
+        let mut line = String::new();
+        match self.stdin.lock().read_line(&mut line) {
+            Ok(0) => None, // EOF
+            Ok(_) => {
+                let trimmed = line.trim();
+                if trimmed == "stop" {
+                    // Return a Ctrl+C event to trigger shutdown
+                    Some(Event::Key(KeyEvent {
+                        code: KeyCode::Char('c'),
+                        modifiers: KeyModifiers::CONTROL,
+                        kind: KeyEventKind::Press,
+                        state: crossterm::event::KeyEventState::empty(),
+                    }))
+                } else {
+                    // Continue reading, return a dummy event that won't trigger anything
+                    self.next()
+                }
+            }
+            Err(_) => None,
+        }
     }
 }
 
@@ -96,6 +132,7 @@ pub fn get_input(
     interface_name: Option<&str>,
     resolve: bool,
     dns_server: Option<Ipv4Addr>,
+    raw_mode: bool,
 ) -> eyre::Result<OsInputOutput> {
     // get the user's requested interface, if any
     // IDEA: allow requesting multiple interfaces
@@ -207,10 +244,16 @@ pub fn get_input(
 
     let write_to_stdout = create_write_to_stdout();
 
+    let terminal_events: Box<dyn Iterator<Item = Event> + Send> = if raw_mode {
+        Box::new(StdinEvents::new())
+    } else {
+        Box::new(TerminalEvents)
+    };
+
     Ok(OsInputOutput {
         interfaces_with_frames,
         get_open_sockets,
-        terminal_events: Box::new(TerminalEvents),
+        terminal_events,
         dns_client,
         write_to_stdout,
     })
