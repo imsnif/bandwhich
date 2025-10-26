@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Fixed
 
-* Stop the program in raw mode if we receive "stop" in stdin - @sigmasd
+* Stop the program in raw mode if we receive "stop" in stdin #478 - @sigmasd
 * Update CONTRIBUTING information #438 - @YJDoc2 @cyqsimon
 * Fix new clippy lint #457 - @cyqsimon
 * Apply new clippy lints #468 - @cyqsimon
