@@ -54,7 +54,12 @@ fn main() -> eyre::Result<()> {
         )?;
     }
 
-    let os_input = os::get_input(opts.interface.as_deref(), !opts.no_resolve, opts.dns_server)?;
+    let os_input = os::get_input(
+        opts.interface.as_deref(),
+        !opts.no_resolve,
+        opts.dns_server,
+        opts.raw,
+    )?;
     if opts.raw {
         let terminal_backend = RawTerminalBackend {};
         start(terminal_backend, os_input, opts);

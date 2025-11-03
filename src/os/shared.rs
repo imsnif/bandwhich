@@ -1,10 +1,12 @@
 use std::{
-    io::{self, ErrorKind, Write},
+    io::{self, BufRead, BufReader, ErrorKind, Write},
     net::Ipv4Addr,
-    time,
+    sync::mpsc::{channel, Receiver},
+    thread,
+    time::{self, Duration},
 };
 
-use crossterm::event::{read, Event};
+use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use eyre::{bail, eyre};
 use itertools::Itertools;
 use log::{debug, warn};
@@ -41,6 +43,69 @@ impl Iterator for TerminalEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
         read().ok()
+    }
+}
+
+pub struct StdinEvents {
+    receiver: Receiver<Option<Event>>,
+}
+
+impl StdinEvents {
+    pub fn new() -> Self {
+        let (sender, receiver) = channel();
+
+        // Spawn a thread to read from stdin
+        thread::spawn(move || {
+            let stdin = io::stdin();
+            let reader = BufReader::new(stdin);
+
+            for line in reader.lines() {
+                match line {
+                    Ok(text) => {
+                        let trimmed = text.trim();
+                        if trimmed == "q" {
+                            // Send a 'q' key press event to trigger shutdown
+                            let event = Some(Event::Key(KeyEvent {
+                                code: KeyCode::Char('q'),
+                                modifiers: KeyModifiers::NONE,
+                                kind: KeyEventKind::Press,
+                                state: crossterm::event::KeyEventState::empty(),
+                            }));
+                            if sender.send(event).is_err() {
+                                break;
+                            }
+                        }
+                        // For other input, just ignore and continue reading
+                    }
+                    Err(_) => {
+                        // Error reading, send None to signal EOF
+                        let _ = sender.send(None);
+                        break;
+                    }
+                }
+            }
+            // EOF reached, send None
+            let _ = sender.send(None);
+        });
+
+        Self { receiver }
+    }
+}
+
+impl Iterator for StdinEvents {
+    type Item = Event;
+    fn next(&mut self) -> Option<Event> {
+        // Try to receive with a timeout to avoid blocking forever
+        match self.receiver.recv_timeout(Duration::from_millis(100)) {
+            Ok(Some(event)) => Some(event),
+            Ok(None) => None, // EOF
+            Err(_) => {
+                // Timeout or channel error, just try again next time
+                // Return a dummy resize event to keep the loop going
+                // This won't trigger any action in raw mode
+                self.next()
+            }
+        }
     }
 }
 
@@ -96,6 +161,7 @@ pub fn get_input(
     interface_name: Option<&str>,
     resolve: bool,
     dns_server: Option<Ipv4Addr>,
+    raw_mode: bool,
 ) -> eyre::Result<OsInputOutput> {
     // get the user's requested interface, if any
     // IDEA: allow requesting multiple interfaces
@@ -207,10 +273,16 @@ pub fn get_input(
 
     let write_to_stdout = create_write_to_stdout();
 
+    let terminal_events: Box<dyn Iterator<Item = Event> + Send> = if raw_mode {
+        Box::new(StdinEvents::new())
+    } else {
+        Box::new(TerminalEvents)
+    };
+
     Ok(OsInputOutput {
         interfaces_with_frames,
         get_open_sockets,
-        terminal_events: Box::new(TerminalEvents),
+        terminal_events,
         dns_client,
         write_to_stdout,
     })
