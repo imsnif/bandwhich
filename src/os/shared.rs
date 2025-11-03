@@ -1,7 +1,9 @@
 use std::{
-    io::{self, BufRead, ErrorKind, Write},
+    io::{self, BufRead, BufReader, ErrorKind, Write},
     net::Ipv4Addr,
-    time,
+    sync::mpsc::{channel, Receiver},
+    thread,
+    time::{self, Duration},
 };
 
 use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
@@ -45,37 +47,64 @@ impl Iterator for TerminalEvents {
 }
 
 pub struct StdinEvents {
-    stdin: io::Stdin,
+    receiver: Receiver<Option<Event>>,
 }
 
 impl StdinEvents {
     pub fn new() -> Self {
-        Self { stdin: io::stdin() }
+        let (sender, receiver) = channel();
+
+        // Spawn a thread to read from stdin
+        thread::spawn(move || {
+            let stdin = io::stdin();
+            let reader = BufReader::new(stdin);
+
+            for line in reader.lines() {
+                match line {
+                    Ok(text) => {
+                        let trimmed = text.trim();
+                        if trimmed == "q" {
+                            // Send a 'q' key press event to trigger shutdown
+                            let event = Some(Event::Key(KeyEvent {
+                                code: KeyCode::Char('q'),
+                                modifiers: KeyModifiers::NONE,
+                                kind: KeyEventKind::Press,
+                                state: crossterm::event::KeyEventState::empty(),
+                            }));
+                            if sender.send(event).is_err() {
+                                break;
+                            }
+                        }
+                        // For other input, just ignore and continue reading
+                    }
+                    Err(_) => {
+                        // Error reading, send None to signal EOF
+                        let _ = sender.send(None);
+                        break;
+                    }
+                }
+            }
+            // EOF reached, send None
+            let _ = sender.send(None);
+        });
+
+        Self { receiver }
     }
 }
 
 impl Iterator for StdinEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
-        let mut line = String::new();
-        match self.stdin.lock().read_line(&mut line) {
-            Ok(0) => None, // EOF
-            Ok(_) => {
-                let trimmed = line.trim();
-                if trimmed == "stop" {
-                    // Return a Ctrl+C event to trigger shutdown
-                    Some(Event::Key(KeyEvent {
-                        code: KeyCode::Char('c'),
-                        modifiers: KeyModifiers::CONTROL,
-                        kind: KeyEventKind::Press,
-                        state: crossterm::event::KeyEventState::empty(),
-                    }))
-                } else {
-                    // Continue reading, return a dummy event that won't trigger anything
-                    self.next()
-                }
+        // Try to receive with a timeout to avoid blocking forever
+        match self.receiver.recv_timeout(Duration::from_millis(100)) {
+            Ok(Some(event)) => Some(event),
+            Ok(None) => None, // EOF
+            Err(_) => {
+                // Timeout or channel error, just try again next time
+                // Return a dummy resize event to keep the loop going
+                // This won't trigger any action in raw mode
+                self.next()
             }
-            Err(_) => None,
         }
     }
 }

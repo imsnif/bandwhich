@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Added
 
-* Stop the program in raw mode if we receive "stop" in stdin #478 - @sigmaSd
+* Stop the program in raw mode if we receive "q" in stdin #478 - @sigmaSd
 
 ### Fixed
 
