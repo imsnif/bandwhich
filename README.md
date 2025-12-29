@@ -163,7 +163,8 @@ To overcome this, you can do any one of the following:
 
 ## Post install (Windows)
 
-You might need to first install [npcap](https://npcap.com/#download) for capturing packets on Windows.
+You might need to first install [npcap](https://npcap.com/#download) for capturing packets on Windows. 
+When installing Npcap, choose the non-default option "Install Npcap in WinPcap API-compatible Mode." Otherwise, you'll get errors that state packet.dll missing.
 
 ## Usage
 
