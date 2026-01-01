@@ -98,7 +98,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -113,7 +113,7 @@ jobs:
         # This is fixed on `main` but not yet released. To avoid a breakage somewhen in the future
         # pin the cross revision used to the latest HEAD at 04/2024.
         # Go back to taiki-e/install-action once cross 0.3 is released.
-        uses: taiki-e/cache-cargo-install-action@v2
+        uses: taiki-e/cache-cargo-install-action@v3
         with:
           tool: cross
           git: https://github.com/cross-rs/cross.git

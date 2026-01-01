@@ -28,7 +28,7 @@ jobs:
     # allow dependabot PRs to have no changelog
     if: ${{ needs.get-submitter.outputs.submitter != 'dependabot[bot]' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Fetch PR base
         run: git fetch --no-tags --prune --depth=1 origin
