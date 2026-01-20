@@ -16,7 +16,7 @@ jobs:
         run: sudo apt-get install -y ripgrep
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get MSRV
         id: get_msrv
@@ -35,7 +35,7 @@ jobs:
           - nightly
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -111,7 +111,7 @@ jobs:
             target: x86_64-pc-windows-msvc
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -133,7 +133,7 @@ jobs:
         # This is fixed on `main` but not yet released. To avoid a breakage somewhen in the future
         # pin the cross revision used to the latest HEAD at 04/2024. 
         # Go back to taiki-e/install-action once cross 0.3 is released.
-        uses: taiki-e/cache-cargo-install-action@v2
+        uses: taiki-e/cache-cargo-install-action@v3
         with:
           tool: cross
           git: https://github.com/cross-rs/cross.git
@@ -182,14 +182,14 @@ jobs:
 
       - name: Upload snapshots of failed tests
         if: ${{ failure() && steps.run_tests.outcome == 'failure' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.os }}-${{ matrix.rust }}-failed_snapshots
           path: '**/*.snap.new'
 
       - name: Upload binaries
         if: ${{ success() || steps.build.outcome == 'success' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.target }}-${{ matrix.rust }}
           path: |
