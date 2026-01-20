@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+* Add hierarchical process tree view feature #1 - @wezm
+
 ### Fixed
 
 * Update CONTRIBUTING information #438 - @YJDoc2 @cyqsimon

@@ -1,1 +1,6 @@
 target/
+CLAUDE.md
+
+# macOS resource fork files
+._*
+.DS_Store
