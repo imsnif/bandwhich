@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+* Stop the program in raw mode if we receive "q" in stdin #478 - @sigmaSd
+
 ### Fixed
 
 * Update CONTRIBUTING information #438 - @YJDoc2 @cyqsimon
