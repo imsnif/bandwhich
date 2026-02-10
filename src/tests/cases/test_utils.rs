@@ -25,8 +25,8 @@ use crate::{
 pub fn sleep_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
     let events = iter::repeat_n(None, sleep_num)
         .chain([Some(Event::Key(KeyEvent::new(
-            KeyCode::Char('c'),
-            KeyModifiers::CONTROL,
+            KeyCode::Char('q'),
+            KeyModifiers::NONE,
         )))])
         .collect();
     Box::new(TerminalEvents::new(events))
@@ -37,8 +37,8 @@ pub fn sleep_resize_and_quit_events(sleep_num: usize) -> Box<TerminalEvents> {
         .chain([
             Some(Event::Resize(100, 100)),
             Some(Event::Key(KeyEvent::new(
-                KeyCode::Char('c'),
-                KeyModifiers::CONTROL,
+                KeyCode::Char('q'),
+                KeyModifiers::NONE,
             ))),
         ])
         .collect();

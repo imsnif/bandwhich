@@ -96,6 +96,16 @@ where
     let cumulative_time = Arc::new(RwLock::new(Duration::new(0, 0)));
     let table_cycle_offset = Arc::new(AtomicUsize::new(0));
 
+    // handle SIGINT properly instead of as a keypress
+    // see https://github.com/imsnif/bandwhich/issues/487
+    {
+        let running = running.clone();
+        ctrlc::set_handler(move || {
+            running.store(false, Ordering::Release);
+        })
+        .expect("failed to set SIGINT handler");
+    }
+
     let mut active_threads = vec![];
 
     let terminal_events = os_input.terminal_events;
@@ -192,12 +202,6 @@ where
                             );
                         }
                         Event::Key(KeyEvent {
-                            modifiers: KeyModifiers::CONTROL,
-                            code: KeyCode::Char('c'),
-                            kind: KeyEventKind::Press,
-                            ..
-                        })
-                        | Event::Key(KeyEvent {
                             modifiers: KeyModifiers::NONE,
                             code: KeyCode::Char('q'),
                             kind: KeyEventKind::Press,

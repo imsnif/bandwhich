@@ -31,6 +31,7 @@ chrono = "0.4"
 clap-verbosity-flag = "3.0.3"
 clap = { version = "4.5.41", features = ["derive"] }
 crossterm = "0.29.0"
+ctrlc = "3.4"
 derive_more = { version = "2.0.1", features = ["debug"] }
 eyre = "0.6.12"
 itertools = "0.14.0"
