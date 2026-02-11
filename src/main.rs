@@ -70,6 +70,11 @@ fn main() -> eyre::Result<()> {
         let _ = crossterm::execute!(&mut stdout, terminal::EnterAlternateScreen);
         let terminal_backend = CrosstermBackend::new(stdout);
         start(terminal_backend, os_input, opts);
+
+        // Ensure terminal is restored after exit (handles SIGINT case).
+        // These operations are idempotent, so safe to call even if 'q' already cleaned up.
+        let _ = terminal::disable_raw_mode();
+        let _ = crossterm::execute!(std::io::stdout(), terminal::LeaveAlternateScreen);
     }
     Ok(())
 }
@@ -95,6 +100,17 @@ where
     let last_start_time = Arc::new(RwLock::new(Instant::now()));
     let cumulative_time = Arc::new(RwLock::new(Duration::new(0, 0)));
     let table_cycle_offset = Arc::new(AtomicUsize::new(0));
+
+    // handle SIGINT properly instead of as a keypress
+    // see https://github.com/imsnif/bandwhich/issues/487
+    #[cfg(not(test))]
+    {
+        let running = running.clone();
+        ctrlc::set_handler(move || {
+            running.store(false, Ordering::Release);
+        })
+        .expect("failed to set SIGINT handler");
+    }
 
     let mut active_threads = vec![];
 
@@ -175,7 +191,11 @@ where
             let display_handler = display_handler.thread().clone();
 
             move || {
-                for evt in terminal_events {
+                let mut terminal_events = terminal_events;
+                while running.load(Ordering::Acquire) {
+                    let Some(evt) = terminal_events.next() else {
+                        continue;
+                    };
                     let mut ui = ui.lock().unwrap();
 
                     match evt {
@@ -192,12 +212,6 @@ where
                             );
                         }
                         Event::Key(KeyEvent {
-                            modifiers: KeyModifiers::CONTROL,
-                            code: KeyCode::Char('c'),
-                            kind: KeyEventKind::Press,
-                            ..
-                        })
-                        | Event::Key(KeyEvent {
                             modifiers: KeyModifiers::NONE,
                             code: KeyCode::Char('q'),
                             kind: KeyEventKind::Press,
