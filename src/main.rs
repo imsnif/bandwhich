@@ -98,6 +98,7 @@ where
 
     // handle SIGINT properly instead of as a keypress
     // see https://github.com/imsnif/bandwhich/issues/487
+    #[cfg(not(test))]
     {
         let running = running.clone();
         ctrlc::set_handler(move || {
