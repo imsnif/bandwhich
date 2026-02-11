@@ -13,7 +13,7 @@ use crate::{
     os::ProcessInfo,
 };
 
-static RECALL_LENGTH: usize = 5;
+static RECALL_LENGTH: usize = 100;
 static MAX_BANDWIDTH_ITEMS: usize = 1000;
 
 pub trait Bandwidth {
@@ -224,6 +224,28 @@ impl UIState {
         self.processes = sort_and_prune(&mut self.processes_map);
         self.remote_addresses = sort_and_prune(&mut self.remote_addresses_map);
         self.connections = sort_and_prune(&mut self.connections_map);
+    }
+
+    pub fn process_bandwidth_history(&self, proc_info: &ProcessInfo) -> Vec<(u128, u128)> {
+        let mut history = Vec::with_capacity(self.utilization_data.len());
+        for state in self.utilization_data.iter() {
+            let mut total_uploaded = 0_u128;
+            let mut total_downloaded = 0_u128;
+            for (connection, connection_info) in &state.network_utilization.connections {
+                let local_socket = connection.local_socket;
+                let owner = get_proc_info(&state.connections_to_procs, &local_socket);
+                let matches = match owner {
+                    Some(owner) => owner == proc_info,
+                    None => proc_info.name == "<UNKNOWN>" && proc_info.pid == 0,
+                };
+                if matches {
+                    total_uploaded += connection_info.total_bytes_uploaded;
+                    total_downloaded += connection_info.total_bytes_downloaded;
+                }
+            }
+            history.push((total_uploaded, total_downloaded));
+        }
+        history
     }
 }
 
