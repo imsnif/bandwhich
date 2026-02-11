@@ -1,10 +1,10 @@
 use std::{
     io::{self, ErrorKind, Write},
     net::Ipv4Addr,
-    time,
+    time::{self, Duration},
 };
 
-use crossterm::event::{read, Event};
+use crossterm::event::{poll, read, Event};
 use eyre::{bail, eyre};
 use itertools::Itertools;
 use log::{debug, warn};
@@ -35,12 +35,22 @@ impl ProcessInfo {
     }
 }
 
+/// Poll timeout for terminal events.
+/// This allows the event loop to periodically check the `running` flag
+/// for graceful shutdown on SIGINT.
+const POLL_TIMEOUT: Duration = Duration::from_millis(100);
+
 pub struct TerminalEvents;
 
 impl Iterator for TerminalEvents {
     type Item = Event;
     fn next(&mut self) -> Option<Event> {
-        read().ok()
+        // Poll with timeout instead of blocking read to allow
+        // the caller to check for shutdown signals
+        match poll(POLL_TIMEOUT) {
+            Ok(true) => read().ok(),
+            Ok(false) | Err(_) => None,
+        }
     }
 }
 

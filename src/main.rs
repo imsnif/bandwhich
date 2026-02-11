@@ -70,6 +70,11 @@ fn main() -> eyre::Result<()> {
         let _ = crossterm::execute!(&mut stdout, terminal::EnterAlternateScreen);
         let terminal_backend = CrosstermBackend::new(stdout);
         start(terminal_backend, os_input, opts);
+
+        // Ensure terminal is restored after exit (handles SIGINT case).
+        // These operations are idempotent, so safe to call even if 'q' already cleaned up.
+        let _ = terminal::disable_raw_mode();
+        let _ = crossterm::execute!(std::io::stdout(), terminal::LeaveAlternateScreen);
     }
     Ok(())
 }
@@ -186,7 +191,11 @@ where
             let display_handler = display_handler.thread().clone();
 
             move || {
-                for evt in terminal_events {
+                let mut terminal_events = terminal_events;
+                while running.load(Ordering::Acquire) {
+                    let Some(evt) = terminal_events.next() else {
+                        continue;
+                    };
                     let mut ui = ui.lock().unwrap();
 
                     match evt {
