@@ -44,9 +44,12 @@ pub struct TerminalEvents;
 
 impl Iterator for TerminalEvents {
     type Item = Event;
+    /// Returns the next terminal event, or `None` if no event is available
+    /// within the poll timeout.
+    ///
+    /// Note: `None` here means "no event right now", not "iteration complete".
+    /// The consumer should use `while running` instead of `for evt in ...`.
     fn next(&mut self) -> Option<Event> {
-        // Poll with timeout instead of blocking read to allow
-        // the caller to check for shutdown signals
         match poll(POLL_TIMEOUT) {
             Ok(true) => read().ok(),
             Ok(false) | Err(_) => None,
