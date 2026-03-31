@@ -5,7 +5,7 @@ use itertools::Itertools;
 use ratatui::{
     layout::{Constraint, Rect},
     style::{Color, Style},
-    widgets::{Block, Borders, Row},
+    widgets::{Block, BorderType, Borders, Row},
     Frame,
 };
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
@@ -371,7 +371,7 @@ impl Table {
     }
 
     /// See [`Table`] for layout rules.
-    pub fn render(&self, frame: &mut Frame, rect: Rect) {
+    pub fn render(&self, frame: &mut Frame, rect: Rect, focused: bool, paused: bool) {
         let (computed_layout, spacer_width) = {
             // pick the largest possible layout, constrained by the available width
             let &(_, layout) = self
@@ -411,8 +411,32 @@ impl Table {
             .map(Constraint::Length)
             .collect();
 
+        let title = if paused {
+            format!("{} [PAUSED]", self.title)
+        } else {
+            self.title.to_string()
+        };
+        let title_style = if paused {
+            Style::default().fg(Color::Yellow)
+        } else {
+            Style::default()
+        };
+        let block = if focused {
+            Block::default()
+                .title(title)
+                .title_style(title_style)
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Cyan))
+                .border_type(BorderType::Thick)
+        } else {
+            Block::default()
+                .title(title)
+                .title_style(title_style)
+                .borders(Borders::ALL)
+        };
+
         let table = ratatui::widgets::Table::new(tui_rows_iter, widths_constraints)
-            .block(Block::default().title(self.title).borders(Borders::ALL))
+            .block(block)
             .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
             .flex(ratatui::layout::Flex::Legacy)
             .column_spacing(spacer_width);
