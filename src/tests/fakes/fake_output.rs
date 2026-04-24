@@ -5,7 +5,7 @@ use std::{
 };
 
 use ratatui::{
-    backend::{Backend, WindowSize},
+    backend::{Backend, ClearType, WindowSize},
     buffer::Cell,
     layout::{Position, Size},
 };
@@ -13,6 +13,7 @@ use ratatui::{
 #[derive(Hash, Debug, PartialEq)]
 pub enum TerminalEvent {
     Clear,
+    ClearRegion,
     HideCursor,
     ShowCursor,
     GetCursor,
@@ -50,29 +51,7 @@ struct Point {
 }
 
 impl Backend for TestBackend {
-    fn clear(&mut self) -> io::Result<()> {
-        self.events.lock().unwrap().push(TerminalEvent::Clear);
-        Ok(())
-    }
-
-    fn hide_cursor(&mut self) -> io::Result<()> {
-        self.events.lock().unwrap().push(TerminalEvent::HideCursor);
-        Ok(())
-    }
-
-    fn show_cursor(&mut self) -> io::Result<()> {
-        self.events.lock().unwrap().push(TerminalEvent::ShowCursor);
-        Ok(())
-    }
-
-    fn get_cursor_position(&mut self) -> io::Result<Position> {
-        self.events.lock().unwrap().push(TerminalEvent::GetCursor);
-        Ok(Position::new(0, 0))
-    }
-
-    fn set_cursor_position<P: Into<Position>>(&mut self, _position: P) -> io::Result<()> {
-        Ok(())
-    }
+    type Error = io::Error;
 
     fn draw<'a, I>(&mut self, content: I) -> io::Result<()>
     where
@@ -103,6 +82,35 @@ impl Backend for TestBackend {
             string.push('\n');
         }
         self.draw_events.lock().unwrap().push(string);
+        Ok(())
+    }
+
+    fn hide_cursor(&mut self) -> io::Result<()> {
+        self.events.lock().unwrap().push(TerminalEvent::HideCursor);
+        Ok(())
+    }
+
+    fn show_cursor(&mut self) -> io::Result<()> {
+        self.events.lock().unwrap().push(TerminalEvent::ShowCursor);
+        Ok(())
+    }
+
+    fn get_cursor_position(&mut self) -> io::Result<Position> {
+        self.events.lock().unwrap().push(TerminalEvent::GetCursor);
+        Ok(Position::new(0, 0))
+    }
+
+    fn set_cursor_position<P: Into<Position>>(&mut self, _position: P) -> io::Result<()> {
+        Ok(())
+    }
+
+    fn clear(&mut self) -> io::Result<()> {
+        self.events.lock().unwrap().push(TerminalEvent::Clear);
+        Ok(())
+    }
+
+    fn clear_region(&mut self, _clear_type: ClearType) -> Result<(), Self::Error> {
+        self.events.lock().unwrap().push(TerminalEvent::ClearRegion);
         Ok(())
     }
 
