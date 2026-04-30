@@ -14,12 +14,18 @@ use ratatui::{
     backend::{Backend, WindowSize},
     buffer::Cell,
     layout::{Position, Size},
+    prelude::backend::ClearType,
 };
 
 pub struct RawTerminalBackend {}
 
 impl Backend for RawTerminalBackend {
-    fn clear(&mut self) -> io::Result<()> {
+    type Error = io::Error;
+
+    fn draw<'a, I>(&mut self, _content: I) -> io::Result<()>
+    where
+        I: Iterator<Item = (u16, u16, &'a Cell)>,
+    {
         Ok(())
     }
 
@@ -39,10 +45,11 @@ impl Backend for RawTerminalBackend {
         Ok(())
     }
 
-    fn draw<'a, I>(&mut self, _content: I) -> io::Result<()>
-    where
-        I: Iterator<Item = (u16, u16, &'a Cell)>,
-    {
+    fn clear(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+
+    fn clear_region(&mut self, _clear_type: ClearType) -> Result<(), Self::Error> {
         Ok(())
     }
 
