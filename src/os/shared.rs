@@ -76,6 +76,13 @@ pub(crate) fn get_datalink_channel(
             ErrorKind::PermissionDenied => Err(GetInterfaceError::PermissionError(
                 interface.name.to_owned(),
             )),
+            // on macOS/FreeBSD, permission errors when opening BPF devices manifest as
+            // "No such file or directory" (ENOENT) rather than EPERM
+            // see https://github.com/imsnif/bandwhich/issues/486
+            #[cfg(any(target_os = "macos", target_os = "freebsd"))]
+            ErrorKind::NotFound => Err(GetInterfaceError::PermissionError(
+                interface.name.to_owned(),
+            )),
             _ => Err(GetInterfaceError::OtherError(format!(
                 "{}: {e}",
                 &interface.name
