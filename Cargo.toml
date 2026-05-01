@@ -57,7 +57,7 @@ regex = "1.12.3"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 netstat2 = "0.11.2"
-sysinfo = "0.36.1"
+sysinfo = "0.38.4"
 
 [dev-dependencies]
 insta = "1.47.2"
@@ -69,15 +69,15 @@ rstest = "0.26.1"
 [build-dependencies]
 clap = { version = "4.5.61", features = ["derive"] }
 clap-verbosity-flag = "3.0.4"
-clap_complete = "4.5.67"
-clap_mangen = "0.2.32"
+clap_complete = "4.6.3"
+clap_mangen = "0.3.0"
 derive_more = { version = "2.1.1", features = ["debug"] }
 eyre = "0.6.12"
 strum = { version = "0.28.0", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 http_req = "0.14.5"
-zip = "5.0.1"
+zip = "8.6.0"
 
 [profile.release]
 codegen-units = 1
