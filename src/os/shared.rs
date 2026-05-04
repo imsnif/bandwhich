@@ -194,7 +194,10 @@ pub fn get_input(
                 eperm_message()
             ),
             (true, false) => format!("\n\n{}", other_errs.join("\n")),
-            (true, true) => unreachable!("Found no errors in error handling code path."),
+            (true, true) => bail!(
+                "Failed to acquire a frame receiver on any interface: unknown error. "
+                "This may occur on bonding/team interfaces or with certain network configurations."
+            ),
         };
         bail!(err_msg);
     }
