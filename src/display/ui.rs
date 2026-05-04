@@ -7,6 +7,7 @@ use crate::{
     cli::{Opt, RenderOpts},
     display::{
         components::{HeaderDetails, HelpText, Layout, Table},
+        input::WidgetAction,
         UIState,
     },
     network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization},
@@ -127,7 +128,13 @@ where
         write_to_stdout("");
     }
 
-    pub fn draw(&mut self, paused: bool, elapsed_time: Duration, table_cycle_offset: usize) {
+    pub fn draw(
+        &mut self,
+        paused: bool,
+        elapsed_time: Duration,
+        table_cycle_offset: usize,
+        focused_pane: Option<usize>,
+    ) {
         let layout = Layout {
             header: HeaderDetails {
                 state: &self.state,
@@ -138,10 +145,12 @@ where
             footer: HelpText {
                 paused,
                 show_dns: self.state.show_dns,
+                focused_pane,
             },
+            pane_paused: self.state.pane_paused,
         };
         self.terminal
-            .draw(|frame| layout.render(frame, frame.area(), table_cycle_offset))
+            .draw(|frame| layout.render(frame, frame.area(), table_cycle_offset, focused_pane))
             .unwrap();
     }
 
@@ -175,6 +184,27 @@ where
 
     pub fn get_table_count(&self) -> usize {
         self.get_tables_to_display().len()
+    }
+
+    /// Dispatch a [`WidgetAction`] to the pane at `pane_index`.
+    ///
+    /// This is the single entry point for per-pane keybinding actions. New
+    /// `WidgetAction` variants should be handled here.
+    pub fn handle_widget_action(&mut self, action: WidgetAction, pane_index: usize) {
+        match action {
+            WidgetAction::TogglePause => self.toggle_pane_pause(pane_index),
+        }
+    }
+
+    /// Toggle the paused state for the pane at `pane_index`.
+    ///
+    /// When a pane is paused its display data is frozen at the current snapshot;
+    /// live network updates continue accumulating in the backing maps but are
+    /// not written to the display vecs until the pane is unpaused.
+    fn toggle_pane_pause(&mut self, pane_index: usize) {
+        if let Some(flag) = self.state.pane_paused.get_mut(pane_index) {
+            *flag = !*flag;
+        }
     }
 
     pub fn update_state(
