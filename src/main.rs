@@ -4,6 +4,7 @@ mod cli;
 mod display;
 mod network;
 mod os;
+mod prometheus;
 #[cfg(test)]
 mod tests;
 
