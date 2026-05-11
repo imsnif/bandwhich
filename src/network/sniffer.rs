@@ -42,15 +42,71 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn new(network_interface_ips: &[IpNetwork], source: IpAddr) -> Self {
+    pub fn new(
+        network_interface_ips: &[IpNetwork],
+        source: IpAddr,
+        destination: IpAddr,
+    ) -> Option<Self> {
         if network_interface_ips
             .iter()
             .any(|ip_network| ip_network.ip() == source)
         {
-            Direction::Upload
+            Some(Direction::Upload)
+        } else if network_interface_ips
+            .iter()
+            .any(|ip_network| ip_network.ip() == destination)
+        {
+            Some(Direction::Download)
         } else {
-            Direction::Download
+            None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn direction_is_upload_when_source_is_local() {
+        let network_interface_ips = vec!["192.168.1.10/24".parse().unwrap()];
+
+        assert_eq!(
+            Direction::new(
+                &network_interface_ips,
+                "192.168.1.10".parse().unwrap(),
+                "203.0.113.1".parse().unwrap(),
+            ),
+            Some(Direction::Upload)
+        );
+    }
+
+    #[test]
+    fn direction_is_download_when_destination_is_local() {
+        let network_interface_ips = vec!["192.168.1.10/24".parse().unwrap()];
+
+        assert_eq!(
+            Direction::new(
+                &network_interface_ips,
+                "203.0.113.1".parse().unwrap(),
+                "192.168.1.10".parse().unwrap(),
+            ),
+            Some(Direction::Download)
+        );
+    }
+
+    #[test]
+    fn direction_is_none_when_neither_address_is_local() {
+        let network_interface_ips = vec!["192.168.1.10/24".parse().unwrap()];
+
+        assert_eq!(
+            Direction::new(
+                &network_interface_ips,
+                "203.0.113.1".parse().unwrap(),
+                "198.51.100.1".parse().unwrap(),
+            ),
+            None
+        );
     }
 }
 
@@ -169,7 +225,11 @@ impl Sniffer {
             extract_transport_protocol!(ip_packet);
 
         let interface_name = network_interface.name.clone();
-        let direction = Direction::new(&network_interface.ips, ip_packet.get_source().into());
+        let direction = Direction::new(
+            &network_interface.ips,
+            ip_packet.get_source().into(),
+            ip_packet.get_destination().into(),
+        )?;
         let from = SocketAddr::new(ip_packet.get_source().into(), source_port);
         let to = SocketAddr::new(ip_packet.get_destination().into(), destination_port);
 
