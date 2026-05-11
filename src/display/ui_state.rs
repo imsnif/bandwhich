@@ -98,6 +98,26 @@ pub struct UIState {
     known_orphan_sockets: VecDeque<LocalSocket>,
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn update_uses_network_utilization_totals_without_connections() {
+        let mut ui_state = UIState::default();
+        let network_utilization = Utilization {
+            total_bytes_downloaded: 42,
+            total_bytes_uploaded: 24,
+            ..Default::default()
+        };
+
+        ui_state.update(HashMap::new(), network_utilization);
+
+        assert_eq!(ui_state.total_bytes_downloaded, 42);
+        assert_eq!(ui_state.total_bytes_uploaded, 24);
+    }
+}
+
 impl UIState {
     pub fn update(
         &mut self,
@@ -122,6 +142,9 @@ impl UIState {
             let connections_to_procs = &state.connections_to_procs;
             let network_utilization = &state.network_utilization;
 
+            total_bytes_downloaded += network_utilization.total_bytes_downloaded;
+            total_bytes_uploaded += network_utilization.total_bytes_uploaded;
+
             for (connection, connection_info) in &network_utilization.connections {
                 let connection_previously_seen = !seen_connections.insert(connection);
                 let connection_data = connections.entry(*connection).or_default();
@@ -140,8 +163,6 @@ impl UIState {
                 if !connection_previously_seen {
                     data_for_remote_address.connection_count += 1;
                 }
-                total_bytes_downloaded += connection_info.total_bytes_downloaded;
-                total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
                 let data_for_process = {
                     let local_socket = connection.local_socket;
