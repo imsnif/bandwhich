@@ -44,7 +44,7 @@ resolv-conf = "0.7.6"
 simplelog = "0.12.2"
 thiserror = "2.0.18"
 tokio = { version = "1.52", features = ["rt", "sync"] }
-trust-dns-resolver = "0.23.2"
+hickory-resolver = "0.26.1"
 unicode-width = "0.2.2"
 strum = { version = "0.28.0", features = ["derive"] }
 
