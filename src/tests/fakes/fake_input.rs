@@ -4,7 +4,6 @@ use std::{
     thread, time,
 };
 
-use async_trait::async_trait;
 use crossterm::event::Event;
 use itertools::Itertools;
 use pnet::{
@@ -177,7 +176,6 @@ pub fn create_fake_dns_client(ips_to_hosts: HashMap<IpAddr, String>) -> Option<d
 
 struct FakeResolver(HashMap<IpAddr, String>);
 
-#[async_trait]
 impl Lookup for FakeResolver {
     async fn lookup(&self, ip: IpAddr) -> Option<String> {
         self.0.get(&ip).cloned()

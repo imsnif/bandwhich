@@ -26,7 +26,6 @@ default = []
 ui_test = []
 
 [dependencies]
-async-trait = "0.1.89"
 chrono = "0.4"
 clap-verbosity-flag = "3.0.4"
 clap = { version = "4.5.61", features = ["derive"] }

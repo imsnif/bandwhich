@@ -1,18 +1,17 @@
 use std::{
+    future::Future,
     net::{IpAddr, Ipv4Addr},
     slice,
 };
 
-use async_trait::async_trait;
 use hickory_resolver::{
     config::{ResolverConfig, ServerGroup},
     net::runtime::TokioRuntimeProvider,
     TokioResolver,
 };
 
-#[async_trait]
 pub trait Lookup {
-    async fn lookup(&self, ip: IpAddr) -> Option<String>;
+    fn lookup(&self, ip: IpAddr) -> impl Future<Output = Option<String>> + Send;
 }
 
 pub struct Resolver(TokioResolver);
@@ -37,7 +36,6 @@ impl Resolver {
     }
 }
 
-#[async_trait]
 impl Lookup for Resolver {
     async fn lookup(&self, ip: IpAddr) -> Option<String> {
         let lookup_future = self.0.reverse_lookup(ip);
