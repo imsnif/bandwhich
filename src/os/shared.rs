@@ -78,7 +78,7 @@ pub(crate) fn get_datalink_channel(
             )),
             _ => Err(GetInterfaceError::OtherError(format!(
                 "{}: {e}",
-                &interface.name
+                interface.name
             ))),
         },
     }
