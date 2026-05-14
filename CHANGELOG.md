@@ -26,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Bump MSRV to 1.82.0 - @cyqsimon
 * Bump MSRV to 1.88.0 - @cyqsimon
 * Deps: migrate from trust-dns-resolver to hickory-resolver #510 - @cyqsimon
+* Deps: remove direct dependency on async-trait #512 - @cyqsimon
 
 ## [0.23.1] - 2024-10-09
 
