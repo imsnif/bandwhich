@@ -27,6 +27,35 @@ use crate::{
 const PACKET_WAIT_TIMEOUT: Duration = Duration::from_millis(10);
 const CHANNEL_RESET_DELAY: Duration = Duration::from_millis(1000);
 
+fn is_retryable_capture_error(err: &io::Error) -> bool {
+    matches!(
+        err.kind(),
+        io::ErrorKind::TimedOut | io::ErrorKind::WouldBlock
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn retryable_capture_errors_include_empty_reads() {
+        assert!(is_retryable_capture_error(&io::Error::from(
+            io::ErrorKind::TimedOut
+        )));
+        assert!(is_retryable_capture_error(&io::Error::from(
+            io::ErrorKind::WouldBlock
+        )));
+    }
+
+    #[test]
+    fn retryable_capture_errors_exclude_reset_errors() {
+        assert!(!is_retryable_capture_error(&io::Error::from(
+            io::ErrorKind::ConnectionReset
+        )));
+    }
+}
+
 #[derive(Debug)]
 pub struct Segment {
     pub interface_name: String,
@@ -111,17 +140,15 @@ impl Sniffer {
     pub fn next(&mut self) -> Option<Segment> {
         let bytes = match self.network_frames.next() {
             Ok(bytes) => bytes,
-            Err(err) => match err.kind() {
-                std::io::ErrorKind::TimedOut => {
+            Err(err) => {
+                if is_retryable_capture_error(&err) {
                     park_timeout(PACKET_WAIT_TIMEOUT);
                     return None;
                 }
-                _ => {
-                    park_timeout(CHANNEL_RESET_DELAY);
-                    self.reset_channel().ok();
-                    return None;
-                }
-            },
+                park_timeout(CHANNEL_RESET_DELAY);
+                self.reset_channel().ok();
+                return None;
+            }
         };
         // See https://github.com/libpnet/libpnet/blob/master/examples/packetdump.rs
         // VPN interfaces (such as utun0, utun1, etc) have POINT_TO_POINT bit set to 1
