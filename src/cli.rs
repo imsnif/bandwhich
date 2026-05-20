@@ -32,6 +32,10 @@ pub struct Opt {
     /// Enable debug logging to a file
     pub log_to: Option<PathBuf>,
 
+    #[arg(long, value_hint = ValueHint::FilePath)]
+    /// Write a current-state snapshot to this file when the user presses 'd'
+    pub snapshot_to: Option<PathBuf>,
+
     #[command(flatten)]
     pub verbosity: Verbosity<InfoLevel>,
 

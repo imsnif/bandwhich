@@ -54,7 +54,12 @@ fn main() -> eyre::Result<()> {
         )?;
     }
 
-    let os_input = os::get_input(opts.interface.as_deref(), !opts.no_resolve, opts.dns_server)?;
+    let os_input = os::get_input(
+        opts.interface.as_deref(),
+        !opts.no_resolve,
+        opts.dns_server,
+        opts.snapshot_to.as_deref(),
+    )?;
     if opts.raw {
         let terminal_backend = RawTerminalBackend {};
         start(terminal_backend, os_input, opts);
@@ -89,6 +94,7 @@ pub struct OsInputOutput {
     pub terminal_events: Box<dyn Iterator<Item = Event> + Send>,
     pub dns_client: Option<dns::Client>,
     pub write_to_stdout: Box<dyn FnMut(&str) + Send>,
+    pub write_to_file: Option<Box<dyn FnMut(&str) + Send>>,
 }
 
 pub fn start<B>(terminal_backend: B, os_input: OsInputOutput, opts: Opt)
@@ -123,6 +129,8 @@ where
 
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, &opts)));
+
+    let mut write_to_file = os_input.write_to_file;
 
     let display_handler = thread::Builder::new()
         .name("display_handler".to_string())
@@ -266,6 +274,16 @@ where
                             let new = table_cycle_offset.load(Ordering::SeqCst) + 1 % table_count;
                             table_cycle_offset.store(new, Ordering::SeqCst);
                             ui.draw(paused, elapsed_time, new);
+                        }
+                        Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::NONE,
+                            code: KeyCode::Char('d'),
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) => {
+                            if let Some(writer) = write_to_file.as_mut() {
+                                ui.output_text(writer);
+                            }
                         }
                         _ => (),
                     };

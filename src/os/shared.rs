@@ -1,6 +1,8 @@
 use std::{
+    fs::OpenOptions,
     io::{self, ErrorKind, Write},
     net::Ipv4Addr,
+    path::Path,
     time::{self, Duration},
 };
 
@@ -105,10 +107,26 @@ fn create_write_to_stdout() -> Box<dyn FnMut(&str) + Send> {
     })
 }
 
+pub fn create_write_to_file(path: &Path) -> eyre::Result<Box<dyn FnMut(&str) + Send>> {
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path)
+        .map_err(|err| eyre!("Failed to open file in {path:?} due to {err}"))?;
+    let path = path.to_path_buf();
+
+    Ok(Box::new(move |output| {
+        if let Err(e) = writeln!(&mut file, "{output}") {
+            warn!("Failed to write dump to file {path:?}: {e}");
+        }
+    }))
+}
+
 pub fn get_input(
     interface_name: Option<&str>,
     resolve: bool,
     dns_server: Option<Ipv4Addr>,
+    snapshot_path: Option<&Path>,
 ) -> eyre::Result<OsInputOutput> {
     // get the user's requested interface, if any
     // IDEA: allow requesting multiple interfaces
@@ -219,6 +237,9 @@ pub fn get_input(
     };
 
     let write_to_stdout = create_write_to_stdout();
+    let write_to_file = snapshot_path
+        .map(|path| create_write_to_file(path))
+        .transpose()?;
 
     Ok(OsInputOutput {
         interfaces_with_frames,
@@ -226,6 +247,7 @@ pub fn get_input(
         terminal_events: Box::new(TerminalEvents),
         dns_client,
         write_to_stdout,
+        write_to_file,
     })
 }
 
