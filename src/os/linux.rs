@@ -1,5 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, net::IpAddr};
 
+use pnet::datalink::{self, NetworkInterface};
 use procfs::process::FDTarget;
 
 use crate::{
@@ -7,6 +8,18 @@ use crate::{
     os::ProcessInfo,
     OpenSockets,
 };
+
+pub(crate) fn get_local_addresses() -> Vec<IpAddr> {
+    local_addresses_from_interfaces(datalink::interfaces())
+}
+
+fn local_addresses_from_interfaces(interfaces: Vec<NetworkInterface>) -> Vec<IpAddr> {
+    interfaces
+        .into_iter()
+        .filter(|interface| interface.is_up())
+        .flat_map(|interface| interface.ips.into_iter().map(|ip_network| ip_network.ip()))
+        .collect()
+}
 
 pub(crate) fn get_open_sockets() -> OpenSockets {
     let mut open_sockets = HashMap::new();
@@ -47,5 +60,97 @@ pub(crate) fn get_open_sockets() -> OpenSockets {
 
     OpenSockets {
         sockets_to_procs: open_sockets,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+
+    use pnet::{
+        datalink::NetworkInterface,
+        ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network},
+    };
+
+    use super::local_addresses_from_interfaces;
+
+    fn interface(name: &str, is_up: bool, ips: Vec<IpNetwork>) -> NetworkInterface {
+        NetworkInterface {
+            name: name.to_string(),
+            description: String::new(),
+            index: 0,
+            mac: None,
+            ips,
+            flags: u32::from(is_up),
+        }
+    }
+
+    #[test]
+    fn includes_ipv4_and_ipv6_addresses_from_all_active_interfaces() {
+        let local_addresses = local_addresses_from_interfaces(vec![
+            interface(
+                "eth0",
+                true,
+                vec![IpNetwork::V4(
+                    Ipv4Network::new(Ipv4Addr::new(192, 168, 1, 10), 24).unwrap(),
+                )],
+            ),
+            interface(
+                "tun0",
+                true,
+                vec![IpNetwork::V6(
+                    Ipv6Network::new(Ipv6Addr::LOCALHOST, 128).unwrap(),
+                )],
+            ),
+        ]);
+
+        assert_eq!(
+            local_addresses,
+            vec![
+                IpAddr::V4(Ipv4Addr::new(192, 168, 1, 10)),
+                IpAddr::V6(Ipv6Addr::LOCALHOST),
+            ]
+        );
+    }
+
+    #[test]
+    fn skips_addresses_from_inactive_interfaces() {
+        let local_addresses = local_addresses_from_interfaces(vec![
+            interface(
+                "eth0",
+                false,
+                vec![IpNetwork::V4(
+                    Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 10), 24).unwrap(),
+                )],
+            ),
+            interface(
+                "wlan0",
+                true,
+                vec![IpNetwork::V4(
+                    Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 11), 24).unwrap(),
+                )],
+            ),
+        ]);
+
+        assert_eq!(
+            local_addresses,
+            vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 11))]
+        );
+    }
+
+    #[test]
+    fn returns_empty_when_no_active_interfaces_have_addresses() {
+        let local_addresses = local_addresses_from_interfaces(vec![
+            interface("eth0", true, vec![]),
+            interface(
+                "wlan0",
+                false,
+                vec![IpNetwork::V4(
+                    Ipv4Network::new(Ipv4Addr::new(10, 0, 0, 11), 24).unwrap(),
+                )],
+            ),
+        ]);
+
+        assert!(local_addresses.is_empty());
     }
 }
