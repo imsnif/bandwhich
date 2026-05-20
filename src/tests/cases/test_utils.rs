@@ -271,6 +271,7 @@ pub fn os_input_output_factory(
         terminal_events: keyboard_events,
         dns_client,
         write_to_stdout,
+        write_to_file: None,
     }
 }
 
