@@ -5,7 +5,8 @@ use itertools::Itertools;
 use ratatui::{
     layout::{Constraint, Rect},
     style::{Color, Style},
-    widgets::{Block, Borders, Row},
+    symbols::Marker,
+    widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Row},
     Frame,
 };
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
@@ -30,6 +31,10 @@ pub enum DisplayLayout {
     C3([u16; 3]),
     /// Show 4 columns.
     C4([u16; 4]),
+    /// Show 5 columns.
+    C5([u16; 5]),
+    /// Show 6 columns.
+    C6([u16; 6]),
 }
 
 impl Index<usize> for DisplayLayout {
@@ -40,6 +45,8 @@ impl Index<usize> for DisplayLayout {
             Self::C2(arr) => &arr[i],
             Self::C3(arr) => &arr[i],
             Self::C4(arr) => &arr[i],
+            Self::C5(arr) => &arr[i],
+            Self::C6(arr) => &arr[i],
         }
     }
 }
@@ -51,6 +58,8 @@ impl DisplayLayout {
             Self::C2(_) => 2,
             Self::C3(_) => 3,
             Self::C4(_) => 4,
+            Self::C5(_) => 5,
+            Self::C6(_) => 6,
         }
     }
 
@@ -60,6 +69,8 @@ impl DisplayLayout {
             Self::C2(ws) => ws.iter(),
             Self::C3(ws) => ws.iter(),
             Self::C4(ws) => ws.iter(),
+            Self::C5(ws) => ws.iter(),
+            Self::C6(ws) => ws.iter(),
         }
     }
 
@@ -108,6 +119,34 @@ impl DisplayLayout {
                     w3_new,
                 ])
             }
+            Self::C5([_w0, w1, w2, w3, w4]) => {
+                let w1_new = (w1 as f64 * m).trunc() as u16;
+                let w2_new = (w2 as f64 * m).trunc() as u16;
+                let w3_new = (w3 as f64 * m).trunc() as u16;
+                let w4_new = (w4 as f64 * m).trunc() as u16;
+                Self::C5([
+                    available_without_spacers - w1_new - w2_new - w3_new - w4_new,
+                    w1_new,
+                    w2_new,
+                    w3_new,
+                    w4_new,
+                ])
+            }
+            Self::C6([_w0, w1, w2, w3, w4, w5]) => {
+                let w1_new = (w1 as f64 * m).trunc() as u16;
+                let w2_new = (w2 as f64 * m).trunc() as u16;
+                let w3_new = (w3 as f64 * m).trunc() as u16;
+                let w4_new = (w4 as f64 * m).trunc() as u16;
+                let w5_new = (w5 as f64 * m).trunc() as u16;
+                Self::C6([
+                    available_without_spacers - w1_new - w2_new - w3_new - w4_new - w5_new,
+                    w1_new,
+                    w2_new,
+                    w3_new,
+                    w4_new,
+                    w5_new,
+                ])
+            }
         };
 
         (computed, spacer)
@@ -124,6 +163,10 @@ enum TableData {
     C3(NColsTableData<3>),
     /// A table with 4 columns.
     C4(NColsTableData<4>),
+    /// A table with 5 columns.
+    C5(NColsTableData<5>),
+    /// A table with 6 columns.
+    C6(NColsTableData<6>),
 }
 
 impl From<NColsTableData<3>> for TableData {
@@ -138,11 +181,25 @@ impl From<NColsTableData<4>> for TableData {
     }
 }
 
+impl From<NColsTableData<5>> for TableData {
+    fn from(data: NColsTableData<5>) -> Self {
+        Self::C5(data)
+    }
+}
+
+impl From<NColsTableData<6>> for TableData {
+    fn from(data: NColsTableData<6>) -> Self {
+        Self::C6(data)
+    }
+}
+
 impl TableData {
     fn column_names(&self) -> &[&str] {
         match self {
             Self::C3(inner) => &inner.column_names,
             Self::C4(inner) => &inner.column_names,
+            Self::C5(inner) => &inner.column_names,
+            Self::C6(inner) => &inner.column_names,
         }
     }
 
@@ -150,6 +207,8 @@ impl TableData {
         match self {
             Self::C3(inner) => inner.rows.iter().map(|r| r.as_slice()).collect(),
             Self::C4(inner) => inner.rows.iter().map(|r| r.as_slice()).collect(),
+            Self::C5(inner) => inner.rows.iter().map(|r| r.as_slice()).collect(),
+            Self::C6(inner) => inner.rows.iter().map(|r| r.as_slice()).collect(),
         }
     }
 
@@ -157,6 +216,8 @@ impl TableData {
         match self {
             Self::C3(inner) => inner.column_selector.as_ref(),
             Self::C4(inner) => inner.column_selector.as_ref(),
+            Self::C5(inner) => inner.column_selector.as_ref(),
+            Self::C6(inner) => inner.column_selector.as_ref(),
         }
     }
 }
@@ -198,6 +259,15 @@ pub struct Table {
     /// - If `Wt < Wd`, columns will proportionally shrink.
     width_cutoffs: Vec<(u16, DisplayLayout)>,
     data: TableData,
+    process_chart_rows: Option<Vec<ProcessChartRow>>,
+    chart_column_indices: Option<Vec<usize>>,
+}
+
+#[derive(Clone, Debug)]
+struct ProcessChartRow {
+    upload: Vec<(f64, f64)>,
+    download: Vec<(f64, f64)>,
+    max_x: f64,
 }
 
 impl Table {
@@ -244,6 +314,8 @@ impl Table {
             D::C2(_) => vec![0, 2],
             D::C3(_) => vec![0, 1, 2],
             D::C4(_) => unreachable!(),
+            D::C5(_) => unreachable!(),
+            D::C6(_) => unreachable!(),
         });
 
         Table {
@@ -255,6 +327,8 @@ impl Table {
                 column_selector,
             }
             .into(),
+            process_chart_rows: None,
+            chart_column_indices: None,
         }
     }
 
@@ -267,6 +341,7 @@ impl Table {
             (50, D::C3([16, 12, 20])),
             (60, D::C3([24, 12, 20])),
             (80, D::C4([28, 12, 12, 24])),
+            (120, D::C6([28, 8, 12, 18, 18, 18])),
         ];
 
         let column_names = [
@@ -278,6 +353,8 @@ impl Table {
             } else {
                 "Rate (Up / Down)"
             },
+            "Upload",
+            "Download",
         ];
         let rows = state
             .processes
@@ -292,13 +369,24 @@ impl Table {
                         state.unit_family,
                         state.cumulative_mode,
                     ),
+                    String::new(),
+                    String::new(),
                 ]
             })
             .collect();
+        let process_chart_rows = Some(
+            state
+                .processes
+                .iter()
+                .map(|(proc_info, _)| build_process_chart_row(state, proc_info))
+                .collect(),
+        );
         let column_selector = Rc::new(|layout: &D| match layout {
             D::C2(_) => vec![0, 3],
             D::C3(_) => vec![0, 2, 3],
             D::C4(_) => vec![0, 1, 2, 3],
+            D::C5(_) => unreachable!(),
+            D::C6(_) => vec![0, 1, 2, 3, 4, 5],
         });
 
         Table {
@@ -310,6 +398,8 @@ impl Table {
                 column_selector,
             }
             .into(),
+            process_chart_rows,
+            chart_column_indices: Some(vec![4, 5]),
         }
     }
 
@@ -356,6 +446,8 @@ impl Table {
             D::C2(_) => vec![0, 2],
             D::C3(_) => vec![0, 1, 2],
             D::C4(_) => unreachable!(),
+            D::C5(_) => unreachable!(),
+            D::C6(_) => unreachable!(),
         });
 
         Table {
@@ -367,11 +459,15 @@ impl Table {
                 column_selector,
             }
             .into(),
+            process_chart_rows: None,
+            chart_column_indices: None,
         }
     }
 
     /// See [`Table`] for layout rules.
     pub fn render(&self, frame: &mut Frame, rect: Rect) {
+        let block = Block::default().title(self.title).borders(Borders::ALL);
+        let inner = block.inner(rect);
         let (computed_layout, spacer_width) = {
             // pick the largest possible layout, constrained by the available width
             let &(_, layout) = self
@@ -380,7 +476,7 @@ impl Table {
                 .rev()
                 .find(|(cutoff, _)| rect.width > *cutoff)
                 .unwrap(); // all cutoff tables have a 0-width entry
-            layout.compute_actual_widths(rect.width)
+            layout.compute_actual_widths(inner.width)
         };
 
         let columns_to_show = self.data.column_selector()(&computed_layout);
@@ -389,6 +485,12 @@ impl Table {
             .copied()
             .map(|i| self.data.column_names()[i])
             .collect();
+        let show_charts = self
+            .chart_column_indices
+            .as_ref()
+            .map(|indices| indices.iter().any(|index| columns_to_show.contains(index)))
+            .unwrap_or(false)
+            && self.process_chart_rows.is_some();
 
         // text needs to react to column widths
         let tui_rows_iter = self
@@ -412,11 +514,88 @@ impl Table {
             .collect();
 
         let table = ratatui::widgets::Table::new(tui_rows_iter, widths_constraints)
-            .block(Block::default().title(self.title).borders(Borders::ALL))
+            .block(block)
             .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
             .flex(ratatui::layout::Flex::Legacy)
             .column_spacing(spacer_width);
         frame.render_widget(table, rect);
+
+        if show_charts {
+            self.render_process_charts(
+                frame,
+                inner,
+                &computed_layout,
+                spacer_width,
+                &columns_to_show,
+            );
+        }
+    }
+
+    fn render_process_charts(
+        &self,
+        frame: &mut Frame,
+        inner: Rect,
+        computed_layout: &DisplayLayout,
+        spacer_width: u16,
+        columns_to_show: &[usize],
+    ) {
+        let Some(chart_rows) = &self.process_chart_rows else {
+            return;
+        };
+        let Some(chart_column_indices) = self.chart_column_indices.as_ref() else {
+            return;
+        };
+        let available_rows = inner.height.saturating_sub(1) as usize;
+        let rows_to_render = chart_rows.len().min(available_rows);
+
+        for (row_index, row_data) in chart_rows.iter().take(rows_to_render).enumerate() {
+            let chart_y = inner.y + 1 + row_index as u16;
+            let max_x = row_data.max_x.max(1.0);
+            for &chart_column_index in chart_column_indices {
+                let Some(display_index) = columns_to_show
+                    .iter()
+                    .position(|&i| i == chart_column_index)
+                else {
+                    continue;
+                };
+                let mut chart_x = inner.x;
+                for col in 0..display_index {
+                    chart_x = chart_x.saturating_add(computed_layout[col]);
+                    chart_x = chart_x.saturating_add(spacer_width);
+                }
+                let chart_rect = Rect {
+                    x: chart_x,
+                    y: chart_y,
+                    width: computed_layout[display_index],
+                    height: 1,
+                };
+                let (datasets, max_y) = if chart_column_index == 4 {
+                    (
+                        vec![Dataset::default()
+                            .name("up")
+                            .marker(Marker::Braille)
+                            .graph_type(GraphType::Line)
+                            .style(Style::default().fg(Color::Blue))
+                            .data(&row_data.upload)],
+                        max_series_y(&row_data.upload).max(1.0),
+                    )
+                } else {
+                    (
+                        vec![Dataset::default()
+                            .name("down")
+                            .marker(Marker::Braille)
+                            .graph_type(GraphType::Line)
+                            .style(Style::default().fg(Color::Green))
+                            .data(&row_data.download)],
+                        max_series_y(&row_data.download).max(1.0),
+                    )
+                };
+                let chart = Chart::new(datasets)
+                    .x_axis(Axis::default().bounds([0.0, max_x]))
+                    .y_axis(Axis::default().bounds([0.0, max_y]));
+                frame.render_widget(chart, chart_rect);
+            }
+        }
     }
 }
 
@@ -434,6 +613,40 @@ fn display_upload_and_download(
         unit_family,
     };
     format!("{up} / {down}")
+}
+
+fn build_process_chart_row(state: &UIState, proc_info: &crate::os::ProcessInfo) -> ProcessChartRow {
+    let history = state.process_bandwidth_history(proc_info);
+    if history.is_empty() {
+        return ProcessChartRow {
+            upload: vec![(0.0, 0.0)],
+            download: vec![(0.0, 0.0)],
+            max_x: 1.0,
+        };
+    }
+
+    let mut upload = Vec::with_capacity(history.len());
+    let mut download = Vec::with_capacity(history.len());
+    for (idx, (up, down)) in history.into_iter().enumerate() {
+        let x = idx as f64;
+        let up_f = up as f64;
+        let down_f = down as f64;
+        upload.push((x, up_f));
+        download.push((x, down_f));
+    }
+
+    let max_x = (upload.len().saturating_sub(1)) as f64;
+    ProcessChartRow {
+        upload,
+        download,
+        max_x,
+    }
+}
+
+fn max_series_y(points: &[(f64, f64)]) -> f64 {
+    points
+        .iter()
+        .fold(0.0, |max, (_, y)| if *y > max { *y } else { max })
 }
 
 fn collect_to_unicode_width<T>(iter: impl Iterator<Item = char>, width: usize) -> T
