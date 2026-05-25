@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     fmt,
+    hash::{Hash, Hasher},
     net::{IpAddr, SocketAddr},
 };
 
@@ -63,10 +64,51 @@ impl fmt::Debug for LocalSocket {
     }
 }
 
-#[derive(PartialEq, Hash, Eq, Clone, PartialOrd, Ord, Copy)]
+#[derive(Clone, Copy)]
 pub struct Connection {
     pub remote_socket: Socket,
     pub local_socket: LocalSocket,
+}
+
+impl Connection {
+    pub fn normalized_key(&self) -> (Protocol, Socket, Socket) {
+        let local_socket = Socket {
+            ip: self.local_socket.ip,
+            port: self.local_socket.port,
+        };
+
+        if local_socket <= self.remote_socket {
+            (self.local_socket.protocol, local_socket, self.remote_socket)
+        } else {
+            (self.local_socket.protocol, self.remote_socket, local_socket)
+        }
+    }
+}
+
+impl PartialEq for Connection {
+    fn eq(&self, other: &Self) -> bool {
+        self.normalized_key() == other.normalized_key()
+    }
+}
+
+impl Eq for Connection {}
+
+impl Hash for Connection {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.normalized_key().hash(state);
+    }
+}
+
+impl PartialOrd for Connection {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Connection {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.normalized_key().cmp(&other.normalized_key())
+    }
 }
 
 impl fmt::Debug for Connection {
@@ -118,5 +160,51 @@ impl Connection {
                 protocol,
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{collections::HashMap, net::Ipv4Addr};
+
+    #[test]
+    fn connection_matches_packets_in_either_direction() {
+        let outbound = Connection::new(
+            SocketAddr::from((Ipv4Addr::new(203, 0, 113, 1), 5201)),
+            IpAddr::V4(Ipv4Addr::new(192, 0, 2, 1)),
+            49152,
+            Protocol::Tcp,
+        );
+        let inbound = Connection::new(
+            SocketAddr::from((Ipv4Addr::new(192, 0, 2, 1), 49152)),
+            IpAddr::V4(Ipv4Addr::new(203, 0, 113, 1)),
+            5201,
+            Protocol::Tcp,
+        );
+
+        let mut connections = HashMap::new();
+        connections.insert(outbound, "iperf3");
+
+        assert_eq!(connections.get(&inbound), Some(&"iperf3"));
+    }
+
+    #[test]
+    fn connection_key_keeps_protocols_separate() {
+        let tcp = Connection::new(
+            SocketAddr::from((Ipv4Addr::new(203, 0, 113, 1), 5201)),
+            IpAddr::V4(Ipv4Addr::new(192, 0, 2, 1)),
+            49152,
+            Protocol::Tcp,
+        );
+        let udp = Connection::new(
+            SocketAddr::from((Ipv4Addr::new(192, 0, 2, 1), 49152)),
+            IpAddr::V4(Ipv4Addr::new(203, 0, 113, 1)),
+            5201,
+            Protocol::Udp,
+        );
+
+        assert_ne!(tcp, udp);
+        assert_ne!(tcp.normalized_key(), udp.normalized_key());
     }
 }
