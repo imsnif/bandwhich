@@ -1,8 +1,9 @@
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     net::IpAddr,
     sync::{Arc, Mutex},
     thread::{Builder, JoinHandle},
+    time::{Duration, Instant},
 };
 
 use tokio::{
@@ -15,10 +16,18 @@ use crate::network::dns::{resolver::Lookup, IpTable};
 type PendingAddrs = HashSet<IpAddr>;
 
 const CHANNEL_SIZE: usize = 1_000;
+const INITIAL_BACKOFF: Duration = Duration::from_secs(1);
+const MAX_BACKOFF: Duration = Duration::from_secs(60);
+
+struct BackoffState {
+    last_attempt: Instant,
+    interval: Duration,
+}
 
 pub struct Client {
     cache: Arc<Mutex<IpTable>>,
     pending: Arc<Mutex<PendingAddrs>>,
+    failed: Arc<Mutex<HashMap<IpAddr, BackoffState>>>,
     tx: Option<Sender<Vec<IpAddr>>>,
     handle: Option<JoinHandle<()>>,
 }
@@ -30,11 +39,13 @@ impl Client {
     {
         let cache = Arc::new(Mutex::new(IpTable::new()));
         let pending = Arc::new(Mutex::new(PendingAddrs::new()));
+        let failed = Arc::new(Mutex::new(HashMap::<IpAddr, BackoffState>::new()));
         let (tx, mut rx) = mpsc::channel::<Vec<IpAddr>>(CHANNEL_SIZE);
 
         let handle = Builder::new().name("resolver".into()).spawn({
             let cache = cache.clone();
             let pending = pending.clone();
+            let failed = failed.clone();
             move || {
                 runtime.block_on(async {
                     let resolver = Arc::new(resolver);
@@ -45,10 +56,30 @@ impl Client {
                                 let resolver = resolver.clone();
                                 let cache = cache.clone();
                                 let pending = pending.clone();
+                                let failed = failed.clone();
 
                                 async move {
-                                    if let Some(name) = resolver.lookup(ip).await {
-                                        cache.lock().unwrap().insert(ip, name);
+                                    match resolver.lookup(ip).await {
+                                        Some(name) => {
+                                            cache.lock().unwrap().insert(ip, name);
+                                            failed.lock().unwrap().remove(&ip);
+                                        }
+                                        None => {
+                                            let mut failed = failed.lock().unwrap();
+                                            let prev_interval = failed
+                                                .get(&ip)
+                                                .map(|s| s.interval)
+                                                .unwrap_or(INITIAL_BACKOFF);
+                                            let next_interval =
+                                                (prev_interval * 2).min(MAX_BACKOFF);
+                                            failed.insert(
+                                                ip,
+                                                BackoffState {
+                                                    last_attempt: Instant::now(),
+                                                    interval: next_interval,
+                                                },
+                                            );
+                                        }
                                     }
                                     pending.lock().unwrap().remove(&ip);
                                 }
@@ -62,20 +93,31 @@ impl Client {
         Ok(Self {
             cache,
             pending,
+            failed,
             tx: Some(tx),
             handle: Some(handle),
         })
     }
 
     pub fn resolve(&mut self, ips: Vec<IpAddr>) {
-        // Remove ips that are already being resolved
+        let failed = self.failed.lock().unwrap();
+        let now = Instant::now();
+
         let ips = ips
             .into_iter()
+            .filter(|ip| {
+                if let Some(state) = failed.get(ip) {
+                    if now.duration_since(state.last_attempt) < state.interval {
+                        return false;
+                    }
+                }
+                true
+            })
             .filter(|ip| self.pending.lock().unwrap().insert(*ip))
             .collect::<Vec<_>>();
+        drop(failed);
 
         if !ips.is_empty() {
-            // Discard the message if the channel is full; it will be retried eventually
             let _ = self.tx.as_mut().unwrap().try_send(ips);
         }
     }
