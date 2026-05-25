@@ -94,6 +94,10 @@ pub struct UIState {
     pub processes_map: HashMap<ProcessInfo, NetworkData>,
     pub remote_addresses_map: HashMap<IpAddr, NetworkData>,
     pub connections_map: HashMap<Connection, ConnectionData>,
+    /// Per-pane pause state. Index matches logical table order:
+    /// 0 = processes, 1 = remote_addresses, 2 = connections.
+    /// When a pane is paused its display data is frozen at the last snapshot.
+    pub pane_paused: [bool; 3],
     /// Used for reducing logging noise.
     known_orphan_sockets: VecDeque<LocalSocket>,
 }
@@ -221,9 +225,15 @@ impl UIState {
             self.total_bytes_downloaded = total_bytes_downloaded / divide_by;
             self.total_bytes_uploaded = total_bytes_uploaded / divide_by;
         }
-        self.processes = sort_and_prune(&mut self.processes_map);
-        self.remote_addresses = sort_and_prune(&mut self.remote_addresses_map);
-        self.connections = sort_and_prune(&mut self.connections_map);
+        if !self.pane_paused[0] {
+            self.processes = sort_and_prune(&mut self.processes_map);
+        }
+        if !self.pane_paused[1] {
+            self.remote_addresses = sort_and_prune(&mut self.remote_addresses_map);
+        }
+        if !self.pane_paused[2] {
+            self.connections = sort_and_prune(&mut self.connections_map);
+        }
     }
 }
 

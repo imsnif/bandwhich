@@ -23,7 +23,7 @@ use crossterm::{
     event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     terminal,
 };
-use display::{elapsed_time, RawTerminalBackend, Ui};
+use display::{elapsed_time, RawTerminalBackend, Ui, WidgetAction};
 use eyre::bail;
 use network::{
     dns::{self, IpTable},
@@ -100,6 +100,7 @@ where
     let last_start_time = Arc::new(RwLock::new(Instant::now()));
     let cumulative_time = Arc::new(RwLock::new(Duration::new(0, 0)));
     let table_cycle_offset = Arc::new(AtomicUsize::new(0));
+    let focused_pane = Arc::new(Mutex::new(None::<usize>));
 
     // handle SIGINT properly instead of as a keypress
     // see https://github.com/imsnif/bandwhich/issues/487
@@ -130,6 +131,7 @@ where
             let running = running.clone();
             let paused = paused.clone();
             let table_cycle_offset = table_cycle_offset.clone();
+            let focused_pane = focused_pane.clone();
 
             let network_utilization = network_utilization.clone();
             let last_start_time = last_start_time.clone();
@@ -156,6 +158,7 @@ where
                         let mut ui = ui.lock().unwrap();
                         let paused = paused.load(Ordering::SeqCst);
                         let table_cycle_offset = table_cycle_offset.load(Ordering::SeqCst);
+                        let focused_pane = *focused_pane.lock().unwrap();
                         if !paused {
                             ui.update_state(sockets_to_procs, utilization, ip_to_host);
                         }
@@ -168,7 +171,7 @@ where
                         if raw_mode {
                             ui.output_text(&mut write_to_stdout);
                         } else {
-                            ui.draw(paused, elapsed_time, table_cycle_offset);
+                            ui.draw(paused, elapsed_time, table_cycle_offset, focused_pane);
                         }
                     }
                     let render_duration = render_start_time.elapsed();
@@ -189,6 +192,7 @@ where
         .spawn({
             let running = running.clone();
             let display_handler = display_handler.thread().clone();
+            let focused_pane = focused_pane.clone();
 
             move || {
                 let mut terminal_events = terminal_events;
@@ -201,6 +205,7 @@ where
                     match evt {
                         Event::Resize(_x, _y) if !raw_mode => {
                             let paused = paused.load(Ordering::SeqCst);
+                            let focused_pane = *focused_pane.lock().unwrap();
                             ui.draw(
                                 paused,
                                 elapsed_time(
@@ -209,6 +214,7 @@ where
                                     paused,
                                 ),
                                 table_cycle_offset.load(Ordering::SeqCst),
+                                focused_pane,
                             );
                         }
                         Event::Key(KeyEvent {
@@ -252,6 +258,18 @@ where
                         }
                         Event::Key(KeyEvent {
                             modifiers: KeyModifiers::NONE,
+                            code: KeyCode::Char('f'),
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) => {
+                            let focused = *focused_pane.lock().unwrap();
+                            if let Some(pane_index) = focused {
+                                ui.handle_widget_action(WidgetAction::TogglePause, pane_index);
+                                display_handler.unpark();
+                            }
+                        }
+                        Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::NONE,
                             code: KeyCode::Tab,
                             kind: KeyEventKind::Press,
                             ..
@@ -265,7 +283,37 @@ where
                             let table_count = ui.get_table_count();
                             let new = table_cycle_offset.load(Ordering::SeqCst) + 1 % table_count;
                             table_cycle_offset.store(new, Ordering::SeqCst);
-                            ui.draw(paused, elapsed_time, new);
+                            let focused_pane = *focused_pane.lock().unwrap();
+                            ui.draw(paused, elapsed_time, new, focused_pane);
+                        }
+                        Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::NONE,
+                            code: KeyCode::Char('n'),
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) => {
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            let table_count = ui.get_table_count();
+                            let new_focused = {
+                                let mut fp = focused_pane.lock().unwrap();
+                                let next = Some(match *fp {
+                                    None => 0,
+                                    Some(i) => (i + 1) % table_count,
+                                });
+                                *fp = next;
+                                next
+                            };
+                            ui.draw(
+                                paused,
+                                elapsed_time,
+                                table_cycle_offset.load(Ordering::SeqCst),
+                                new_focused,
+                            );
                         }
                         _ => (),
                     };

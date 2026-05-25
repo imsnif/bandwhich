@@ -28,6 +28,7 @@ pub struct Layout<'a> {
     pub header: HeaderDetails<'a>,
     pub children: Vec<Table>,
     pub footer: HelpText,
+    pub pane_paused: [bool; 3],
 }
 
 impl Layout<'_> {
@@ -99,16 +100,23 @@ impl Layout<'_> {
         }
     }
 
-    pub fn render(&self, frame: &mut Frame, rect: Rect, table_cycle_offset: usize) {
+    pub fn render(
+        &self,
+        frame: &mut Frame,
+        rect: Rect,
+        table_cycle_offset: usize,
+        focused_pane: Option<usize>,
+    ) {
         let (top, app, bottom) = top_app_and_bottom_split(rect);
         let layout_slots = self.build_layout(app);
+        let num_children = self.children.len();
         for i in 0..layout_slots.len() {
             if let Some(rect) = layout_slots.get(i) {
-                if let Some(child) = self
-                    .children
-                    .get((i + table_cycle_offset) % self.children.len())
-                {
-                    child.render(frame, *rect);
+                let child_index = (i + table_cycle_offset) % num_children;
+                if let Some(child) = self.children.get(child_index) {
+                    let focused = focused_pane == Some(child_index);
+                    let paused = self.pane_paused.get(child_index).copied().unwrap_or(false);
+                    child.render(frame, *rect, focused, paused);
                 }
             }
         }
