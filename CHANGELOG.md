@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Fix new clippy lint #457 - @cyqsimon
 * Apply new clippy lints #468 - @cyqsimon
 * Fix clippy nightly lints #511 - @cyqsimon
+* Hide IPv6 DNS queries unless `--show-dns` is set - @ShiroKSH
 
 ### Changed
 

@@ -142,6 +142,7 @@ impl Sniffer {
             6 => Self::handle_v6(
                 Ipv6Packet::new(&bytes[payload_offset..])?,
                 &self.network_interface,
+                self.show_dns,
             ),
             _ => {
                 let pkg = EthernetPacket::new(bytes)?;
@@ -151,9 +152,11 @@ impl Sniffer {
                         &self.network_interface,
                         self.show_dns,
                     ),
-                    EtherTypes::Ipv6 => {
-                        Self::handle_v6(Ipv6Packet::new(pkg.payload())?, &self.network_interface)
-                    }
+                    EtherTypes::Ipv6 => Self::handle_v6(
+                        Ipv6Packet::new(pkg.payload())?,
+                        &self.network_interface,
+                        self.show_dns,
+                    ),
                     _ => None,
                 }
             }
@@ -164,7 +167,11 @@ impl Sniffer {
             .map_err(|_| io::Error::other("Interface not available"))?;
         Ok(())
     }
-    fn handle_v6(ip_packet: Ipv6Packet, network_interface: &NetworkInterface) -> Option<Segment> {
+    fn handle_v6(
+        ip_packet: Ipv6Packet,
+        network_interface: &NetworkInterface,
+        show_dns: bool,
+    ) -> Option<Segment> {
         let (protocol, source_port, destination_port, data_length) =
             extract_transport_protocol!(ip_packet);
 
@@ -177,6 +184,10 @@ impl Sniffer {
             Direction::Download => Connection::new(from, to.ip(), destination_port, protocol),
             Direction::Upload => Connection::new(to, from.ip(), source_port, protocol),
         };
+
+        if !show_dns && connection.remote_socket.port == 53 {
+            return None;
+        }
         Some(Segment {
             interface_name,
             connection,
@@ -211,5 +222,54 @@ impl Sniffer {
             data_length,
             direction,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::net::Ipv6Addr;
+
+    use pnet::{
+        datalink::NetworkInterface,
+        packet::{ip::IpNextHeaderProtocols, ipv6::MutableIpv6Packet, udp::MutableUdpPacket},
+    };
+
+    use super::*;
+
+    #[test]
+    fn ipv6_dns_traffic_respects_show_dns() {
+        let mut packet_bytes = [0; 48];
+        {
+            let mut ipv6 = MutableIpv6Packet::new(&mut packet_bytes).unwrap();
+            ipv6.set_version(6);
+            ipv6.set_payload_length(8);
+            ipv6.set_next_header(IpNextHeaderProtocols::Udp);
+            ipv6.set_source("2001:db8::1".parse::<Ipv6Addr>().unwrap());
+            ipv6.set_destination("2001:db8::2".parse::<Ipv6Addr>().unwrap());
+        }
+        {
+            let mut udp = MutableUdpPacket::new(&mut packet_bytes[40..]).unwrap();
+            udp.set_source(53);
+            udp.set_destination(12345);
+            udp.set_length(8);
+        }
+
+        let interface = NetworkInterface {
+            name: "test".into(),
+            description: String::new(),
+            index: 0,
+            mac: None,
+            ips: vec![],
+            flags: 0,
+        };
+
+        assert!(
+            Sniffer::handle_v6(Ipv6Packet::new(&packet_bytes).unwrap(), &interface, false,)
+                .is_none()
+        );
+        assert!(
+            Sniffer::handle_v6(Ipv6Packet::new(&packet_bytes).unwrap(), &interface, true,)
+                .is_some()
+        );
     }
 }
