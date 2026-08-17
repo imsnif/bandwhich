@@ -9,14 +9,17 @@ const FIRST_HEIGHT_BREAKPOINT: u16 = 30;
 const FIRST_WIDTH_BREAKPOINT: u16 = 120;
 
 fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
+    // The header and the footer each take one row, and the tables get whatever is left.
+    // The terminal can be shorter than 2 rows though, in which case the header takes
+    // priority, then the footer, and the tables get nothing.
     let parts = ratatui::layout::Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
         .constraints(
             [
-                Constraint::Length(1),
-                Constraint::Length(rect.height - 2),
-                Constraint::Length(1),
+                Constraint::Length(rect.height.min(1)),
+                Constraint::Length(rect.height.saturating_sub(2)),
+                Constraint::Length(rect.height.saturating_sub(1).min(1)),
             ]
             .as_ref(),
         )
@@ -114,5 +117,70 @@ impl Layout<'_> {
         }
         self.header.render(frame, top);
         self.footer.render(frame, bottom);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap, time::Duration};
+
+    use ratatui::{backend::TestBackend, Terminal};
+
+    use super::*;
+    use crate::display::UIState;
+
+    /// The app must not panic when the terminal is too short to fit both the
+    /// header and the footer.
+    #[test]
+    fn split_does_not_panic_on_tiny_terminals() {
+        for height in 0..=4 {
+            let rect = Rect::new(0, 0, 80, height);
+            let (top, app, bottom) = top_app_and_bottom_split(rect);
+
+            // no row may be conjured out of thin air, nor lost
+            assert_eq!(
+                top.height + app.height + bottom.height,
+                height,
+                "rows do not add up at height {height}"
+            );
+            // the header takes priority, then the footer, then the tables
+            assert_eq!(top.height, height.min(1), "bad header at height {height}");
+            assert_eq!(
+                bottom.height,
+                height.saturating_sub(1).min(1),
+                "bad footer at height {height}"
+            );
+        }
+    }
+
+    #[test]
+    fn render_does_not_panic_on_tiny_terminals() {
+        let state = UIState::default();
+        let ip_to_host = HashMap::new();
+
+        for height in 0..=4 {
+            let layout = Layout {
+                header: HeaderDetails {
+                    state: &state,
+                    elapsed_time: Duration::from_secs(1),
+                    paused: false,
+                },
+                children: vec![
+                    Table::create_processes_table(&state),
+                    Table::create_remote_addresses_table(&state, &ip_to_host),
+                    Table::create_connections_table(&state, &ip_to_host),
+                ],
+                footer: HelpText {
+                    paused: false,
+                    show_dns: false,
+                },
+            };
+
+            // the backend needs a non-zero size, but the rect we render into does not
+            let mut terminal = Terminal::new(TestBackend::new(80, height.max(1))).unwrap();
+            terminal
+                .draw(|frame| layout.render(frame, Rect::new(0, 0, 80, height), 0))
+                .unwrap();
+        }
     }
 }
