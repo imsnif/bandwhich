@@ -32,6 +32,10 @@ pub struct Opt {
     /// Enable debug logging to a file
     pub log_to: Option<PathBuf>,
 
+    #[arg(long, value_hint = ValueHint::DirPath)]
+    /// Directory to save state dumps to when pressing <d> [default: current directory]
+    pub dump_dir: Option<PathBuf>,
+
     #[command(flatten)]
     pub verbosity: Verbosity<InfoLevel>,
 

@@ -9,6 +9,8 @@ use ratatui::{
 pub struct HelpText {
     pub paused: bool,
     pub show_dns: bool,
+    /// A temporary message, shown in place of the usual tips.
+    pub notice: Option<String>,
 }
 
 const FIRST_WIDTH_BREAKPOINT: u16 = 76;
@@ -27,6 +29,15 @@ impl HelpText {
         } else {
             TEXT_WHEN_NOT_PAUSED
         };
+
+        if let Some(notice) = &self.notice {
+            let text = Span::styled(
+                format!("{pause_content} {notice}"),
+                Style::default().add_modifier(Modifier::BOLD),
+            );
+            frame.render_widget(Paragraph::new(text).alignment(Alignment::Left), rect);
+            return;
+        }
 
         let dns_content = if rect.width <= FIRST_WIDTH_BREAKPOINT {
             ""

@@ -10,6 +10,7 @@ mod tests;
 use std::{
     collections::HashMap,
     fs::File,
+    path::PathBuf,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc, Mutex, RwLock,
@@ -25,6 +26,7 @@ use crossterm::{
 };
 use display::{elapsed_time, RawTerminalBackend, Ui};
 use eyre::bail;
+use log::{info, warn};
 use network::{
     dns::{self, IpTable},
     LocalSocket, Sniffer, Utilization,
@@ -120,6 +122,7 @@ where
     let mut dns_client = os_input.dns_client;
 
     let raw_mode = opts.raw;
+    let dump_dir = opts.dump_dir.clone().unwrap_or_else(|| PathBuf::from("."));
 
     let network_utilization = Arc::new(Mutex::new(Utilization::new()));
     let ui = Arc::new(Mutex::new(Ui::new(terminal_backend, &opts)));
@@ -266,6 +269,36 @@ where
                             let new = table_cycle_offset.load(Ordering::SeqCst) + 1 % table_count;
                             table_cycle_offset.store(new, Ordering::SeqCst);
                             ui.draw(paused, elapsed_time, new);
+                        }
+                        Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::NONE,
+                            code: KeyCode::Char('d'),
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) => {
+                            let notice = match ui.dump_state(&dump_dir) {
+                                Ok(path) => {
+                                    info!("Dumped state to {}", path.display());
+                                    format!("State dumped to {}", path.display())
+                                }
+                                Err(err) => {
+                                    warn!("Failed to dump state to {}: {err}", dump_dir.display());
+                                    format!("Failed to dump state: {err}")
+                                }
+                            };
+                            if !raw_mode {
+                                ui.set_notice(notice);
+                                let paused = paused.load(Ordering::SeqCst);
+                                ui.draw(
+                                    paused,
+                                    elapsed_time(
+                                        *last_start_time.read().unwrap(),
+                                        *cumulative_time.read().unwrap(),
+                                        paused,
+                                    ),
+                                    table_cycle_offset.load(Ordering::SeqCst),
+                                );
+                            }
                         }
                         _ => (),
                     };

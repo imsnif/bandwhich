@@ -177,6 +177,7 @@ Options:
   -s, --show-dns                   Show DNS queries
   -d, --dns-server <DNS_SERVER>    A dns server ip to use instead of the system default
       --log-to <LOG_TO>            Enable debug logging to a file
+      --dump-dir <DUMP_DIR>        Directory to save state dumps to when pressing <d> [default: current directory]
   -v, --verbose...                 Increase logging verbosity
   -q, --quiet...                   Decrease logging verbosity
   -p, --processes                  Show processes table only
@@ -187,6 +188,13 @@ Options:
   -h, --help                       Print help (see more with '--help')
   -V, --version                    Print version
 ```
+
+### Key bindings
+
+- `<SPACE>`: pause/resume
+- `<TAB>`: rearrange tables
+- `d`: dump the current state (all tables, in the same format as `--raw`) to a new timestamped file; works while paused too
+- `q` or `<CTRL+C>`: quit
 
 ## Contributing
 
