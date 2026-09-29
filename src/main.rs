@@ -20,7 +20,10 @@ use std::{
 
 use clap::Parser;
 use crossterm::{
-    event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
+    event::{
+        DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyEventKind,
+        KeyModifiers, MouseButton, MouseEvent, MouseEventKind,
+    },
     terminal,
 };
 use display::{elapsed_time, RawTerminalBackend, Ui};
@@ -66,15 +69,23 @@ fn main() -> eyre::Result<()> {
         };
 
         let mut stdout = std::io::stdout();
-        // Ignore enteralternatescreen error
-        let _ = crossterm::execute!(&mut stdout, terminal::EnterAlternateScreen);
+        // Ignore enteralternatescreen and mouse capture errors
+        let _ = crossterm::execute!(
+            &mut stdout,
+            terminal::EnterAlternateScreen,
+            EnableMouseCapture
+        );
         let terminal_backend = CrosstermBackend::new(stdout);
         start(terminal_backend, os_input, opts);
 
         // Ensure terminal is restored after exit (handles SIGINT case).
         // These operations are idempotent, so safe to call even if 'q' already cleaned up.
         let _ = terminal::disable_raw_mode();
-        let _ = crossterm::execute!(std::io::stdout(), terminal::LeaveAlternateScreen);
+        let _ = crossterm::execute!(
+            std::io::stdout(),
+            DisableMouseCapture,
+            terminal::LeaveAlternateScreen
+        );
     }
     Ok(())
 }
@@ -224,11 +235,11 @@ where
                                 Err(_) => println!("Error could not disable raw input"),
                             }
                             let mut stdout = std::io::stdout();
-                            if crossterm::execute!(&mut stdout, terminal::LeaveAlternateScreen)
-                                .is_err()
-                            {
-                                println!("Error could not leave alternte screen");
-                            };
+                            let _ = crossterm::execute!(
+                                &mut stdout,
+                                DisableMouseCapture,
+                                terminal::LeaveAlternateScreen
+                            );
                             break;
                         }
                         Event::Key(KeyEvent {
@@ -256,16 +267,181 @@ where
                             kind: KeyEventKind::Press,
                             ..
                         }) => {
+                            ui.next_focus(&table_cycle_offset);
                             let paused = paused.load(Ordering::SeqCst);
                             let elapsed_time = elapsed_time(
                                 *last_start_time.read().unwrap(),
                                 *cumulative_time.read().unwrap(),
                                 paused,
                             );
-                            let table_count = ui.get_table_count();
-                            let new = table_cycle_offset.load(Ordering::SeqCst) + 1 % table_count;
-                            table_cycle_offset.store(new, Ordering::SeqCst);
-                            ui.draw(paused, elapsed_time, new);
+                            ui.draw(
+                                paused,
+                                elapsed_time,
+                                table_cycle_offset.load(Ordering::SeqCst),
+                            );
+                        }
+                        Event::Key(KeyEvent {
+                            modifiers: KeyModifiers::SHIFT,
+                            code: KeyCode::BackTab,
+                            kind: KeyEventKind::Press,
+                            ..
+                        })
+                        | Event::Key(KeyEvent {
+                            code: KeyCode::BackTab,
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) => {
+                            ui.prev_focus(&table_cycle_offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(
+                                paused,
+                                elapsed_time,
+                                table_cycle_offset.load(Ordering::SeqCst),
+                            );
+                        }
+                        Event::Key(KeyEvent {
+                            code: KeyCode::Up | KeyCode::Char('k'),
+                            kind: KeyEventKind::Press | KeyEventKind::Repeat,
+                            ..
+                        }) if !raw_mode => {
+                            let offset = table_cycle_offset.load(Ordering::SeqCst);
+                            ui.scroll_up(offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(paused, elapsed_time, offset);
+                        }
+                        Event::Key(KeyEvent {
+                            code: KeyCode::Down | KeyCode::Char('j'),
+                            kind: KeyEventKind::Press | KeyEventKind::Repeat,
+                            ..
+                        }) if !raw_mode => {
+                            let offset = table_cycle_offset.load(Ordering::SeqCst);
+                            ui.scroll_down(offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(paused, elapsed_time, offset);
+                        }
+                        Event::Key(KeyEvent {
+                            code: KeyCode::PageUp,
+                            kind: KeyEventKind::Press | KeyEventKind::Repeat,
+                            ..
+                        }) if !raw_mode => {
+                            let offset = table_cycle_offset.load(Ordering::SeqCst);
+                            ui.page_up(offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(paused, elapsed_time, offset);
+                        }
+                        Event::Key(KeyEvent {
+                            code: KeyCode::PageDown,
+                            kind: KeyEventKind::Press | KeyEventKind::Repeat,
+                            ..
+                        }) if !raw_mode => {
+                            let offset = table_cycle_offset.load(Ordering::SeqCst);
+                            ui.page_down(offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(paused, elapsed_time, offset);
+                        }
+                        Event::Key(KeyEvent {
+                            code: KeyCode::Home | KeyCode::Char('g'),
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) if !raw_mode => {
+                            let offset = table_cycle_offset.load(Ordering::SeqCst);
+                            ui.scroll_to_top(offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(paused, elapsed_time, offset);
+                        }
+                        Event::Key(KeyEvent {
+                            code: KeyCode::End | KeyCode::Char('G'),
+                            kind: KeyEventKind::Press,
+                            ..
+                        }) if !raw_mode => {
+                            let offset = table_cycle_offset.load(Ordering::SeqCst);
+                            ui.scroll_to_bottom(offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(paused, elapsed_time, offset);
+                        }
+                        Event::Mouse(MouseEvent {
+                            kind: MouseEventKind::ScrollUp,
+                            column,
+                            row,
+                            ..
+                        }) if !raw_mode => {
+                            let offset = table_cycle_offset.load(Ordering::SeqCst);
+                            ui.handle_mouse_scroll(column, row, true, offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(paused, elapsed_time, offset);
+                        }
+                        Event::Mouse(MouseEvent {
+                            kind: MouseEventKind::ScrollDown,
+                            column,
+                            row,
+                            ..
+                        }) if !raw_mode => {
+                            let offset = table_cycle_offset.load(Ordering::SeqCst);
+                            ui.handle_mouse_scroll(column, row, false, offset);
+                            let paused = paused.load(Ordering::SeqCst);
+                            let elapsed_time = elapsed_time(
+                                *last_start_time.read().unwrap(),
+                                *cumulative_time.read().unwrap(),
+                                paused,
+                            );
+                            ui.draw(paused, elapsed_time, offset);
+                        }
+                        Event::Mouse(MouseEvent {
+                            kind: MouseEventKind::Down(MouseButton::Left),
+                            column,
+                            row,
+                            ..
+                        }) if !raw_mode => {
+                            if ui.handle_mouse_click(column, row) {
+                                let offset = table_cycle_offset.load(Ordering::SeqCst);
+                                let paused = paused.load(Ordering::SeqCst);
+                                let elapsed_time = elapsed_time(
+                                    *last_start_time.read().unwrap(),
+                                    *cumulative_time.read().unwrap(),
+                                    paused,
+                                );
+                                ui.draw(paused, elapsed_time, offset);
+                            }
                         }
                         _ => (),
                     };

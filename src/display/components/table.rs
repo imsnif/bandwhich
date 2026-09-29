@@ -3,9 +3,9 @@ use std::{collections::HashMap, net::IpAddr, ops::Index, rc::Rc};
 use derive_more::Debug;
 use itertools::Itertools;
 use ratatui::{
-    layout::{Constraint, Rect},
+    layout::{Constraint, Margin, Rect},
     style::{Color, Style},
-    widgets::{Block, Borders, Row},
+    widgets::{Block, Borders, Row, Scrollbar, ScrollbarOrientation, ScrollbarState},
     Frame,
 };
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
@@ -371,7 +371,14 @@ impl Table {
     }
 
     /// See [`Table`] for layout rules.
-    pub fn render(&self, frame: &mut Frame, rect: Rect) {
+    pub fn render(
+        &self,
+        frame: &mut Frame,
+        rect: Rect,
+        scroll_offset: usize,
+        is_active: bool,
+        total_slots: usize,
+    ) -> usize {
         let (computed_layout, spacer_width) = {
             // pick the largest possible layout, constrained by the available width
             let &(_, layout) = self
@@ -390,11 +397,16 @@ impl Table {
             .map(|i| self.data.column_names()[i])
             .collect();
 
+        let rows = self.data.rows();
+        let total_rows = rows.len();
+        let visible_rows = rect.height.saturating_sub(3) as usize;
+        let max_scroll = total_rows.saturating_sub(visible_rows);
+        let effective_offset = scroll_offset.min(max_scroll);
+
         // text needs to react to column widths
-        let tui_rows_iter = self
-            .data
-            .rows()
+        let tui_rows_iter = rows
             .into_iter()
+            .skip(effective_offset)
             .map(|row_data| {
                 let shown_columns_data = columns_to_show.iter().copied().map(|i| &row_data[i]);
                 let column_widths = computed_layout.iter().copied();
@@ -411,12 +423,40 @@ impl Table {
             .map(Constraint::Length)
             .collect();
 
+        let border_style = if is_active && total_slots > 1 {
+            Style::default().fg(Color::Cyan)
+        } else {
+            Style::default()
+        };
+
         let table = ratatui::widgets::Table::new(tui_rows_iter, widths_constraints)
-            .block(Block::default().title(self.title).borders(Borders::ALL))
+            .block(
+                Block::default()
+                    .title(self.title)
+                    .borders(Borders::ALL)
+                    .border_style(border_style),
+            )
             .header(Row::new(column_names).style(Style::default().fg(Color::Yellow)))
             .flex(ratatui::layout::Flex::Legacy)
             .column_spacing(spacer_width);
         frame.render_widget(table, rect);
+
+        if total_rows > visible_rows {
+            let mut scrollbar_state = ScrollbarState::new(max_scroll).position(effective_offset);
+            let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
+                .begin_symbol(Some("▲"))
+                .end_symbol(Some("▼"));
+            frame.render_stateful_widget(
+                scrollbar,
+                rect.inner(Margin {
+                    vertical: 1,
+                    horizontal: 0,
+                }),
+                &mut scrollbar_state,
+            );
+        }
+
+        effective_offset
     }
 }
 

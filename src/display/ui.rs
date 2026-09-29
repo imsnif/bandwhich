@@ -1,4 +1,12 @@
-use std::{collections::HashMap, net::IpAddr, time::Duration};
+use std::{
+    collections::HashMap,
+    net::IpAddr,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
+    time::Duration,
+};
 
 use chrono::prelude::*;
 use ratatui::{backend::Backend, Terminal};
@@ -6,7 +14,7 @@ use ratatui::{backend::Backend, Terminal};
 use crate::{
     cli::{Opt, RenderOpts},
     display::{
-        components::{HeaderDetails, HelpText, Layout, Table},
+        components::{HeaderDetails, HelpText, Layout, SlotInfo, Table},
         UIState,
     },
     network::{display_connection_string, display_ip_or_host, LocalSocket, Utilization},
@@ -21,6 +29,9 @@ where
     state: UIState,
     ip_to_host: HashMap<IpAddr, String>,
     opts: RenderOpts,
+    table_scroll_offsets: Vec<usize>,
+    displayed_slots: Vec<SlotInfo>,
+    focused_slot: usize,
 }
 
 impl<B> Ui<B>
@@ -44,6 +55,9 @@ where
             state,
             ip_to_host: Default::default(),
             opts: opts.render_opts,
+            table_scroll_offsets: Vec::new(),
+            displayed_slots: Vec::new(),
+            focused_slot: 0,
         }
     }
     pub fn output_text(&mut self, write_to_stdout: &mut (dyn FnMut(&str) + Send)) {
@@ -128,21 +142,222 @@ where
     }
 
     pub fn draw(&mut self, paused: bool, elapsed_time: Duration, table_cycle_offset: usize) {
+        let children = self.get_tables_to_display();
+        let table_count = children.len();
+        if self.table_scroll_offsets.len() < table_count {
+            self.table_scroll_offsets.resize(table_count, 0);
+        }
+        let focused_child = self.focused_child_index(table_cycle_offset);
         let layout = Layout {
             header: HeaderDetails {
                 state: &self.state,
                 elapsed_time,
                 paused,
             },
-            children: self.get_tables_to_display(),
+            children,
             footer: HelpText {
                 paused,
                 show_dns: self.state.show_dns,
             },
         };
+        let table_scroll_offsets = &mut self.table_scroll_offsets;
+        let displayed_slots = &mut self.displayed_slots;
         self.terminal
-            .draw(|frame| layout.render(frame, frame.area(), table_cycle_offset))
+            .draw(|frame| {
+                *displayed_slots = layout.render(
+                    frame,
+                    frame.area(),
+                    table_cycle_offset,
+                    table_scroll_offsets,
+                    focused_child,
+                );
+            })
             .unwrap();
+    }
+
+    pub fn focused_child_index(&self, table_cycle_offset: usize) -> usize {
+        let count = self.get_table_count();
+        if count == 0 {
+            return 0;
+        }
+        if let Some(slot) = self.displayed_slots.get(self.focused_slot) {
+            slot.child_index
+        } else {
+            table_cycle_offset % count
+        }
+    }
+
+    pub fn next_focus(&mut self, table_cycle_offset: &Arc<AtomicUsize>) {
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        let displayed_count = self.displayed_slots.len();
+        if displayed_count > 1 && self.focused_slot + 1 < displayed_count {
+            self.focused_slot += 1;
+        } else {
+            self.focused_slot = 0;
+            let current = table_cycle_offset.load(Ordering::SeqCst);
+            let next = (current + 1) % count;
+            table_cycle_offset.store(next, Ordering::SeqCst);
+        }
+    }
+
+    pub fn prev_focus(&mut self, table_cycle_offset: &Arc<AtomicUsize>) {
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        let displayed_count = self.displayed_slots.len();
+        if self.focused_slot > 0 {
+            self.focused_slot -= 1;
+        } else if displayed_count > 1 {
+            self.focused_slot = displayed_count - 1;
+        } else {
+            let current = table_cycle_offset.load(Ordering::SeqCst);
+            let prev = if current == 0 { count - 1 } else { current - 1 };
+            table_cycle_offset.store(prev, Ordering::SeqCst);
+        }
+    }
+
+    pub fn handle_mouse_click(&mut self, column: u16, row: u16) -> bool {
+        for (i, slot) in self.displayed_slots.iter().enumerate() {
+            if column >= slot.rect.x
+                && column < slot.rect.x + slot.rect.width
+                && row >= slot.rect.y
+                && row < slot.rect.y + slot.rect.height
+            {
+                self.focused_slot = i;
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn handle_mouse_scroll(
+        &mut self,
+        column: u16,
+        row: u16,
+        up: bool,
+        table_cycle_offset: usize,
+    ) {
+        let target_child_index = self
+            .displayed_slots
+            .iter()
+            .enumerate()
+            .find(|(_, slot)| {
+                column >= slot.rect.x
+                    && column < slot.rect.x + slot.rect.width
+                    && row >= slot.rect.y
+                    && row < slot.rect.y + slot.rect.height
+            })
+            .map(|(i, slot)| {
+                self.focused_slot = i;
+                slot.child_index
+            })
+            .unwrap_or_else(|| self.focused_child_index(table_cycle_offset));
+
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        if self.table_scroll_offsets.len() < count {
+            self.table_scroll_offsets.resize(count, 0);
+        }
+        let step = 2;
+        if up {
+            self.table_scroll_offsets[target_child_index] =
+                self.table_scroll_offsets[target_child_index].saturating_sub(step);
+        } else {
+            self.table_scroll_offsets[target_child_index] =
+                self.table_scroll_offsets[target_child_index].saturating_add(step);
+        }
+    }
+
+    pub fn scroll_down(&mut self, table_cycle_offset: usize) {
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        let active_index = self.focused_child_index(table_cycle_offset);
+        if self.table_scroll_offsets.len() < count {
+            self.table_scroll_offsets.resize(count, 0);
+        }
+        self.table_scroll_offsets[active_index] =
+            self.table_scroll_offsets[active_index].saturating_add(1);
+    }
+
+    pub fn scroll_up(&mut self, table_cycle_offset: usize) {
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        let active_index = self.focused_child_index(table_cycle_offset);
+        if self.table_scroll_offsets.len() < count {
+            self.table_scroll_offsets.resize(count, 0);
+        }
+        self.table_scroll_offsets[active_index] =
+            self.table_scroll_offsets[active_index].saturating_sub(1);
+    }
+
+    pub fn page_down(&mut self, table_cycle_offset: usize) {
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        let active_index = self.focused_child_index(table_cycle_offset);
+        if self.table_scroll_offsets.len() < count {
+            self.table_scroll_offsets.resize(count, 0);
+        }
+        let step = self
+            .terminal
+            .size()
+            .map(|s| (s.height as usize).saturating_sub(5).max(1))
+            .unwrap_or(10);
+        self.table_scroll_offsets[active_index] =
+            self.table_scroll_offsets[active_index].saturating_add(step);
+    }
+
+    pub fn page_up(&mut self, table_cycle_offset: usize) {
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        let active_index = self.focused_child_index(table_cycle_offset);
+        if self.table_scroll_offsets.len() < count {
+            self.table_scroll_offsets.resize(count, 0);
+        }
+        let step = self
+            .terminal
+            .size()
+            .map(|s| (s.height as usize).saturating_sub(5).max(1))
+            .unwrap_or(10);
+        self.table_scroll_offsets[active_index] =
+            self.table_scroll_offsets[active_index].saturating_sub(step);
+    }
+
+    pub fn scroll_to_top(&mut self, table_cycle_offset: usize) {
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        let active_index = self.focused_child_index(table_cycle_offset);
+        if self.table_scroll_offsets.len() < count {
+            self.table_scroll_offsets.resize(count, 0);
+        }
+        self.table_scroll_offsets[active_index] = 0;
+    }
+
+    pub fn scroll_to_bottom(&mut self, table_cycle_offset: usize) {
+        let count = self.get_table_count();
+        if count == 0 {
+            return;
+        }
+        let active_index = self.focused_child_index(table_cycle_offset);
+        if self.table_scroll_offsets.len() < count {
+            self.table_scroll_offsets.resize(count, 0);
+        }
+        self.table_scroll_offsets[active_index] = usize::MAX;
     }
 
     fn get_tables_to_display(&self) -> Vec<Table> {

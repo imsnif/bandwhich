@@ -24,6 +24,12 @@ fn top_app_and_bottom_split(rect: Rect) -> (Rect, Rect, Rect) {
     (parts[0], parts[1], parts[2])
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct SlotInfo {
+    pub rect: Rect,
+    pub child_index: usize,
+}
+
 pub struct Layout<'a> {
     pub header: HeaderDetails<'a>,
     pub children: Vec<Table>,
@@ -99,20 +105,44 @@ impl Layout<'_> {
         }
     }
 
-    pub fn render(&self, frame: &mut Frame, rect: Rect, table_cycle_offset: usize) {
+    pub fn render(
+        &self,
+        frame: &mut Frame,
+        rect: Rect,
+        table_cycle_offset: usize,
+        table_scroll_offsets: &mut [usize],
+        focused_child_index: usize,
+    ) -> Vec<SlotInfo> {
         let (top, app, bottom) = top_app_and_bottom_split(rect);
+        if self.children.is_empty() {
+            self.header.render(frame, top);
+            self.footer.render(frame, bottom);
+            return Vec::new();
+        }
         let layout_slots = self.build_layout(app);
+        let total_slots = layout_slots.len();
+        let mut slot_infos = Vec::with_capacity(total_slots);
+
         for i in 0..layout_slots.len() {
-            if let Some(rect) = layout_slots.get(i) {
-                if let Some(child) = self
-                    .children
-                    .get((i + table_cycle_offset) % self.children.len())
-                {
-                    child.render(frame, *rect);
+            if let Some(slot_rect) = layout_slots.get(i) {
+                let child_index = (i + table_cycle_offset) % self.children.len();
+                slot_infos.push(SlotInfo {
+                    rect: *slot_rect,
+                    child_index,
+                });
+                if let Some(child) = self.children.get(child_index) {
+                    let offset = table_scroll_offsets.get(child_index).copied().unwrap_or(0);
+                    let is_active = child_index == focused_child_index;
+                    let effective_offset =
+                        child.render(frame, *slot_rect, offset, is_active, total_slots);
+                    if let Some(stored) = table_scroll_offsets.get_mut(child_index) {
+                        *stored = effective_offset;
+                    }
                 }
             }
         }
         self.header.render(frame, top);
         self.footer.render(frame, bottom);
+        slot_infos
     }
 }
