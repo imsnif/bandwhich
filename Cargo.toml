@@ -26,7 +26,6 @@ default = []
 ui_test = []
 
 [dependencies]
-async-trait = "0.1.89"
 chrono = "0.4"
 clap-verbosity-flag = "3.0.4"
 clap = { version = "4.5.61", features = ["derive"] }
@@ -44,7 +43,7 @@ resolv-conf = "0.7.6"
 simplelog = "0.12.2"
 thiserror = "2.0.18"
 tokio = { version = "1.52", features = ["rt", "sync"] }
-trust-dns-resolver = "0.23.2"
+hickory-resolver = "0.26.1"
 unicode-width = "0.2.2"
 strum = { version = "0.28.0", features = ["derive"] }
 
@@ -57,7 +56,7 @@ regex = "1.12.3"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 netstat2 = "0.11.2"
-sysinfo = "0.36.1"
+sysinfo = "0.39.1"
 
 [dev-dependencies]
 insta = "1.47.2"
@@ -69,15 +68,15 @@ rstest = "0.26.1"
 [build-dependencies]
 clap = { version = "4.5.61", features = ["derive"] }
 clap-verbosity-flag = "3.0.4"
-clap_complete = "4.5.67"
-clap_mangen = "0.2.32"
+clap_complete = "4.6.5"
+clap_mangen = "0.3.0"
 derive_more = { version = "2.1.1", features = ["debug"] }
 eyre = "0.6.12"
 strum = { version = "0.28.0", features = ["derive"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 http_req = "0.14.5"
-zip = "5.0.1"
+zip = "8.6.0"
 
 [profile.release]
 codegen-units = 1

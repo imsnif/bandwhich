@@ -198,13 +198,13 @@ impl UIState {
         } else {
             self.utilization_data.len() as u128
         };
-        for (_, network_data) in processes.iter_mut() {
+        for network_data in processes.values_mut() {
             network_data.divide_by(divide_by)
         }
-        for (_, network_data) in remote_addresses.iter_mut() {
+        for network_data in remote_addresses.values_mut() {
             network_data.divide_by(divide_by)
         }
-        for (_, connection_data) in connections.iter_mut() {
+        for connection_data in connections.values_mut() {
             connection_data.divide_by(divide_by)
         }
 

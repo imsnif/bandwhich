@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Update CONTRIBUTING information #438 - @YJDoc2 @cyqsimon
 * Fix new clippy lint #457 - @cyqsimon
 * Apply new clippy lints #468 - @cyqsimon
+* Fix clippy nightly lints #511 - @cyqsimon
 
 ### Changed
 
@@ -24,6 +25,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 * Switch from anyhow to eyre #450 - @cyqsimon
 * Manually bump all dependencies #456 - @cyqsimon
 * Bump MSRV to 1.82.0 - @cyqsimon
+* Bump MSRV to 1.88.0 - @cyqsimon
+* Deps: migrate from trust-dns-resolver to hickory-resolver #510 - @cyqsimon
+* Deps: remove direct dependency on async-trait #512 - @cyqsimon
 
 ## [0.23.1] - 2024-10-09
 
