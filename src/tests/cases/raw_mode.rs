@@ -562,3 +562,34 @@ fn no_resolve_mode() {
     start(backend, os_input, opts);
     assert_snapshot!(format_raw_stdout(&stdout));
 }
+
+#[test]
+fn no_localhost_mode() {
+    let network_frames = vec![NetworkFrames::new(vec![
+        Some(build_tcp_packet(
+            "127.0.0.1",
+            "127.0.0.1",
+            12345,
+            443,
+            b"I am a fake localhost packet",
+        )),
+        Some(build_tcp_packet(
+            "10.0.0.2",
+            "1.1.1.1",
+            443,
+            12345,
+            b"I am a fake tcp packet",
+        )),
+    ]) as Box<dyn DataLinkReceiver>];
+    let (_, _, backend) = test_backend_factory(190, 50);
+    let stdout = Arc::new(Mutex::new(Vec::new()));
+    let os_input = os_input_output_stdout(network_frames, 2, Some(stdout.clone()));
+    let opts = Opt {
+        no_localhost: true,
+        ..opts_raw()
+    };
+    start(backend, os_input, opts);
+    let output = format_raw_stdout(&stdout);
+    assert!(!output.contains("127.0.0.1"));
+    assert!(output.contains("1.1.1.1"));
+}

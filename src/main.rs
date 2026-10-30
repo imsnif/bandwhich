@@ -54,7 +54,12 @@ fn main() -> eyre::Result<()> {
         )?;
     }
 
-    let os_input = os::get_input(opts.interface.as_deref(), !opts.no_resolve, opts.dns_server)?;
+    let os_input = os::get_input(
+        opts.interface.as_deref(),
+        !opts.no_resolve,
+        opts.dns_server,
+        opts.no_localhost,
+    )?;
     if opts.raw {
         let terminal_backend = RawTerminalBackend {};
         start(terminal_backend, os_input, opts);
@@ -284,12 +289,13 @@ where
             let name = format!("sniffing_handler_{}", iface.name);
             let running = running.clone();
             let show_dns = opts.show_dns;
+            let no_localhost = opts.no_localhost;
             let network_utilization = network_utilization.clone();
 
             thread::Builder::new()
                 .name(name)
                 .spawn(move || {
-                    let mut sniffer = Sniffer::new(iface, frames, show_dns);
+                    let mut sniffer = Sniffer::new(iface, frames, show_dns, no_localhost);
 
                     while running.load(Ordering::Acquire) {
                         if let Some(segment) = sniffer.next() {

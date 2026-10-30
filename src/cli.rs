@@ -20,6 +20,10 @@ pub struct Opt {
     /// Do not attempt to resolve IPs to their hostnames
     pub no_resolve: bool,
 
+    #[arg(long)]
+    /// Do not show localhost connections
+    pub no_localhost: bool,
+
     #[arg(short, long)]
     /// Show DNS queries
     pub show_dns: bool,
