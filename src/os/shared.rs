@@ -109,6 +109,7 @@ pub fn get_input(
     interface_name: Option<&str>,
     resolve: bool,
     dns_server: Option<Ipv4Addr>,
+    no_localhost: bool,
 ) -> eyre::Result<OsInputOutput> {
     // get the user's requested interface, if any
     // IDEA: allow requesting multiple interfaces
@@ -122,6 +123,10 @@ pub fn get_input(
         .unwrap_or_else(datalink::interfaces)
         .into_iter()
         .filter(|interface| {
+            if no_localhost && interface.is_loopback() {
+                debug!("{} is a loopback interface. Skipping it.", interface.name);
+                return false;
+            }
             // see https://github.com/libpnet/libpnet/issues/564
             let keep = if cfg!(target_os = "windows") {
                 !interface.ips.is_empty()

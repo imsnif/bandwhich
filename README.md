@@ -174,6 +174,7 @@ Options:
   -i, --interface <INTERFACE>      The network interface to listen on, eg. eth0
   -r, --raw                        Machine friendlier output
   -n, --no-resolve                 Do not attempt to resolve IPs to their hostnames
+      --no-localhost               Do not show localhost connections
   -s, --show-dns                   Show DNS queries
   -d, --dns-server <DNS_SERVER>    A dns server ip to use instead of the system default
       --log-to <LOG_TO>            Enable debug logging to a file

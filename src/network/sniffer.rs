@@ -94,6 +94,7 @@ pub struct Sniffer {
     network_interface: NetworkInterface,
     network_frames: Box<dyn DataLinkReceiver>,
     show_dns: bool,
+    no_localhost: bool,
 }
 
 impl Sniffer {
@@ -101,11 +102,13 @@ impl Sniffer {
         network_interface: NetworkInterface,
         network_frames: Box<dyn DataLinkReceiver>,
         show_dns: bool,
+        no_localhost: bool,
     ) -> Self {
         Sniffer {
             network_interface,
             network_frames,
             show_dns,
+            no_localhost,
         }
     }
     pub fn next(&mut self) -> Option<Segment> {
@@ -138,10 +141,16 @@ impl Sniffer {
         let version = ip_packet.get_version();
 
         match version {
-            4 => Self::handle_v4(ip_packet, &self.network_interface, self.show_dns),
+            4 => Self::handle_v4(
+                ip_packet,
+                &self.network_interface,
+                self.show_dns,
+                self.no_localhost,
+            ),
             6 => Self::handle_v6(
                 Ipv6Packet::new(&bytes[payload_offset..])?,
                 &self.network_interface,
+                self.no_localhost,
             ),
             _ => {
                 let pkg = EthernetPacket::new(bytes)?;
@@ -150,10 +159,13 @@ impl Sniffer {
                         Ipv4Packet::new(pkg.payload())?,
                         &self.network_interface,
                         self.show_dns,
+                        self.no_localhost,
                     ),
-                    EtherTypes::Ipv6 => {
-                        Self::handle_v6(Ipv6Packet::new(pkg.payload())?, &self.network_interface)
-                    }
+                    EtherTypes::Ipv6 => Self::handle_v6(
+                        Ipv6Packet::new(pkg.payload())?,
+                        &self.network_interface,
+                        self.no_localhost,
+                    ),
                     _ => None,
                 }
             }
@@ -164,7 +176,11 @@ impl Sniffer {
             .map_err(|_| io::Error::other("Interface not available"))?;
         Ok(())
     }
-    fn handle_v6(ip_packet: Ipv6Packet, network_interface: &NetworkInterface) -> Option<Segment> {
+    fn handle_v6(
+        ip_packet: Ipv6Packet,
+        network_interface: &NetworkInterface,
+        no_localhost: bool,
+    ) -> Option<Segment> {
         let (protocol, source_port, destination_port, data_length) =
             extract_transport_protocol!(ip_packet);
 
@@ -177,6 +193,10 @@ impl Sniffer {
             Direction::Download => Connection::new(from, to.ip(), destination_port, protocol),
             Direction::Upload => Connection::new(to, from.ip(), source_port, protocol),
         };
+
+        if no_localhost && is_localhost(&connection, network_interface) {
+            return None;
+        }
         Some(Segment {
             interface_name,
             connection,
@@ -188,6 +208,7 @@ impl Sniffer {
         ip_packet: Ipv4Packet,
         network_interface: &NetworkInterface,
         show_dns: bool,
+        no_localhost: bool,
     ) -> Option<Segment> {
         let (protocol, source_port, destination_port, data_length) =
             extract_transport_protocol!(ip_packet);
@@ -205,6 +226,9 @@ impl Sniffer {
         if !show_dns && connection.remote_socket.port == 53 {
             return None;
         }
+        if no_localhost && is_localhost(&connection, network_interface) {
+            return None;
+        }
         Some(Segment {
             interface_name,
             connection,
@@ -212,4 +236,10 @@ impl Sniffer {
             direction,
         })
     }
+}
+
+fn is_localhost(connection: &Connection, network_interface: &NetworkInterface) -> bool {
+    network_interface.is_loopback()
+        || connection.remote_socket.ip.to_canonical().is_loopback()
+        || connection.local_socket.ip.to_canonical().is_loopback()
 }
